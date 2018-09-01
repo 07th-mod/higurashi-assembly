@@ -70,14 +70,8 @@ namespace Assets.Scripts.Core.History
 				}
 				else
 				{
-					if (GameSystem.Instance.UseEnglishText)
-					{
-						Labels[i].text = line.TextEnglish;
-					}
-					else
-					{
-						Labels[i].text = line.TextJapanese;
-					}
+					string empty = string.Empty;
+					empty = ((!GameSystem.Instance.UseEnglishText) ? line.TextJapanese : line.TextEnglish);
 					if (line.VoiceFile != null)
 					{
 						textButtons[i].RegisterVoice(line.VoiceFile);
@@ -86,6 +80,7 @@ namespace Assets.Scripts.Core.History
 					{
 						textButtons[i].ClearVoice();
 					}
+					Labels[i].text = empty;
 				}
 			}
 		}
@@ -109,9 +104,12 @@ namespace Assets.Scripts.Core.History
 			lastStep = Slider.numberOfSteps;
 			stepsize = 1f / (float)lastStep;
 			textButtons = new HistoryTextButton[5];
+			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
+			Debug.Log(currentFont);
 			for (int i = 0; i < 5; i++)
 			{
 				textButtons[i] = Labels[i].gameObject.GetComponent<HistoryTextButton>();
+				textButtons[i].GetTextMesh().font = currentFont;
 			}
 			FillText();
 			HistoryTextButton[] array = textButtons;

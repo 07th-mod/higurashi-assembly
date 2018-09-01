@@ -83,9 +83,7 @@ namespace Assets.Scripts.Core.Audio
 				channelDictionary.Add(num, audioLayer4);
 				num++;
 			}
-			AudioConfiguration configuration = AudioSettings.GetConfiguration();
-			configuration.sampleRate = 44100;
-			AudioSettings.Reset(configuration);
+			AudioSettings.outputSampleRate = 44100;
 		}
 
 		public void SerializeCurrentAudio(MemoryStream ms)

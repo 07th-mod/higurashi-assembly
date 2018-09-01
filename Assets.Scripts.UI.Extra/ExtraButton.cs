@@ -35,7 +35,7 @@ namespace Assets.Scripts.UI.Extra
 					{
 					case "CastReview":
 						stateExtraScreen.RequestLeave();
-						BurikoScriptSystem.Instance.CallScript("omake_01");
+						BurikoScriptSystem.Instance.CallScript("omake_02");
 						break;
 					case "ChapterJump":
 						stateExtraScreen.RequestLeave();

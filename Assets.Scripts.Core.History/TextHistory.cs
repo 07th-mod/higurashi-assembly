@@ -1,5 +1,6 @@
 using Assets.Scripts.Core.Audio;
 using System.Collections.Generic;
+using TMPro;
 
 namespace Assets.Scripts.Core.History
 {
@@ -12,6 +13,12 @@ namespace Assets.Scripts.Core.History
 		private AudioInfo lastVoice;
 
 		private HistoryLine last;
+
+		private TextMeshPro historyTextMesh;
+
+		private TextMeshProFont fontJapanese;
+
+		private TextMeshProFont fontEnglish;
 
 		public int LineCount => lines.Count;
 
@@ -47,9 +54,52 @@ namespace Assets.Scripts.Core.History
 
 		public void PushHistory()
 		{
-			if (last != null)
+			if (historyTextMesh == null)
 			{
-				lines.Add(last);
+				historyTextMesh = GameSystem.Instance.HistoryTextMesh;
+				fontEnglish = GameSystem.Instance.MainUIController.GetEnglishFont();
+				fontJapanese = GameSystem.Instance.MainUIController.GetJapaneseFont();
+			}
+			while (last != null)
+			{
+				int num = -1;
+				int num2 = -1;
+				historyTextMesh.font = fontJapanese;
+				historyTextMesh.text = last.TextJapanese;
+				TMP_TextInfo textInfo = historyTextMesh.GetTextInfo(last.TextJapanese);
+				if (textInfo.lineCount > 4)
+				{
+					num = textInfo.lineInfo[3].lastCharacterIndex + 1;
+				}
+				historyTextMesh.font = fontEnglish;
+				historyTextMesh.text = last.TextEnglish;
+				textInfo = historyTextMesh.GetTextInfo(last.TextEnglish);
+				if (textInfo.lineCount > 4)
+				{
+					num2 = textInfo.lineInfo[3].lastCharacterIndex + 1;
+				}
+				if (num == -1 && num2 == -1)
+				{
+					lines.Add(last);
+					last = null;
+				}
+				else
+				{
+					string japanese = string.Empty;
+					string english = string.Empty;
+					if (num > 0)
+					{
+						japanese = last.TextJapanese.Substring(num);
+						last.TextJapanese = last.TextJapanese.Substring(0, num);
+					}
+					if (num2 > 0)
+					{
+						english = last.TextEnglish.Substring(num2).Trim();
+						last.TextEnglish = last.TextEnglish.Substring(0, num2);
+					}
+					lines.Add(last);
+					last = new HistoryLine(english, japanese, null);
+				}
 			}
 			if (lines.Count > 100)
 			{

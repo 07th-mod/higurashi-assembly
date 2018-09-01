@@ -4,17 +4,17 @@ namespace TMPro
 {
 	public struct TMP_CharacterInfo
 	{
+		public char character;
+
 		public TMP_CharacterType type;
 
-		public char character;
+		public float pointSize;
 
 		public short lineNumber;
 
 		public short pageNumber;
 
 		public short index;
-
-		public int meshIndex;
 
 		public short vertexIndex;
 
@@ -53,5 +53,7 @@ namespace TMPro
 		public FontStyles style;
 
 		public bool isVisible;
+
+		public bool isIgnoringAlignment;
 	}
 }

@@ -49,6 +49,24 @@ namespace TMPro
 			return a.r == b.r && a.g == b.g && a.b == b.b;
 		}
 
+		public static Color32 Tint(this Color32 c1, Color32 c2)
+		{
+			byte r = (byte)((float)(int)c1.r / 255f * ((float)(int)c2.r / 255f) * 255f);
+			byte g = (byte)((float)(int)c1.g / 255f * ((float)(int)c2.g / 255f) * 255f);
+			byte b = (byte)((float)(int)c1.b / 255f * ((float)(int)c2.b / 255f) * 255f);
+			byte a = (byte)((float)(int)c1.a / 255f * ((float)(int)c2.a / 255f) * 255f);
+			return new Color32(r, g, b, a);
+		}
+
+		public static Color32 Tint(this Color32 c1, float tint)
+		{
+			byte r = (byte)Mathf.Clamp((float)(int)c1.r / 255f * tint * 255f, 0f, 255f);
+			byte g = (byte)Mathf.Clamp((float)(int)c1.g / 255f * tint * 255f, 0f, 255f);
+			byte b = (byte)Mathf.Clamp((float)(int)c1.b / 255f * tint * 255f, 0f, 255f);
+			byte a = (byte)Mathf.Clamp((float)(int)c1.a / 255f * tint * 255f, 0f, 255f);
+			return new Color32(r, g, b, a);
+		}
+
 		public static bool Compare(this Vector3 v1, Vector3 v2, int accuracy)
 		{
 			bool flag = (int)(v1.x * (float)accuracy) == (int)(v2.x * (float)accuracy);

@@ -8,6 +8,15 @@ namespace TMPro
 	[Serializable]
 	public class TextMeshProFont : ScriptableObject
 	{
+		public enum FontAssetTypes
+		{
+			None,
+			SDF,
+			Bitmap
+		}
+
+		public FontAssetTypes fontAssetType;
+
 		[SerializeField]
 		private FaceInfo m_fontInfo;
 
@@ -49,7 +58,13 @@ namespace TMPro
 
 		public float BoldStyle = 0.75f;
 
+		public float boldSpacing = 7f;
+
 		public byte ItalicStyle = 35;
+
+		public byte TabSize = 10;
+
+		private byte m_oldTabSize;
 
 		public FaceInfo fontInfo => m_fontInfo;
 
@@ -73,6 +88,15 @@ namespace TMPro
 		{
 		}
 
+		private void OnValidate()
+		{
+			if (m_oldTabSize != TabSize)
+			{
+				m_oldTabSize = TabSize;
+				ReadFontDefinition();
+			}
+		}
+
 		public void AddFaceInfo(FaceInfo faceInfo)
 		{
 			m_fontInfo = faceInfo;
@@ -81,8 +105,10 @@ namespace TMPro
 		public void AddGlyphInfo(GlyphInfo[] glyphInfo)
 		{
 			m_glyphInfoList = new List<GlyphInfo>();
-			m_characterSet = new int[m_fontInfo.CharacterCount];
-			for (int i = 0; i < m_fontInfo.CharacterCount; i++)
+			int num = glyphInfo.Length;
+			m_fontInfo.CharacterCount = num;
+			m_characterSet = new int[num];
+			for (int i = 0; i < num; i++)
 			{
 				GlyphInfo glyphInfo2 = new GlyphInfo();
 				glyphInfo2.id = glyphInfo[i].id;
@@ -121,7 +147,7 @@ namespace TMPro
 				GlyphInfo glyphInfo = new GlyphInfo();
 				if (m_characterDictionary.ContainsKey(32))
 				{
-					m_characterDictionary[32].width = m_fontInfo.Ascender / 5f;
+					m_characterDictionary[32].width = m_characterDictionary[32].xAdvance;
 					m_characterDictionary[32].height = m_fontInfo.Ascender - m_fontInfo.Descender;
 					m_characterDictionary[32].yOffset = m_fontInfo.Ascender;
 				}
@@ -138,35 +164,42 @@ namespace TMPro
 					glyphInfo.xAdvance = m_fontInfo.PointSize / 4f;
 					m_characterDictionary.Add(32, glyphInfo);
 				}
+				if (!m_characterDictionary.ContainsKey(160))
+				{
+					glyphInfo = GlyphInfo.Clone(m_characterDictionary[32]);
+					m_characterDictionary.Add(160, glyphInfo);
+				}
 				if (!m_characterDictionary.ContainsKey(10))
 				{
 					glyphInfo = new GlyphInfo();
 					glyphInfo.id = 10;
 					glyphInfo.x = 0f;
 					glyphInfo.y = 0f;
-					glyphInfo.width = 0f;
-					glyphInfo.height = 0f;
+					glyphInfo.width = 10f;
+					glyphInfo.height = m_characterDictionary[32].height;
 					glyphInfo.xOffset = 0f;
-					glyphInfo.yOffset = 0f;
+					glyphInfo.yOffset = m_characterDictionary[32].yOffset;
 					glyphInfo.xAdvance = 0f;
 					m_characterDictionary.Add(10, glyphInfo);
-					m_characterDictionary.Add(13, glyphInfo);
+					if (!m_characterDictionary.ContainsKey(13))
+					{
+						m_characterDictionary.Add(13, glyphInfo);
+					}
 				}
-				int num = 10;
 				if (!m_characterDictionary.ContainsKey(9))
 				{
 					glyphInfo = new GlyphInfo();
 					glyphInfo.id = 9;
 					glyphInfo.x = m_characterDictionary[32].x;
 					glyphInfo.y = m_characterDictionary[32].y;
-					glyphInfo.width = m_characterDictionary[32].width * (float)num;
+					glyphInfo.width = m_characterDictionary[32].width * (float)(int)TabSize + (m_characterDictionary[32].xAdvance - m_characterDictionary[32].width) * (float)(TabSize - 1);
 					glyphInfo.height = m_characterDictionary[32].height;
 					glyphInfo.xOffset = m_characterDictionary[32].xOffset;
 					glyphInfo.yOffset = m_characterDictionary[32].yOffset;
-					glyphInfo.xAdvance = m_characterDictionary[32].xAdvance * (float)num;
+					glyphInfo.xAdvance = m_characterDictionary[32].xAdvance * (float)(int)TabSize;
 					m_characterDictionary.Add(9, glyphInfo);
 				}
-				m_fontInfo.TabWidth = m_characterDictionary[32].xAdvance;
+				m_fontInfo.TabWidth = m_characterDictionary[9].xAdvance;
 				m_kerningDictionary = new Dictionary<int, KerningPair>();
 				List<KerningPair> kerningPairs = m_kerningInfo.kerningPairs;
 				for (int i = 0; i < kerningPairs.Count; i++)
@@ -193,18 +226,8 @@ namespace TMPro
 				{
 					m_lineBreakingInfo.followingCharacters = GetCharacters(textAsset2);
 				}
-				string name = base.name;
-				fontHashCode = 0;
-				for (int j = 0; j < name.Length; j++)
-				{
-					fontHashCode = (fontHashCode << 5) - fontHashCode + name[j];
-				}
-				string name2 = material.name;
-				materialHashCode = 0;
-				for (int k = 0; k < name2.Length; k++)
-				{
-					materialHashCode = (materialHashCode << 5) - materialHashCode + name2[k];
-				}
+				fontHashCode = TMP_TextUtilities.GetSimpleHashCode(base.name);
+				materialHashCode = TMP_TextUtilities.GetSimpleHashCode(material.name);
 			}
 		}
 

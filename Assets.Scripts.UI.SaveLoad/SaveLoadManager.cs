@@ -134,6 +134,11 @@ namespace Assets.Scripts.UI.SaveLoad
 			return GameSystem.Instance.CanSave;
 		}
 
+		public bool CanLoad()
+		{
+			return GameSystem.Instance.CanLoad;
+		}
+
 		private IEnumerator DoOpen()
 		{
 			Panel.alpha = 0f;

@@ -43,7 +43,7 @@ namespace Assets.Scripts.UI
 					break;
 				case SlideButtonType.QuickLoad:
 				{
-					if (!GameSystem.Instance.CanSave)
+					if (!GameSystem.Instance.CanSave || !GameSystem.Instance.CanLoad)
 					{
 						AudioController.Instance.PlaySystemSound("sysse04.ogg", 1);
 						return;

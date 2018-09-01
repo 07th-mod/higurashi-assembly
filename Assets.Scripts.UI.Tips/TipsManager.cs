@@ -71,8 +71,8 @@ namespace Assets.Scripts.UI.Tips
 			{
 				tipsPageText.text = page + 1 + "/" + (numPages + 1);
 			}
-			PageLeft.isEnabled = (page != 0);
-			PageRight.isEnabled = (page != numPages);
+			PageLeft.isEnabled = (page > 0);
+			PageRight.isEnabled = (page < numPages);
 		}
 
 		public void UpdateEntries()
@@ -122,7 +122,7 @@ namespace Assets.Scripts.UI.Tips
 				throw new ArgumentOutOfRangeException("tipstype for TipsManager.Show() must be  between 0 and 2 (" + tipstype + " given)");
 			}
 			page = 0;
-			numPages = tipsData.TipsAvailable / 8;
+			numPages = Mathf.CeilToInt((float)tipsData.TipsAvailable / 8f) - 1;
 			if (numPages >= ReturnPage)
 			{
 				page = ReturnPage;

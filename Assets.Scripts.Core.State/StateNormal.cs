@@ -56,9 +56,6 @@ namespace Assets.Scripts.Core.State
 				{
 					return false;
 				}
-				gameSystem.IsSkipping = false;
-				gameSystem.IsForceSkip = false;
-				gameSystem.IsAuto = false;
 				gameSystem.SwitchToViewMode();
 				return false;
 			}
@@ -107,8 +104,6 @@ namespace Assets.Scripts.Core.State
 					}
 					return false;
 				}
-				gameSystem.IsSkipping = false;
-				gameSystem.IsForceSkip = false;
 				if (gameSystem.RightClickMenu)
 				{
 					gameSystem.SwitchToRightClickMenu();

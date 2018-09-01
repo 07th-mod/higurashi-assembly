@@ -10,6 +10,8 @@ namespace TMPro
 
 		public int firstCharacterIndex;
 
+		public int firstVisibleCharacterIndex;
+
 		public int lastCharacterIndex;
 
 		public int lastVisibleCharacterIndex;
@@ -23,6 +25,14 @@ namespace TMPro
 		public float descender;
 
 		public float maxAdvance;
+
+		public float width;
+
+		public float marginLeft;
+
+		public float marginRight;
+
+		public float maxScale;
 
 		public TextAlignmentOptions alignment;
 

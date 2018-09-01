@@ -65,8 +65,6 @@ namespace Assets.Scripts.Core.Scene
 
 		private FilmEffector effector;
 
-		private int lastWidth;
-
 		public Layer GetIfInUse(int id)
 		{
 			if (layers[id] != null && !LayerPool.IsInPool(layers[id].gameObject) && layers[id].IsInUse)
@@ -764,18 +762,6 @@ namespace Assets.Scripts.Core.Scene
 
 		private void Update()
 		{
-			if (Screen.width != lastWidth)
-			{
-				Vector2 screenSize = NGUITools.screenSize;
-				float num = screenSize.x / screenSize.y;
-				float num2 = GameSystem.Instance.AspectRatio * 480f;
-				float num3 = 480f;
-				float num4 = num2 / num3;
-				float num5 = (!(num4 > num)) ? num3 : ((float)Mathf.RoundToInt(num2 / num));
-				float num6 = 2f / num5;
-				base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
-				lastWidth = Screen.width;
-			}
 		}
 	}
 }

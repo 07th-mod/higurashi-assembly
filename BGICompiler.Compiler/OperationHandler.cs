@@ -46,7 +46,9 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetValidityOfInput", new OpType(BurikoOperations.SetValidityOfInput, "b"));
 			paramLookup.Add("SetValidityOfSkipping", new OpType(BurikoOperations.SetValidityOfSkipping, "b"));
 			paramLookup.Add("SetValidityOfSaving", new OpType(BurikoOperations.SetValidityOfSaving, "b"));
+			paramLookup.Add("SetValidityOfLoading", new OpType(BurikoOperations.SetValidityOfLoading, "b"));
 			paramLookup.Add("SetValidityOfUserEffectSpeed", new OpType(BurikoOperations.SetValidityOfUserEffectSpeed, "b"));
+			paramLookup.Add("ActivateScreenEffectForcedly", new OpType(BurikoOperations.ActivateScreenEffectForcedly, "b"));
 			paramLookup.Add("OutputLine", new OpType(BurikoOperations.OutputLine, "ssssi"));
 			paramLookup.Add("OutputLineAll", new OpType(BurikoOperations.OutputLineAll, "ssi"));
 			paramLookup.Add("ClearMessage", new OpType(BurikoOperations.ClearMessage, string.Empty));

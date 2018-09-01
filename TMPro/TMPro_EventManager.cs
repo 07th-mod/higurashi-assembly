@@ -4,88 +4,100 @@ namespace TMPro
 {
 	public static class TMPro_EventManager
 	{
-		public delegate void COMPUTE_DT_EVENT_HANDLER(object Sender, Compute_DT_EventArgs e);
+		public static readonly FastAction<object, Compute_DT_EventArgs> COMPUTE_DT_EVENT;
 
-		public delegate void MaterialProperty_Event_Handler(bool isChanged, Material mat);
+		public static readonly FastAction<bool, Material> MATERIAL_PROPERTY_EVENT;
 
-		public delegate void FontProperty_Event_Handler(bool isChanged, TextMeshProFont font);
+		public static readonly FastAction<bool, TextMeshProFont> FONT_PROPERTY_EVENT;
 
-		public delegate void SpriteAssetProperty_Event_Handler(bool isChanged, Object obj);
+		public static readonly FastAction<bool, Object> SPRITE_ASSET_PROPERTY_EVENT;
 
-		public delegate void TextMeshProProperty_Event_Handler(bool isChanged, TextMeshPro obj);
+		public static readonly FastAction<bool, TextMeshPro> TEXTMESHPRO_PROPERTY_EVENT;
 
-		public delegate void DragAndDrop_Event_Handler(GameObject sender, Material currentMaterial, Material newMaterial);
+		public static readonly FastAction<GameObject, Material, Material> DRAG_AND_DROP_MATERIAL_EVENT;
 
-		public delegate void OnPreRenderObject_Event_Handler();
+		public static readonly FastAction<bool> TEXT_STYLE_PROPERTY_EVENT;
 
-		public static event COMPUTE_DT_EVENT_HANDLER COMPUTE_DT_EVENT;
+		public static readonly FastAction<bool, TextMeshProUGUI> TEXTMESHPRO_UGUI_PROPERTY_EVENT;
 
-		public static event MaterialProperty_Event_Handler MATERIAL_PROPERTY_EVENT;
+		public static readonly FastAction<Material> BASE_MATERIAL_EVENT;
 
-		public static event FontProperty_Event_Handler FONT_PROPERTY_EVENT;
+		public static readonly FastAction OnPreRenderObject_Event;
 
-		public static event SpriteAssetProperty_Event_Handler SPRITE_ASSET_PROPERTY_EVENT;
+		public static readonly FastAction<Object> TEXT_CHANGED_EVENT;
 
-		public static event TextMeshProProperty_Event_Handler TEXTMESHPRO_PROPERTY_EVENT;
+		public static readonly FastAction WILL_RENDER_CANVASES;
 
-		public static event DragAndDrop_Event_Handler DRAG_AND_DROP_MATERIAL_EVENT;
-
-		public static event OnPreRenderObject_Event_Handler OnPreRenderObject_Event;
+		static TMPro_EventManager()
+		{
+			COMPUTE_DT_EVENT = new FastAction<object, Compute_DT_EventArgs>();
+			MATERIAL_PROPERTY_EVENT = new FastAction<bool, Material>();
+			FONT_PROPERTY_EVENT = new FastAction<bool, TextMeshProFont>();
+			SPRITE_ASSET_PROPERTY_EVENT = new FastAction<bool, Object>();
+			TEXTMESHPRO_PROPERTY_EVENT = new FastAction<bool, TextMeshPro>();
+			DRAG_AND_DROP_MATERIAL_EVENT = new FastAction<GameObject, Material, Material>();
+			TEXT_STYLE_PROPERTY_EVENT = new FastAction<bool>();
+			TEXTMESHPRO_UGUI_PROPERTY_EVENT = new FastAction<bool, TextMeshProUGUI>();
+			BASE_MATERIAL_EVENT = new FastAction<Material>();
+			OnPreRenderObject_Event = new FastAction();
+			TEXT_CHANGED_EVENT = new FastAction<Object>();
+			WILL_RENDER_CANVASES = new FastAction();
+			Canvas.willRenderCanvases += WILL_RENDER_CANVASES.Call;
+		}
 
 		public static void ON_PRE_RENDER_OBJECT_CHANGED()
 		{
-			if (TMPro_EventManager.OnPreRenderObject_Event != null)
-			{
-				TMPro_EventManager.OnPreRenderObject_Event();
-			}
+			OnPreRenderObject_Event.Call();
 		}
 
 		public static void ON_MATERIAL_PROPERTY_CHANGED(bool isChanged, Material mat)
 		{
-			if (TMPro_EventManager.MATERIAL_PROPERTY_EVENT != null)
-			{
-				TMPro_EventManager.MATERIAL_PROPERTY_EVENT(isChanged, mat);
-			}
+			MATERIAL_PROPERTY_EVENT.Call(isChanged, mat);
 		}
 
 		public static void ON_FONT_PROPERTY_CHANGED(bool isChanged, TextMeshProFont font)
 		{
-			if (TMPro_EventManager.FONT_PROPERTY_EVENT != null)
-			{
-				TMPro_EventManager.FONT_PROPERTY_EVENT(isChanged, font);
-			}
+			FONT_PROPERTY_EVENT.Call(isChanged, font);
 		}
 
 		public static void ON_SPRITE_ASSET_PROPERTY_CHANGED(bool isChanged, Object obj)
 		{
-			if (TMPro_EventManager.SPRITE_ASSET_PROPERTY_EVENT != null)
-			{
-				TMPro_EventManager.SPRITE_ASSET_PROPERTY_EVENT(isChanged, obj);
-			}
+			SPRITE_ASSET_PROPERTY_EVENT.Call(isChanged, obj);
 		}
 
 		public static void ON_TEXTMESHPRO_PROPERTY_CHANGED(bool isChanged, TextMeshPro obj)
 		{
-			if (TMPro_EventManager.TEXTMESHPRO_PROPERTY_EVENT != null)
-			{
-				TMPro_EventManager.TEXTMESHPRO_PROPERTY_EVENT(isChanged, obj);
-			}
+			TEXTMESHPRO_PROPERTY_EVENT.Call(isChanged, obj);
 		}
 
 		public static void ON_DRAG_AND_DROP_MATERIAL_CHANGED(GameObject sender, Material currentMaterial, Material newMaterial)
 		{
-			if (TMPro_EventManager.DRAG_AND_DROP_MATERIAL_EVENT != null)
-			{
-				TMPro_EventManager.DRAG_AND_DROP_MATERIAL_EVENT(sender, currentMaterial, newMaterial);
-			}
+			DRAG_AND_DROP_MATERIAL_EVENT.Call(sender, currentMaterial, newMaterial);
+		}
+
+		public static void ON_TEXT_STYLE_PROPERTY_CHANGED(bool isChanged)
+		{
+			TEXT_STYLE_PROPERTY_EVENT.Call(isChanged);
+		}
+
+		public static void ON_TEXT_CHANGED(Object obj)
+		{
+			TEXT_CHANGED_EVENT.Call(obj);
+		}
+
+		public static void ON_TEXTMESHPRO_UGUI_PROPERTY_CHANGED(bool isChanged, TextMeshProUGUI obj)
+		{
+			TEXTMESHPRO_UGUI_PROPERTY_EVENT.Call(isChanged, obj);
+		}
+
+		public static void ON_BASE_MATERIAL_CHANGED(Material mat)
+		{
+			BASE_MATERIAL_EVENT.Call(mat);
 		}
 
 		public static void ON_COMPUTE_DT_EVENT(object Sender, Compute_DT_EventArgs e)
 		{
-			if (TMPro_EventManager.COMPUTE_DT_EVENT != null)
-			{
-				TMPro_EventManager.COMPUTE_DT_EVENT(Sender, e);
-			}
+			COMPUTE_DT_EVENT.Call(Sender, e);
 		}
 	}
 }

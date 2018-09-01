@@ -12,9 +12,17 @@ namespace TMPro
 
 		public int visible_SpriteCount;
 
+		public int visible_LinkCount;
+
+		public int firstCharacterIndex;
+
 		public int firstVisibleCharacterIndex;
 
+		public int lastCharacterIndex;
+
 		public int lastVisibleCharIndex;
+
+		public int lineNumber;
 
 		public float maxAscender;
 
@@ -47,6 +55,8 @@ namespace TMPro
 		public TMP_LineInfo lineInfo;
 
 		public Color32 vertexColor;
+
+		public int colorStackIndex;
 
 		public Extents meshExtents;
 	}

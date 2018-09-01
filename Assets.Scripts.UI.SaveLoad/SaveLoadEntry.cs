@@ -28,7 +28,7 @@ namespace Assets.Scripts.UI.SaveLoad
 		public void EnableEntry(SaveEntry entry)
 		{
 			SaveButton.isEnabled = manager.CanSave();
-			LoadButton.isEnabled = true;
+			LoadButton.isEnabled = manager.CanLoad();
 			DeleteButton.isEnabled = true;
 			string empty = string.Empty;
 			if (GameSystem.Instance.UseEnglishText)

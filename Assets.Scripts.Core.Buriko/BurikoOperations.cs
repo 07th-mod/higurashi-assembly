@@ -124,6 +124,8 @@ namespace Assets.Scripts.Core.Buriko
 		SetWindowMargins,
 		SetNameFormat,
 		SetScreenAspect,
-		SetGuiPosition
+		SetGuiPosition,
+		SetValidityOfLoading,
+		ActivateScreenEffectForcedly
 	}
 }

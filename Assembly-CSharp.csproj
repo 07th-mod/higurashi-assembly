@@ -48,6 +48,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>DLLs\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveAnimation.cs" />
@@ -419,42 +422,51 @@
     <Compile Include="TMPro\Compute_DT_EventArgs.cs" />
     <Compile Include="TMPro\Extents.cs" />
     <Compile Include="TMPro\FaceInfo.cs" />
+    <Compile Include="TMPro\FastAction.cs" />
     <Compile Include="TMPro\FontCreationSetting.cs" />
     <Compile Include="TMPro\FontStyles.cs" />
     <Compile Include="TMPro\Glyph2D.cs" />
     <Compile Include="TMPro\GlyphInfo.cs" />
+    <Compile Include="TMPro\InlineGraphic.cs" />
+    <Compile Include="TMPro\InlineGraphicManager.cs" />
     <Compile Include="TMPro\KerningPair.cs" />
     <Compile Include="TMPro\KerningPairKey.cs" />
     <Compile Include="TMPro\KerningTable.cs" />
     <Compile Include="TMPro\LineBreakingTable.cs" />
-    <Compile Include="TMPro\LineWrapState.cs" />
     <Compile Include="TMPro\MaskingOffsetMode.cs" />
     <Compile Include="TMPro\MaskingTypes.cs" />
+    <Compile Include="TMPro\MaterialManager.cs" />
     <Compile Include="TMPro\Mesh_Extents.cs" />
     <Compile Include="TMPro\ShaderUtilities.cs" />
     <Compile Include="TMPro\SpriteAsset.cs" />
     <Compile Include="TMPro\SpriteInfo.cs" />
+    <Compile Include="TMPro\TagAttribute.cs" />
+    <Compile Include="TMPro\TagUnits.cs" />
     <Compile Include="TMPro\TextAlignmentOptions.cs" />
     <Compile Include="TMPro\TextContainer.cs" />
     <Compile Include="TMPro\TextContainerAnchors.cs" />
     <Compile Include="TMPro\TextMeshPro.cs" />
     <Compile Include="TMPro\TextMeshProFont.cs" />
+    <Compile Include="TMPro\TextMeshProUGUI.cs" />
     <Compile Include="TMPro\TextOverflowModes.cs" />
     <Compile Include="TMPro\TextRenderFlags.cs" />
     <Compile Include="TMPro\TextureMappingOptions.cs" />
-    <Compile Include="TMPro\TMPro_AdvancedLayout.cs" />
     <Compile Include="TMPro\TMPro_EventManager.cs" />
     <Compile Include="TMPro\TMPro_ExtensionMethods.cs" />
-    <Compile Include="TMPro\TMPro_UpdateManager.cs" />
     <Compile Include="TMPro\TMP_CharacterInfo.cs" />
     <Compile Include="TMPro\TMP_CharacterType.cs" />
     <Compile Include="TMPro\TMP_Compatibility.cs" />
     <Compile Include="TMPro\TMP_LineInfo.cs" />
+    <Compile Include="TMPro\TMP_LinkInfo.cs" />
+    <Compile Include="TMPro\TMP_Math.cs" />
     <Compile Include="TMPro\TMP_MeshInfo.cs" />
     <Compile Include="TMPro\TMP_PageInfo.cs" />
+    <Compile Include="TMPro\TMP_Settings.cs" />
     <Compile Include="TMPro\TMP_SpriteInfo.cs" />
+    <Compile Include="TMPro\TMP_Style.cs" />
+    <Compile Include="TMPro\TMP_StyleSheet.cs" />
     <Compile Include="TMPro\TMP_TextInfo.cs" />
-    <Compile Include="TMPro\TMP_Utilities.cs" />
+    <Compile Include="TMPro\TMP_TextUtilities.cs" />
     <Compile Include="TMPro\TMP_Vertex.cs" />
     <Compile Include="TMPro\TMP_WordInfo.cs" />
     <Compile Include="TMPro\VertexGradient.cs" />

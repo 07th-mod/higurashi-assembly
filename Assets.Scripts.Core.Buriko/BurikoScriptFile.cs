@@ -303,6 +303,14 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationSetValidityOfLoading()
+		{
+			SetOperationType("SetValidityOfLoading");
+			bool canLoad = ReadVariable().BoolValue();
+			gameSystem.CanLoad = canLoad;
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationSetValidityOfSkipping()
 		{
 			SetOperationType("SetValidityOfSkipping");
@@ -318,6 +326,13 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetValidityOfUserEffectSpeed()
 		{
 			SetOperationType("SetValidityOfUserEffectSpeed");
+			ReadVariable().BoolValue();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationActivateScreenEffectForcedly()
+		{
+			SetOperationType("ActivateScreenEffectForcedly");
 			ReadVariable().BoolValue();
 			return BurikoVariable.Null;
 		}
@@ -340,11 +355,15 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			string text4 = ReadVariable().StringValue();
 			int num = ReadVariable().IntValue();
-			BurikoTextModes textMode = (BurikoTextModes)num;
+			BurikoTextModes burikoTextModes = (BurikoTextModes)num;
 			text3 = text3.Replace("\\n", "\n");
 			gameSystem.TextHistory.RegisterLine(text4, text3, text2, text);
-			gameSystem.TextController.SetText(text, text3, textMode, 1);
-			gameSystem.TextController.SetText(text2, text4, textMode, 2);
+			if (burikoTextModes == BurikoTextModes.Normal)
+			{
+				gameSystem.TextHistory.PushHistory();
+			}
+			gameSystem.TextController.SetText(text, text3, burikoTextModes, 1);
+			gameSystem.TextController.SetText(text2, text4, burikoTextModes, 2);
 			gameSystem.ExecuteActions();
 			scriptSystem.TakeSaveSnapshot(string.Empty);
 			return BurikoVariable.Null;
@@ -670,7 +689,8 @@ namespace Assets.Scripts.Core.Buriko
 			int loopcount = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
 			num *= 2f;
-			gameSystem.MainUIController.ShakeScene(num, level, attenuation, vector, loopcount, isblocking: true);
+			Debug.Log("ShakeScreen");
+			gameSystem.SceneController.ShakeScene(num, level, attenuation, vector, loopcount, isblocking: true);
 			return BurikoVariable.Null;
 		}
 
@@ -682,7 +702,7 @@ namespace Assets.Scripts.Core.Buriko
 			float speed = 1f;
 			int loopcount = 30;
 			int attenuation = 5;
-			gameSystem.MainUIController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking: true);
+			gameSystem.SceneController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking: true);
 			return BurikoVariable.Null;
 		}
 
@@ -1902,10 +1922,14 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetValidityOfInput();
 			case BurikoOperations.SetValidityOfSaving:
 				return OperationSetValidityOfSaving();
+			case BurikoOperations.SetValidityOfLoading:
+				return OperationSetValidityOfLoading();
 			case BurikoOperations.SetValidityOfSkipping:
 				return OperationSetValidityOfSkipping();
 			case BurikoOperations.SetValidityOfUserEffectSpeed:
 				return OperationSetValidityOfUserEffectSpeed();
+			case BurikoOperations.ActivateScreenEffectForcedly:
+				return OperationActivateScreenEffectForcedly();
 			case BurikoOperations.OutputLine:
 				return OperationOutputLine();
 			case BurikoOperations.OutputLineAll:

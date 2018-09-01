@@ -17,6 +17,10 @@ namespace TMPro
 		BaselineLeft,
 		Baseline,
 		BaselineRight,
-		BaselineJustified
+		BaselineJustified,
+		MidlineLeft,
+		Midline,
+		MidlineRight,
+		MidlineJustified
 	}
 }

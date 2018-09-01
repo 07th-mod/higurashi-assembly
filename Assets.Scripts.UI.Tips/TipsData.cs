@@ -10,163 +10,195 @@ namespace Assets.Scripts.UI.Tips
 		{
 			new TipsDataEntry
 			{
-				Id = 0,
-				Script = "onik_tips_01",
+				Id = 21,
+				Script = "wata_tips_01",
 				UnlockChapter = 1,
-				Title = "We're a mixed grade?",
-				TitleJp = "うちって学年混在？"
+				Title = "Who's Mion's Uncle?",
+				TitleJp = "魅音の叔父さんって？"
 			},
 			new TipsDataEntry
 			{
-				Id = 1,
-				Script = "onik_tips_02",
-				UnlockChapter = 1,
-				Title = "We don't have a uniform?",
-				TitleJp = "うちって制服自由？"
-			},
-			new TipsDataEntry
-			{
-				Id = 2,
-				Script = "onik_tips_03",
+				Id = 22,
+				Script = "wata_tips_02",
 				UnlockChapter = 2,
-				Title = "The Maebara Manor",
-				TitleJp = "前原屋敷"
+				Title = "Is There Really a Shion?",
+				TitleJp = "詩音って本当にいるの？"
 			},
 			new TipsDataEntry
 			{
-				Id = 3,
-				Script = "onik_tips_04",
+				Id = 23,
+				Script = "wata_tips_03",
 				UnlockChapter = 2,
-				Title = "The dam site murder/dismemberment (Newspaper edition)",
-				TitleJp = "ダム現場のバラバラ殺人（新聞版）"
+				Title = "An Introduction to Angel Mort",
+				TitleJp = "エンジェルモ\u30fcト紹介記事"
 			},
 			new TipsDataEntry
 			{
-				Id = 4,
-				Script = "onik_tips_05",
+				Id = 24,
+				Script = "wata_tips_04",
 				UnlockChapter = 3,
-				Title = "The Hinamizawa Dam Project",
-				TitleJp = "雛見沢ダム計画"
+				Title = "It Was Delicious",
+				TitleJp = "ごちそうさま"
 			},
 			new TipsDataEntry
 			{
-				Id = 5,
-				Script = "onik_tips_06",
-				UnlockChapter = 3,
-				Title = "Special tabloid report",
-				TitleJp = "週刊誌の特集記事"
-			},
-			new TipsDataEntry
-			{
-				Id = 6,
-				Script = "onik_tips_07",
+				Id = 25,
+				Script = "wata_tips_05",
 				UnlockChapter = 4,
-				Title = "What kind of name is Rena?",
-				TitleJp = "レナってどういう名前だよ？"
+				Title = "Details of the Delinquent Three",
+				TitleJp = "三人組の顛末"
 			},
 			new TipsDataEntry
 			{
-				Id = 7,
-				Script = "onik_tips_08",
+				Id = 26,
+				Script = "wata_tips_06",
 				UnlockChapter = 5,
-				Title = "Community Notice",
-				TitleJp = "回覧板"
+				Title = "It Hasn't Been a While",
+				TitleJp = "初めましてじゃないです"
 			},
 			new TipsDataEntry
 			{
-				Id = 8,
-				Script = "onik_tips_09",
+				Id = 27,
+				Script = "wata_tips_07",
 				UnlockChapter = 7,
-				Title = "Houjou couple's falling incident",
-				TitleJp = "北条両親の転落事故"
+				Title = "From the Scrapbook I",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 9,
-				Script = "onik_tips_10",
+				Id = 28,
+				Script = "wata_tips_08",
 				UnlockChapter = 7,
-				Title = "The terminal illness death of Shinto Priest Furude",
-				TitleJp = "古手神社の神主の病死"
+				Title = "From the Scrapbook II",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 10,
-				Script = "onik_tips_11",
+				Id = 29,
+				Script = "wata_tips_09",
 				UnlockChapter = 7,
-				Title = "Housewife murder",
-				TitleJp = "主婦殺人事件"
+				Title = "From the Scrapbook III",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 11,
-				Script = "onik_tips_12",
+				Id = 30,
+				Script = "wata_tips_10",
 				UnlockChapter = 7,
-				Title = "Radio Log",
-				TitleJp = "無線記録"
+				Title = "Festival's Around the Corner",
+				TitleJp = "いよいよお祭り"
 			},
 			new TipsDataEntry
 			{
-				Id = 12,
-				Script = "onik_tips_13",
+				Id = 31,
+				Script = "wata_tips_11",
 				UnlockChapter = 8,
-				Title = "There are more than four perpetrators?",
-				TitleJp = "犯人は４人以上？"
+				Title = "From the Scrapbook IV",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 13,
-				Script = "onik_tips_14",
+				Id = 32,
+				Script = "wata_tips_12",
 				UnlockChapter = 8,
-				Title = "Search notice",
-				TitleJp = "捜査メモ"
+				Title = "From the Scrapbook V",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 14,
-				Script = "onik_tips_15",
-				UnlockChapter = 9,
-				Title = "Notice from the police chief",
-				TitleJp = "本部長通達"
+				Id = 33,
+				Script = "wata_tips_13",
+				UnlockChapter = 8,
+				Title = "After the Festival",
+				TitleJp = "後夜祭"
 			},
 			new TipsDataEntry
 			{
-				Id = 15,
-				Script = "onik_tips_16",
+				Id = 34,
+				Script = "wata_tips_14",
 				UnlockChapter = 10,
-				Title = "What's a drug that makes you commit suicide?",
-				TitleJp = "自殺を誘発するクスリは？"
+				Title = "From the Scrapbook VI",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 16,
-				Script = "onik_tips_17",
+				Id = 35,
+				Script = "wata_tips_15",
 				UnlockChapter = 10,
-				Title = "Threat",
+				Title = "From the Scrapbook VII",
+				TitleJp = "スクラップ帳より"
+			},
+			new TipsDataEntry
+			{
+				Id = 36,
+				Script = "wata_tips_16",
+				UnlockChapter = 10,
+				Title = "Late-Night Phone Call",
+				TitleJp = "深夜の電話"
+			},
+			new TipsDataEntry
+			{
+				Id = 37,
+				Script = "wata_tips_17",
+				UnlockChapter = 12,
+				Title = "From the Scrapbook VIII",
 				TitleJp = "脅迫"
 			},
 			new TipsDataEntry
 			{
-				Id = 17,
-				Script = "onik_tips_18",
-				UnlockChapter = 11,
-				Title = "Not feeling so hot",
-				TitleJp = "元気ないね。"
+				Id = 38,
+				Script = "wata_tips_18",
+				UnlockChapter = 12,
+				Title = "Their Punishment Isn't Over?",
+				TitleJp = "４人だけの罪に終わらない？"
 			},
 			new TipsDataEntry
 			{
-				Id = 18,
-				Script = "onik_tips_19",
-				UnlockChapter = 13,
-				Title = "Split personality???",
-				TitleJp = "二重人格？？？"
+				Id = 39,
+				Script = "wata_tips_19",
+				UnlockChapter = 14,
+				Title = "From the Scrapbook IX",
+				TitleJp = "スクラップ帳より"
 			},
 			new TipsDataEntry
 			{
-				Id = 19,
-				Script = "onik_tips_20",
-				UnlockChapter = 13,
-				Title = "At the Seventh Mart",
-				TitleJp = "セブンスマ\u30fcトにて"
+				Id = 40,
+				Script = "wata_tips_20",
+				UnlockChapter = 14,
+				Title = "The Elderly Leader of the Sonozaki Family?",
+				TitleJp = "園崎家の老当主は？"
+			},
+			new TipsDataEntry
+			{
+				Id = 41,
+				Script = "wata_tips_21",
+				UnlockChapter = 14,
+				Title = "From the Scrapbook X",
+				TitleJp = "スクラップ帳より"
+			},
+			new TipsDataEntry
+			{
+				Id = 42,
+				Script = "wata_tips_22",
+				UnlockChapter = 14,
+				Title = "Request Denied",
+				TitleJp = "請求却下"
+			},
+			new TipsDataEntry
+			{
+				Id = 43,
+				Script = "wata_tips_23",
+				UnlockChapter = 16,
+				Title = "From the Scrapbook XI",
+				TitleJp = "スクラップ帳より"
+			},
+			new TipsDataEntry
+			{
+				Id = 44,
+				Script = "wata_tips_24",
+				UnlockChapter = 16,
+				Title = "At the Suzu Mahjong Parlor",
+				TitleJp = "雀荘「鈴」"
 			}
 		};
 
@@ -176,7 +208,7 @@ namespace Assets.Scripts.UI.Tips
 			BurikoMemory instance = BurikoMemory.Instance;
 			if (global)
 			{
-				int num = instance.GetGlobalFlag("GOnikakushiDay").IntValue();
+				int num = instance.GetGlobalFlag("GWatanagashiDay").IntValue();
 				{
 					foreach (TipsDataEntry tip in Tips)
 					{
@@ -190,7 +222,7 @@ namespace Assets.Scripts.UI.Tips
 					return tipsDataGroup;
 				}
 			}
-			int num2 = instance.GetFlag("LOnikakushiDay").IntValue();
+			int num2 = instance.GetFlag("LWatanagashiDay").IntValue();
 			Debug.Log("current chapter " + num2);
 			foreach (TipsDataEntry tip2 in Tips)
 			{

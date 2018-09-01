@@ -10,6 +10,8 @@ namespace TMPro
 
 		public string name;
 
+		public int hashCode;
+
 		public float x;
 
 		public float y;

@@ -10,6 +10,15 @@ namespace Assets.Scripts.Core.History
 
 		private TextMeshPro textMesh;
 
+		public TextMeshPro GetTextMesh()
+		{
+			if (textMesh == null)
+			{
+				textMesh = GetComponent<TextMeshPro>();
+			}
+			return textMesh;
+		}
+
 		private void OnHover(bool isHover)
 		{
 		}
@@ -21,7 +30,10 @@ namespace Assets.Scripts.Core.History
 
 		public void FadeIn(float t)
 		{
-			textMesh = GetComponent<TextMeshPro>();
+			if (textMesh == null)
+			{
+				textMesh = GetComponent<TextMeshPro>();
+			}
 			UpdateAlpha(0f);
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", 0, "to", 1, "time", t, "onupdate", "UpdateAlpha", "oncomplete", "UpdateAlpha", "oncompleteparams", 1));
 		}

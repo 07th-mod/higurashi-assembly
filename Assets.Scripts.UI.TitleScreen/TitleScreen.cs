@@ -67,7 +67,7 @@ namespace Assets.Scripts.UI.TitleScreen
 		{
 			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear");
 			BackgroundTexture.mainTexture = (globalFlag.BoolValue() ? BG2 : BG1);
-			if (BurikoMemory.Instance.GetGlobalFlag("GOnikakushiDay").IntValue() < 1)
+			if (BurikoMemory.Instance.GetGlobalFlag("GWatanagashiDay").IntValue() < 1)
 			{
 				Sprites[4].transform.localPosition = new Vector3(0f, -224f, 0f);
 				UISprite uISprite = Sprites[3];

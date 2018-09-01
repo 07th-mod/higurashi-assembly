@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace Assets.Scripts.Core
@@ -80,6 +81,8 @@ namespace Assets.Scripts.Core
 
 		public GameObject ChapterPreviewPrefab;
 
+		public TextMeshPro HistoryTextMesh;
+
 		private PreparedAction actions;
 
 		public bool IsInitialized;
@@ -97,6 +100,8 @@ namespace Assets.Scripts.Core
 		public bool CanSkip = true;
 
 		public bool CanSave = true;
+
+		public bool CanLoad = true;
 
 		public bool CanInput = true;
 
@@ -222,18 +227,6 @@ namespace Assets.Scripts.Core
 			if (!PlayerPrefs.HasKey("height"))
 			{
 				PlayerPrefs.SetInt("height", 480);
-			}
-			if (PlayerPrefs.GetInt("width") < 640)
-			{
-				PlayerPrefs.SetInt("width", 640);
-			}
-			if (PlayerPrefs.GetInt("height") < 480)
-			{
-				PlayerPrefs.SetInt("height", 480);
-			}
-			if ((Screen.width < 640 || Screen.height < 480) && !Screen.fullScreen)
-			{
-				Screen.SetResolution(640, 480, fullscreen: false);
 			}
 		}
 

@@ -7,11 +7,15 @@ namespace TMPro
 	{
 		public static int ID_MainTex;
 
+		public static int ID_FaceTex;
+
 		public static int ID_FaceColor;
 
 		public static int ID_FaceDilate;
 
 		public static int ID_Shininess;
+
+		public static int ID_UnderlayColor;
 
 		public static int ID_UnderlayOffsetX;
 
@@ -24,6 +28,8 @@ namespace TMPro
 		public static int ID_WeightNormal;
 
 		public static int ID_WeightBold;
+
+		public static int ID_OutlineTex;
 
 		public static int ID_OutlineWidth;
 
@@ -61,9 +67,7 @@ namespace TMPro
 
 		public static int ID_EnvMatrixRotation;
 
-		public static int ID_MaskID;
-
-		public static int ID_MaskCoord;
+		public static int ID_ClipRect;
 
 		public static int ID_MaskSoftnessX;
 
@@ -72,6 +76,8 @@ namespace TMPro
 		public static int ID_VertexOffsetX;
 
 		public static int ID_VertexOffsetY;
+
+		public static int ID_UseClipRect;
 
 		public static int ID_StencilID;
 
@@ -93,9 +99,15 @@ namespace TMPro
 
 		public static string Keyword_Ratios = "RATIOS_OFF";
 
-		public static string Keyword_MaskSoft = "MASK_SOFT";
+		public static string Keyword_MASK_SOFT = "MASK_SOFT";
 
-		public static string Keyword_MaskHard = "MASK_HARD";
+		public static string Keyword_MASK_HARD = "MASK_HARD";
+
+		public static string Keyword_MASK_TEX = "MASK_TEX";
+
+		public static string ShaderTag_ZTestMode = "_ZTestMode";
+
+		public static string ShaderTag_CullMode = "_CullMode";
 
 		private static float m_clamp = 1f;
 
@@ -107,15 +119,18 @@ namespace TMPro
 			{
 				isInitialized = true;
 				ID_MainTex = Shader.PropertyToID("_MainTex");
+				ID_FaceTex = Shader.PropertyToID("_FaceTex");
 				ID_FaceColor = Shader.PropertyToID("_FaceColor");
 				ID_FaceDilate = Shader.PropertyToID("_FaceDilate");
 				ID_Shininess = Shader.PropertyToID("_FaceShininess");
+				ID_UnderlayColor = Shader.PropertyToID("_UnderlayColor");
 				ID_UnderlayOffsetX = Shader.PropertyToID("_UnderlayOffsetX");
 				ID_UnderlayOffsetY = Shader.PropertyToID("_UnderlayOffsetY");
 				ID_UnderlayDilate = Shader.PropertyToID("_UnderlayDilate");
 				ID_UnderlaySoftness = Shader.PropertyToID("_UnderlaySoftness");
 				ID_WeightNormal = Shader.PropertyToID("_WeightNormal");
 				ID_WeightBold = Shader.PropertyToID("_WeightBold");
+				ID_OutlineTex = Shader.PropertyToID("_OutlineTex");
 				ID_OutlineWidth = Shader.PropertyToID("_OutlineWidth");
 				ID_OutlineSoftness = Shader.PropertyToID("_OutlineSoftness");
 				ID_OutlineColor = Shader.PropertyToID("_OutlineColor");
@@ -134,8 +149,8 @@ namespace TMPro
 				ID_GlowOffset = Shader.PropertyToID("_GlowOffset");
 				ID_GlowPower = Shader.PropertyToID("_GlowPower");
 				ID_GlowOuter = Shader.PropertyToID("_GlowOuter");
-				ID_MaskID = Shader.PropertyToID("_MaskID");
-				ID_MaskCoord = Shader.PropertyToID("_MaskCoord");
+				ID_ClipRect = Shader.PropertyToID("_ClipRect");
+				ID_UseClipRect = Shader.PropertyToID("_UseClipRect");
 				ID_MaskSoftnessX = Shader.PropertyToID("_MaskSoftnessX");
 				ID_MaskSoftnessY = Shader.PropertyToID("_MaskSoftnessY");
 				ID_VertexOffsetX = Shader.PropertyToID("_VertexOffsetX");
@@ -187,25 +202,16 @@ namespace TMPro
 
 		public static Vector4 GetFontExtent(Material material)
 		{
-			if (!material.HasProperty(ID_GradientScale))
-			{
-				return Vector4.zero;
-			}
-			float @float = material.GetFloat(ID_ScaleRatio_A);
-			float num = material.GetFloat(ID_FaceDilate) * @float;
-			float num2 = material.GetFloat(ID_OutlineWidth) * @float;
-			float num3 = Mathf.Min(1f, num + num2);
-			num3 *= material.GetFloat(ID_GradientScale);
-			return new Vector4(num3, num3, num3, num3);
+			return Vector4.zero;
 		}
 
 		public static bool IsMaskingEnabled(Material material)
 		{
-			if (!material.HasProperty(ID_MaskCoord))
+			if (material == null || !material.HasProperty(ID_ClipRect))
 			{
 				return false;
 			}
-			if (material.shaderKeywords.Contains(Keyword_MaskSoft) || material.shaderKeywords.Contains(Keyword_MaskHard))
+			if (material.shaderKeywords.Contains(Keyword_MASK_SOFT) || material.shaderKeywords.Contains(Keyword_MASK_HARD) || material.shaderKeywords.Contains(Keyword_MASK_TEX))
 			{
 				return true;
 			}
@@ -217,6 +223,10 @@ namespace TMPro
 			if (!isInitialized)
 			{
 				GetShaderPropertyIDs();
+			}
+			if (material == null)
+			{
+				return 0f;
 			}
 			int num = enableExtraPadding ? 4 : 0;
 			if (!material.HasProperty(ID_GradientScale))
@@ -307,6 +317,10 @@ namespace TMPro
 			if (!isInitialized)
 			{
 				GetShaderPropertyIDs();
+			}
+			if (materials == null)
+			{
+				return 0f;
 			}
 			int num = enableExtraPadding ? 4 : 0;
 			if (!materials[0].HasProperty(ID_GradientScale))

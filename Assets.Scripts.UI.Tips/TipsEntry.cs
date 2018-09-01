@@ -26,21 +26,21 @@ namespace Assets.Scripts.UI.Tips
 				button = GetComponent<UIButton>();
 				sprite = GetComponent<UISprite>();
 			}
-			string name = $"tips{t.Id:D3}na_normal";
+			string name = $"tips_{t.Id:D3}na_normal";
 			UISpriteData uISpriteData = sprite.atlas.GetSprite(name);
 			if (uISpriteData != null && AssetManager.Instance.UseNewArt)
 			{
-				button.normalSprite = $"tips{t.Id:D3}na_normal";
-				button.hoverSprite = $"tips{t.Id:D3}na_hover";
-				button.pressedSprite = $"tips{t.Id:D3}na_hover";
-				button.disabledSprite = $"tips{t.Id:D3}na_normal";
+				button.normalSprite = $"tips_{t.Id:D3}na_normal";
+				button.hoverSprite = $"tips_{t.Id:D3}na_hover";
+				button.pressedSprite = $"tips_{t.Id:D3}na_hover";
+				button.disabledSprite = $"tips_{t.Id:D3}na_normal";
 			}
 			else
 			{
-				button.normalSprite = $"tips{t.Id:D3}_normal";
-				button.hoverSprite = $"tips{t.Id:D3}_hover";
-				button.pressedSprite = $"tips{t.Id:D3}_hover";
-				button.disabledSprite = $"tips{t.Id:D3}_normal";
+				button.normalSprite = $"tips_{t.Id:D3}_normal";
+				button.hoverSprite = $"tips_{t.Id:D3}_hover";
+				button.pressedSprite = $"tips_{t.Id:D3}_hover";
+				button.disabledSprite = $"tips_{t.Id:D3}_normal";
 			}
 		}
 

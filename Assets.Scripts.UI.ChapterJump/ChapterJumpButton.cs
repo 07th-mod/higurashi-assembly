@@ -65,7 +65,7 @@ namespace Assets.Scripts.UI.ChapterJump
 		{
 			TextMeshPro component = GetComponent<TextMeshPro>();
 			component.text = ((!GameSystem.Instance.UseEnglishText) ? Japanese : English);
-			if (!(base.name == "Return") && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && BurikoMemory.Instance.GetGlobalFlag("GOnikakushiDay").IntValue() < ChapterNumber)
+			if (!(base.name == "Return") && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && BurikoMemory.Instance.GetGlobalFlag("GWatanagashiDay").IntValue() < ChapterNumber)
 			{
 				base.gameObject.SetActive(value: false);
 			}

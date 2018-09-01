@@ -10,6 +10,7 @@ namespace TMPro
 		Right,
 		BottomLeft,
 		Bottom,
-		BottomRight
+		BottomRight,
+		Custom
 	}
 }

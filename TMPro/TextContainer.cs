@@ -59,6 +59,7 @@ namespace TMPro
 				if (m_pivot != value)
 				{
 					m_pivot = value;
+					m_anchorPosition = GetAnchorPosition(m_pivot);
 					m_hasChanged = true;
 					OnContainerChanged();
 				}
@@ -196,7 +197,7 @@ namespace TMPro
 			{
 				if (m_textMeshPro != null && m_textMeshPro.lineLength != 72f)
 				{
-					Debug.LogWarning("Converting from using anchor and lineLength properties to Text Container.");
+					Debug.LogWarning("Converting from using anchor and lineLength properties to Text Container.", this);
 					m_isDefaultHeight = true;
 					int num = (int)(m_anchorPosition = (TextContainerAnchors)m_textMeshPro.anchor);
 					m_pivot = GetPivot(m_anchorPosition);
@@ -244,14 +245,6 @@ namespace TMPro
 			OnContainerChanged();
 		}
 
-		private void LateUpdate()
-		{
-			if (m_transform.hasChanged)
-			{
-				UpdateWorldCorners();
-			}
-		}
-
 		private void SetRect(Vector2 size)
 		{
 			m_rect = new Rect(m_rect.x, m_rect.y, size.x, size.y);
@@ -276,6 +269,12 @@ namespace TMPro
 				m_worldCorners[3] = position + m_transform.TransformDirection(m_corners[3]);
 				m_normal = Vector3.Cross(worldCorners[1] - worldCorners[0], worldCorners[3] - worldCorners[0]);
 			}
+		}
+
+		public Vector3[] GetWorldCorners()
+		{
+			UpdateWorldCorners();
+			return m_worldCorners;
 		}
 
 		private Vector2 GetPivot(TextContainerAnchors anchor)
@@ -312,6 +311,47 @@ namespace TMPro
 				break;
 			}
 			return result;
+		}
+
+		private TextContainerAnchors GetAnchorPosition(Vector2 pivot)
+		{
+			if (pivot == new Vector2(0f, 1f))
+			{
+				return TextContainerAnchors.TopLeft;
+			}
+			if (pivot == new Vector2(0.5f, 1f))
+			{
+				return TextContainerAnchors.Top;
+			}
+			if (pivot == new Vector2(1f, 1f))
+			{
+				return TextContainerAnchors.TopRight;
+			}
+			if (pivot == new Vector2(0f, 0.5f))
+			{
+				return TextContainerAnchors.Left;
+			}
+			if (pivot == new Vector2(0.5f, 0.5f))
+			{
+				return TextContainerAnchors.Middle;
+			}
+			if (pivot == new Vector2(1f, 0.5f))
+			{
+				return TextContainerAnchors.Right;
+			}
+			if (pivot == new Vector2(0f, 0f))
+			{
+				return TextContainerAnchors.BottomLeft;
+			}
+			if (pivot == new Vector2(0.5f, 0f))
+			{
+				return TextContainerAnchors.Bottom;
+			}
+			if (pivot == new Vector2(1f, 0f))
+			{
+				return TextContainerAnchors.BottomRight;
+			}
+			return TextContainerAnchors.Custom;
 		}
 	}
 }
