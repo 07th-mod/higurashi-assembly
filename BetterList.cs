@@ -26,13 +26,14 @@ public class BetterList<T>
 	[DebuggerStepThrough]
 	public IEnumerator<T> GetEnumerator()
 	{
-		if (buffer != null)
+		if (this.buffer != null)
 		{
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < this.size; i++)
 			{
-				yield return buffer[i];
+				yield return this.buffer[i];
 			}
 		}
+		yield break;
 	}
 
 	private void AllocateMore()

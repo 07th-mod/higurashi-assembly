@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/Interaction/Wrap Content")]
@@ -27,6 +29,15 @@ public class UIWrapContent : MonoBehaviour
 	private bool mFirstTime = true;
 
 	private List<Transform> mChildren = new List<Transform>();
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache0;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache1;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache2;
 
 	protected virtual void Start()
 	{

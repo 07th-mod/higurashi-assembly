@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/Interaction/Table")]
 public class UITable : UIWidgetContainer
 {
+	public delegate void OnReposition();
+
 	public enum Direction
 	{
 		Down,
@@ -19,8 +22,6 @@ public class UITable : UIWidgetContainer
 		Vertical,
 		Custom
 	}
-
-	public delegate void OnReposition();
 
 	public int columns;
 
@@ -47,6 +48,18 @@ public class UITable : UIWidgetContainer
 	protected bool mInitDone;
 
 	protected bool mReposition;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache0;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache1;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache2;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache3;
 
 	public bool repositionNow
 	{

@@ -54,9 +54,6 @@ namespace Newtonsoft.Json.Utilities
 				byte[] array = new byte[num];
 				stream.Read(array, 0, num);
 				return array;
-				IL_004f:
-				byte[] result;
-				return result;
 			}
 		}
 

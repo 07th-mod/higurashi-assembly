@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace Newtonsoft.Json.Utilities
 {
-	internal interface IWrappedDictionary : IEnumerable, ICollection, IDictionary
+	internal interface IWrappedDictionary : IDictionary, ICollection, IEnumerable
 	{
 		object UnderlyingDictionary
 		{

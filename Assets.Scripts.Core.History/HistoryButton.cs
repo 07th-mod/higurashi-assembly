@@ -11,17 +11,27 @@ namespace Assets.Scripts.Core.History
 		{
 			if (isDown)
 			{
-				switch (base.name)
+				string name = base.name;
+				if (name != null)
 				{
-				case "UpArrow":
-					Hw.Step(1f);
-					break;
-				case "DownArrow":
-					Hw.Step(-1f);
-					break;
-				case "Return":
-					(GameSystem.Instance.GetStateObject() as StateHistory)?.RequestLeave();
-					break;
+					if (!(name == "UpArrow"))
+					{
+						if (!(name == "DownArrow"))
+						{
+							if (name == "Return")
+							{
+								(GameSystem.Instance.GetStateObject() as StateHistory)?.RequestLeave();
+							}
+						}
+						else
+						{
+							Hw.Step(-1f);
+						}
+					}
+					else
+					{
+						Hw.Step(1f);
+					}
 				}
 			}
 		}

@@ -47,17 +47,11 @@ namespace Newtonsoft.Json.Utilities
 			{
 				output = creator();
 				return true;
-				IL_001e:
-				bool result;
-				return result;
 			}
 			catch
 			{
 				output = default(T);
 				return false;
-				IL_003a:
-				bool result;
-				return result;
 			}
 		}
 

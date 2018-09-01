@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JArray : JContainer, IEnumerable, IEnumerable<JToken>, ICollection<JToken>, IList<JToken>
+	public class JArray : JContainer, IList<JToken>, ICollection<JToken>, IEnumerable<JToken>, IEnumerable
 	{
 		private IList<JToken> _values = new List<JToken>();
 
@@ -74,11 +74,6 @@ namespace Newtonsoft.Json.Linq
 		public JArray(object content)
 		{
 			Add(content);
-		}
-
-		void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
-		{
-			CopyItemsTo(array, arrayIndex);
 		}
 
 		internal override bool DeepEquals(JToken node)
@@ -167,6 +162,11 @@ namespace Newtonsoft.Json.Linq
 		public bool Contains(JToken item)
 		{
 			return ContainsItem(item);
+		}
+
+		void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
+		{
+			CopyItemsTo(array, arrayIndex);
 		}
 
 		public bool Remove(JToken item)

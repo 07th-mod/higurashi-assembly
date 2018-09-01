@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class NGUITools
@@ -13,6 +14,12 @@ public static class NGUITools
 	private static float mGlobalVolume = 1f;
 
 	private static Vector3[] mSides = new Vector3[4];
+
+	[CompilerGenerated]
+	private static Comparison<UIWidget> _003C_003Ef__mg_0024cache0;
+
+	[CompilerGenerated]
+	private static Comparison<UIPanel> _003C_003Ef__mg_0024cache1;
 
 	public static float soundVolume
 	{
@@ -1026,7 +1033,6 @@ public static class NGUITools
 		{
 			UnityEngine.Debug.LogError(ex.Message);
 			return false;
-			IL_0057:;
 		}
 		fileStream.Write(bytes, 0, bytes.Length);
 		fileStream.Close();

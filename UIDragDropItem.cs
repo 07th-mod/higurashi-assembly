@@ -275,10 +275,11 @@ public class UIDragDropItem : MonoBehaviour
 
 	protected IEnumerator EnableDragScrollView()
 	{
-		yield return (object)new WaitForEndOfFrame();
-		if (mDragScrollView != null)
+		yield return new WaitForEndOfFrame();
+		if (this.mDragScrollView != null)
 		{
-			mDragScrollView.enabled = true;
+			this.mDragScrollView.enabled = true;
 		}
+		yield break;
 	}
 }

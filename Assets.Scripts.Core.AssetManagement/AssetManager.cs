@@ -151,16 +151,10 @@ namespace Assets.Scripts.Core.AssetManagement
 					texture2D.filterMode = FilterMode.Bilinear;
 					texture2D.wrapMode = TextureWrapMode.Clamp;
 					return texture2D;
-					IL_008d:
-					Texture2D result;
-					return result;
 				}
 				catch (Exception)
 				{
 					return LoadTexture("no_data");
-					IL_00a5:
-					Texture2D result;
-					return result;
 				}
 			}
 			return LoadTexture("no_data");

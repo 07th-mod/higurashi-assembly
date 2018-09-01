@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Newtonsoft.Json.Utilities
 {
@@ -45,6 +46,9 @@ namespace Newtonsoft.Json.Utilities
 		}
 
 		private static readonly ThreadSafeStore<TypeConvertKey, Func<object, object>> CastConverters = new ThreadSafeStore<TypeConvertKey, Func<object, object>>(CreateCastConverter);
+
+		[CompilerGenerated]
+		private static Func<TypeConvertKey, Func<object, object>> _003C_003Ef__mg_0024cache0;
 
 		private static Func<object, object> CreateCastConverter(TypeConvertKey t)
 		{

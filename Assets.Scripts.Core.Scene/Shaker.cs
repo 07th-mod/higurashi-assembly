@@ -58,11 +58,12 @@ namespace Assets.Scripts.Core.Scene
 			shakedir = false;
 			remainingcount = loopcount;
 			timeperswing = speed;
+			timetoswitch = timeperswing / 2f;
 			if (timeperswing < 0.01f)
 			{
 				timeperswing = 0.01f;
 			}
-			float num = timeperswing * (float)loopcount;
+			float num = timeperswing * (float)loopcount + (float)loopcount * 0.005f + timetoswitch;
 			num += (float)loopcount * 0.005f;
 			if (loopcount == 0)
 			{

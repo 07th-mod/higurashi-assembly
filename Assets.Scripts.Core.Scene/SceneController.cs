@@ -157,36 +157,42 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
 		{
-			Layer i = GetLayer(layer);
-			while (i.FadingOut)
-			{
-				i.HideLayer();
-				i = GetLayer(layer);
-			}
-			if (!move)
-			{
-				oldx = x;
-				oldy = y;
-				oldz = z;
-			}
-			i.DrawLayer(textureName, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking);
-			i.SetPriority(priority);
-			if (move)
-			{
-				i.MoveLayer(x, y, z, 1f, 0, wait, isblocking, adjustAlpha: false);
-			}
-			iTween.Stop(i.gameObject);
 			gameSystem.RegisterAction(delegate
 			{
-				if (i.UsingCrossShader() && i.gameObject.layer != GetActiveLayerMask())
+				Layer layer2 = GetLayer(layer);
+				while (layer2.FadingOut)
 				{
-					SetLayerActiveOnBothScenes(i);
+					layer2.HideLayer();
+					layer2 = GetLayer(layer);
+				}
+				if (!move)
+				{
+					oldx = x;
+					oldy = y;
+					oldz = z;
+				}
+				layer2.DrawLayer(textureName, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking);
+				layer2.SetPriority(priority);
+				if (move)
+				{
+					layer2.MoveLayer(x, y, z, 1f, 0, wait, isblocking, adjustAlpha: false);
+				}
+				iTween.Stop(layer2.gameObject);
+				if (layer2.UsingCrossShader() && layer2.gameObject.layer != GetActiveLayerMask())
+				{
+					SetLayerActiveOnBothScenes(layer2);
 				}
 				else
 				{
-					UpdateLayerMask(i, priority);
+					UpdateLayerMask(layer2, priority);
 				}
 			});
+		}
+
+		public void ChangeBustshot(int layer, string textureName, float wait, bool isblocking)
+		{
+			Layer layer2 = GetLayer(layer);
+			layer2.CrossfadeLayer(textureName, wait, isblocking);
 		}
 
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
@@ -205,40 +211,41 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
 		{
-			Layer i = GetLayer(layer);
-			while (i.FadingOut)
-			{
-				i.HideLayer();
-				i = GetLayer(layer);
-			}
-			if (!move)
-			{
-				oldx = x;
-				oldy = y;
-				oldz = z;
-			}
-			Vector2? origin = null;
-			if (originx != 0 || originy != 0)
-			{
-				origin = new Vector2((float)originx, (float)originy);
-			}
-			i.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, /*isBustshot:*/ true, type, wait, isblocking);
-			i.SetPriority(priority);
-			if (move)
-			{
-				i.MoveLayer(x, y, z, 1f, 0, wait, isblocking, adjustAlpha: false);
-			}
-			iTween.Stop(i.gameObject);
 			gameSystem.RegisterAction(delegate
 			{
-				if (i.UsingCrossShader() && i.gameObject.layer != GetActiveLayerMask())
+				Layer layer2 = GetLayer(layer);
+				while (layer2.FadingOut)
 				{
-					SetLayerActiveOnBothScenes(i);
+					layer2.HideLayer();
+					layer2 = GetLayer(layer);
+				}
+				if (!move)
+				{
+					oldx = x;
+					oldy = y;
+					oldz = z;
+				}
+				Vector2? origin = null;
+				if (originx != 0 || originy != 0)
+				{
+					origin = new Vector2((float)originx, (float)originy);
+				}
+				layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, /*isBustshot:*/ true, type, wait, isblocking);
+				layer2.SetPriority(priority);
+				if (move)
+				{
+					layer2.MoveLayer(x, y, z, 1f, 0, wait, isblocking, adjustAlpha: false);
+				}
+				iTween.Stop(layer2.gameObject);
+				if (layer2.UsingCrossShader() && layer2.gameObject.layer != GetActiveLayerMask())
+				{
+					SetLayerActiveOnBothScenes(layer2);
 				}
 				else
 				{
-					UpdateLayerMask(i, priority);
+					UpdateLayerMask(layer2, priority);
 				}
+				gameSystem.ExecuteActions();
 			});
 		}
 
@@ -295,20 +302,24 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSprite(int layer, string texture, string mask, int x, int y, int z, int originx, int originy, int angle, int style, float alpha, int priority, float wait, bool isblocking)
 		{
-			Layer layer2 = GetLayer(layer);
-			UpdateLayerMask(layer2, priority);
-			Vector2? origin = null;
-			if (originx != 0 || originy != 0)
+			gameSystem.RegisterAction(delegate
 			{
-				origin = new Vector2((float)originx, (float)originy);
-			}
-			layer2.DrawLayer(texture, x, y, z, origin, 1f - alpha, /*isBustshot:*/ false, 0, wait, isblocking);
-			layer2.SetAngle((float)angle, 0f);
-			layer2.SetPriority(priority);
-			if (style == 1)
-			{
-				layer2.SwitchToAlphaShader();
-			}
+				Layer layer2 = GetLayer(layer);
+				UpdateLayerMask(layer2, priority);
+				Vector2? origin = null;
+				if (originx != 0 || originy != 0)
+				{
+					origin = new Vector2((float)originx, (float)originy);
+				}
+				layer2.DrawLayer(texture, x, y, z, origin, 1f - alpha, /*isBustshot:*/ false, 0, wait, isblocking);
+				layer2.SetAngle((float)angle, 0f);
+				layer2.SetPriority(priority);
+				if (style == 1)
+				{
+					layer2.SwitchToAlphaShader();
+				}
+				gameSystem.ExecuteActions();
+			});
 		}
 
 		public void DrawBG(string texture, float wait, bool isblocking)
@@ -668,32 +679,32 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator GetScreenshotCoroutine(Action<Texture2D> OnFinishAction)
 		{
 			yield return (object)new WaitForEndOfFrame();
-			RenderTexture rt = new RenderTexture(800, 600, 24);
+			RenderTexture renderTexture = new RenderTexture(800, 600, 24);
 			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
-			ScreenshotCamera.targetTexture = rt;
+			ScreenshotCamera.targetTexture = renderTexture;
 			ScreenshotCamera.Render();
-			RenderTexture.active = rt;
-			Texture2D tex = new Texture2D(rt.width, rt.height);
-			tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, recalculateMipMaps: true);
-			tex.Apply();
-			OnFinishAction(tex);
+			RenderTexture.active = renderTexture;
+			Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height);
+			texture2D.ReadPixels(new Rect(0f, 0f, (float)renderTexture.width, (float)renderTexture.height), 0, 0, recalculateMipMaps: true);
+			texture2D.Apply();
+			OnFinishAction(texture2D);
 		}
 
 		private IEnumerator WriteScreenshotToFile(string path)
 		{
 			yield return (object)new WaitForEndOfFrame();
-			RenderTexture rt = new RenderTexture(800, 600, 24);
+			RenderTexture renderTexture = new RenderTexture(800, 600, 24);
 			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
-			ScreenshotCamera.targetTexture = rt;
+			ScreenshotCamera.targetTexture = renderTexture;
 			ScreenshotCamera.Render();
-			RenderTexture.active = rt;
-			Texture2D tex = new Texture2D(rt.width, rt.height);
-			tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, recalculateMipMaps: true);
-			tex.Apply();
-			byte[] texout = tex.EncodeToPNG();
+			RenderTexture.active = renderTexture;
+			Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height);
+			texture2D.ReadPixels(new Rect(0f, 0f, (float)renderTexture.width, (float)renderTexture.height), 0, 0, recalculateMipMaps: true);
+			texture2D.Apply();
+			byte[] bytes = texture2D.EncodeToPNG();
 			ScreenshotCamera.targetTexture = null;
-			UnityEngine.Object.Destroy(rt);
-			File.WriteAllBytes(path, texout);
+			UnityEngine.Object.Destroy(renderTexture);
+			File.WriteAllBytes(path, bytes);
 		}
 
 		public void WriteScreenshot(string path)

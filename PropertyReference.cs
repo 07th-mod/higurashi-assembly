@@ -201,7 +201,6 @@ public class PropertyReference
 			catch (Exception)
 			{
 				return false;
-				IL_00a6:;
 			}
 		}
 		if (!Convert(ref value))

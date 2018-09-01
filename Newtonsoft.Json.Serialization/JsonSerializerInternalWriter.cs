@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -332,31 +331,44 @@ namespace Newtonsoft.Json.Serialization
 			writer.WriteStartArray();
 			int top = writer.Top;
 			int num = 0;
-			foreach (object value in values)
+			IEnumerator enumerator = values.GetEnumerator();
+			try
 			{
-				try
+				while (enumerator.MoveNext())
 				{
-					JsonContract contractSafe = GetContractSafe(value);
-					if (ShouldWriteReference(value, null, contractSafe))
+					object current = enumerator.Current;
+					try
 					{
-						WriteReference(writer, value);
+						JsonContract contractSafe = GetContractSafe(current);
+						if (ShouldWriteReference(current, null, contractSafe))
+						{
+							WriteReference(writer, current);
+						}
+						else if (CheckForCircularReference(current, null, contract))
+						{
+							SerializeValue(writer, current, contractSafe, null, collectionValueContract2);
+						}
 					}
-					else if (CheckForCircularReference(value, null, contract))
+					catch (Exception ex)
 					{
-						SerializeValue(writer, value, contractSafe, null, collectionValueContract2);
+						if (!IsErrorHandled(values.UnderlyingCollection, contract, num, ex))
+						{
+							throw;
+						}
+						HandleError(writer, top);
+					}
+					finally
+					{
+						num++;
 					}
 				}
-				catch (Exception ex)
+			}
+			finally
+			{
+				IDisposable disposable;
+				if ((disposable = (enumerator as IDisposable)) != null)
 				{
-					if (!IsErrorHandled(values.UnderlyingCollection, contract, num, ex))
-					{
-						throw;
-					}
-					HandleError(writer, top);
-				}
-				finally
-				{
-					num++;
+					disposable.Dispose();
 				}
 			}
 			writer.WriteEndArray();
@@ -369,7 +381,6 @@ namespace Newtonsoft.Json.Serialization
 		}
 
 		[SecuritySafeCritical]
-		[SuppressMessage("Microsoft.Portability", "CA1903:UseOnlyApiFromTargetedFramework", MessageId = "System.Security.SecuritySafeCriticalAttribute")]
 		private void SerializeISerializable(JsonWriter writer, ISerializable value, JsonISerializableContract contract)
 		{
 			contract.InvokeOnSerializing(value, base.Serializer.Context);
@@ -467,7 +478,11 @@ namespace Newtonsoft.Json.Serialization
 			}
 			finally
 			{
-				(enumerator as IDisposable)?.Dispose();
+				IDisposable disposable;
+				if ((disposable = (enumerator as IDisposable)) != null)
+				{
+					disposable.Dispose();
+				}
 			}
 			writer.WriteEndObject();
 			SerializeStack.RemoveAt(SerializeStack.Count - 1);

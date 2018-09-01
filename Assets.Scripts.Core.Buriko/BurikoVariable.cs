@@ -131,6 +131,10 @@ namespace Assets.Scripts.Core.Buriko
 				return num % num2;
 			case BurikoMathType.NotEquals:
 				return (num != num2) ? 1 : 0;
+			case BurikoMathType.And:
+				return (num != 0 && num2 != 0) ? 1 : 0;
+			case BurikoMathType.Or:
+				return (num != 0 || num2 != 0) ? 1 : 0;
 			default:
 				throw new Exception("Cannot find a handler for math type " + type);
 			}
@@ -178,6 +182,8 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			case BurikoValueType.Operation:
 				return valueVariable.IntValue();
+			case BurikoValueType.Null:
+				return 0;
 			default:
 				throw new NotImplementedException($"BurikoValue: Cannot cast type {Type} into type Int.");
 			}

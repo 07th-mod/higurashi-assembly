@@ -9,7 +9,5 @@ namespace Assets.Scripts.UI.Tips
 		public string TitleJp;
 
 		public string Script;
-
-		public int UnlockChapter;
 	}
 }

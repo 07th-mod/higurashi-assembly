@@ -28,18 +28,28 @@ namespace Assets.Scripts.UI.Tips
 				StateViewTips stateViewTips = instance.GetStateObject() as StateViewTips;
 				if (stateViewTips != null)
 				{
-					switch (base.name)
+					string name = base.name;
+					if (name != null)
 					{
-					case "PageLeft":
-						manager.ChangePage(-1);
-						break;
-					case "PageRight":
-						manager.ChangePage(1);
-						break;
-					case "ExitButton":
-						stateViewTips.RequestLeave();
-						instance.CanSave = true;
-						break;
+						if (!(name == "PageLeft"))
+						{
+							if (!(name == "PageRight"))
+							{
+								if (name == "ExitButton")
+								{
+									stateViewTips.RequestLeave();
+									instance.CanSave = true;
+								}
+							}
+							else
+							{
+								manager.ChangePage(1);
+							}
+						}
+						else
+						{
+							manager.ChangePage(-1);
+						}
 					}
 				}
 			}

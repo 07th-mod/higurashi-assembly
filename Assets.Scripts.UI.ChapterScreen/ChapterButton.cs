@@ -31,26 +31,40 @@ namespace Assets.Scripts.UI.ChapterScreen
 				StateChapterScreen stateChapterScreen = GameSystem.Instance.GetStateObject() as StateChapterScreen;
 				if (stateChapterScreen != null)
 				{
-					switch (base.name)
+					string name = base.name;
+					if (name != null)
 					{
-					case "NewTips":
-						stateChapterScreen.RequestLeave();
-						BurikoMemory.Instance.SetFlag("TipsMode", 4);
-						BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
-						break;
-					case "ViewAllTips":
-						stateChapterScreen.RequestLeave();
-						BurikoMemory.Instance.SetFlag("TipsMode", 3);
-						BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
-						break;
-					case "SaveLoad":
-						GameSystem.Instance.PushStateObject(new StateSaveLoad(restoreUI: false));
-						break;
-					case "Continue":
-						stateChapterScreen.RequestLeave();
-						BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
-						AudioController.Instance.ClearTempAudio();
-						break;
+						if (!(name == "NewTips"))
+						{
+							if (!(name == "ViewAllTips"))
+							{
+								if (!(name == "SaveLoad"))
+								{
+									if (name == "Continue")
+									{
+										stateChapterScreen.RequestLeave();
+										BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+										AudioController.Instance.ClearTempAudio();
+									}
+								}
+								else
+								{
+									GameSystem.Instance.PushStateObject(new StateSaveLoad(restoreUI: false));
+								}
+							}
+							else
+							{
+								stateChapterScreen.RequestLeave();
+								BurikoMemory.Instance.SetFlag("TipsMode", 3);
+								BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
+							}
+						}
+						else
+						{
+							stateChapterScreen.RequestLeave();
+							BurikoMemory.Instance.SetFlag("TipsMode", 4);
+							BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
+						}
 					}
 				}
 			}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/UI/NGUI Event System (UICamera)")]
@@ -67,17 +68,6 @@ public class UICamera : MonoBehaviour
 		UI_2D
 	}
 
-	private struct DepthEntry
-	{
-		public int depth;
-
-		public RaycastHit hit;
-
-		public Vector3 point;
-
-		public GameObject go;
-	}
-
 	public delegate bool GetKeyStateFunc(KeyCode key);
 
 	public delegate float GetAxisFunc(string name);
@@ -99,6 +89,17 @@ public class UICamera : MonoBehaviour
 	public delegate void ObjectDelegate(GameObject go, GameObject obj);
 
 	public delegate void KeyCodeDelegate(GameObject go, KeyCode key);
+
+	private struct DepthEntry
+	{
+		public int depth;
+
+		public RaycastHit hit;
+
+		public Vector3 point;
+
+		public GameObject go;
+	}
 
 	public static BetterList<UICamera> list = new BetterList<UICamera>();
 
@@ -260,6 +261,21 @@ public class UICamera : MonoBehaviour
 	private static Plane m2DPlane = new Plane(Vector3.back, 0f);
 
 	private static bool mNotifying = false;
+
+	[CompilerGenerated]
+	private static BetterList<UICamera>.CompareFunc _003C_003Ef__mg_0024cache0;
+
+	[CompilerGenerated]
+	private static GetKeyStateFunc _003C_003Ef__mg_0024cache1;
+
+	[CompilerGenerated]
+	private static GetKeyStateFunc _003C_003Ef__mg_0024cache2;
+
+	[CompilerGenerated]
+	private static GetKeyStateFunc _003C_003Ef__mg_0024cache3;
+
+	[CompilerGenerated]
+	private static GetAxisFunc _003C_003Ef__mg_0024cache4;
 
 	[Obsolete("Use new OnDragStart / OnDragOver / OnDragOut / OnDragEnd events instead")]
 	public bool stickyPress
@@ -456,31 +472,32 @@ public class UICamera : MonoBehaviour
 
 	private IEnumerator ChangeSelection()
 	{
-		yield return (object)new WaitForEndOfFrame();
-		if (onSelect != null)
+		yield return new WaitForEndOfFrame();
+		if (UICamera.onSelect != null)
 		{
-			onSelect(mCurrentSelection, state: false);
+			UICamera.onSelect(UICamera.mCurrentSelection, false);
 		}
-		Notify(mCurrentSelection, "OnSelect", false);
-		mCurrentSelection = mNextSelection;
-		mNextSelection = null;
-		if (mCurrentSelection != null)
+		UICamera.Notify(UICamera.mCurrentSelection, "OnSelect", false);
+		UICamera.mCurrentSelection = UICamera.mNextSelection;
+		UICamera.mNextSelection = null;
+		if (UICamera.mCurrentSelection != null)
 		{
-			current = this;
-			currentCamera = mCam;
-			currentScheme = mNextScheme;
-			inputHasFocus = (mCurrentSelection.GetComponent<UIInput>() != null);
-			if (onSelect != null)
+			UICamera.current = this;
+			UICamera.currentCamera = this.mCam;
+			UICamera.currentScheme = UICamera.mNextScheme;
+			UICamera.inputHasFocus = (UICamera.mCurrentSelection.GetComponent<UIInput>() != null);
+			if (UICamera.onSelect != null)
 			{
-				onSelect(mCurrentSelection, state: true);
+				UICamera.onSelect(UICamera.mCurrentSelection, true);
 			}
-			Notify(mCurrentSelection, "OnSelect", true);
-			current = null;
+			UICamera.Notify(UICamera.mCurrentSelection, "OnSelect", true);
+			UICamera.current = null;
 		}
 		else
 		{
-			inputHasFocus = false;
+			UICamera.inputHasFocus = false;
 		}
+		yield break;
 	}
 
 	private static int CompareFunc(UICamera a, UICamera b)

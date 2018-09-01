@@ -65,31 +65,33 @@ namespace Newtonsoft.Json.Linq
 		internal static IEnumerable<U> Values<T, U>(this IEnumerable<T> source, object key) where T : JToken
 		{
 			ValidationUtils.ArgumentNotNull(source, "source");
-			foreach (T item in source)
+			foreach (T t2 in source)
 			{
+				JToken token = t2;
 				if (key == null)
 				{
-					if (item is JValue)
+					if (token is JValue)
 					{
-						yield return (item as JValue).Convert<JValue, U>();
+						yield return ((JValue)token).Convert<JValue, U>();
 					}
 					else
 					{
-						foreach (JToken item2 in item.Children())
+						foreach (JToken t in token.Children())
 						{
-							yield return item2.Convert<JToken, U>();
+							yield return t.Convert<JToken, U>();
 						}
 					}
 				}
 				else
 				{
-					JToken value = item[key];
+					JToken value = token[key];
 					if (value != null)
 					{
 						yield return value.Convert<JToken, U>();
 					}
 				}
 			}
+			yield break;
 		}
 
 		public static IJEnumerable<JToken> Children<T>(this IEnumerable<T> source) where T : JToken
@@ -106,10 +108,12 @@ namespace Newtonsoft.Json.Linq
 		internal static IEnumerable<U> Convert<T, U>(this IEnumerable<T> source) where T : JToken
 		{
 			ValidationUtils.ArgumentNotNull(source, "source");
-			foreach (T item in source)
+			foreach (T t in source)
 			{
-				yield return item.Convert<JToken, U>();
+				JToken token = t;
+				yield return token.Convert<JToken, U>();
 			}
+			yield break;
 		}
 
 		internal static U Convert<T, U>(this T token) where T : JToken

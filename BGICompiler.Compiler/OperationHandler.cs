@@ -57,6 +57,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetSpeedOfMessage", new OpType(BurikoOperations.SetSpeedOfMessage, "bi"));
 			paramLookup.Add("SetStyleOfMessageSwinging", new OpType(BurikoOperations.SetStyleOfMessageSwinging, "i"));
 			paramLookup.Add("DisableWindow", new OpType(BurikoOperations.DisableWindow, string.Empty));
+			paramLookup.Add("DisplayWindow", new OpType(BurikoOperations.DisplayWindow, string.Empty));
 			paramLookup.Add("SpringText", new OpType(BurikoOperations.SpringText, "ii"));
 			paramLookup.Add("Select", new OpType(BurikoOperations.Select, "iv"));
 			paramLookup.Add("PlayBGM", new OpType(BurikoOperations.PlayBGM, "isii"));
@@ -92,6 +93,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("DrawBustshot", new OpType(BurikoOperations.DrawBustshot, "isiiibiiiiiiiiib"));
 			paramLookup.Add("MoveBustshot", new OpType(BurikoOperations.MoveBustshot, "isiiiiib"));
 			paramLookup.Add("FadeBustshot", new OpType(BurikoOperations.FadeBustshot, "ibiiiiib"));
+			paramLookup.Add("ChangeBustshot", new OpType(BurikoOperations.ChangeBustshot, "isib"));
 			paramLookup.Add("DrawBustshotWithFiltering", new OpType(BurikoOperations.DrawBustshotWithFiltering, "issiiibiiiiiiib"));
 			paramLookup.Add("DrawFace", new OpType(BurikoOperations.DrawFace, "sib"));
 			paramLookup.Add("FadeFace", new OpType(BurikoOperations.FadeFace, "ib"));

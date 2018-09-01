@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/Interaction/Grid")]
 public class UIGrid : UIWidgetContainer
 {
+	public delegate void OnReposition();
+
 	public enum Arrangement
 	{
 		Horizontal,
@@ -20,8 +23,6 @@ public class UIGrid : UIWidgetContainer
 		Vertical,
 		Custom
 	}
-
-	public delegate void OnReposition();
 
 	public Arrangement arrangement;
 
@@ -54,6 +55,15 @@ public class UIGrid : UIWidgetContainer
 	protected UIPanel mPanel;
 
 	protected bool mInitDone;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache0;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache1;
+
+	[CompilerGenerated]
+	private static Comparison<Transform> _003C_003Ef__mg_0024cache2;
 
 	public bool repositionNow
 	{

@@ -19,16 +19,16 @@ public class UIWidget : UIRect
 		BottomRight
 	}
 
+	public delegate void OnDimensionsChanged();
+
+	public delegate void OnPostFillCallback(UIWidget widget, int bufferOffset, BetterList<Vector3> verts, BetterList<Vector2> uvs, BetterList<Color32> cols);
+
 	public enum AspectRatioSource
 	{
 		Free,
 		BasedOnWidth,
 		BasedOnHeight
 	}
-
-	public delegate void OnDimensionsChanged();
-
-	public delegate void OnPostFillCallback(UIWidget widget, int bufferOffset, BetterList<Vector3> verts, BetterList<Vector2> uvs, BetterList<Color32> cols);
 
 	public delegate bool HitCheck(Vector3 worldPos);
 

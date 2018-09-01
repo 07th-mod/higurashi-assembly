@@ -94,20 +94,20 @@ namespace TMPro
 				{
 					int num2 = i * 4;
 					int num3 = i * 6;
-					normals[0 + num2] = new Vector3(0f, 0f, -1f);
+					normals[num2] = new Vector3(0f, 0f, -1f);
 					normals[1 + num2] = new Vector3(0f, 0f, -1f);
 					normals[2 + num2] = new Vector3(0f, 0f, -1f);
 					normals[3 + num2] = new Vector3(0f, 0f, -1f);
-					tangents[0 + num2] = new Vector4(-1f, 0f, 0f, 1f);
+					tangents[num2] = new Vector4(-1f, 0f, 0f, 1f);
 					tangents[1 + num2] = new Vector4(-1f, 0f, 0f, 1f);
 					tangents[2 + num2] = new Vector4(-1f, 0f, 0f, 1f);
 					tangents[3 + num2] = new Vector4(-1f, 0f, 0f, 1f);
-					triangles[0 + num3] = 0 + num2;
+					triangles[num3] = num2;
 					triangles[1 + num3] = 1 + num2;
 					triangles[2 + num3] = 2 + num2;
 					triangles[3 + num3] = 2 + num2;
 					triangles[4 + num3] = 3 + num2;
-					triangles[5 + num3] = 0 + num2;
+					triangles[5 + num3] = num2;
 				}
 				mesh.vertices = vertices;
 				mesh.normals = normals;

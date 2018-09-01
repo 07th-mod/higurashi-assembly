@@ -14,8 +14,14 @@ namespace Assets.Scripts.Core.Scene
 
 		private List<GameObject> layerObjList = new List<GameObject>();
 
+		private bool isInitialized;
+
 		public Layer ActivateLayer()
 		{
+			if (!isInitialized)
+			{
+				Initialize();
+			}
 			GameObject gameObject = layerList.Pop();
 			gameObject.transform.parent = Panel.transform;
 			gameObject.transform.localPosition = new Vector3(0f, 0f, 0f);
@@ -41,7 +47,7 @@ namespace Assets.Scripts.Core.Scene
 			return layerObjList.Exists((GameObject a) => a == layer);
 		}
 
-		private void Awake()
+		private void Initialize()
 		{
 			GameObject original = Resources.Load<GameObject>("Layer");
 			int num = 0;

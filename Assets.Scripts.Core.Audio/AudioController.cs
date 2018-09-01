@@ -1,4 +1,3 @@
-using Assets.Scripts.Core.Buriko;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System.Collections.Generic;
@@ -115,7 +114,7 @@ namespace Assets.Scripts.Core.Audio
 				if (dictionary.ContainsKey(i))
 				{
 					AudioInfo audioInfo = dictionary[i];
-					PlayAudio(audioInfo.Filename, AudioType.BGM, i, audioInfo.Volume, 0f);
+					PlayAudio(audioInfo.Filename, AudioType.BGM, i, audioInfo.Volume);
 				}
 			}
 			Dictionary<int, AudioInfo> dictionary2 = currentAudio[AudioType.Voice];
@@ -124,7 +123,7 @@ namespace Assets.Scripts.Core.Audio
 				if (dictionary2.ContainsKey(j))
 				{
 					AudioInfo audioInfo2 = dictionary2[j];
-					PlayAudio(audioInfo2.Filename, AudioType.Voice, j, audioInfo2.Volume, 0f);
+					PlayAudio(audioInfo2.Filename, AudioType.Voice, j, audioInfo2.Volume);
 				}
 			}
 			tempSavedAudio = null;
@@ -284,47 +283,7 @@ namespace Assets.Scripts.Core.Audio
 		public void PlayVoice(string filename, int channel, float volume)
 		{
 			string text = filename.Substring(0, 4);
-			bool flag = false;
-			switch (text)
-			{
-			case "chie":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVChie").BoolValue();
-				break;
-			case "eiji":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVEiji").BoolValue();
-				break;
-			case "kana":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVKana").BoolValue();
-				break;
-			case "kira":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVKira").BoolValue();
-				break;
-			case "mast":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVMast").BoolValue();
-				break;
-			case "mura":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVMura").BoolValue();
-				break;
-			case "riho":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVRiho").BoolValue();
-				break;
-			case "rmn_":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVRmn_").BoolValue();
-				break;
-			case "sari":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVSari").BoolValue();
-				break;
-			case "tika":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVTika").BoolValue();
-				break;
-			case "yayo":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVYayo").BoolValue();
-				break;
-			default:
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVOther").BoolValue();
-				break;
-			}
-			if (!flag)
+			if (0 == 0)
 			{
 				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
 				if (currentAudio[AudioType.Voice].ContainsKey(channel))
@@ -361,7 +320,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			if (GameSystem.Instance.UseSystemSounds)
 			{
-				PlayAudio(filename, AudioType.System, channel, 0.7f, 0f);
+				PlayAudio(filename, AudioType.System, channel, 0.7f);
 			}
 		}
 
@@ -405,7 +364,7 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		public void PlayAudio(string filename, AudioType type, int channel, float volume, float fadeintime = 0)
+		public void PlayAudio(string filename, AudioType type, int channel, float volume, float fadeintime = 0f)
 		{
 			float startvolume = volume;
 			if (fadeintime > 0f)

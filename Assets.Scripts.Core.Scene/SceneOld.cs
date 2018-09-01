@@ -7,8 +7,6 @@ namespace Assets.Scripts.Core.Scene
 {
 	public class SceneOld : MonoBehaviour
 	{
-		private const float Fuzziness = 0.32f;
-
 		private Camera sceneCamera;
 
 		private UICamera uiCamera;
@@ -40,6 +38,8 @@ namespace Assets.Scripts.Core.Scene
 		private Vector3 defaultOffset = Vector3.zero;
 
 		private List<LayerOld> layerList = new List<LayerOld>();
+
+		private const float Fuzziness = 0.32f;
 
 		public void ResetLayer()
 		{

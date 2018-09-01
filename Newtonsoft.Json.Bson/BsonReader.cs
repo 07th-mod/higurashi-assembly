@@ -203,16 +203,10 @@ namespace Newtonsoft.Json.Bson
 				default:
 					throw new JsonReaderException("Unexpected state: {0}".FormatWith(CultureInfo.InvariantCulture, _bsonReaderState));
 				}
-				IL_0083:
-				bool result;
-				return result;
 			}
 			catch (EndOfStreamException)
 			{
 				return false;
-				IL_0090:
-				bool result;
-				return result;
 			}
 		}
 

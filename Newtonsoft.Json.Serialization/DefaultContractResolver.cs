@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -237,12 +236,12 @@ namespace Newtonsoft.Json.Serialization
 				jsonProperty.MemberConverter = (jsonProperty.MemberConverter ?? matchingMemberProperty.MemberConverter);
 				jsonProperty.DefaultValue = (jsonProperty.DefaultValue ?? matchingMemberProperty.DefaultValue);
 				jsonProperty.Required = ((jsonProperty.Required == Required.Default) ? matchingMemberProperty.Required : jsonProperty.Required);
-				jsonProperty.IsReference = ((!jsonProperty.IsReference.HasValue) ? matchingMemberProperty.IsReference : jsonProperty.IsReference);
-				jsonProperty.NullValueHandling = ((!jsonProperty.NullValueHandling.HasValue) ? matchingMemberProperty.NullValueHandling : jsonProperty.NullValueHandling);
-				jsonProperty.DefaultValueHandling = ((!jsonProperty.DefaultValueHandling.HasValue) ? matchingMemberProperty.DefaultValueHandling : jsonProperty.DefaultValueHandling);
-				jsonProperty.ReferenceLoopHandling = ((!jsonProperty.ReferenceLoopHandling.HasValue) ? matchingMemberProperty.ReferenceLoopHandling : jsonProperty.ReferenceLoopHandling);
-				jsonProperty.ObjectCreationHandling = ((!jsonProperty.ObjectCreationHandling.HasValue) ? matchingMemberProperty.ObjectCreationHandling : jsonProperty.ObjectCreationHandling);
-				jsonProperty.TypeNameHandling = ((!jsonProperty.TypeNameHandling.HasValue) ? matchingMemberProperty.TypeNameHandling : jsonProperty.TypeNameHandling);
+				jsonProperty.IsReference = (jsonProperty.IsReference ?? matchingMemberProperty.IsReference);
+				jsonProperty.NullValueHandling = (jsonProperty.NullValueHandling ?? matchingMemberProperty.NullValueHandling);
+				jsonProperty.DefaultValueHandling = (jsonProperty.DefaultValueHandling ?? matchingMemberProperty.DefaultValueHandling);
+				jsonProperty.ReferenceLoopHandling = (jsonProperty.ReferenceLoopHandling ?? matchingMemberProperty.ReferenceLoopHandling);
+				jsonProperty.ObjectCreationHandling = (jsonProperty.ObjectCreationHandling ?? matchingMemberProperty.ObjectCreationHandling);
+				jsonProperty.TypeNameHandling = (jsonProperty.TypeNameHandling ?? matchingMemberProperty.TypeNameHandling);
 			}
 			return jsonProperty;
 		}
@@ -257,7 +256,6 @@ namespace Newtonsoft.Json.Serialization
 			return JsonTypeReflector.ReflectionDelegateFactory.CreateDefaultConstructor<object>(createdType);
 		}
 
-		[SuppressMessage("Microsoft.Portability", "CA1903:UseOnlyApiFromTargetedFramework", MessageId = "System.Runtime.Serialization.DataContractAttribute.#get_IsReference()")]
 		private void InitializeContract(JsonContract contract)
 		{
 			JsonContainerAttribute jsonContainerAttribute = JsonTypeReflector.GetJsonContainerAttribute(contract.UnderlyingType);

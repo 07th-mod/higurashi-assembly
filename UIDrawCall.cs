@@ -16,8 +16,6 @@ public class UIDrawCall : MonoBehaviour
 
 	public delegate void OnRenderCallback(Material mat);
 
-	private const int maxIndexBufferCache = 10;
-
 	private static BetterList<UIDrawCall> mActiveList = new BetterList<UIDrawCall>();
 
 	private static BetterList<UIDrawCall> mInactiveList = new BetterList<UIDrawCall>();
@@ -105,6 +103,8 @@ public class UIDrawCall : MonoBehaviour
 	private bool mTextureClip;
 
 	public OnRenderCallback onRender;
+
+	private const int maxIndexBufferCache = 10;
 
 	private static List<int[]> mCache = new List<int[]>(10);
 

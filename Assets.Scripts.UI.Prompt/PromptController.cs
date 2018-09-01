@@ -58,26 +58,27 @@ namespace Assets.Scripts.UI.Prompt
 
 		private IEnumerator LeaveWindow(bool affirmative)
 		{
-			ButtonYes.enabled = false;
-			ButtonNo.enabled = false;
-			TweenAlpha a = DialogPanel.GetComponent<TweenAlpha>();
+			this.ButtonYes.enabled = false;
+			this.ButtonNo.enabled = false;
+			TweenAlpha a = this.DialogPanel.GetComponent<TweenAlpha>();
 			LeanTween.cancel(base.gameObject);
 			LeanTween.value(base.gameObject, delegate(float f)
 			{
 				this.TextMaterial.SetColor("_FaceColor", new Color(0f, 0f, 0f, f));
 			}, 1f, 0f, 0.3f);
 			a.PlayReverse();
-			if (!affirmative && noCallback != null)
+			if (!affirmative && this.noCallback != null)
 			{
-				noCallback();
+				this.noCallback();
 			}
-			yield return (object)new WaitForSeconds(0.5f);
+			yield return new WaitForSeconds(0.5f);
 			GameSystem.Instance.PopStateStack();
-			if (affirmative && yesCallback != null)
+			if (affirmative && this.yesCallback != null)
 			{
-				yesCallback();
+				this.yesCallback();
 			}
-			Object.Destroy(base.gameObject);
+			UnityEngine.Object.Destroy(base.gameObject);
+			yield break;
 		}
 
 		public void Hide(bool affirmative)

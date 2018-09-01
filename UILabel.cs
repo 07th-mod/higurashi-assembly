@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/UI/NGUI Label")]
@@ -155,6 +156,9 @@ public class UILabel : UIWidget
 	private static BetterList<Vector3> mTempVerts = new BetterList<Vector3>();
 
 	private static BetterList<int> mTempIndices = new BetterList<int>();
+
+	[CompilerGenerated]
+	private static Font.FontTextureRebuildCallback _003C_003Ef__mg_0024cache0;
 
 	private bool shouldBeProcessed
 	{

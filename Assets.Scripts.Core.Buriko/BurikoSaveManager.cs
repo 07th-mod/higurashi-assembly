@@ -94,7 +94,6 @@ namespace Assets.Scripts.Core.Buriko
 				{
 					Logger.LogWarning("Could not read from save file " + path + "\nException: " + ex);
 					throw;
-					IL_013f:;
 				}
 			}
 		}

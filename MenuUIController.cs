@@ -12,29 +12,33 @@ public class MenuUIController : MonoBehaviour
 
 	private bool isClosing;
 
-	private IEnumerator LeaveMenuAnimation(MenuCloseDelegate onClose, bool showMessage)
+	private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose, bool showMessage)
 	{
-		isClosing = true;
-		if (time > 0f)
+		this.isClosing = true;
+		if (this.time > 0f)
 		{
-			yield return (object)new WaitForSeconds(time);
+			yield return new WaitForSeconds(this.time);
 		}
-		yield return (object)null;
-		yield return (object)null;
+		yield return null;
+		yield return null;
 		LeanTween.value(this.Panel.gameObject, delegate(float f)
 		{
 			this.Panel.alpha = f;
 		}, 1f, 0f, 0.3f);
-		yield return (object)new WaitForSeconds(0.3f);
+		yield return new WaitForSeconds(0.3f);
 		if (showMessage)
 		{
 			GameSystem.Instance.MainUIController.FadeIn(0.3f);
 			GameSystem.Instance.SceneController.RevealFace(0.3f);
 			GameSystem.Instance.ExecuteActions();
-			yield return (object)new WaitForSeconds(0.3f);
+			yield return new WaitForSeconds(0.3f);
 		}
-		onClose?.Invoke();
-		Object.Destroy(base.gameObject);
+		if (onClose != null)
+		{
+			onClose();
+		}
+		UnityEngine.Object.Destroy(base.gameObject);
+		yield break;
 	}
 
 	public void LeaveMenu(MenuCloseDelegate onClose, bool showMessage)

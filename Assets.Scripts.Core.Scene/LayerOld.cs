@@ -156,7 +156,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveSprite(int x, int y, int z, int alpha, float wait, bool isblocking)
 		{
-			targetalpha = 0f + (float)alpha / 256f;
+			targetalpha = (float)alpha / 256f;
 			float @float = material.GetFloat("_Alpha");
 			if (!Mathf.Approximately(targetalpha, @float))
 			{
@@ -218,7 +218,7 @@ namespace Assets.Scripts.Core.Scene
 				}
 				else
 				{
-					material.SetFloat("_Alpha", 0f + (float)alpha / 256f);
+					material.SetFloat("_Alpha", (float)alpha / 256f);
 				}
 			}
 		}

@@ -23,9 +23,6 @@ namespace Newtonsoft.Json.Linq
 				{
 					jsonTextWriter.WriteToken(reader);
 					return new JRaw(stringWriter.ToString());
-					IL_002a:
-					JRaw result;
-					return result;
 				}
 			}
 		}

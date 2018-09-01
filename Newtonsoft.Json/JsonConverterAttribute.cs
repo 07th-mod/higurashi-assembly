@@ -25,16 +25,10 @@ namespace Newtonsoft.Json
 			try
 			{
 				return (JsonConverter)Activator.CreateInstance(converterType);
-				IL_0011:
-				JsonConverter result;
-				return result;
 			}
 			catch (Exception innerException)
 			{
 				throw new Exception("Error creating {0}".FormatWith(CultureInfo.InvariantCulture, converterType), innerException);
-				IL_0037:
-				JsonConverter result;
-				return result;
 			}
 		}
 	}

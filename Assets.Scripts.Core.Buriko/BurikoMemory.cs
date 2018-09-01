@@ -13,8 +13,6 @@ namespace Assets.Scripts.Core.Buriko
 {
 	internal class BurikoMemory
 	{
-		private const int FlagCount = 11;
-
 		private Dictionary<string, BurikoMemoryEntry> memorylist = new Dictionary<string, BurikoMemoryEntry>();
 
 		private Dictionary<string, int> variableReference = new Dictionary<string, int>();
@@ -26,6 +24,8 @@ namespace Assets.Scripts.Core.Buriko
 		private Dictionary<string, List<int>> readText = new Dictionary<string, List<int>>();
 
 		private List<string> cgflags = new List<string>();
+
+		private const int FlagCount = 11;
 
 		private int scopeLevel;
 
@@ -41,12 +41,16 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("LOCALWORK_NO_RESULT", 0);
 			variableReference.Add("TipsMode", 1);
 			variableReference.Add("SelectResult", 2);
+			variableReference.Add("s_jump", 3);
 			variableReference.Add("ChapterNumber", 10);
 			variableReference.Add("LOnikakushiDay", 30);
 			variableReference.Add("LWatanagashiDay", 32);
 			variableReference.Add("LTatarigoroshiDay", 33);
 			variableReference.Add("LHimatsubushiDay", 33);
 			variableReference.Add("LTextFade", 31);
+			variableReference.Add("NewTipsStart", 50);
+			variableReference.Add("NewTipsCount", 51);
+			variableReference.Add("TipsCount", 52);
 			variableReference.Add("GFlag_FirstPlay", 0);
 			variableReference.Add("GFlag_GameClear", 1);
 			variableReference.Add("GQsaveNum", 2);
@@ -56,6 +60,8 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GHimatsubushiDay", 6);
 			variableReference.Add("redbox", 7);
 			variableReference.Add("bluebox", 8);
+			variableReference.Add("GTotalTips", 9);
+			variableReference.Add("GHighestChapter", 10);
 			variableReference.Add("GMessageSpeed", 10);
 			variableReference.Add("GAutoSpeed", 11);
 			variableReference.Add("GAutoAdvSpeed", 12);
@@ -185,6 +191,10 @@ namespace Assets.Scripts.Core.Buriko
 			if (!variableReference.TryGetValue(flagname, out int value))
 			{
 				throw new Exception("Unable to get flag with the name " + flagname + ", flag not found.");
+			}
+			if (!flags.ContainsKey(value))
+			{
+				return new BurikoVariable(0);
 			}
 			return new BurikoVariable(flags[value]);
 		}
@@ -372,7 +382,6 @@ namespace Assets.Scripts.Core.Buriko
 				{
 					Debug.LogWarning("Failed to load global data! Exception: " + arg);
 					return;
-					IL_0128:;
 				}
 				try
 				{

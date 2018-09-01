@@ -105,7 +105,7 @@ namespace Assets.Scripts.UI.Tips
 			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 			lTDescr.onComplete = delegate
 			{
-				GameSystem.Instance.AudioController.PlayAudio("msys14.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f);
+				GameSystem.Instance.AudioController.PlayAudio("OMAKE2.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f);
 			};
 			switch (tipstype)
 			{

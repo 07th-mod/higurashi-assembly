@@ -1,6 +1,8 @@
 using Antlr.Runtime.Tree;
 using Assets.Scripts.Core.Buriko;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace BGICompiler.Compiler
@@ -22,6 +24,9 @@ namespace BGICompiler.Compiler
 			switch (treein.Text)
 			{
 			case "TYPEINT":
+				Type = BurikoValueType.Int;
+				break;
+			case "TYPEHEX":
 				Type = BurikoValueType.Int;
 				break;
 			case "TYPESTRING":
@@ -72,42 +77,41 @@ namespace BGICompiler.Compiler
 		{
 			switch (s)
 			{
-			case "==":
-				mathType = BurikoMathType.Equals;
-				return true;
-			case "!=":
-				mathType = BurikoMathType.NotEquals;
-				return true;
-			case "<=":
-				mathType = BurikoMathType.LessThanOrEquals;
-				return true;
-			case ">=":
-				mathType = BurikoMathType.GreaterThanOrEquals;
-				return true;
-			case ">":
-				mathType = BurikoMathType.GreaterThan;
-				return true;
-			case "<":
-				mathType = BurikoMathType.LessThan;
-				return true;
-			case "+":
-				mathType = BurikoMathType.Add;
-				return true;
-			case "-":
-				mathType = BurikoMathType.Subtract;
-				return true;
-			case "*":
-				mathType = BurikoMathType.Multiply;
-				return true;
-			case "/":
-				mathType = BurikoMathType.Divide;
-				return true;
-			case "%":
-				mathType = BurikoMathType.Modulus;
-				return true;
-			default:
-				return false;
+				case "==":
+					this.mathType = BurikoMathType.Equals;
+					return true;
+				case "!=":
+					this.mathType = BurikoMathType.NotEquals;
+					return true;
+				case "<=":
+					this.mathType = BurikoMathType.LessThanOrEquals;
+					return true;
+				case ">=":
+					this.mathType = BurikoMathType.GreaterThanOrEquals;
+					return true;
+				case ">":
+					this.mathType = BurikoMathType.GreaterThan;
+					return true;
+				case "<":
+					this.mathType = BurikoMathType.LessThan;
+					return true;
+				case "+":
+					this.mathType = BurikoMathType.Add;
+					return true;
+				case "-":
+					this.mathType = BurikoMathType.Subtract;
+					return true;
+				case "*":
+					this.mathType = BurikoMathType.Multiply;
+					return true;
+				case "/":
+					this.mathType = BurikoMathType.Divide;
+					return true;
+				case "%":
+					this.mathType = BurikoMathType.Modulus;
+					return true;
 			}
+			return false;
 		}
 
 		public void OutputMath(BinaryWriter output)
@@ -174,7 +178,7 @@ namespace BGICompiler.Compiler
 			{
 			case BurikoValueType.Int:
 			{
-				int value = int.Parse(tree.Text);
+				int value = (!tree.Text.StartsWith("0x")) ? int.Parse(tree.Text) : int.Parse(tree.Text.Substring(2), NumberStyles.HexNumber);
 				output.Write((short)Type);
 				output.Write(value);
 				break;

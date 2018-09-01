@@ -28,9 +28,9 @@ namespace Assets.Scripts.Core.History
 
 		private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose)
 		{
-			yield return (object)new WaitForEndOfFrame();
-			LeanTween.cancel(BackgroundTexture.gameObject);
-			LeanTween.cancel(HistoryPanel.gameObject);
+			yield return new WaitForEndOfFrame();
+			LeanTween.cancel(this.BackgroundTexture.gameObject);
+			LeanTween.cancel(this.HistoryPanel.gameObject);
 			LeanTween.value(this.BackgroundTexture.gameObject, delegate(float f)
 			{
 				this.BackgroundTexture.alpha = f;
@@ -41,15 +41,18 @@ namespace Assets.Scripts.Core.History
 			}, 1f, 0f, 0.2f);
 			GameSystem.Instance.MainUIController.FadeIn(0.2f);
 			GameSystem.Instance.SceneController.RevealFace(0.2f);
-			HistoryTextButton[] array = textButtons;
-			foreach (HistoryTextButton t in array)
+			foreach (HistoryTextButton historyTextButton in this.textButtons)
 			{
-				t.FadeOut(0.2f);
+				historyTextButton.FadeOut(0.2f);
 			}
 			GameSystem.Instance.ExecuteActions();
-			yield return (object)new WaitForSeconds(0.3f);
-			onClose?.Invoke();
-			Object.Destroy(base.gameObject);
+			yield return new WaitForSeconds(0.3f);
+			if (onClose != null)
+			{
+				onClose();
+			}
+			UnityEngine.Object.Destroy(base.gameObject);
+			yield break;
 		}
 
 		public void Leave(MenuUIController.MenuCloseDelegate onClose)

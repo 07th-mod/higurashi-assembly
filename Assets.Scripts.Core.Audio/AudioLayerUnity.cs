@@ -135,18 +135,17 @@ namespace Assets.Scripts.Core.Audio
 			if (!File.Exists(path))
 			{
 				Debug.Log("Audio file does not exist: " + path);
+				yield break;
 			}
-			else
-			{
-				WWW audioLoader = new WWW("file:///" + path);
-				yield return (object)audioLoader;
-				loadedName = filename;
-				audioClip = audioLoader.audioClip;
-				isLoading = false;
-				isLoaded = true;
-				loadCoroutine = null;
-				OnFinishLoading();
-			}
+			WWW audioLoader = new WWW("file:///" + path);
+			yield return audioLoader;
+			this.loadedName = filename;
+			this.audioClip = audioLoader.audioClip;
+			this.isLoading = false;
+			this.isLoaded = true;
+			this.loadCoroutine = null;
+			this.OnFinishLoading();
+			yield break;
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)

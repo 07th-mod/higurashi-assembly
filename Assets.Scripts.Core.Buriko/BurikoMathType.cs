@@ -12,6 +12,8 @@ namespace Assets.Scripts.Core.Buriko
 		Subtract,
 		Multiply,
 		Divide,
-		Modulus
+		Modulus,
+		And,
+		Or
 	}
 }

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Linq
 {
-	public struct JEnumerable<T> : IEnumerable, IEnumerable<T>, IJEnumerable<T> where T : JToken
+	public struct JEnumerable<T> : IJEnumerable<T>, IEnumerable<T>, IEnumerable where T : JToken
 	{
 		public static readonly JEnumerable<T> Empty = new JEnumerable<T>(Enumerable.Empty<T>());
 
@@ -25,14 +25,14 @@ namespace Newtonsoft.Json.Linq
 			_enumerable = enumerable;
 		}
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
 		public IEnumerator<T> GetEnumerator()
 		{
 			return _enumerable.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 
 		public override bool Equals(object obj)

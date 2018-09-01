@@ -16,10 +16,6 @@ namespace Newtonsoft.Json
 			ReadAsDateTimeOffset
 		}
 
-		private const int LineFeedValue = 10;
-
-		private const int CarriageReturnValue = 13;
-
 		private readonly TextReader _reader;
 
 		private readonly StringBuffer _buffer;
@@ -35,6 +31,10 @@ namespace Newtonsoft.Json
 		private ReadType _readType;
 
 		private CultureInfo _culture;
+
+		private const int LineFeedValue = 10;
+
+		private const int CarriageReturnValue = 13;
 
 		public CultureInfo Culture
 		{
@@ -749,7 +749,6 @@ namespace Newtonsoft.Json
 				catch (OverflowException innerException)
 				{
 					throw new JsonReaderException("JSON integer {0} is too large or small for an Int64.".FormatWith(CultureInfo.InvariantCulture, text), innerException);
-					IL_018f:;
 				}
 				newToken = JsonToken.Integer;
 			}

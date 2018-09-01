@@ -360,8 +360,7 @@ public static class NGUIText
 				index += 3;
 				return true;
 			}
-			string text2 = text.Substring(index, 3);
-			switch (text2)
+			switch (text.Substring(index, 3))
 			{
 			case "[b]":
 				bold = true;
@@ -391,8 +390,7 @@ public static class NGUIText
 		}
 		if (text[index + 3] == ']')
 		{
-			string text3 = text.Substring(index, 4);
-			switch (text3)
+			switch (text.Substring(index, 4))
 			{
 			case "[/b]":
 				bold = false;
@@ -431,8 +429,7 @@ public static class NGUIText
 		}
 		if (text[index + 4] == ']')
 		{
-			string text4 = text.Substring(index, 5);
-			switch (text4)
+			switch (text.Substring(index, 5))
 			{
 			case "[sub]":
 				sub = 1;
@@ -450,8 +447,7 @@ public static class NGUIText
 		}
 		if (text[index + 5] == ']')
 		{
-			string text5 = text.Substring(index, 6);
-			switch (text5)
+			switch (text.Substring(index, 6))
 			{
 			case "[/sub]":
 				sub = 0;

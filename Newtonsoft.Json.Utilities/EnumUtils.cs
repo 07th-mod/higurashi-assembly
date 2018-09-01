@@ -38,7 +38,7 @@ namespace Newtonsoft.Json.Utilities
 			IList<T> list = new List<T>();
 			foreach (EnumValue<ulong> item in namesAndValues)
 			{
-				if ((num & item.Value) == item.Value && item.Value != 0L)
+				if ((num & item.Value) == item.Value && item.Value != 0)
 				{
 					list.Add((T)Convert.ChangeType(item.Value, underlyingType, CultureInfo.CurrentCulture));
 				}
@@ -79,7 +79,6 @@ namespace Newtonsoft.Json.Utilities
 				catch (OverflowException innerException)
 				{
 					throw new Exception(string.Format(CultureInfo.InvariantCulture, "Value from enum with the underlying type of {0} cannot be added to dictionary with a value type of {1}. Value was too large: {2}", Enum.GetUnderlyingType(enumType), typeof(TUnderlyingType), Convert.ToUInt64(values[i], CultureInfo.InvariantCulture)), innerException);
-					IL_00bc:;
 				}
 			}
 			return enumValues;

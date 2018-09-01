@@ -1671,17 +1671,17 @@ namespace TMPro
 						case 'U':
 							break;
 						case '\\':
-							goto IL_00f9;
+							goto IL_00f1;
 						case 'n':
-							goto IL_0135;
+							goto IL_012d;
 						case 'r':
-							goto IL_0148;
+							goto IL_0140;
 						case 't':
-							goto IL_015b;
+							goto IL_0153;
 						case 'u':
-							goto IL_016e;
+							goto IL_0166;
 						default:
-							goto IL_019c;
+							goto IL_0194;
 						}
 						if (text.Length > i + 9)
 						{
@@ -1691,18 +1691,18 @@ namespace TMPro
 							continue;
 						}
 					}
-					goto IL_019c;
-					IL_0148:
+					goto IL_0194;
+					IL_0140:
 					chars[num2] = 13;
 					i++;
 					num2++;
 					continue;
-					IL_0135:
+					IL_012d:
 					chars[num2] = 10;
 					i++;
 					num2++;
 					continue;
-					IL_00f9:
+					IL_00f1:
 					if (text.Length > i + 2)
 					{
 						chars[num2] = text[i + 1];
@@ -1711,8 +1711,8 @@ namespace TMPro
 						num2 += 2;
 						continue;
 					}
-					goto IL_019c;
-					IL_016e:
+					goto IL_0194;
+					IL_0166:
 					if (text.Length > i + 5)
 					{
 						chars[num2] = (ushort)GetUTF16(i + 2);
@@ -1720,8 +1720,8 @@ namespace TMPro
 						num2++;
 						continue;
 					}
-					goto IL_019c;
-					IL_019c:
+					goto IL_0194;
+					IL_0194:
 					if (char.IsHighSurrogate(text[i]) && char.IsLowSurrogate(text[i + 1]))
 					{
 						chars[num2] = char.ConvertToUtf32(text[i], text[i + 1]);
@@ -1734,7 +1734,7 @@ namespace TMPro
 						num2++;
 					}
 					continue;
-					IL_015b:
+					IL_0153:
 					chars[num2] = 9;
 					i++;
 					num2++;
@@ -1900,8 +1900,6 @@ namespace TMPro
 			isInputParsingRequired = false;
 			switch (m_inputSource)
 			{
-			case TextInputSources.SetCharArray:
-				break;
 			case TextInputSources.Text:
 				StringToCharArray(m_text, ref m_char_buffer);
 				break;
@@ -2283,7 +2281,7 @@ namespace TMPro
 							num8 = 1f;
 						}
 						float num16 = (!m_isSprite) ? m_padding : 0f;
-						Vector3 vector = new Vector3(0f + m_xAdvance + (m_cached_GlyphInfo.xOffset - num16 - num7) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), (m_cached_GlyphInfo.yOffset + num16) * m_fontScale * num4 - m_lineOffset + m_baselineOffset, 0f);
+						Vector3 vector = new Vector3(m_xAdvance + (m_cached_GlyphInfo.xOffset - num16 - num7) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), (m_cached_GlyphInfo.yOffset + num16) * m_fontScale * num4 - m_lineOffset + m_baselineOffset, 0f);
 						Vector3 vector2 = new Vector3(vector.x, vector.y - (m_cached_GlyphInfo.height + num16 * 2f) * m_fontScale * num4, 0f);
 						Vector3 vector3 = new Vector3(vector2.x + (m_cached_GlyphInfo.width + num16 * 2f + num7 * 2f) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), vector.y, 0f);
 						Vector3 vector4 = new Vector3(vector3.x, vector2.y, 0f);
@@ -2436,7 +2434,7 @@ namespace TMPro
 									num3 = num27;
 									m_maxFontScale = 0f;
 									num4 = 1f;
-									m_xAdvance = 0f + tag_Indent;
+									m_xAdvance = tag_Indent;
 									continue;
 								}
 								if (m_enableAutoSizing && m_fontSize > m_fontSizeMin)
@@ -2580,7 +2578,7 @@ namespace TMPro
 									{
 										DisableMasking();
 									}
-									goto IL_1d66;
+									goto IL_1d54;
 								case TextOverflowModes.Ellipsis:
 									break;
 								case TextOverflowModes.Masking:
@@ -2588,19 +2586,19 @@ namespace TMPro
 									{
 										EnableMasking();
 									}
-									goto IL_1d66;
+									goto IL_1d54;
 								case TextOverflowModes.ScrollRect:
 									if (!m_isMaskingEnabled)
 									{
 										EnableMasking();
 									}
-									goto IL_1d66;
+									goto IL_1d54;
 								case TextOverflowModes.Truncate:
-									goto IL_1c6a;
+									goto IL_1c5e;
 								case TextOverflowModes.Page:
-									goto IL_1ccd;
+									goto IL_1cc1;
 								default:
-									goto IL_1d66;
+									goto IL_1d54;
 								}
 								if (m_isMaskingEnabled)
 								{
@@ -2622,8 +2620,8 @@ namespace TMPro
 							}
 							return;
 						}
-						goto IL_1d66;
-						IL_1d66:
+						goto IL_1d54;
+						IL_1d54:
 						if (num6 == 9)
 						{
 							m_xAdvance += m_fontAsset.fontInfo.TabWidth * m_fontScale;
@@ -2641,7 +2639,7 @@ namespace TMPro
 						{
 							m_maxXAdvance = Mathf.Max(m_maxXAdvance, m_renderedWidth + m_xAdvance);
 							m_renderedWidth = 0f;
-							m_xAdvance = 0f + tag_Indent;
+							m_xAdvance = tag_Indent;
 						}
 						if (num6 == 10 || m_characterCount == num - 1)
 						{
@@ -2707,7 +2705,7 @@ namespace TMPro
 								num3 = num34;
 								m_maxFontScale = 0f;
 								num4 = 1f;
-								m_xAdvance = 0f + tag_LineIndent + tag_Indent;
+								m_xAdvance = tag_LineIndent + tag_Indent;
 								num11 = m_characterCount - 1;
 							}
 						}
@@ -2759,7 +2757,7 @@ namespace TMPro
 						}
 						m_characterCount++;
 						continue;
-						IL_1ccd:
+						IL_1cc1:
 						if (m_isMaskingEnabled)
 						{
 							DisableMasking();
@@ -2775,14 +2773,14 @@ namespace TMPro
 								return;
 							}
 							m_isNewPage = true;
-							m_xAdvance = 0f + tag_Indent;
+							m_xAdvance = tag_Indent;
 							m_lineOffset = 0f;
 							m_lineNumber++;
 							m_pageNumber++;
 							continue;
 						}
-						goto IL_1d66;
-						IL_1c6a:
+						goto IL_1d54;
+						IL_1c5e:
 						if (m_isMaskingEnabled)
 						{
 							DisableMasking();
@@ -2839,11 +2837,11 @@ namespace TMPro
 								case TextAlignmentOptions.TopJustified:
 									if (m_overflowMode != TextOverflowModes.Page)
 									{
-										m_anchorOffset = m_rectCorners[1] + new Vector3(0f + margin.x, 0f - m_maxAscender - margin.y, 0f);
+										m_anchorOffset = m_rectCorners[1] + new Vector3(margin.x, 0f - m_maxAscender - margin.y, 0f);
 									}
 									else
 									{
-										m_anchorOffset = m_rectCorners[1] + new Vector3(0f + margin.x, 0f - m_textInfo.pageInfo[num10].ascender - margin.y, 0f);
+										m_anchorOffset = m_rectCorners[1] + new Vector3(margin.x, 0f - m_textInfo.pageInfo[num10].ascender - margin.y, 0f);
 									}
 									break;
 								case TextAlignmentOptions.Left:
@@ -2852,11 +2850,11 @@ namespace TMPro
 								case TextAlignmentOptions.Justified:
 									if (m_overflowMode != TextOverflowModes.Page)
 									{
-										m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(0f + margin.x, 0f - (m_maxAscender + margin.y + num14 - margin.w) / 2f, 0f);
+										m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(margin.x, 0f - (m_maxAscender + margin.y + num14 - margin.w) / 2f, 0f);
 									}
 									else
 									{
-										m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(0f + margin.x, 0f - (m_textInfo.pageInfo[num10].ascender + margin.y + m_textInfo.pageInfo[num10].descender - margin.w) / 2f, 0f);
+										m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(margin.x, 0f - (m_textInfo.pageInfo[num10].ascender + margin.y + m_textInfo.pageInfo[num10].descender - margin.w) / 2f, 0f);
 									}
 									break;
 								case TextAlignmentOptions.BottomLeft:
@@ -2865,24 +2863,24 @@ namespace TMPro
 								case TextAlignmentOptions.BottomJustified:
 									if (m_overflowMode != TextOverflowModes.Page)
 									{
-										m_anchorOffset = m_rectCorners[0] + new Vector3(0f + margin.x, 0f - num14 + margin.w, 0f);
+										m_anchorOffset = m_rectCorners[0] + new Vector3(margin.x, 0f - num14 + margin.w, 0f);
 									}
 									else
 									{
-										m_anchorOffset = m_rectCorners[0] + new Vector3(0f + margin.x, 0f - m_textInfo.pageInfo[num10].descender + margin.w, 0f);
+										m_anchorOffset = m_rectCorners[0] + new Vector3(margin.x, 0f - m_textInfo.pageInfo[num10].descender + margin.w, 0f);
 									}
 									break;
 								case TextAlignmentOptions.BaselineLeft:
 								case TextAlignmentOptions.Baseline:
 								case TextAlignmentOptions.BaselineRight:
 								case TextAlignmentOptions.BaselineJustified:
-									m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(0f + margin.x, 0f, 0f);
+									m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(margin.x, 0f, 0f);
 									break;
 								case TextAlignmentOptions.MidlineLeft:
 								case TextAlignmentOptions.Midline:
 								case TextAlignmentOptions.MidlineRight:
 								case TextAlignmentOptions.MidlineJustified:
-									m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(0f + margin.x, 0f - (m_meshExtents.max.y + margin.y + m_meshExtents.min.y - margin.w) / 2f, 0f);
+									m_anchorOffset = (m_rectCorners[0] + m_rectCorners[1]) / 2f + new Vector3(margin.x, 0f - (m_meshExtents.max.y + margin.y + m_meshExtents.min.y - margin.w) / 2f, 0f);
 									break;
 								}
 								Vector3 vector5 = Vector3.zero;
@@ -2926,7 +2924,7 @@ namespace TMPro
 									case TextAlignmentOptions.BottomLeft:
 									case TextAlignmentOptions.BaselineLeft:
 									case TextAlignmentOptions.MidlineLeft:
-										vector5 = new Vector3(0f + tMP_LineInfo.marginLeft, 0f, 0f);
+										vector5 = new Vector3(tMP_LineInfo.marginLeft, 0f, 0f);
 										break;
 									case TextAlignmentOptions.Top:
 									case TextAlignmentOptions.Center:
@@ -2987,8 +2985,8 @@ namespace TMPro
 											switch (m_horizontalMapping)
 											{
 											case TextureMappingOptions.Character:
-												characterInfo[k].vertex_BL.uv2.x = 0f + m_uvOffset.x;
-												characterInfo[k].vertex_TL.uv2.x = 0f + m_uvOffset.x;
+												characterInfo[k].vertex_BL.uv2.x = m_uvOffset.x;
+												characterInfo[k].vertex_TL.uv2.x = m_uvOffset.x;
 												characterInfo[k].vertex_TR.uv2.x = 1f + m_uvOffset.x;
 												characterInfo[k].vertex_BR.uv2.x = 1f + m_uvOffset.x;
 												break;
@@ -3019,9 +3017,9 @@ namespace TMPro
 												switch (m_verticalMapping)
 												{
 												case TextureMappingOptions.Character:
-													characterInfo[k].vertex_BL.uv2.y = 0f + m_uvOffset.y;
+													characterInfo[k].vertex_BL.uv2.y = m_uvOffset.y;
 													characterInfo[k].vertex_TL.uv2.y = 1f + m_uvOffset.y;
-													characterInfo[k].vertex_TR.uv2.y = 0f + m_uvOffset.y;
+													characterInfo[k].vertex_TR.uv2.y = m_uvOffset.y;
 													characterInfo[k].vertex_BR.uv2.y = 1f + m_uvOffset.y;
 													break;
 												case TextureMappingOptions.Line:
@@ -3051,10 +3049,10 @@ namespace TMPro
 											switch (m_verticalMapping)
 											{
 											case TextureMappingOptions.Character:
-												characterInfo[k].vertex_BL.uv2.y = 0f + m_uvOffset.y;
+												characterInfo[k].vertex_BL.uv2.y = m_uvOffset.y;
 												characterInfo[k].vertex_TL.uv2.y = 1f + m_uvOffset.y;
 												characterInfo[k].vertex_TR.uv2.y = 1f + m_uvOffset.y;
-												characterInfo[k].vertex_BR.uv2.y = 0f + m_uvOffset.y;
+												characterInfo[k].vertex_BR.uv2.y = m_uvOffset.y;
 												break;
 											case TextureMappingOptions.Line:
 												characterInfo[k].vertex_BL.uv2.y = (characterInfo[k].vertex_BL.position.y - lineExtents.min.y) / (lineExtents.max.y - lineExtents.min.y) + m_uvOffset.y;
@@ -3456,19 +3454,19 @@ namespace TMPro
 		{
 			TMP_CharacterInfo[] characterInfo = m_textInfo.characterInfo;
 			m_textInfo.characterInfo[i].vertexIndex = (short)index_X4;
-			m_textInfo.meshInfo.vertices[0 + index_X4] = characterInfo[i].vertex_BL.position;
+			m_textInfo.meshInfo.vertices[index_X4] = characterInfo[i].vertex_BL.position;
 			m_textInfo.meshInfo.vertices[1 + index_X4] = characterInfo[i].vertex_TL.position;
 			m_textInfo.meshInfo.vertices[2 + index_X4] = characterInfo[i].vertex_TR.position;
 			m_textInfo.meshInfo.vertices[3 + index_X4] = characterInfo[i].vertex_BR.position;
-			m_textInfo.meshInfo.uvs0[0 + index_X4] = characterInfo[i].vertex_BL.uv;
+			m_textInfo.meshInfo.uvs0[index_X4] = characterInfo[i].vertex_BL.uv;
 			m_textInfo.meshInfo.uvs0[1 + index_X4] = characterInfo[i].vertex_TL.uv;
 			m_textInfo.meshInfo.uvs0[2 + index_X4] = characterInfo[i].vertex_TR.uv;
 			m_textInfo.meshInfo.uvs0[3 + index_X4] = characterInfo[i].vertex_BR.uv;
-			m_textInfo.meshInfo.uvs2[0 + index_X4] = characterInfo[i].vertex_BL.uv2;
+			m_textInfo.meshInfo.uvs2[index_X4] = characterInfo[i].vertex_BL.uv2;
 			m_textInfo.meshInfo.uvs2[1 + index_X4] = characterInfo[i].vertex_TL.uv2;
 			m_textInfo.meshInfo.uvs2[2 + index_X4] = characterInfo[i].vertex_TR.uv2;
 			m_textInfo.meshInfo.uvs2[3 + index_X4] = characterInfo[i].vertex_BR.uv2;
-			m_textInfo.meshInfo.colors32[0 + index_X4] = characterInfo[i].vertex_BL.color;
+			m_textInfo.meshInfo.colors32[index_X4] = characterInfo[i].vertex_BL.color;
 			m_textInfo.meshInfo.colors32[1 + index_X4] = characterInfo[i].vertex_TL.color;
 			m_textInfo.meshInfo.colors32[2 + index_X4] = characterInfo[i].vertex_TR.color;
 			m_textInfo.meshInfo.colors32[3 + index_X4] = characterInfo[i].vertex_BR.color;
@@ -3544,7 +3542,7 @@ namespace TMPro
 				Vector2 vector7 = new Vector2((m_cached_Underline_GlyphInfo.x + num4 + m_cached_Underline_GlyphInfo.width) / m_fontAsset.fontInfo.AtlasWidth, vector2.y);
 				Vector2 vector8 = new Vector2(vector7.x, vector.y);
 				Vector2[] uvs = m_textInfo.meshInfo.uvs0;
-				uvs[0 + index] = vector;
+				uvs[index] = vector;
 				uvs[1 + index] = vector2;
 				uvs[2 + index] = vector3;
 				uvs[3 + index] = vector4;
@@ -3562,7 +3560,7 @@ namespace TMPro
 				float num6 = maxScale * lossyScale.z;
 				float scale = num6;
 				Vector2[] uvs2 = m_textInfo.meshInfo.uvs2;
-				uvs2[0 + index] = PackUV(0f, 0f, num6);
+				uvs2[index] = PackUV(0f, 0f, num6);
 				uvs2[1 + index] = PackUV(0f, 1f, num6);
 				uvs2[2 + index] = PackUV(x, 1f, num6);
 				uvs2[3 + index] = PackUV(x, 0f, num6);
@@ -3579,7 +3577,7 @@ namespace TMPro
 				uvs2[10 + index] = PackUV(1f, 1f, num6);
 				uvs2[11 + index] = PackUV(1f, 0f, num6);
 				Color32[] colors = m_textInfo.meshInfo.colors32;
-				colors[0 + index] = underlineColor;
+				colors[index] = underlineColor;
 				colors[1 + index] = underlineColor;
 				colors[2 + index] = underlineColor;
 				colors[3 + index] = underlineColor;
@@ -4108,7 +4106,7 @@ namespace TMPro
 				case 43991:
 					if (m_overflowMode == TextOverflowModes.Page)
 					{
-						m_xAdvance = 0f + tag_LineIndent + tag_Indent;
+						m_xAdvance = tag_LineIndent + tag_Indent;
 						m_lineOffset = 0f;
 						m_pageNumber++;
 						m_isNewPage = true;
@@ -4831,17 +4829,17 @@ namespace TMPro
 						{
 							precision = text[i + 3] - 48;
 						}
-						switch (text[i + 1])
+						switch (text[i + 1] - 48)
 						{
-						case '0':
+						case 0:
 							old_arg0 = arg0;
 							AddFloatToCharArray(arg0, ref index, precision);
 							break;
-						case '1':
+						case 1:
 							old_arg1 = arg1;
 							AddFloatToCharArray(arg1, ref index, precision);
 							break;
-						case '2':
+						case 2:
 							old_arg2 = arg2;
 							AddFloatToCharArray(arg2, ref index, precision);
 							break;
@@ -4881,28 +4879,28 @@ namespace TMPro
 						case 'n':
 							break;
 						case 'r':
-							goto IL_0093;
+							goto IL_008e;
 						case 't':
-							goto IL_00aa;
+							goto IL_00a5;
 						default:
-							goto IL_00c1;
+							goto IL_00bc;
 						}
 						m_char_buffer[num2] = 10;
 						i++;
 						num2++;
 						continue;
 					}
-					goto IL_00c1;
-					IL_0093:
+					goto IL_00bc;
+					IL_008e:
 					m_char_buffer[num2] = 13;
 					i++;
 					num2++;
 					continue;
-					IL_00c1:
+					IL_00bc:
 					m_char_buffer[num2] = charArray[i];
 					num2++;
 					continue;
-					IL_00aa:
+					IL_00a5:
 					m_char_buffer[num2] = 9;
 					i++;
 					num2++;

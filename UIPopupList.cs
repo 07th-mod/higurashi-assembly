@@ -24,9 +24,9 @@ public class UIPopupList : UIWidgetContainer
 
 	public delegate void LegacyEvent(string val);
 
-	private const float animSpeed = 0.15f;
-
 	public static UIPopupList current;
+
+	private const float animSpeed = 0.15f;
 
 	public UIAtlas atlas;
 
@@ -403,16 +403,17 @@ public class UIPopupList : UIWidgetContainer
 
 	private IEnumerator UpdateTweenPosition()
 	{
-		if (mHighlight != null && mHighlightedLabel != null)
+		if (this.mHighlight != null && this.mHighlightedLabel != null)
 		{
-			TweenPosition tp = mHighlight.GetComponent<TweenPosition>();
+			TweenPosition tp = this.mHighlight.GetComponent<TweenPosition>();
 			while (tp != null && tp.enabled)
 			{
-				tp.to = GetHighlightPosition();
-				yield return (object)null;
+				tp.to = this.GetHighlightPosition();
+				yield return null;
 			}
 		}
-		mTweening = false;
+		this.mTweening = false;
+		yield break;
 	}
 
 	private void OnItemHover(GameObject go, bool isOver)

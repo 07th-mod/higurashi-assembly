@@ -23,8 +23,6 @@ namespace Assets.Scripts.Core
 {
 	public class GameSystem : MonoBehaviour
 	{
-		private const float maxProcTime = 0.01f;
-
 		private static GameSystem _instance;
 
 		public AssetManager AssetManager;
@@ -85,6 +83,8 @@ namespace Assets.Scripts.Core
 
 		private PreparedAction actions;
 
+		private PreparedAction delayedActions;
+
 		public bool IsInitialized;
 
 		public bool IsSkipping;
@@ -129,6 +129,10 @@ namespace Assets.Scripts.Core
 
 		private bool CanAdvance = true;
 
+		private bool WaitOnDelayedAction;
+
+		private int coroutinecount;
+
 		public bool CanExit;
 
 		private GameState gameState;
@@ -154,6 +158,8 @@ namespace Assets.Scripts.Core
 		private MGHelper.InputHandler inputHandler;
 
 		private IGameState curStateObj;
+
+		private const float maxProcTime = 0.01f;
 
 		private float blockInputTime;
 
@@ -212,7 +218,6 @@ namespace Assets.Scripts.Core
 			{
 				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
 				throw;
-				IL_00d0:;
 			}
 			IsRunning = true;
 			GameState = GameState.Normal;
@@ -342,6 +347,29 @@ namespace Assets.Scripts.Core
 			actions = null;
 		}
 
+		public void RegisterDelayedAction(PreparedAction action)
+		{
+			delayedActions = (PreparedAction)Delegate.Combine(delayedActions, action);
+		}
+
+		public void ExecuteDelayedActions()
+		{
+			StartCoroutine(DelayedActionRunner());
+			WaitOnDelayedAction = true;
+		}
+
+		private IEnumerator DelayedActionRunner()
+		{
+			yield return null;
+			if (this.delayedActions != null)
+			{
+				this.delayedActions();
+			}
+			this.delayedActions = null;
+			this.WaitOnDelayedAction = false;
+			yield break;
+		}
+
 		public void RegisterAction(PreparedAction action)
 		{
 			actions = (PreparedAction)Delegate.Combine(actions, action);
@@ -349,21 +377,28 @@ namespace Assets.Scripts.Core
 
 		public void ExecuteActions()
 		{
-			StartCoroutine(ActionRunner());
+			PreparedAction act = actions;
+			actions = null;
+			StartCoroutine(ActionRunner(act));
 			CanAdvance = false;
+			coroutinecount++;
 		}
 
-		private IEnumerator ActionRunner()
+		private IEnumerator ActionRunner(PreparedAction act)
 		{
 			Resources.UnloadUnusedAssets();
-			yield return (object)null;
-			yield return (object)null;
-			if (actions != null)
+			yield return null;
+			yield return null;
+			if (act != null)
 			{
-				actions();
+				act();
 			}
-			actions = null;
-			CanAdvance = true;
+			this.coroutinecount--;
+			if (this.coroutinecount == 0)
+			{
+				this.CanAdvance = true;
+			}
+			yield break;
 		}
 
 		public void HideUIControls()
@@ -739,13 +774,14 @@ namespace Assets.Scripts.Core
 
 		public IEnumerator FrameWaitForFullscreen(int width, int height, bool fullscreen)
 		{
-			yield return (object)new WaitForEndOfFrame();
-			yield return (object)new WaitForFixedUpdate();
+			yield return new WaitForEndOfFrame();
+			yield return new WaitForFixedUpdate();
 			Screen.SetResolution(width, height, fullscreen);
 			while (Screen.width != width || Screen.height != height)
 			{
-				yield return (object)null;
+				yield return null;
 			}
+			yield break;
 		}
 
 		public void GoFullscreen()
@@ -800,48 +836,57 @@ namespace Assets.Scripts.Core
 					{
 						blockInputTime -= Time.deltaTime;
 					}
-					if (IsRunning && CanAdvance)
+					if (IsRunning && CanAdvance && !WaitOnDelayedAction)
 					{
 						UpdateWaits();
-						UpdateCarret();
-						try
+						if (delayedActions != null)
 						{
-							if (GameState == GameState.Normal)
+							if (!HasExistingWaits())
 							{
-								TextController.Update();
-								if (!IsSkipping)
-								{
-									goto IL_0112;
-								}
-								skipWait -= Time.deltaTime;
-								if (!(skipWait <= 0f))
-								{
-									goto IL_0112;
-								}
-								if (!HasExistingWaits())
-								{
-									if (SkipModeDelay)
-									{
-										skipWait = 0.1f;
-									}
-									goto IL_0112;
-								}
-								ClearAllWaits();
+								ExecuteDelayedActions();
 							}
-							goto end_IL_00a2;
-							IL_0112:
-							float num = Time.time + 0.01f;
-							while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && CanAdvance)
-							{
-								ScriptSystem.Advance();
-							}
-							end_IL_00a2:;
 						}
-						catch (Exception)
+						else
 						{
-							IsRunning = false;
-							throw;
-							IL_0178:;
+							UpdateCarret();
+							try
+							{
+								if (GameState == GameState.Normal)
+								{
+									TextController.Update();
+									if (!IsSkipping)
+									{
+										goto IL_013a;
+									}
+									skipWait -= Time.deltaTime;
+									if (!(skipWait <= 0f))
+									{
+										goto IL_013a;
+									}
+									if (!HasExistingWaits())
+									{
+										if (SkipModeDelay)
+										{
+											skipWait = 0.1f;
+										}
+										goto IL_013a;
+									}
+									ClearAllWaits();
+								}
+								goto end_IL_00ca;
+								IL_013a:
+								float num = Time.time + 0.01f;
+								while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction)
+								{
+									ScriptSystem.Advance();
+								}
+								end_IL_00ca:;
+							}
+							catch (Exception)
+							{
+								IsRunning = false;
+								throw;
+							}
 						}
 					}
 				}

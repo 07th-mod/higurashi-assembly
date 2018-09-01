@@ -21,6 +21,9 @@ namespace Newtonsoft.Json.Utilities
 					string text;
 					switch (c)
 					{
+					default:
+						text = ((c == '\u2028') ? "\\u2028" : ((c == '\u2029') ? "\\u2029" : ((c == '"') ? ((delimiter != '"') ? null : "\\\"") : ((c == '\'') ? ((delimiter != '\'') ? null : "\\'") : ((c == '\\') ? "\\\\" : ((c != '\u0085') ? ((c > '\u001f') ? null : StringUtils.ToCharAsUnicode(c)) : "\\u0085"))))));
+						break;
 					case '\t':
 						text = "\\t";
 						break;
@@ -35,27 +38,6 @@ namespace Newtonsoft.Json.Utilities
 						break;
 					case '\b':
 						text = "\\b";
-						break;
-					case '\\':
-						text = "\\\\";
-						break;
-					case '\u0085':
-						text = "\\u0085";
-						break;
-					case '\u2028':
-						text = "\\u2028";
-						break;
-					case '\u2029':
-						text = "\\u2029";
-						break;
-					case '\'':
-						text = ((delimiter != '\'') ? null : "\\'");
-						break;
-					case '"':
-						text = ((delimiter != '"') ? null : "\\\"");
-						break;
-					default:
-						text = ((c > '\u001f') ? null : StringUtils.ToCharAsUnicode(c));
 						break;
 					}
 					if (text != null)
@@ -107,9 +89,6 @@ namespace Newtonsoft.Json.Utilities
 			{
 				WriteEscapedJavaScriptString(stringWriter, value, delimiter, appendDelimiters);
 				return stringWriter.ToString();
-				IL_003c:
-				string result;
-				return result;
 			}
 		}
 	}

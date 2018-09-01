@@ -27,8 +27,8 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>DLLs\UnityEngine.dll</HintPath>
+    <Reference Include="System.Xml">
+      <HintPath>DLLs\System.Xml.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>DLLs\System.dll</HintPath>
@@ -36,8 +36,8 @@
     <Reference Include="System.Core">
       <HintPath>DLLs\System.Core.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>DLLs\System.Xml.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>DLLs\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>

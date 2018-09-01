@@ -127,7 +127,6 @@ namespace Assets.Scripts.Core.Buriko.VarTypes
 			for (int i = 0; i < count; i++)
 			{
 				array[i] = Elements[i];
-				Debug.Log(Elements[i]);
 			}
 			return array;
 		}

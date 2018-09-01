@@ -19,7 +19,8 @@ namespace Assets.Scripts.UI
 		{
 			if (UICamera.currentTouchID >= -1 && !(cooldown > 0f))
 			{
-				switch (Type)
+				SlideButtonType type = Type;
+				switch (type)
 				{
 				case SlideButtonType.Log:
 					GameSystem.Instance.SwitchToHistoryScreen();

@@ -31,31 +31,45 @@ namespace Assets.Scripts.UI.Extra
 				StateExtraScreen stateExtraScreen = GameSystem.Instance.GetStateObject() as StateExtraScreen;
 				if (stateExtraScreen != null)
 				{
-					switch (base.name)
+					string name = base.name;
+					if (name != null)
 					{
-					case "CastReview":
-						stateExtraScreen.RequestLeave();
-						BurikoScriptSystem.Instance.CallScript("omake_04");
-						break;
-					case "ChapterJump":
-						stateExtraScreen.RequestLeave();
-						GameSystem.Instance.AddWait(new Wait(0.5f, WaitTypes.WaitForTime, delegate
+						if (!(name == "CastReview"))
 						{
-							GameSystem.Instance.PushStateObject(new StateChapterJump());
-						}));
-						break;
-					case "ViewTips":
-						stateExtraScreen.RequestLeave();
-						BurikoMemory.Instance.SetFlag("TipsMode", 5);
-						BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
-						break;
-					case "Continue":
-						stateExtraScreen.RequestLeave();
-						BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
-						AudioController.Instance.ClearTempAudio();
-						AudioController.Instance.FadeOutBGM(0, 1000, waitForFade: false);
-						BurikoScriptSystem.Instance.JumpToBlock("Title");
-						break;
+							if (!(name == "ChapterJump"))
+							{
+								if (!(name == "ViewTips"))
+								{
+									if (name == "Continue")
+									{
+										stateExtraScreen.RequestLeave();
+										BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+										AudioController.Instance.ClearTempAudio();
+										AudioController.Instance.FadeOutBGM(0, 1000, waitForFade: false);
+										BurikoScriptSystem.Instance.JumpToBlock("Title");
+									}
+								}
+								else
+								{
+									stateExtraScreen.RequestLeave();
+									BurikoMemory.Instance.SetFlag("TipsMode", 5);
+									BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
+								}
+							}
+							else
+							{
+								stateExtraScreen.RequestLeave();
+								GameSystem.Instance.AddWait(new Wait(0.5f, WaitTypes.WaitForTime, delegate
+								{
+									GameSystem.Instance.PushStateObject(new StateChapterJump());
+								}));
+							}
+						}
+						else
+						{
+							stateExtraScreen.RequestLeave();
+							BurikoScriptSystem.Instance.CallScript("staffroom");
+						}
 					}
 				}
 			}

@@ -20,8 +20,6 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		public int ChapterNumber;
 
-		public string BlockName;
-
 		private bool isActive = true;
 
 		public void Disable()
@@ -40,7 +38,9 @@ namespace Assets.Scripts.UI.ChapterJump
 					stateChapterJump.RequestLeave();
 					if (!(base.name == "Return"))
 					{
-						BurikoScriptSystem.Instance.JumpToBlock(BlockName);
+						BurikoMemory.Instance.SetFlag("s_jump", ChapterNumber);
+						Debug.Log("Setting chapter to " + ChapterNumber);
+						BurikoScriptSystem.Instance.JumpToBlock("Game");
 					}
 				}
 			}
@@ -65,7 +65,7 @@ namespace Assets.Scripts.UI.ChapterJump
 		{
 			TextMeshPro component = GetComponent<TextMeshPro>();
 			component.text = ((!GameSystem.Instance.UseEnglishText) ? Japanese : English);
-			if (!(base.name == "Return") && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && BurikoMemory.Instance.GetGlobalFlag("GWatanagashiDay").IntValue() < ChapterNumber)
+			if (!(base.name == "Return") && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && BurikoMemory.Instance.GetGlobalFlag("GHighestChapter").IntValue() < ChapterNumber)
 			{
 				base.gameObject.SetActive(value: false);
 			}

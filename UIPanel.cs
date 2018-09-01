@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/UI/NGUI Panel")]
@@ -119,6 +120,15 @@ public class UIPanel : UIRect
 	private UIDrawCall.OnRenderCallback mOnRender;
 
 	private bool mForced;
+
+	[CompilerGenerated]
+	private static Comparison<UIPanel> _003C_003Ef__mg_0024cache0;
+
+	[CompilerGenerated]
+	private static Comparison<UIPanel> _003C_003Ef__mg_0024cache1;
+
+	[CompilerGenerated]
+	private static Comparison<UIWidget> _003C_003Ef__mg_0024cache2;
 
 	public static int nextUnusedDepth
 	{

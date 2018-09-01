@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Linq
 {
-	public abstract class JContainer : JToken, IEnumerable, IEnumerable<JToken>, ICollection<JToken>, IList<JToken>, IList, ICollection, ITypedList, IBindingList
+	public abstract class JContainer : JToken, IList<JToken>, ICollection<JToken>, IEnumerable<JToken>, IEnumerable, ITypedList, IBindingList, IList, ICollection
 	{
 		private class JTokenReferenceEqualityComparer : IEqualityComparer<JToken>
 		{
@@ -201,137 +201,6 @@ namespace Newtonsoft.Json.Linq
 			}
 		}
 
-		string ITypedList.GetListName(PropertyDescriptor[] listAccessors)
-		{
-			return string.Empty;
-		}
-
-		PropertyDescriptorCollection ITypedList.GetItemProperties(PropertyDescriptor[] listAccessors)
-		{
-			return (First as ICustomTypeDescriptor)?.GetProperties();
-		}
-
-		int IList<JToken>.IndexOf(JToken item)
-		{
-			return IndexOfItem(item);
-		}
-
-		void IList<JToken>.Insert(int index, JToken item)
-		{
-			InsertItem(index, item);
-		}
-
-		void IList<JToken>.RemoveAt(int index)
-		{
-			RemoveItemAt(index);
-		}
-
-		void ICollection<JToken>.Add(JToken item)
-		{
-			Add(item);
-		}
-
-		void ICollection<JToken>.Clear()
-		{
-			ClearItems();
-		}
-
-		bool ICollection<JToken>.Contains(JToken item)
-		{
-			return ContainsItem(item);
-		}
-
-		void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
-		{
-			CopyItemsTo(array, arrayIndex);
-		}
-
-		bool ICollection<JToken>.Remove(JToken item)
-		{
-			return RemoveItem(item);
-		}
-
-		int IList.Add(object value)
-		{
-			Add(EnsureValue(value));
-			return Count - 1;
-		}
-
-		void IList.Clear()
-		{
-			ClearItems();
-		}
-
-		bool IList.Contains(object value)
-		{
-			return ContainsItem(EnsureValue(value));
-		}
-
-		int IList.IndexOf(object value)
-		{
-			return IndexOfItem(EnsureValue(value));
-		}
-
-		void IList.Insert(int index, object value)
-		{
-			InsertItem(index, EnsureValue(value));
-		}
-
-		void IList.Remove(object value)
-		{
-			RemoveItem(EnsureValue(value));
-		}
-
-		void IList.RemoveAt(int index)
-		{
-			RemoveItemAt(index);
-		}
-
-		void ICollection.CopyTo(Array array, int index)
-		{
-			CopyItemsTo(array, index);
-		}
-
-		void IBindingList.AddIndex(PropertyDescriptor property)
-		{
-		}
-
-		object IBindingList.AddNew()
-		{
-			Newtonsoft.Json.ObservableSupport.AddingNewEventArgs addingNewEventArgs = new Newtonsoft.Json.ObservableSupport.AddingNewEventArgs();
-			OnAddingNew(addingNewEventArgs);
-			if (addingNewEventArgs.NewObject == null)
-			{
-				throw new Exception("Could not determine new value to add to '{0}'.".FormatWith(CultureInfo.InvariantCulture, GetType()));
-			}
-			if (!(addingNewEventArgs.NewObject is JToken))
-			{
-				throw new Exception("New item to be added to collection must be compatible with {0}.".FormatWith(CultureInfo.InvariantCulture, typeof(JToken)));
-			}
-			JToken jToken = (JToken)addingNewEventArgs.NewObject;
-			Add(jToken);
-			return jToken;
-		}
-
-		void IBindingList.ApplySort(PropertyDescriptor property, ListSortDirection direction)
-		{
-			throw new NotSupportedException();
-		}
-
-		int IBindingList.Find(PropertyDescriptor property, object key)
-		{
-			throw new NotSupportedException();
-		}
-
-		void IBindingList.RemoveIndex(PropertyDescriptor property)
-		{
-		}
-
-		void IBindingList.RemoveSort()
-		{
-			throw new NotSupportedException();
-		}
-
 		internal void CheckReentrancy()
 		{
 			if (_busy)
@@ -398,18 +267,19 @@ namespace Newtonsoft.Json.Linq
 
 		public IEnumerable<JToken> Descendants()
 		{
-			foreach (JToken childrenToken in ChildrenTokens)
+			foreach (JToken o in this.ChildrenTokens)
 			{
-				yield return childrenToken;
-				JContainer c = childrenToken as JContainer;
+				yield return o;
+				JContainer c = o as JContainer;
 				if (c != null)
 				{
-					foreach (JToken item in c.Descendants())
+					foreach (JToken d in c.Descendants())
 					{
-						yield return item;
+						yield return d;
 					}
 				}
 			}
+			yield break;
 		}
 
 		internal bool IsMultiContent(object content)
@@ -650,10 +520,23 @@ namespace Newtonsoft.Json.Linq
 			{
 				IEnumerable enumerable = (IEnumerable)content;
 				int num = index;
-				foreach (object item2 in enumerable)
+				IEnumerator enumerator = enumerable.GetEnumerator();
+				try
 				{
-					AddInternal(num, item2);
-					num++;
+					while (enumerator.MoveNext())
+					{
+						object current = enumerator.Current;
+						AddInternal(num, current);
+						num++;
+					}
+				}
+				finally
+				{
+					IDisposable disposable;
+					if ((disposable = (enumerator as IDisposable)) != null)
+					{
+						disposable.Dispose();
+					}
 				}
 			}
 			else
@@ -835,6 +718,56 @@ namespace Newtonsoft.Json.Linq
 			return num;
 		}
 
+		string ITypedList.GetListName(PropertyDescriptor[] listAccessors)
+		{
+			return string.Empty;
+		}
+
+		PropertyDescriptorCollection ITypedList.GetItemProperties(PropertyDescriptor[] listAccessors)
+		{
+			return (First as ICustomTypeDescriptor)?.GetProperties();
+		}
+
+		int IList<JToken>.IndexOf(JToken item)
+		{
+			return IndexOfItem(item);
+		}
+
+		void IList<JToken>.Insert(int index, JToken item)
+		{
+			InsertItem(index, item);
+		}
+
+		void IList<JToken>.RemoveAt(int index)
+		{
+			RemoveItemAt(index);
+		}
+
+		void ICollection<JToken>.Add(JToken item)
+		{
+			Add(item);
+		}
+
+		void ICollection<JToken>.Clear()
+		{
+			ClearItems();
+		}
+
+		bool ICollection<JToken>.Contains(JToken item)
+		{
+			return ContainsItem(item);
+		}
+
+		void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
+		{
+			CopyItemsTo(array, arrayIndex);
+		}
+
+		bool ICollection<JToken>.Remove(JToken item)
+		{
+			return RemoveItem(item);
+		}
+
 		private JToken EnsureValue(object value)
 		{
 			if (value == null)
@@ -846,6 +779,87 @@ namespace Newtonsoft.Json.Linq
 				return (JToken)value;
 			}
 			throw new ArgumentException("Argument is not a JToken.");
+		}
+
+		int IList.Add(object value)
+		{
+			Add(EnsureValue(value));
+			return Count - 1;
+		}
+
+		void IList.Clear()
+		{
+			ClearItems();
+		}
+
+		bool IList.Contains(object value)
+		{
+			return ContainsItem(EnsureValue(value));
+		}
+
+		int IList.IndexOf(object value)
+		{
+			return IndexOfItem(EnsureValue(value));
+		}
+
+		void IList.Insert(int index, object value)
+		{
+			InsertItem(index, EnsureValue(value));
+		}
+
+		void IList.Remove(object value)
+		{
+			RemoveItem(EnsureValue(value));
+		}
+
+		void IList.RemoveAt(int index)
+		{
+			RemoveItemAt(index);
+		}
+
+		void ICollection.CopyTo(Array array, int index)
+		{
+			CopyItemsTo(array, index);
+		}
+
+		void IBindingList.AddIndex(PropertyDescriptor property)
+		{
+		}
+
+		object IBindingList.AddNew()
+		{
+			Newtonsoft.Json.ObservableSupport.AddingNewEventArgs addingNewEventArgs = new Newtonsoft.Json.ObservableSupport.AddingNewEventArgs();
+			OnAddingNew(addingNewEventArgs);
+			if (addingNewEventArgs.NewObject == null)
+			{
+				throw new Exception("Could not determine new value to add to '{0}'.".FormatWith(CultureInfo.InvariantCulture, GetType()));
+			}
+			if (!(addingNewEventArgs.NewObject is JToken))
+			{
+				throw new Exception("New item to be added to collection must be compatible with {0}.".FormatWith(CultureInfo.InvariantCulture, typeof(JToken)));
+			}
+			JToken jToken = (JToken)addingNewEventArgs.NewObject;
+			Add(jToken);
+			return jToken;
+		}
+
+		void IBindingList.ApplySort(PropertyDescriptor property, ListSortDirection direction)
+		{
+			throw new NotSupportedException();
+		}
+
+		int IBindingList.Find(PropertyDescriptor property, object key)
+		{
+			throw new NotSupportedException();
+		}
+
+		void IBindingList.RemoveIndex(PropertyDescriptor property)
+		{
+		}
+
+		void IBindingList.RemoveSort()
+		{
+			throw new NotSupportedException();
 		}
 	}
 }

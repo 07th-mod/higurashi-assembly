@@ -3,16 +3,11 @@ using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Bson
 {
-	internal class BsonObject : BsonToken, IEnumerable, IEnumerable<BsonProperty>
+	internal class BsonObject : BsonToken, IEnumerable<BsonProperty>, IEnumerable
 	{
 		private readonly List<BsonProperty> _children = new List<BsonProperty>();
 
 		public override BsonType Type => BsonType.Object;
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
 
 		public void Add(string name, BsonToken token)
 		{
@@ -27,6 +22,11 @@ namespace Newtonsoft.Json.Bson
 		public IEnumerator<BsonProperty> GetEnumerator()
 		{
 			return _children.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 }

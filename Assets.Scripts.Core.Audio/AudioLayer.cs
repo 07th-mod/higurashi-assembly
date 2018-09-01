@@ -143,14 +143,14 @@ namespace Assets.Scripts.Core.Audio
 
 		private IEnumerator WaitForLoad()
 		{
-			yield return (object)new WaitForFixedUpdate();
-			yield return (object)new WaitForFixedUpdate();
-			IVorbisStreamStatus[] stats = vorbisReader.Stats;
-			foreach (IVorbisStreamStatus s in stats)
+			yield return new WaitForFixedUpdate();
+			yield return new WaitForFixedUpdate();
+			foreach (IVorbisStreamStatus vorbisStreamStatus in this.vorbisReader.Stats)
 			{
-				Debug.Log(s.TotalPages);
+				Debug.Log(vorbisStreamStatus.TotalPages);
 			}
-			isReady = true;
+			this.isReady = true;
+			yield break;
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)

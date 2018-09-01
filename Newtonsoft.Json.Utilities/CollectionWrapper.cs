@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Utilities
 {
-	internal class CollectionWrapper<T> : IEnumerable, IWrappedCollection, IList, ICollection, ICollection<T>, IEnumerable<T>
+	internal class CollectionWrapper<T> : ICollection<T>, IWrappedCollection, IEnumerable<T>, IEnumerable, IList, ICollection
 	{
 		private readonly IList _list;
 
@@ -123,6 +123,74 @@ namespace Newtonsoft.Json.Utilities
 			_genericCollection = list;
 		}
 
+		public virtual void Add(T item)
+		{
+			if (_genericCollection != null)
+			{
+				_genericCollection.Add(item);
+			}
+			else
+			{
+				_list.Add(item);
+			}
+		}
+
+		public virtual void Clear()
+		{
+			if (_genericCollection != null)
+			{
+				_genericCollection.Clear();
+			}
+			else
+			{
+				_list.Clear();
+			}
+		}
+
+		public virtual bool Contains(T item)
+		{
+			if (_genericCollection != null)
+			{
+				return _genericCollection.Contains(item);
+			}
+			return _list.Contains(item);
+		}
+
+		public virtual void CopyTo(T[] array, int arrayIndex)
+		{
+			if (_genericCollection != null)
+			{
+				_genericCollection.CopyTo(array, arrayIndex);
+			}
+			else
+			{
+				_list.CopyTo(array, arrayIndex);
+			}
+		}
+
+		public virtual bool Remove(T item)
+		{
+			if (_genericCollection != null)
+			{
+				return _genericCollection.Remove(item);
+			}
+			bool flag = _list.Contains(item);
+			if (flag)
+			{
+				_list.Remove(item);
+			}
+			return flag;
+		}
+
+		public virtual IEnumerator<T> GetEnumerator()
+		{
+			if (_genericCollection != null)
+			{
+				return _genericCollection.GetEnumerator();
+			}
+			return _list.Cast<T>().GetEnumerator();
+		}
+
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			if (_genericCollection != null)
@@ -191,74 +259,6 @@ namespace Newtonsoft.Json.Utilities
 		void ICollection.CopyTo(Array array, int arrayIndex)
 		{
 			CopyTo((T[])array, arrayIndex);
-		}
-
-		public virtual void Add(T item)
-		{
-			if (_genericCollection != null)
-			{
-				_genericCollection.Add(item);
-			}
-			else
-			{
-				_list.Add(item);
-			}
-		}
-
-		public virtual void Clear()
-		{
-			if (_genericCollection != null)
-			{
-				_genericCollection.Clear();
-			}
-			else
-			{
-				_list.Clear();
-			}
-		}
-
-		public virtual bool Contains(T item)
-		{
-			if (_genericCollection != null)
-			{
-				return _genericCollection.Contains(item);
-			}
-			return _list.Contains(item);
-		}
-
-		public virtual void CopyTo(T[] array, int arrayIndex)
-		{
-			if (_genericCollection != null)
-			{
-				_genericCollection.CopyTo(array, arrayIndex);
-			}
-			else
-			{
-				_list.CopyTo(array, arrayIndex);
-			}
-		}
-
-		public virtual bool Remove(T item)
-		{
-			if (_genericCollection != null)
-			{
-				return _genericCollection.Remove(item);
-			}
-			bool flag = _list.Contains(item);
-			if (flag)
-			{
-				_list.Remove(item);
-			}
-			return flag;
-		}
-
-		public virtual IEnumerator<T> GetEnumerator()
-		{
-			if (_genericCollection != null)
-			{
-				return _genericCollection.GetEnumerator();
-			}
-			return _list.Cast<T>().GetEnumerator();
 		}
 
 		private static void VerifyValueType(object value)

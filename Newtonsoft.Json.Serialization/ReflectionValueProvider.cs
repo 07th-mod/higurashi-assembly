@@ -24,7 +24,6 @@ namespace Newtonsoft.Json.Serialization
 			catch (Exception innerException)
 			{
 				throw new JsonSerializationException("Error setting value to '{0}' on '{1}'.".FormatWith(CultureInfo.InvariantCulture, _memberInfo.Name, target.GetType()), innerException);
-				IL_0046:;
 			}
 		}
 
@@ -33,16 +32,10 @@ namespace Newtonsoft.Json.Serialization
 			try
 			{
 				return ReflectionUtils.GetMemberValue(_memberInfo, target);
-				IL_0012:
-				object result;
-				return result;
 			}
 			catch (Exception innerException)
 			{
 				throw new JsonSerializationException("Error getting value from '{0}' on '{1}'.".FormatWith(CultureInfo.InvariantCulture, _memberInfo.Name, target.GetType()), innerException);
-				IL_004b:
-				object result;
-				return result;
 			}
 		}
 	}

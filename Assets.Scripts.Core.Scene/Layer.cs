@@ -7,18 +7,6 @@ namespace Assets.Scripts.Core.Scene
 {
 	public class Layer : MonoBehaviour
 	{
-		private const string shaderDefaultName = "MGShader/LayerShader";
-
-		private const string shaderAlphaBlendName = "MGShader/LayerShaderAlpha";
-
-		private const string shaderCrossfadeName = "MGShader/LayerCrossfade4";
-
-		private const string shaderMaskedName = "MGShader/LayerMasked";
-
-		private const string shaderMultiplyName = "MGShader/LayerMultiply";
-
-		private const string shaderReverseZName = "MGShader/LayerShaderReverseZ";
-
 		private Mesh mesh;
 
 		private MeshFilter meshFilter;
@@ -38,6 +26,18 @@ namespace Assets.Scripts.Core.Scene
 		public string SecondaryName = string.Empty;
 
 		public string MaskName = string.Empty;
+
+		private const string shaderDefaultName = "MGShader/LayerShader";
+
+		private const string shaderAlphaBlendName = "MGShader/LayerShaderAlpha";
+
+		private const string shaderCrossfadeName = "MGShader/LayerCrossfade4";
+
+		private const string shaderMaskedName = "MGShader/LayerMasked";
+
+		private const string shaderMultiplyName = "MGShader/LayerMultiply";
+
+		private const string shaderReverseZName = "MGShader/LayerShaderReverseZ";
 
 		private Shader shaderDefault;
 
@@ -94,9 +94,9 @@ namespace Assets.Scripts.Core.Scene
 			MtnCtrlElement[] array = motion;
 			foreach (MtnCtrlElement mt in array)
 			{
-				float time = (float)mt.Time / 1000f;
-				MoveLayerEx(mt.Route, mt.Points, 1f - (float)mt.Transparancy / 256f, time);
-				yield return (object)new WaitForSeconds(time);
+				float num = (float)mt.Time / 1000f;
+				MoveLayerEx(mt.Route, mt.Points, 1f - (float)mt.Transparancy / 256f, num);
+				yield return (object)new WaitForSeconds(num);
 				startRange = 1f - (float)mt.Transparancy / 256f;
 			}
 			FinishAll();
@@ -491,6 +491,7 @@ namespace Assets.Scripts.Core.Scene
 			material.shader = shaderCrossfade;
 			SetSecondaryTexture(primary);
 			SetPrimaryTexture(primaryTexture);
+			PrimaryName = targetImage;
 			startRange = 1f;
 			targetRange = 0f;
 			targetAlpha = 1f;

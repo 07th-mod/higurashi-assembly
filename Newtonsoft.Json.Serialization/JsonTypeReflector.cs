@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
@@ -25,15 +26,21 @@ namespace Newtonsoft.Json.Serialization
 
 		public const string SpecifiedPostfix = "Specified";
 
-		private const string MetadataTypeAttributeTypeName = "System.ComponentModel.DataAnnotations.MetadataTypeAttribute, System.ComponentModel.DataAnnotations, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
-
 		private static readonly ThreadSafeStore<ICustomAttributeProvider, Type> JsonConverterTypeCache = new ThreadSafeStore<ICustomAttributeProvider, Type>(GetJsonConverterTypeFromAttribute);
 
 		private static readonly ThreadSafeStore<Type, Type> AssociatedMetadataTypesCache = new ThreadSafeStore<Type, Type>(GetAssociateMetadataTypeFromAttribute);
 
+		private const string MetadataTypeAttributeTypeName = "System.ComponentModel.DataAnnotations.MetadataTypeAttribute, System.ComponentModel.DataAnnotations, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
+
 		private static Type _cachedMetadataTypeAttributeType;
 
 		private static bool? _dynamicCodeGeneration;
+
+		[CompilerGenerated]
+		private static Func<ICustomAttributeProvider, Type> _003C_003Ef__mg_0024cache0;
+
+		[CompilerGenerated]
+		private static Func<Type, Type> _003C_003Ef__mg_0024cache1;
 
 		public static bool DynamicCodeGeneration
 		{
@@ -185,18 +192,8 @@ namespace Newtonsoft.Json.Serialization
 			{
 				return null;
 			}
-			object obj2;
-			if (DynamicCodeGeneration)
-			{
-				IMetadataTypeAttribute metadataTypeAttribute = DynamicWrapper.CreateWrapper<IMetadataTypeAttribute>(obj);
-				obj2 = metadataTypeAttribute;
-			}
-			else
-			{
-				obj2 = new LateBoundMetadataTypeAttribute(obj);
-			}
-			IMetadataTypeAttribute metadataTypeAttribute2 = (IMetadataTypeAttribute)obj2;
-			return metadataTypeAttribute2.MetadataClassType;
+			IMetadataTypeAttribute metadataTypeAttribute = (!DynamicCodeGeneration) ? new LateBoundMetadataTypeAttribute(obj) : DynamicWrapper.CreateWrapper<IMetadataTypeAttribute>(obj);
+			return metadataTypeAttribute.MetadataClassType;
 		}
 
 		private static Type GetMetadataTypeAttributeType()

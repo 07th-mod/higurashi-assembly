@@ -45,15 +45,6 @@ namespace Newtonsoft.Json.Linq
 			_current = token;
 		}
 
-		bool IJsonLineInfo.HasLineInfo()
-		{
-			if (base.CurrentState == State.Start)
-			{
-				return false;
-			}
-			return ((IJsonLineInfo)((!IsEndElement) ? _current : null))?.HasLineInfo() ?? false;
-		}
-
 		public override byte[] ReadAsBytes()
 		{
 			Read();
@@ -250,6 +241,15 @@ namespace Newtonsoft.Json.Linq
 		private string SafeToString(object value)
 		{
 			return value?.ToString();
+		}
+
+		bool IJsonLineInfo.HasLineInfo()
+		{
+			if (base.CurrentState == State.Start)
+			{
+				return false;
+			}
+			return ((IJsonLineInfo)((!IsEndElement) ? _current : null))?.HasLineInfo() ?? false;
 		}
 	}
 }

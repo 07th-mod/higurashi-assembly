@@ -6,8 +6,6 @@ namespace Assets.Scripts.Core.History
 {
 	public class TextHistory
 	{
-		private const int MaxEntries = 100;
-
 		private List<HistoryLine> lines = new List<HistoryLine>();
 
 		private AudioInfo lastVoice;
@@ -19,6 +17,8 @@ namespace Assets.Scripts.Core.History
 		private TextMeshProFont fontJapanese;
 
 		private TextMeshProFont fontEnglish;
+
+		private const int MaxEntries = 100;
 
 		public int LineCount => lines.Count;
 

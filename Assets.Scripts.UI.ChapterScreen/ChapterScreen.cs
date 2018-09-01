@@ -1,3 +1,4 @@
+using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.Tips;
 using System;
@@ -18,7 +19,12 @@ namespace Assets.Scripts.UI.ChapterScreen
 
 		public void Show()
 		{
-			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
+			SetFade(0f);
+			GameSystem.Instance.RegisterAction(delegate
+			{
+				LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
+			});
+			GameSystem.Instance.ExecuteActions();
 			TipsManager.ReturnPage = 0;
 		}
 

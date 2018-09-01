@@ -2,6 +2,7 @@ using Newtonsoft.Json.Utilities;
 using System;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace Newtonsoft.Json.Serialization
@@ -43,6 +44,9 @@ namespace Newtonsoft.Json.Serialization
 		internal static readonly DefaultSerializationBinder Instance = new DefaultSerializationBinder();
 
 		private readonly ThreadSafeStore<TypeNameKey, Type> _typeCache = new ThreadSafeStore<TypeNameKey, Type>(GetTypeFromTypeNameKey);
+
+		[CompilerGenerated]
+		private static Func<TypeNameKey, Type> _003C_003Ef__mg_0024cache0;
 
 		private static Type GetTypeFromTypeNameKey(TypeNameKey typeNameKey)
 		{

@@ -212,7 +212,6 @@ namespace Assets.Scripts.UI
 			{
 				UpdateAlpha(0f);
 			}
-			gameSystem.ExecuteActions();
 		}
 
 		public void FadeIn(float time)
@@ -229,18 +228,18 @@ namespace Assets.Scripts.UI
 			{
 				UpdateAlpha(1f);
 			}
-			gameSystem.ExecuteActions();
 		}
 
 		private IEnumerator QuickSaveAnimation()
 		{
-			QuickSaveIcon.SetActive(value: true);
-			TweenAlpha t = QuickSaveIcon.GetComponent<TweenAlpha>();
+			this.QuickSaveIcon.SetActive(true);
+			TweenAlpha t = this.QuickSaveIcon.GetComponent<TweenAlpha>();
 			t.PlayForward();
-			yield return (object)new WaitForSeconds(3f);
+			yield return new WaitForSeconds(3f);
 			t.PlayReverse();
-			yield return (object)new WaitForSeconds(0.5f);
-			QuickSaveIcon.SetActive(value: false);
+			yield return new WaitForSeconds(0.5f);
+			this.QuickSaveIcon.SetActive(false);
+			yield break;
 		}
 
 		public void ShowQuickSaveIcon()

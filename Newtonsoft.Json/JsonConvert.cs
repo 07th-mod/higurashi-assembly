@@ -32,9 +32,6 @@ namespace Newtonsoft.Json
 			{
 				WriteDateTimeString(stringWriter, value, GetUtcOffset(value), value.Kind);
 				return stringWriter.ToString();
-				IL_0028:
-				string result;
-				return result;
 			}
 		}
 
@@ -44,9 +41,6 @@ namespace Newtonsoft.Json
 			{
 				WriteDateTimeString(stringWriter, value.UtcDateTime, value.Offset, DateTimeKind.Local);
 				return stringWriter.ToString();
-				IL_0029:
-				string result;
-				return result;
 			}
 		}
 
@@ -65,10 +59,7 @@ namespace Newtonsoft.Json
 			long value2 = ConvertDateTimeToJavaScriptTicks(value, offset);
 			writer.Write("\"\\/Date(");
 			writer.Write(value2);
-			switch (kind)
-			{
-			case DateTimeKind.Unspecified:
-			case DateTimeKind.Local:
+			if (kind == DateTimeKind.Local || kind == DateTimeKind.Unspecified)
 			{
 				writer.Write((offset.Ticks < 0) ? "-" : "+");
 				int num = Math.Abs(offset.Hours);
@@ -83,8 +74,6 @@ namespace Newtonsoft.Json
 					writer.Write(0);
 				}
 				writer.Write(num2);
-				break;
-			}
 			}
 			writer.Write(")\\/\"");
 		}

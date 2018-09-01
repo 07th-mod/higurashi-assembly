@@ -97,96 +97,94 @@ namespace Newtonsoft.Json.Schema
 			switch (propertyName)
 			{
 			case "type":
-				CurrentSchema.Type = ProcessType();
-				break;
+				this.CurrentSchema.Type = this.ProcessType();
+				return;
 			case "id":
-				CurrentSchema.Id = (string)_reader.Value;
-				break;
+				this.CurrentSchema.Id = (string)this._reader.Value;
+				return;
 			case "title":
-				CurrentSchema.Title = (string)_reader.Value;
-				break;
+				this.CurrentSchema.Title = (string)this._reader.Value;
+				return;
 			case "description":
-				CurrentSchema.Description = (string)_reader.Value;
-				break;
+				this.CurrentSchema.Description = (string)this._reader.Value;
+				return;
 			case "properties":
-				ProcessProperties();
-				break;
+				this.ProcessProperties();
+				return;
 			case "items":
-				ProcessItems();
-				break;
+				this.ProcessItems();
+				return;
 			case "additionalProperties":
-				ProcessAdditionalProperties();
-				break;
+				this.ProcessAdditionalProperties();
+				return;
 			case "patternProperties":
-				ProcessPatternProperties();
-				break;
+				this.ProcessPatternProperties();
+				return;
 			case "required":
-				CurrentSchema.Required = (bool)_reader.Value;
-				break;
+				this.CurrentSchema.Required = new bool?((bool)this._reader.Value);
+				return;
 			case "requires":
-				CurrentSchema.Requires = (string)_reader.Value;
-				break;
+				this.CurrentSchema.Requires = (string)this._reader.Value;
+				return;
 			case "identity":
-				ProcessIdentity();
-				break;
+				this.ProcessIdentity();
+				return;
 			case "minimum":
-				CurrentSchema.Minimum = Convert.ToDouble(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.Minimum = new double?(Convert.ToDouble(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "maximum":
-				CurrentSchema.Maximum = Convert.ToDouble(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.Maximum = new double?(Convert.ToDouble(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "exclusiveMinimum":
-				CurrentSchema.ExclusiveMinimum = (bool)_reader.Value;
-				break;
+				this.CurrentSchema.ExclusiveMinimum = new bool?((bool)this._reader.Value);
+				return;
 			case "exclusiveMaximum":
-				CurrentSchema.ExclusiveMaximum = (bool)_reader.Value;
-				break;
+				this.CurrentSchema.ExclusiveMaximum = new bool?((bool)this._reader.Value);
+				return;
 			case "maxLength":
-				CurrentSchema.MaximumLength = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.MaximumLength = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "minLength":
-				CurrentSchema.MinimumLength = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.MinimumLength = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "maxItems":
-				CurrentSchema.MaximumItems = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.MaximumItems = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "minItems":
-				CurrentSchema.MinimumItems = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.MinimumItems = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "divisibleBy":
-				CurrentSchema.DivisibleBy = Convert.ToDouble(_reader.Value, CultureInfo.InvariantCulture);
-				break;
+				this.CurrentSchema.DivisibleBy = new double?(Convert.ToDouble(this._reader.Value, CultureInfo.InvariantCulture));
+				return;
 			case "disallow":
-				CurrentSchema.Disallow = ProcessType();
-				break;
+				this.CurrentSchema.Disallow = this.ProcessType();
+				return;
 			case "default":
-				ProcessDefault();
-				break;
+				this.ProcessDefault();
+				return;
 			case "hidden":
-				CurrentSchema.Hidden = (bool)_reader.Value;
-				break;
+				this.CurrentSchema.Hidden = new bool?((bool)this._reader.Value);
+				return;
 			case "readonly":
-				CurrentSchema.ReadOnly = (bool)_reader.Value;
-				break;
+				this.CurrentSchema.ReadOnly = new bool?((bool)this._reader.Value);
+				return;
 			case "format":
-				CurrentSchema.Format = (string)_reader.Value;
-				break;
+				this.CurrentSchema.Format = (string)this._reader.Value;
+				return;
 			case "pattern":
-				CurrentSchema.Pattern = (string)_reader.Value;
-				break;
+				this.CurrentSchema.Pattern = (string)this._reader.Value;
+				return;
 			case "options":
-				ProcessOptions();
-				break;
+				this.ProcessOptions();
+				return;
 			case "enum":
-				ProcessEnum();
-				break;
+				this.ProcessEnum();
+				return;
 			case "extends":
-				ProcessExtends();
-				break;
-			default:
-				_reader.Skip();
-				break;
+				this.ProcessExtends();
+				return;
 			}
+			this._reader.Skip();
 		}
 
 		private void ProcessExtends()

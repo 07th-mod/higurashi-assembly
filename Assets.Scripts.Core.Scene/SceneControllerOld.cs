@@ -4,13 +4,13 @@ namespace Assets.Scripts.Core.Scene
 {
 	public class SceneControllerOld : MonoBehaviour
 	{
-		private const int NumCharLayers = 32;
-
 		private SceneOld[] scenes = new SceneOld[2];
 
 		private GameSystem gameSystem;
 
 		private GameObject effectCamera;
+
+		private const int NumCharLayers = 32;
 
 		private int foregroundScene;
 

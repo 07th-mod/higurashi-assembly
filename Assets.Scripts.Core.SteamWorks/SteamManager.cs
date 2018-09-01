@@ -42,7 +42,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				}
 				try
 				{
-					if (SteamAPI.RestartAppIfNecessary(new AppId_t(526490u)))
+					if (SteamAPI.RestartAppIfNecessary(new AppId_t(577480u)))
 					{
 						GameSystem.Instance.CanExit = true;
 						Application.Quit();
@@ -55,7 +55,6 @@ namespace Assets.Scripts.Core.SteamWorks
 					GameSystem.Instance.CanExit = true;
 					Application.Quit();
 					return;
-					IL_00ac:;
 				}
 				m_bInitialized = SteamAPI.Init();
 				if (!m_bInitialized)

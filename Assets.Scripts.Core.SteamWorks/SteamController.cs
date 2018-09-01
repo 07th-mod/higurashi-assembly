@@ -39,7 +39,7 @@ namespace Assets.Scripts.Core.SteamWorks
 						return;
 					}
 				}
-				AddAchievement("HIGURASHI_STORY_EP04_TIPS");
+				AddAchievement("HIGURASHI_STORY_EP05_TIPS");
 			}
 		}
 

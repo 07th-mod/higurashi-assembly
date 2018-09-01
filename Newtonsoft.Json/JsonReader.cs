@@ -88,11 +88,6 @@ namespace Newtonsoft.Json
 			Push(JTokenType.None);
 		}
 
-		void IDisposable.Dispose()
-		{
-			Dispose(disposing: true);
-		}
-
 		private void Push(JTokenType value)
 		{
 			_stack.Add(value);
@@ -291,6 +286,11 @@ namespace Newtonsoft.Json
 			default:
 				throw new JsonReaderException("Not a valid close JsonToken: {0}".FormatWith(CultureInfo.InvariantCulture, token));
 			}
+		}
+
+		void IDisposable.Dispose()
+		{
+			Dispose(disposing: true);
 		}
 
 		protected virtual void Dispose(bool disposing)

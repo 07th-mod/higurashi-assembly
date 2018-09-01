@@ -197,11 +197,6 @@ namespace Newtonsoft.Json
 			CloseOutput = true;
 		}
 
-		void IDisposable.Dispose()
-		{
-			Dispose(disposing: true);
-		}
-
 		private void Push(JTokenType value)
 		{
 			_top++;
@@ -1008,6 +1003,11 @@ namespace Newtonsoft.Json
 			{
 				throw new JsonWriterException("Only white space characters should be used.");
 			}
+		}
+
+		void IDisposable.Dispose()
+		{
+			Dispose(disposing: true);
 		}
 
 		private void Dispose(bool disposing)

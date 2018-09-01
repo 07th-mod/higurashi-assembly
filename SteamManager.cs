@@ -58,7 +58,6 @@ internal class SteamManager : MonoBehaviour
 				Debug.LogError("[Steamworks.NET] Could not load [lib]steam_api.dll/so/dylib. It's likely not in the correct location. Refer to the README for more details.\n" + arg, this);
 				Application.Quit();
 				return;
-				IL_00a6:;
 			}
 			m_bInitialized = SteamAPI.Init();
 			if (!m_bInitialized)

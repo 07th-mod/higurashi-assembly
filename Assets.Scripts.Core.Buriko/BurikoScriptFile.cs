@@ -448,6 +448,21 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationDisplayWindow()
+		{
+			SetOperationType("DisplayWindow");
+			if (gameSystem.IsSkipping)
+			{
+				gameSystem.MainUIController.ShowMessageBox();
+			}
+			else
+			{
+				gameSystem.MainUIController.FadeIn(0.5f);
+			}
+			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationSpringText()
 		{
 			ReadVariable().IntValue();
@@ -620,12 +635,13 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationStartShakingOfWindow()
 		{
 			SetOperationType("StartShakingOfWindow");
-			float speed = (float)ReadVariable().IntValue() / 1000f;
+			int num = ReadVariable().IntValue();
 			int level = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
 			int vector = ReadVariable().IntValue();
 			int loopcount = ReadVariable().IntValue();
 			bool isblocking = ReadVariable().BoolValue();
+			float speed = (float)((256 - num) * 5) / 1000f;
 			gameSystem.MainUIController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking);
 			return BurikoVariable.Null;
 		}
@@ -633,12 +649,13 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationStartShakingOfAllObjects()
 		{
 			SetOperationType("StartShakingOfAllObjects");
-			float speed = (float)ReadVariable().IntValue() / 1000f;
+			int num = ReadVariable().IntValue();
 			int level = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
 			int vector = ReadVariable().IntValue();
 			int loopcount = ReadVariable().IntValue();
 			bool isblocking = ReadVariable().BoolValue();
+			float speed = (float)((256 - num) * 5) / 1000f;
 			gameSystem.SceneController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking);
 			return BurikoVariable.Null;
 		}
@@ -647,12 +664,13 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("StartShakingOfBustshot");
 			int layer = ReadVariable().IntValue();
-			float speed = (float)ReadVariable().IntValue() / 1000f;
+			int num = ReadVariable().IntValue();
 			int level = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
 			int vector = ReadVariable().IntValue();
 			int loopcount = ReadVariable().IntValue();
 			bool isblocking = ReadVariable().BoolValue();
+			float speed = (float)((256 - num) * 5) / 1000f;
 			gameSystem.SceneController.ShakeBustshot(layer, speed, level, attenuation, vector, loopcount, isblocking);
 			return BurikoVariable.Null;
 		}
@@ -690,11 +708,11 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("ShakeScreen");
 			int vector = ReadVariable().IntValue();
 			int level = ReadVariable().IntValue();
-			float num = (float)ReadVariable().IntValue() / 1000f;
+			int num = ReadVariable().IntValue();
 			int loopcount = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
-			num *= 2f;
-			gameSystem.SceneController.ShakeScene(num, level, attenuation, vector, loopcount, isblocking: true);
+			int num2 = (256 - num) * 5;
+			gameSystem.SceneController.ShakeScene((float)num2, level, attenuation, vector, loopcount, isblocking: true);
 			return BurikoVariable.Null;
 		}
 
@@ -748,23 +766,42 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationDrawScene()
 		{
 			SetOperationType("DrawScene");
-			string text = ReadVariable().StringValue();
+			string texture = ReadVariable().StringValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
 			}
-			gameSystem.SceneController.DrawScene(text, time);
-			gameSystem.ExecuteActions();
-			BurikoMemory.Instance.SetCGFlag(text);
+			if (GameSystem.Instance.MessageBoxVisible)
+			{
+				if (gameSystem.IsSkipping)
+				{
+					gameSystem.MainUIController.FadeOut(0f, isBlocking: false);
+				}
+				else
+				{
+					gameSystem.MainUIController.FadeOut(0.5f, isBlocking: true);
+				}
+				gameSystem.RegisterDelayedAction(delegate
+				{
+					gameSystem.SceneController.DrawScene(texture, time);
+					gameSystem.ExecuteActions();
+				});
+			}
+			else
+			{
+				gameSystem.SceneController.DrawScene(texture, time);
+				gameSystem.ExecuteActions();
+			}
+			BurikoMemory.Instance.SetCGFlag(texture);
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationDrawSceneWithMask()
 		{
 			SetOperationType("DrawSceneWithMask");
-			string text = ReadVariable().StringValue();
-			string maskname = ReadVariable().StringValue();
+			string texture = ReadVariable().StringValue();
+			string mask = ReadVariable().StringValue();
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
@@ -772,9 +809,28 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				time = 0f;
 			}
-			gameSystem.SceneController.DrawSceneWithMask(text, maskname, time);
-			gameSystem.ExecuteActions();
-			BurikoMemory.Instance.SetCGFlag(text);
+			if (GameSystem.Instance.MessageBoxVisible)
+			{
+				if (gameSystem.IsSkipping)
+				{
+					gameSystem.MainUIController.FadeOut(0f, isBlocking: false);
+				}
+				else
+				{
+					gameSystem.MainUIController.FadeOut(0.5f, isBlocking: true);
+				}
+				gameSystem.RegisterDelayedAction(delegate
+				{
+					gameSystem.SceneController.DrawSceneWithMask(texture, mask, time);
+					gameSystem.ExecuteActions();
+				});
+			}
+			else
+			{
+				gameSystem.SceneController.DrawSceneWithMask(texture, mask, time);
+				gameSystem.ExecuteActions();
+			}
+			BurikoMemory.Instance.SetCGFlag(texture);
 			return BurikoVariable.Null;
 		}
 
@@ -906,6 +962,25 @@ namespace Assets.Scripts.Core.Buriko
 				gameSystem.SceneController.FadeSprite(layer, wait, flag2);
 			}
 			if (flag2)
+			{
+				gameSystem.ExecuteActions();
+			}
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationChangeBustshot()
+		{
+			SetOperationType("ChangeBustshot");
+			int layer = ReadVariable().IntValue();
+			string textureName = ReadVariable().StringValue();
+			float wait = (float)ReadVariable().IntValue() / 1000f;
+			bool flag = ReadVariable().BoolValue();
+			if (gameSystem.IsSkipping)
+			{
+				wait = 0f;
+			}
+			gameSystem.SceneController.ChangeBustshot(layer, textureName, wait, flag);
+			if (flag)
 			{
 				gameSystem.ExecuteActions();
 			}
@@ -1673,6 +1748,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("Break");
 			Debug.Break();
+			gameSystem.AddWait(new Wait(0.01f, WaitTypes.WaitForTime, null));
 			return BurikoVariable.Null;
 		}
 
@@ -1715,6 +1791,11 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSavePoint()
 		{
 			SetOperationType("SavePoint");
+			if (!GameSystem.Instance.CanSave)
+			{
+				Debug.LogError("Script operation SavePoint: Cannot create save point while saving is disabled!");
+				return BurikoVariable.Null;
+			}
 			string text = ReadVariable().StringValue();
 			string text2 = ReadVariable().StringValue();
 			gameSystem.TextController.SetFullText(text, 0);
@@ -1948,6 +2029,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetSpeedOfMessage();
 			case BurikoOperations.DisableWindow:
 				return OperationDisableWindow();
+			case BurikoOperations.DisplayWindow:
+				return OperationDisplayWindow();
 			case BurikoOperations.SpringText:
 				return OperationSpringText();
 			case BurikoOperations.SetStyleOfMessageSwinging:
@@ -2014,6 +2097,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMoveBustshot();
 			case BurikoOperations.FadeBustshot:
 				return OperationFadeBustshot();
+			case BurikoOperations.ChangeBustshot:
+				return OperationChangeBustshot();
 			case BurikoOperations.DrawBustshotWithFiltering:
 				return OperationDrawBustshotWithFiltering();
 			case BurikoOperations.DrawFace:
@@ -2160,29 +2245,45 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				members = burikoVariable.IntValue();
 			}
-			IBurikoObject burikoObject;
-			switch (text)
+			if (text != null)
 			{
-			case "char":
-				burikoObject = new BurikoString();
-				burikoObject.Create(members);
-				break;
-			case "ST_MtnCtrlElement":
-				burikoObject = new BurikoMtnCtrlElement();
-				burikoObject.Create(members);
-				break;
-			case "ST_Vector":
-				burikoObject = new BurikoVector();
-				burikoObject.Create(members);
-				break;
-			case "int":
-				burikoObject = new BurikoInt();
-				burikoObject.Create(members);
-				break;
-			default:
-				throw new Exception("Unknown declaration variable type " + text);
+				IBurikoObject burikoObject;
+				if (!(text == "char"))
+				{
+					if (!(text == "ST_MtnCtrlElement"))
+					{
+						if (!(text == "ST_Vector"))
+						{
+							if (!(text == "int"))
+							{
+								goto IL_00da;
+							}
+							burikoObject = new BurikoInt();
+							burikoObject.Create(members);
+						}
+						else
+						{
+							burikoObject = new BurikoVector();
+							burikoObject.Create(members);
+						}
+					}
+					else
+					{
+						burikoObject = new BurikoMtnCtrlElement();
+						burikoObject.Create(members);
+					}
+				}
+				else
+				{
+					burikoObject = new BurikoString();
+					burikoObject.Create(members);
+				}
+				BurikoMemory.Instance.AddMemory(name, burikoObject);
+				return;
 			}
-			BurikoMemory.Instance.AddMemory(name, burikoObject);
+			goto IL_00da;
+			IL_00da:
+			throw new Exception("Unknown declaration variable type " + text);
 		}
 
 		public void CommandAssignment()
@@ -2227,7 +2328,6 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				Debug.LogError($"{Filename}: Failed to read file! Position: {Position} Exception: {arg}");
 				throw;
-				IL_0046:;
 			}
 			switch (burikoCommands)
 			{

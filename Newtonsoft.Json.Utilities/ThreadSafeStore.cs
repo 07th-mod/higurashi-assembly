@@ -54,9 +54,6 @@ namespace Newtonsoft.Json.Utilities
 					_store = dictionary;
 				}
 				return val;
-				IL_0080:
-				TValue result;
-				return result;
 			}
 		}
 	}

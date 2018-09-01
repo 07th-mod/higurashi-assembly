@@ -19,6 +19,16 @@ namespace Assets.Scripts.Core
 			onFinish = onFinishDelegate;
 		}
 
+		public override string ToString()
+		{
+			return $"Wait {Type} IsActive: {IsActive} RemainingTime: {time}";
+		}
+
+		public float GetTime()
+		{
+			return time;
+		}
+
 		public void Update()
 		{
 			time -= Time.deltaTime;

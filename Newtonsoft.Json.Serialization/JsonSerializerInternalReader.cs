@@ -306,7 +306,6 @@ namespace Newtonsoft.Json.Serialization
 							catch (Exception innerException)
 							{
 								throw new JsonSerializationException("Error resolving type specified in JSON '{0}'.".FormatWith(CultureInfo.InvariantCulture, text3), innerException);
-								IL_01a6:;
 							}
 							if (type == null)
 							{
@@ -437,14 +436,10 @@ namespace Newtonsoft.Json.Serialization
 				try
 				{
 					return ConvertUtils.ConvertOrCast(value, culture, targetType);
-					IL_0024:
-					return value;
 				}
 				catch (Exception innerException)
 				{
 					throw new JsonSerializationException("Error converting value {0} to type '{1}'.".FormatWith(CultureInfo.InvariantCulture, FormatValueForPrint(value), targetType), innerException);
-					IL_0054:
-					return value;
 				}
 			}
 			return value;
@@ -567,7 +562,6 @@ namespace Newtonsoft.Json.Serialization
 						catch (Exception innerException)
 						{
 							throw new JsonSerializationException("Could not convert string '{0}' to dictionary key type '{1}'. Create a TypeConverter to convert from the string to the key type object.".FormatWith(CultureInfo.InvariantCulture, reader.Value, contract.DictionaryKeyType), innerException);
-							IL_00b2:;
 						}
 						if (!ReadForType(reader, contract.DictionaryValueType, null))
 						{
@@ -623,9 +617,6 @@ namespace Newtonsoft.Json.Serialization
 			try
 			{
 				return ReadForType(reader, t, null);
-				IL_000f:
-				bool result;
-				return result;
 			}
 			catch (JsonReaderException)
 			{
@@ -634,9 +625,6 @@ namespace Newtonsoft.Json.Serialization
 					throw;
 				}
 				return true;
-				IL_002b:
-				bool result;
-				return result;
 			}
 		}
 
@@ -801,9 +789,22 @@ namespace Newtonsoft.Json.Serialization
 						{
 							IWrappedCollection wrappedCollection = jsonArrayContract.CreateWrapper(value2);
 							IWrappedCollection wrappedCollection2 = jsonArrayContract.CreateWrapper(value);
-							foreach (object item3 in wrappedCollection2)
+							IEnumerator enumerator3 = wrappedCollection2.GetEnumerator();
+							try
 							{
-								wrappedCollection.Add(item3);
+								while (enumerator3.MoveNext())
+								{
+									object current3 = enumerator3.Current;
+									wrappedCollection.Add(current3);
+								}
+							}
+							finally
+							{
+								IDisposable disposable;
+								if ((disposable = (enumerator3 as IDisposable)) != null)
+								{
+									disposable.Dispose();
+								}
 							}
 						}
 					}
@@ -815,9 +816,22 @@ namespace Newtonsoft.Json.Serialization
 						{
 							IWrappedDictionary wrappedDictionary = jsonDictionaryContract.CreateWrapper(value3);
 							IWrappedDictionary wrappedDictionary2 = jsonDictionaryContract.CreateWrapper(value);
-							foreach (DictionaryEntry item4 in (IEnumerable)wrappedDictionary2)
+							IDictionaryEnumerator enumerator4 = wrappedDictionary2.GetEnumerator();
+							try
 							{
-								wrappedDictionary.Add(item4.Key, item4.Value);
+								while (enumerator4.MoveNext())
+								{
+									DictionaryEntry dictionaryEntry = (DictionaryEntry)enumerator4.Current;
+									wrappedDictionary.Add(dictionaryEntry.Key, dictionaryEntry.Value);
+								}
+							}
+							finally
+							{
+								IDisposable disposable2;
+								if ((disposable2 = (enumerator4 as IDisposable)) != null)
+								{
+									disposable2.Dispose();
+								}
 							}
 						}
 					}

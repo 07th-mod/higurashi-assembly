@@ -433,16 +433,14 @@ namespace Newtonsoft.Json.Utilities
 				try
 				{
 					return ((PropertyInfo)member).GetValue(target, null);
-					IL_0051:;
 				}
 				catch (TargetParameterCountException innerException)
 				{
 					throw new ArgumentException("MemberInfo '{0}' has index parameters".FormatWith(CultureInfo.InvariantCulture, member.Name), innerException);
-					IL_007c:;
 				}
-				break;
+			default:
+				throw new ArgumentException("MemberInfo '{0}' is not of type FieldInfo or PropertyInfo".FormatWith(CultureInfo.InvariantCulture, CultureInfo.InvariantCulture, member.Name), "member");
 			}
-			throw new ArgumentException("MemberInfo '{0}' is not of type FieldInfo or PropertyInfo".FormatWith(CultureInfo.InvariantCulture, CultureInfo.InvariantCulture, member.Name), "member");
 		}
 
 		public static void SetMemberValue(MemberInfo member, object target, object value)

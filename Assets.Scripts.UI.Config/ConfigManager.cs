@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -18,19 +19,23 @@ namespace Assets.Scripts.UI.Config
 
 		private UIPanel panel;
 
-		private IEnumerator LeaveScreen(LeaveConfigDelegate callback)
+		private IEnumerator LeaveScreen(ConfigManager.LeaveConfigDelegate callback)
 		{
-			panel = Panel.GetComponent<UIPanel>();
-			LeanTween.value(Panel, UpdateAlpha, 1f, 0f, 0.3f);
-			if (needShowMessageWindow)
+			this.panel = this.Panel.GetComponent<UIPanel>();
+			LeanTween.value(this.Panel, new Action<float>(this.UpdateAlpha), 1f, 0f, 0.3f);
+			if (this.needShowMessageWindow)
 			{
 				GameSystem.Instance.MainUIController.FadeIn(0.3f);
 				GameSystem.Instance.SceneController.RevealFace(0.3f);
 				GameSystem.Instance.ExecuteActions();
 			}
-			yield return (object)new WaitForSeconds(0.5f);
-			callback?.Invoke();
-			Object.Destroy(base.gameObject);
+			yield return new WaitForSeconds(0.5f);
+			if (callback != null)
+			{
+				callback();
+			}
+			UnityEngine.Object.Destroy(base.gameObject);
+			yield break;
 		}
 
 		private void UpdateAlpha(float f)
@@ -47,15 +52,16 @@ namespace Assets.Scripts.UI.Config
 
 		private IEnumerator DoOpen(int offscreen)
 		{
-			Panel.SetActive(value: true);
-			panel = Panel.GetComponent<UIPanel>();
-			UpdateAlpha(0f);
-			yield return (object)null;
-			yield return (object)null;
-			LeanTween.value(Panel, UpdateAlpha, 0f, 1f, 0.3f);
-			GameSystem.Instance.MainUIController.FadeOut(0.3f, isBlocking: false);
+			this.Panel.SetActive(true);
+			this.panel = this.Panel.GetComponent<UIPanel>();
+			this.UpdateAlpha(0f);
+			yield return null;
+			yield return null;
+			LeanTween.value(this.Panel, new Action<float>(this.UpdateAlpha), 0f, 1f, 0.3f);
+			GameSystem.Instance.MainUIController.FadeOut(0.3f, false);
 			GameSystem.Instance.SceneController.HideFace(0.3f);
 			GameSystem.Instance.ExecuteActions();
+			yield break;
 		}
 
 		public void Open(int screen, bool msgWindow)

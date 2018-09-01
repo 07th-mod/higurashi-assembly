@@ -140,18 +140,8 @@ namespace Newtonsoft.Json.Converters
 
 		private bool IsArray(IXmlNode node)
 		{
-			object obj;
-			if (node.Attributes != null)
-			{
-				IXmlNode xmlNode = node.Attributes.SingleOrDefault((IXmlNode a) => a.LocalName == "Array" && a.NamespaceURI == "http://james.newtonking.com/projects/json");
-				obj = xmlNode;
-			}
-			else
-			{
-				obj = null;
-			}
-			IXmlNode xmlNode2 = (IXmlNode)obj;
-			return xmlNode2 != null && XmlConvert.ToBoolean(xmlNode2.Value);
+			IXmlNode xmlNode = (node.Attributes == null) ? null : node.Attributes.SingleOrDefault((IXmlNode a) => a.LocalName == "Array" && a.NamespaceURI == "http://james.newtonking.com/projects/json");
+			return xmlNode != null && XmlConvert.ToBoolean(xmlNode.Value);
 		}
 
 		private void SerializeGroupedNodes(JsonWriter writer, IXmlNode node, XmlNamespaceManager manager, bool writePropertyName)
@@ -325,34 +315,40 @@ namespace Newtonsoft.Json.Converters
 
 		private void DeserializeValue(JsonReader reader, IXmlDocument document, XmlNamespaceManager manager, string propertyName, IXmlNode currentNode)
 		{
-			switch (propertyName)
+			if (propertyName != null)
 			{
-			case "#text":
-				currentNode.AppendChild(document.CreateTextNode(reader.Value.ToString()));
-				break;
-			case "#cdata-section":
-				currentNode.AppendChild(document.CreateCDataSection(reader.Value.ToString()));
-				break;
-			case "#whitespace":
-				currentNode.AppendChild(document.CreateWhitespace(reader.Value.ToString()));
-				break;
-			case "#significant-whitespace":
-				currentNode.AppendChild(document.CreateSignificantWhitespace(reader.Value.ToString()));
-				break;
-			default:
-				if (!string.IsNullOrEmpty(propertyName) && propertyName[0] == '?')
+				if (propertyName == "#text")
 				{
-					CreateInstruction(reader, document, currentNode, propertyName);
+					currentNode.AppendChild(document.CreateTextNode(reader.Value.ToString()));
+					return;
 				}
-				else if (reader.TokenType == JsonToken.StartArray)
+				if (propertyName == "#cdata-section")
 				{
-					ReadArrayElements(reader, document, propertyName, currentNode, manager);
+					currentNode.AppendChild(document.CreateCDataSection(reader.Value.ToString()));
+					return;
 				}
-				else
+				if (propertyName == "#whitespace")
 				{
-					ReadElement(reader, document, currentNode, propertyName, manager);
+					currentNode.AppendChild(document.CreateWhitespace(reader.Value.ToString()));
+					return;
 				}
-				break;
+				if (propertyName == "#significant-whitespace")
+				{
+					currentNode.AppendChild(document.CreateSignificantWhitespace(reader.Value.ToString()));
+					return;
+				}
+			}
+			if (!string.IsNullOrEmpty(propertyName) && propertyName[0] == '?')
+			{
+				CreateInstruction(reader, document, currentNode, propertyName);
+			}
+			else if (reader.TokenType == JsonToken.StartArray)
+			{
+				ReadArrayElements(reader, document, propertyName, currentNode, manager);
+			}
+			else
+			{
+				ReadElement(reader, document, currentNode, propertyName, manager);
 			}
 		}
 
@@ -369,17 +365,7 @@ namespace Newtonsoft.Json.Converters
 			foreach (KeyValuePair<string, string> item in dictionary)
 			{
 				string prefix2 = MiscellaneousUtils.GetPrefix(item.Key);
-				object xmlNode2;
-				if (!string.IsNullOrEmpty(prefix2))
-				{
-					IXmlNode xmlNode = document.CreateAttribute(item.Key, manager.LookupNamespace(prefix2), item.Value);
-					xmlNode2 = xmlNode;
-				}
-				else
-				{
-					xmlNode2 = document.CreateAttribute(item.Key, item.Value);
-				}
-				IXmlNode attributeNode = (IXmlNode)xmlNode2;
+				IXmlNode attributeNode = string.IsNullOrEmpty(prefix2) ? document.CreateAttribute(item.Key, item.Value) : document.CreateAttribute(item.Key, manager.LookupNamespace(prefix2), item.Value);
 				xmlElement.SetAttributeNode(attributeNode);
 			}
 			if (reader.TokenType == JsonToken.String)
@@ -549,35 +535,26 @@ namespace Newtonsoft.Json.Converters
 
 		private IXmlElement CreateElement(string elementName, IXmlDocument document, string elementPrefix, XmlNamespaceManager manager)
 		{
-			object result;
-			if (!string.IsNullOrEmpty(elementPrefix))
-			{
-				IXmlElement xmlElement = document.CreateElement(elementName, manager.LookupNamespace(elementPrefix));
-				result = xmlElement;
-			}
-			else
-			{
-				result = document.CreateElement(elementName);
-			}
-			return (IXmlElement)result;
+			return string.IsNullOrEmpty(elementPrefix) ? document.CreateElement(elementName) : document.CreateElement(elementName, manager.LookupNamespace(elementPrefix));
 		}
 
 		private void DeserializeNode(JsonReader reader, IXmlDocument document, XmlNamespaceManager manager, IXmlNode currentNode)
 		{
-			string propertyName;
 			do
 			{
-				switch (reader.TokenType)
+				JsonToken tokenType = reader.TokenType;
+				switch (tokenType)
 				{
 				case JsonToken.EndObject:
 				case JsonToken.EndArray:
 					return;
 				case JsonToken.PropertyName:
+				{
 					if (currentNode.NodeType == XmlNodeType.Document && document.DocumentElement != null)
 					{
 						throw new JsonSerializationException("JSON root object has multiple properties. The root object must have a single property in order to create a valid XML document. Consider specifing a DeserializeRootElementName.");
 					}
-					propertyName = reader.Value.ToString();
+					string propertyName = reader.Value.ToString();
 					reader.Read();
 					if (reader.TokenType == JsonToken.StartArray)
 					{
@@ -598,6 +575,7 @@ namespace Newtonsoft.Json.Converters
 						DeserializeValue(reader, document, manager, propertyName, currentNode);
 					}
 					break;
+				}
 				case JsonToken.StartConstructor:
 				{
 					string propertyName2 = reader.Value.ToString();

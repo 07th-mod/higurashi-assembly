@@ -295,8 +295,7 @@ namespace Newtonsoft.Json
 				jsonSerializer.Context = settings.Context;
 				if (settings.Error != null)
 				{
-					JsonSerializer jsonSerializer2 = jsonSerializer;
-					jsonSerializer2.Error = (EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>)Delegate.Combine(jsonSerializer2.Error, settings.Error);
+					jsonSerializer.Error += settings.Error;
 				}
 				if (settings.ContractResolver != null)
 				{

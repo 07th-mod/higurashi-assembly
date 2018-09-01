@@ -120,8 +120,9 @@ namespace Assets.Scripts.Core.Scene
 
 		private IEnumerator ChangeShader(Shader target)
 		{
-			yield return (object)new WaitForEndOfFrame();
-			sceneMaterial.shader = target;
+			yield return new WaitForEndOfFrame();
+			this.sceneMaterial.shader = target;
+			yield break;
 		}
 
 		private void Awake()

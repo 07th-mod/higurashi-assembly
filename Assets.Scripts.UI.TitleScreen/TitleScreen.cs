@@ -21,10 +21,14 @@ namespace Assets.Scripts.UI.TitleScreen
 
 		private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose)
 		{
-			BackgroundTween.PlayReverse();
-			yield return (object)new WaitForSeconds(0.5f);
-			onClose?.Invoke();
-			Object.Destroy(base.gameObject);
+			this.BackgroundTween.PlayReverse();
+			yield return new WaitForSeconds(0.5f);
+			if (onClose != null)
+			{
+				onClose();
+			}
+			UnityEngine.Object.Destroy(base.gameObject);
+			yield break;
 		}
 
 		public void FadeOut()
@@ -67,9 +71,9 @@ namespace Assets.Scripts.UI.TitleScreen
 		{
 			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear");
 			BackgroundTexture.mainTexture = (globalFlag.BoolValue() ? BG2 : BG1);
-			if (BurikoMemory.Instance.GetGlobalFlag("GHimatsubushiDay").IntValue() < 1)
+			if (BurikoMemory.Instance.GetGlobalFlag("GHighestChapter").IntValue() < 1)
 			{
-				Sprites[4].transform.localPosition = new Vector3(0f, -224f, 0f);
+				Sprites[4].transform.localPosition = new Vector3(0f, 25f, 0f);
 				UISprite uISprite = Sprites[3];
 				Sprites.RemoveAt(3);
 				Object.Destroy(uISprite.gameObject);
