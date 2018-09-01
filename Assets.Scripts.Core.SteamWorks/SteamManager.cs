@@ -42,7 +42,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				}
 				try
 				{
-					if (SteamAPI.RestartAppIfNecessary(new AppId_t(577480u)))
+					if (SteamAPI.RestartAppIfNecessary(new AppId_t(668350u)))
 					{
 						GameSystem.Instance.CanExit = true;
 						Application.Quit();
@@ -84,6 +84,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				s_instance = null;
 				if (m_bInitialized)
 				{
+					Debug.Log("Shutting down steamworks");
 					SteamAPI.Shutdown();
 				}
 			}

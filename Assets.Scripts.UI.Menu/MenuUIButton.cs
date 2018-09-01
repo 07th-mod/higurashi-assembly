@@ -50,6 +50,8 @@ namespace Assets.Scripts.UI.Menu
 						gameSystem.TextController.ClearText();
 						gameSystem.MainUIController.FadeOut(0f, isBlocking: false);
 						gameSystem.SceneController.HideFace(0f);
+						gameSystem.SceneController.HideAllLayers(0f);
+						gameSystem.SceneController.HideFilmEffector(0f, isBlocking: false);
 						gameSystem.MainUIController.HideMessageBox();
 						gameSystem.ExecuteActions();
 						BurikoScriptSystem.Instance.JumpToScript("flow");

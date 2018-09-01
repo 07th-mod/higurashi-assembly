@@ -46,6 +46,9 @@ namespace BGICompiler.Compiler
 				baseTree = tree;
 				tree = baseTree.GetChild(0);
 				break;
+			case "TYPEUNARY":
+				Type = BurikoValueType.Unary;
+				break;
 			case "VAR":
 				Type = BurikoValueType.Variable;
 				break;
@@ -124,6 +127,13 @@ namespace BGICompiler.Compiler
 			bGIValue2.Output();
 		}
 
+		public void OutputUnary(BinaryWriter output)
+		{
+			BGIValue bGIValue = new BGIValue(baseTree.GetChild(0));
+			output.Write((short)Type);
+			bGIValue.Output();
+		}
+
 		public void OutputVar(BinaryWriter output)
 		{
 			output.Write((short)Type);
@@ -178,9 +188,16 @@ namespace BGICompiler.Compiler
 			{
 			case BurikoValueType.Int:
 			{
-				int value = (!tree.Text.StartsWith("0x")) ? int.Parse(tree.Text) : int.Parse(tree.Text.Substring(2), NumberStyles.HexNumber);
+				int num = (!tree.Text.StartsWith("0x")) ? int.Parse(tree.Text) : int.Parse(tree.Text.Substring(2), NumberStyles.HexNumber);
 				output.Write((short)Type);
-				output.Write(value);
+				output.Write(num);
+				break;
+			}
+			case BurikoValueType.Unary:
+			{
+				int num = (!tree.Text.StartsWith("0x")) ? int.Parse(tree.Text) : int.Parse(tree.Text.Substring(2), NumberStyles.HexNumber);
+				output.Write((short)2);
+				output.Write(-num);
 				break;
 			}
 			case BurikoValueType.String:

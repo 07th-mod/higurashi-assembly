@@ -71,6 +71,8 @@ namespace Assets.Scripts.Core.Scene
 
 		public float targetAngle;
 
+		public int activeScene;
+
 		private bool isInMotion;
 
 		private float targetAlpha;
@@ -91,20 +93,20 @@ namespace Assets.Scripts.Core.Scene
 
 		private IEnumerator ControlledMotion()
 		{
-			MtnCtrlElement[] array = motion;
-			foreach (MtnCtrlElement mt in array)
+			foreach (MtnCtrlElement mt in this.motion)
 			{
-				float num = (float)mt.Time / 1000f;
-				MoveLayerEx(mt.Route, mt.Points, 1f - (float)mt.Transparancy / 256f, num);
-				yield return (object)new WaitForSeconds(num);
-				startRange = 1f - (float)mt.Transparancy / 256f;
+				float time = (float)mt.Time / 1000f;
+				this.MoveLayerEx(mt.Route, mt.Points, 1f - (float)mt.Transparancy / 256f, time);
+				yield return new WaitForSeconds(time);
+				this.startRange = 1f - (float)mt.Transparancy / 256f;
 			}
-			FinishAll();
-			if (motion[motion.Length - 1].Transparancy == 256)
+			this.FinishAll();
+			if (this.motion[this.motion.Length - 1].Transparancy == 256)
 			{
-				HideLayer();
+				this.HideLayer();
 			}
-			isInMotion = false;
+			this.isInMotion = false;
+			yield break;
 		}
 
 		public void ControlLayerMotion(MtnCtrlElement[] motions)
@@ -274,8 +276,9 @@ namespace Assets.Scripts.Core.Scene
 
 		public IEnumerator WaitThenFinish(float time)
 		{
-			yield return (object)new WaitForSeconds(time);
-			FinishAll();
+			yield return new WaitForSeconds(time);
+			this.FinishAll();
+			yield break;
 		}
 
 		public void FadeOutLayer(float time, bool isBlocking)
@@ -694,12 +697,20 @@ namespace Assets.Scripts.Core.Scene
 
 		private void CreateMesh(int width, int height, Vector2 origin)
 		{
-			int num = Mathf.Clamp(height, 1, 480);
+			int num = height;
+			if (height == 960)
+			{
+				num = 480;
+			}
 			int num2 = num / height;
 			int num3 = Mathf.RoundToInt((float)Mathf.Clamp(width, 1, num2 * width));
 			if (num > num3)
 			{
-				num3 = Mathf.Clamp(width, 1, 640);
+				num3 = width;
+				if (width == 1280)
+				{
+					width = 640;
+				}
 				num2 = num3 / width;
 				num = Mathf.RoundToInt((float)Mathf.Clamp(height, 1, num2 * height));
 			}

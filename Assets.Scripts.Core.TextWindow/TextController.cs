@@ -46,6 +46,8 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public string NameFormat = string.Empty;
 
+		public static Color32 TextColor = Color.white;
+
 		private BurikoTextModes lastMode;
 
 		private List<TextCharacter> charList = new List<TextCharacter>();
@@ -103,10 +105,11 @@ namespace Assets.Scripts.Core.TextWindow
 				return Vector3.zero;
 			}
 			TMP_LineInfo tMP_LineInfo = TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1];
-			int num = Mathf.RoundToInt(20f + TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1].lineExtents.max.x);
 			Vector3 localPosition = TextArea.gameObject.transform.localPosition;
-			float y = localPosition.y + TextArea.textInfo.characterInfo[tMP_LineInfo.lastCharacterIndex].baseLine + 12f;
-			return new Vector3((float)num, y, 0f);
+			float x = localPosition.x + (float)Mathf.RoundToInt(20f + TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1].lineExtents.max.x);
+			Vector3 localPosition2 = TextArea.gameObject.transform.localPosition;
+			float y = localPosition2.y + TextArea.textInfo.characterInfo[tMP_LineInfo.lastCharacterIndex].baseLine + 12f;
+			return new Vector3(x, y, 0f);
 		}
 
 		public bool GetPrevAppendState()
@@ -249,6 +252,8 @@ namespace Assets.Scripts.Core.TextWindow
 				textTimeRemaining -= Time.deltaTime;
 			}
 			TextArea.text = text;
+			TextColor = BurikoMemory.Instance.GetFlag("LTextColor").IntValue().ToColor32();
+			TextArea.color = TextColor;
 		}
 
 		public void SetTextPoint(int x, int y)

@@ -132,6 +132,7 @@ namespace Assets.Scripts.UI.SaveLoad
 					savePages[j].Enable();
 				}
 			}
+			BurikoMemory.Instance.SetGlobalFlag("GLastSavePage", page);
 		}
 
 		public bool CanSave()
@@ -164,7 +165,6 @@ namespace Assets.Scripts.UI.SaveLoad
 			{
 				saveEntries[i] = SaveGrid.transform.GetChild(i).GetComponent<SaveLoadEntry>();
 				saveEntries[i].Prepare(this);
-				saveEntries[i].LoadSlot(i);
 			}
 			for (int j = 0; j < QuickSaveSlots.Length; j++)
 			{
@@ -177,6 +177,8 @@ namespace Assets.Scripts.UI.SaveLoad
 				savePages[k] = PageGrid.transform.GetChild(k).GetComponent<SaveLoadPage>();
 				savePages[k].Setup(k + 1, this);
 			}
+			int page = BurikoMemory.Instance.GetGlobalFlag("GLastSavePage").IntValue();
+			ChangePage(page);
 			StartCoroutine(DoOpen());
 		}
 

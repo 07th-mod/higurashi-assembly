@@ -65,9 +65,16 @@ namespace Assets.Scripts.UI.ChapterJump
 		{
 			TextMeshPro component = GetComponent<TextMeshPro>();
 			component.text = ((!GameSystem.Instance.UseEnglishText) ? Japanese : English);
-			if (!(base.name == "Return") && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && BurikoMemory.Instance.GetGlobalFlag("GHighestChapter").IntValue() < ChapterNumber)
+			if (!(base.name == "Return"))
 			{
-				base.gameObject.SetActive(value: false);
+				if (BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue())
+				{
+					Debug.Log("GameClear, Unlocking");
+				}
+				else if (BurikoMemory.Instance.GetGlobalFlag("GHighestChapter").IntValue() < ChapterNumber)
+				{
+					base.gameObject.SetActive(value: false);
+				}
 			}
 		}
 

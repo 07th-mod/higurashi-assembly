@@ -448,6 +448,16 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationHideWindow()
+		{
+			SetOperationType("HideWindow");
+			float num = (float)ReadVariable().IntValue() / 1000f;
+			gameSystem.MainUIController.FadeOut(num, isBlocking: true);
+			gameSystem.SceneController.FadeFace(num, isblocking: true);
+			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationDisplayWindow()
 		{
 			SetOperationType("DisplayWindow");
@@ -760,6 +770,26 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				gameSystem.ExecuteActions();
 			}
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationRotateBG()
+		{
+			SetOperationType("RotateBG");
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().BoolValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().BoolValue();
 			return BurikoVariable.Null;
 		}
 
@@ -1956,6 +1986,26 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationGetRandomNumber()
+		{
+			SetOperationType("GetRandomNumber");
+			int num = ReadVariable().IntValue();
+			int i = UnityEngine.Random.Range(0, num - 1);
+			return new BurikoVariable(i);
+		}
+
+		private BurikoVariable OperationSetColorOfMessage()
+		{
+			SetOperationType("SetColorOfMessage");
+			ReadVariable().BoolValue();
+			int num = ReadVariable().IntValue();
+			int num2 = ReadVariable().IntValue();
+			int num3 = ReadVariable().IntValue();
+			Color32 color = new Color32((byte)num, (byte)num2, (byte)num3, byte.MaxValue);
+			BurikoMemory.Instance.SetFlag("LTextColor", color.ToInt());
+			return BurikoVariable.Null;
+		}
+
 		public int GetPositionByLineNumber(int linenum)
 		{
 			if (!lineLookup.ContainsKey(linenum))
@@ -2029,6 +2079,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetSpeedOfMessage();
 			case BurikoOperations.DisableWindow:
 				return OperationDisableWindow();
+			case BurikoOperations.HideWindow:
+				return OperationHideWindow();
 			case BurikoOperations.DisplayWindow:
 				return OperationDisplayWindow();
 			case BurikoOperations.SpringText:
@@ -2081,6 +2133,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationDrawBG();
 			case BurikoOperations.FadeBG:
 				return OperationFadeBG();
+			case BurikoOperations.RotateBG:
+				return OperationRotateBG();
 			case BurikoOperations.DrawScene:
 				return OperationDrawScene();
 			case BurikoOperations.DrawSceneWithMask:
@@ -2221,6 +2275,10 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetScreenAspect();
 			case BurikoOperations.SetGuiPosition:
 				return OperationSetGuiPosition();
+			case BurikoOperations.GetRandomNumber:
+				return OperationGetRandomNumber();
+			case BurikoOperations.SetColorOfMessage:
+				return OperationSetColorOfMessage();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2254,9 +2312,9 @@ namespace Assets.Scripts.Core.Buriko
 					{
 						if (!(text == "ST_Vector"))
 						{
-							if (!(text == "int"))
+							if (!(text == "long") && !(text == "int"))
 							{
-								goto IL_00da;
+								goto IL_00ea;
 							}
 							burikoObject = new BurikoInt();
 							burikoObject.Create(members);
@@ -2281,8 +2339,8 @@ namespace Assets.Scripts.Core.Buriko
 				BurikoMemory.Instance.AddMemory(name, burikoObject);
 				return;
 			}
-			goto IL_00da;
-			IL_00da:
+			goto IL_00ea;
+			IL_00ea:
 			throw new Exception("Unknown declaration variable type " + text);
 		}
 

@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JObject : JContainer, IDictionary<string, JToken>, ICollection<KeyValuePair<string, JToken>>, IEnumerable, IEnumerable<KeyValuePair<string, JToken>>, INotifyPropertyChanged, ICustomTypeDescriptor, Newtonsoft.Json.ObservableSupport.INotifyPropertyChanging
+	public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyChanged, ICustomTypeDescriptor, Newtonsoft.Json.ObservableSupport.INotifyPropertyChanging, ICollection<KeyValuePair<string, JToken>>, IEnumerable<KeyValuePair<string, JToken>>, IEnumerable
 	{
 		private class JPropertKeyedCollection : KeyedCollection<string, JToken>
 		{

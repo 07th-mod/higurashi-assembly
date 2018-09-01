@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Linq
 {
-	public abstract class JToken : IEnumerable<JToken>, IEnumerable, IJEnumerable<JToken>, IJsonLineInfo, ICloneable
+	public abstract class JToken : IJEnumerable<JToken>, IJsonLineInfo, ICloneable, IEnumerable<JToken>, IEnumerable
 	{
 		private JContainer _parent;
 

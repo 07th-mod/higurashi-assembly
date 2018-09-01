@@ -195,7 +195,7 @@ namespace Assets.Scripts.Core
 				{
 					text = Environment.ExpandEnvironmentVariables("%appdata%");
 				}
-				_savepath = Path.Combine(text, "Mangagamer\\higurashi05");
+				_savepath = Path.Combine(text, "Mangagamer\\higurashi06");
 				Directory.CreateDirectory(_savepath);
 			}
 			return _savepath;
@@ -435,6 +435,24 @@ namespace Assets.Scripts.Core
 					return 71684;
 			}
 			return 0;
+		}
+
+		public static float Remap(this float value, float from1, float to1, float from2, float to2)
+		{
+			return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+		}
+
+		public static int ToInt(this Color32 color)
+		{
+			return (color.r << 16) | (color.g << 8) | color.b;
+		}
+
+		public static Color32 ToColor32(this int val)
+		{
+			byte r = (byte)((val >> 16) & 0xFF);
+			byte g = (byte)((val >> 8) & 0xFF);
+			byte b = (byte)(val & 0xFF);
+			return new Color32(r, g, b, byte.MaxValue);
 		}
 	}
 }

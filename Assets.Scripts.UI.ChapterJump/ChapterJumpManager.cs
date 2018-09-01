@@ -1,3 +1,4 @@
+using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,16 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		public List<ChapterJumpButton> JumpButtons;
 
+		public GameObject GridObject;
+
 		public bool isActive = true;
 
 		public void Show()
 		{
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				GridObject.transform.localPosition += new Vector3(-25f, 0f, 0f);
+			}
 			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 		}
 

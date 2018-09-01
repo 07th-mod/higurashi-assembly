@@ -10,6 +10,7 @@ namespace Assets.Scripts.Core.Buriko
 		Variable,
 		Operation,
 		Assignment,
-		Math
+		Math,
+		Unary
 	}
 }

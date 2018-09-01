@@ -11,6 +11,8 @@ namespace Assets.Scripts.Core.Scene
 	{
 		public GameObject Panel;
 
+		public GameObject OtherPanel;
+
 		public LayerMask LayerMask;
 
 		public string LayerName;
@@ -84,7 +86,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			iTween.Stop(base.gameObject);
 			UpdateRange(1f);
-			Layer[] componentsInChildren = Panel.GetComponentsInChildren<Layer>();
+			Layer[] componentsInChildren = OtherPanel.GetComponentsInChildren<Layer>();
 			foreach (Layer layer in componentsInChildren)
 			{
 				if (layer.gameObject.layer != sceneController.GetActiveLayerMask())

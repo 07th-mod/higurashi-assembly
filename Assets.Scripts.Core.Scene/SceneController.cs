@@ -19,7 +19,9 @@ namespace Assets.Scripts.Core.Scene
 
 		public LayerPool LayerPool;
 
-		public GameObject Panel;
+		public GameObject Panel1;
+
+		public GameObject Panel2;
 
 		public GameObject FacePanel;
 
@@ -78,12 +80,13 @@ namespace Assets.Scripts.Core.Scene
 
 		public Layer GetLayer(int id)
 		{
-			if (layers[id] != null && !LayerPool.IsInPool(layers[id].gameObject) && layers[id].IsInUse)
+			if (layers[id] != null && !LayerPool.IsInPool(layers[id].gameObject) && layers[id].IsInUse && (layers[id].activeScene == activeScene || layers[id].activeScene > 1))
 			{
 				return layers[id];
 			}
 			Layer layer = LayerPool.ActivateLayer();
 			layer.name = "Layer " + id;
+			layer.activeScene = activeScene;
 			layers[id] = layer;
 			return layer;
 		}
@@ -113,10 +116,12 @@ namespace Assets.Scripts.Core.Scene
 			if (priority >= UpperLayerRange)
 			{
 				layer.gameObject.layer = LayerMask.NameToLayer("Scene3");
+				layer.activeScene = 2;
 			}
 			else
 			{
 				layer.gameObject.layer = GetActiveLayerMask();
+				layer.activeScene = activeScene;
 			}
 		}
 
@@ -305,6 +310,10 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.RegisterAction(delegate
 			{
 				Layer layer2 = GetLayer(layer);
+				if (layer2.IsInUse)
+				{
+					layer2.ReleaseTextures();
+				}
 				UpdateLayerMask(layer2, priority);
 				Vector2? origin = null;
 				if (originx != 0 || originy != 0)
@@ -331,7 +340,16 @@ namespace Assets.Scripts.Core.Scene
 		public void SetFaceToUpperLayer(bool isUpper)
 		{
 			faceToUpperLayer = isUpper;
-			faceLayer.gameObject.layer = ((!faceToUpperLayer) ? GetActiveLayerMask() : LayerMask.NameToLayer("Scene3"));
+			if (faceToUpperLayer)
+			{
+				faceLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
+				faceLayer.activeScene = 2;
+			}
+			else
+			{
+				faceLayer.gameObject.layer = GetActiveLayerMask();
+				faceLayer.activeScene = activeScene;
+			}
 		}
 
 		public void FadeFace(float wait, bool isblocking)
@@ -383,6 +401,7 @@ namespace Assets.Scripts.Core.Scene
 			faceLayer.HideLayer();
 			gameSystem.RegisterAction(delegate
 			{
+				ResetViewportSize();
 				s.StartTransition(time);
 				s.BackgroundLayer.SetRange(1f);
 				gameSystem.AddWait(new Wait(time, WaitTypes.WaitForScene, s.StopFadeIn));
@@ -400,6 +419,7 @@ namespace Assets.Scripts.Core.Scene
 			faceLayer.HideLayer();
 			gameSystem.RegisterAction(delegate
 			{
+				ResetViewportSize();
 				s.GetComponent<Camera>().enabled = true;
 				s.FadeSceneIn(time);
 				s.BackgroundLayer.SetRange(1f);
@@ -407,28 +427,54 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		public GameObject GetActivePanel()
+		{
+			if (activeScene == 0)
+			{
+				return Panel1;
+			}
+			return Panel2;
+		}
+
 		public void FinalizeViewportChange()
 		{
-			iTween.Stop(Panel);
-			Panel.transform.localPosition = targetPosition;
-			Panel.transform.localScale = targetScale;
+			GameObject activePanel = GetActivePanel();
+			iTween.Stop(activePanel);
+			activePanel.transform.localPosition = targetPosition;
+			activePanel.transform.localScale = targetScale;
 		}
 
 		public void ResetViewportSize()
 		{
-			iTween.Stop(Panel);
-			Panel.transform.localPosition = (targetPosition = defaultOffset);
-			Panel.transform.localScale = (targetScale = new Vector3(1f, 1f, 1f));
+			GameObject activePanel = GetActivePanel();
+			iTween.Stop(activePanel);
+			activePanel.transform.localPosition = (targetPosition = defaultOffset);
+			activePanel.transform.localScale = (targetScale = new Vector3(1f, 1f, 1f));
 		}
 
 		public void EnlargeScene(float x, float y, float sx, float sy, float time, bool isblocking)
 		{
-			targetPosition = new Vector3(x, 0f - y, 0f) + defaultOffset;
-			targetScale = new Vector3(800f / sx, 600f / sy, 1f);
+			targetScale = new Vector3(640f / sx, 480f / sy, 1f);
+			float num = 240f / targetScale.y;
+			float num2 = 480f - num;
+			float num3 = 320f / targetScale.x;
+			float value = 640f - num3;
+			float t = x / 640f;
+			float t2 = y / 480f;
+			float num4 = num.Remap(0f, 480f, -240f * targetScale.y, 240f * targetScale.y);
+			float num5 = num2.Remap(0f, 480f, -240f * targetScale.y, 240f * targetScale.y);
+			float a = num3.Remap(0f, 640f, 320f * targetScale.x, -320f * targetScale.x);
+			float b = value.Remap(0f, 640f, 320f * targetScale.x, -320f * targetScale.x);
+			Debug.LogFormat("Remap {0} to {1} <--into--> {2} to {3}", num, num2, num4, num5);
+			float x2 = Mathf.Lerp(a, b, t);
+			float y2 = Mathf.Lerp(num4, num5, t2);
+			targetPosition = new Vector3(x2, y2, 0f) + defaultOffset;
+			Debug.LogFormat("Perform Enlarge Scene -- Position: {0} Scale: {1}", targetPosition, targetScale);
+			GameObject Panel = GetActivePanel();
 			gameSystem.RegisterAction(delegate
 			{
-				iTween.ScaleTo(Panel, iTween.Hash("scale", targetScale, "time", time, "islocal", true, "easetype", iTween.EaseType.linear));
-				iTween.MoveTo(Panel, iTween.Hash("position", targetPosition, "time", time, "islocal", true, "easetype", iTween.EaseType.linear));
+				iTween.ScaleTo(Panel, iTween.Hash("scale", targetScale, "time", time, "islocal", true, "easetype", iTween.EaseType.easeOutSine));
+				iTween.MoveTo(Panel, iTween.Hash("position", targetPosition, "time", time, "islocal", true, "easetype", iTween.EaseType.easeOutSine));
 				if (isblocking)
 				{
 					GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForMove, FinalizeViewportChange));
@@ -562,6 +608,17 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		public void HideAllLayers(float time)
+		{
+			for (int i = 0; i < 32; i++)
+			{
+				if (layers[i] != null && layers[i].IsInUse)
+				{
+					layers[i].FadeOutLayer(time, isBlocking: false);
+				}
+			}
+		}
+
 		public void SerializeScene(MemoryStream ms)
 		{
 			BinaryWriter binaryWriter = new BinaryWriter(ms);
@@ -678,33 +735,35 @@ namespace Assets.Scripts.Core.Scene
 
 		private IEnumerator GetScreenshotCoroutine(Action<Texture2D> OnFinishAction)
 		{
-			yield return (object)new WaitForEndOfFrame();
-			RenderTexture renderTexture = new RenderTexture(800, 600, 24);
-			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
-			ScreenshotCamera.targetTexture = renderTexture;
-			ScreenshotCamera.Render();
-			RenderTexture.active = renderTexture;
-			Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height);
-			texture2D.ReadPixels(new Rect(0f, 0f, (float)renderTexture.width, (float)renderTexture.height), 0, 0, recalculateMipMaps: true);
-			texture2D.Apply();
-			OnFinishAction(texture2D);
+			yield return new WaitForEndOfFrame();
+			RenderTexture rt = new RenderTexture(800, 600, 24);
+			this.ScreenshotCamera.cullingMask = (1 << this.GetActiveLayerMask() | 1 << LayerMask.NameToLayer("Scene3"));
+			this.ScreenshotCamera.targetTexture = rt;
+			this.ScreenshotCamera.Render();
+			RenderTexture.active = rt;
+			Texture2D tex = new Texture2D(rt.width, rt.height);
+			tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, true);
+			tex.Apply();
+			OnFinishAction(tex);
+			yield break;
 		}
 
 		private IEnumerator WriteScreenshotToFile(string path)
 		{
-			yield return (object)new WaitForEndOfFrame();
-			RenderTexture renderTexture = new RenderTexture(800, 600, 24);
-			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
-			ScreenshotCamera.targetTexture = renderTexture;
-			ScreenshotCamera.Render();
-			RenderTexture.active = renderTexture;
-			Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height);
-			texture2D.ReadPixels(new Rect(0f, 0f, (float)renderTexture.width, (float)renderTexture.height), 0, 0, recalculateMipMaps: true);
-			texture2D.Apply();
-			byte[] bytes = texture2D.EncodeToPNG();
-			ScreenshotCamera.targetTexture = null;
-			UnityEngine.Object.Destroy(renderTexture);
-			File.WriteAllBytes(path, bytes);
+			yield return new WaitForEndOfFrame();
+			RenderTexture rt = new RenderTexture(800, 600, 24);
+			this.ScreenshotCamera.cullingMask = (1 << this.GetActiveLayerMask() | 1 << LayerMask.NameToLayer("Scene3"));
+			this.ScreenshotCamera.targetTexture = rt;
+			this.ScreenshotCamera.Render();
+			RenderTexture.active = rt;
+			Texture2D tex = new Texture2D(rt.width, rt.height);
+			tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, true);
+			tex.Apply();
+			byte[] texout = tex.EncodeToPNG();
+			this.ScreenshotCamera.targetTexture = null;
+			UnityEngine.Object.Destroy(rt);
+			File.WriteAllBytes(path, texout);
+			yield break;
 		}
 
 		public void WriteScreenshot(string path)
@@ -719,10 +778,15 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ReloadAllImages()
 		{
-			Layer[] componentsInChildren = Panel.GetComponentsInChildren<Layer>();
+			Layer[] componentsInChildren = Panel1.GetComponentsInChildren<Layer>();
 			foreach (Layer layer in componentsInChildren)
 			{
 				layer.ReloadTexture();
+			}
+			Layer[] componentsInChildren2 = Panel2.GetComponentsInChildren<Layer>();
+			foreach (Layer layer2 in componentsInChildren2)
+			{
+				layer2.ReloadTexture();
 			}
 		}
 
@@ -762,7 +826,8 @@ namespace Assets.Scripts.Core.Scene
 			activeScene = 0;
 			scene1.BackgroundLayer.transform.localPosition = defaultOffset;
 			scene2.BackgroundLayer.transform.localPosition = defaultOffset;
-			Panel.transform.localPosition = defaultOffset;
+			Panel1.transform.localPosition = defaultOffset;
+			Panel2.transform.localPosition = defaultOffset;
 			FacePanel.transform.localPosition = defaultOffset;
 			faceLayer = LayerPool.ActivateLayer();
 			faceLayer.transform.parent = FacePanel.transform;

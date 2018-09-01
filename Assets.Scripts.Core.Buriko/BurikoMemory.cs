@@ -48,6 +48,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("LTatarigoroshiDay", 33);
 			variableReference.Add("LHimatsubushiDay", 33);
 			variableReference.Add("LTextFade", 31);
+			variableReference.Add("LTextColor", 40);
 			variableReference.Add("NewTipsStart", 50);
 			variableReference.Add("NewTipsCount", 51);
 			variableReference.Add("TipsCount", 52);
@@ -61,7 +62,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("redbox", 7);
 			variableReference.Add("bluebox", 8);
 			variableReference.Add("GTotalTips", 9);
-			variableReference.Add("GHighestChapter", 10);
+			variableReference.Add("GHighestChapter", 28);
 			variableReference.Add("GMessageSpeed", 10);
 			variableReference.Add("GAutoSpeed", 11);
 			variableReference.Add("GAutoAdvSpeed", 12);
@@ -77,6 +78,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GCutVoiceOnClick", 22);
 			variableReference.Add("GUseSystemSound", 23);
 			variableReference.Add("GLanguage", 24);
+			variableReference.Add("GLastSavePage", 26);
 			variableReference.Add("GArtStyle", 50);
 			variableReference.Add("GHideButtons", 51);
 			SetGlobalFlag("GMessageSpeed", 50);
@@ -96,7 +98,9 @@ namespace Assets.Scripts.Core.Buriko
 			SetGlobalFlag("GLanguage", 1);
 			SetGlobalFlag("GArtStyle", 1);
 			SetGlobalFlag("GHideButtons", 0);
+			SetGlobalFlag("GLastSavePage", 0);
 			SetFlag("LTextFade", 1);
+			SetFlag("LTextColor", new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue).ToInt());
 			Instance = this;
 			LoadGlobals();
 		}

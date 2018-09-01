@@ -58,7 +58,9 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetStyleOfMessageSwinging", new OpType(BurikoOperations.SetStyleOfMessageSwinging, "i"));
 			paramLookup.Add("DisableWindow", new OpType(BurikoOperations.DisableWindow, string.Empty));
 			paramLookup.Add("DisplayWindow", new OpType(BurikoOperations.DisplayWindow, string.Empty));
+			paramLookup.Add("HideWindow", new OpType(BurikoOperations.HideWindow, "i"));
 			paramLookup.Add("SpringText", new OpType(BurikoOperations.SpringText, "ii"));
+			paramLookup.Add("SetColorOfMessage", new OpType(BurikoOperations.SetColorOfMessage, "biii"));
 			paramLookup.Add("Select", new OpType(BurikoOperations.Select, "iv"));
 			paramLookup.Add("PlayBGM", new OpType(BurikoOperations.PlayBGM, "isii"));
 			paramLookup.Add("StopBGM", new OpType(BurikoOperations.StopBGM, "i"));
@@ -85,6 +87,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("DrawBG", new OpType(BurikoOperations.DrawBG, "sib"));
 			paramLookup.Add("FadeBG", new OpType(BurikoOperations.FadeBG, "ib"));
 			paramLookup.Add("DrawBGWithMask", new OpType(BurikoOperations.DrawBGWithMask, "ssiib"));
+			paramLookup.Add("RotateBG", new OpType(BurikoOperations.RotateBG, "iiiiiiibiiiiib"));
 			paramLookup.Add("DrawScene", new OpType(BurikoOperations.DrawScene, "si"));
 			paramLookup.Add("DrawSceneWithMask", new OpType(BurikoOperations.DrawSceneWithMask, "ssiii"));
 			paramLookup.Add("ChangeScene", new OpType(BurikoOperations.ChangeScene, "sii"));
@@ -138,6 +141,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetWindowPos", new OpType(BurikoOperations.SetWindowPos, "ii"));
 			paramLookup.Add("SetWindowSize", new OpType(BurikoOperations.SetWindowSize, "ii"));
 			paramLookup.Add("SetWindowMargins", new OpType(BurikoOperations.SetWindowMargins, "iiii"));
+			paramLookup.Add("GetRandomNumber", new OpType(BurikoOperations.GetRandomNumber, "i"));
 			paramLookup.Add("PlaceViewTip", new OpType(BurikoOperations.PlaceViewTip, "i"));
 			paramLookup.Add("PlaceViewTip2", new OpType(BurikoOperations.PlaceViewTip2, "ii"));
 			paramLookup.Add("DrawStandgraphic", new OpType(BurikoOperations.DrawStandgraphic, "isbiib"));

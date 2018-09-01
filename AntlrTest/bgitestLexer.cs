@@ -8,43 +8,43 @@ namespace AntlrTest
 	[GeneratedCode("ANTLR", "3.5.0.1")]
 	public class bgitestLexer : Lexer
 	{
-		private class DFA10 : DFA
+		private class DFA9 : DFA
 		{
-			private const string DFA10_eotS = "\u0002\uffff\u0005\a\u0001\uffff\u0001'\u0001\n\u0001\uffff\u0001*\u0004\uffff\u0001,\u0001.\u00010\v\uffff\u00012\u00015\u00018\u0004\a\u0001=\u0001\a\u0012\uffff\u0004\a\u0001\uffff\u0002\a\u0001E\u0001F\u0001G\u0001\a\u0001I\u0003\uffff\u0001\a\u0001\uffff\u0001\a\u0001L\u0001\uffff";
+			private const string DFA9_eotS = "\u0002\uffff\u0005\a\u0001\uffff\u0001\t\u0001\uffff\u0001)\u0004\uffff\u0001+\u0001-\u0001/\f\uffff\u00011\u00014\u00017\u0004\a\u0001<\u0001\a\u0011\uffff\u0004\a\u0001\uffff\u0002\a\u0001D\u0001E\u0001F\u0001\a\u0001H\u0003\uffff\u0001\a\u0001\uffff\u0001\a\u0001K\u0001\uffff";
 
-			private const string DFA10_eofS = "M\uffff";
+			private const string DFA9_eofS = "L\uffff";
 
-			private const string DFA10_minS = "\u0001\t\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001f\u0001\uffff\u00010\u0001x\u0001\uffff\u0001*\u0004\uffff\u0001=\u0001|\u0001&\v\uffff\u0002=\u0001<\u0002L\u0001U\u0001s\u00010\u0001c\u0012\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u00030\u0001u\u00010\u0003\uffff\u0001d\u0001\uffff\u0001e\u00010\u0001\uffff";
+			private const string DFA9_minS = "\u0001\t\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001f\u0001\uffff\u0001x\u0001\uffff\u0001*\u0004\uffff\u0001=\u0001|\u0001&\f\uffff\u0002=\u0001<\u0002L\u0001U\u0001s\u00010\u0001c\u0011\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u00030\u0001u\u00010\u0003\uffff\u0001d\u0001\uffff\u0001e\u00010\u0001\uffff";
 
-			private const string DFA10_maxS = "\u0001}\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001n\u0001\uffff\u00019\u0001x\u0001\uffff\u0001/\u0004\uffff\u0001=\u0001|\u0001&\v\uffff\u0001=\u0001>\u0001=\u0002L\u0001U\u0001s\u0001z\u0001c\u0012\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u0003z\u0001u\u0001z\u0003\uffff\u0001d\u0001\uffff\u0001e\u0001z\u0001\uffff";
+			private const string DFA9_maxS = "\u0001}\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001n\u0001\uffff\u0001x\u0001\uffff\u0001/\u0004\uffff\u0001=\u0001|\u0001&\f\uffff\u0001=\u0001>\u0001=\u0002L\u0001U\u0001s\u0001z\u0001c\u0011\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u0003z\u0001u\u0001z\u0003\uffff\u0001d\u0001\uffff\u0001e\u0001z\u0001\uffff";
 
-			private const string DFA10_acceptS = "\u0001\uffff\u0001\u0001\u0005\uffff\u0001\b\u0002\uffff\u0001\t\u0001\uffff\u0001\f\u0001\r\u0001\u000e\u0001\u000f\u0003\uffff\u0001\u0015\u0001\u0016\u0001\u0017\u0001\u0018\u0001\u0019\u0001\u001a\u0001\u001b\u0001\u001c\u0001\u001d\u0001\u001f\u0001!\t\uffff\u0001\u001e\u0001\n\u0001\v\u0001 \u0001$\u0001\u0010\u0001\u0013\u0001\u0011\u0001\u0014\u0001\u0012\u0001\"\u0001#\u0001(\u0001*\u0001%\u0001'\u0001)\u0001&\u0004\uffff\u0001\u0006\a\uffff\u0001\u0003\u0001\u0004\u0001\u0005\u0001\uffff\u0001\u0002\u0002\uffff\u0001\a";
+			private const string DFA9_acceptS = "\u0001\uffff\u0001\u0001\u0005\uffff\u0001\b\u0001\uffff\u0001\t\u0001\uffff\u0001\f\u0001\r\u0001\u000e\u0001\u000f\u0003\uffff\u0001\u0015\u0001\u0016\u0001\u0017\u0001\u0018\u0001\u0019\u0001\u001a\u0001\u001b\u0001\u001c\u0001\u001d\u0001\u001e\u0001\u001f\u0001!\t\uffff\u0001\n\u0001\v\u0001 \u0001$\u0001\u0010\u0001\u0013\u0001\u0011\u0001\u0014\u0001\u0012\u0001\"\u0001#\u0001(\u0001*\u0001%\u0001'\u0001)\u0001&\u0004\uffff\u0001\u0006\a\uffff\u0001\u0003\u0001\u0004\u0001\u0005\u0001\uffff\u0001\u0002\u0002\uffff\u0001\a";
 
-			private const string DFA10_specialS = "M\uffff}>";
+			private const string DFA9_specialS = "L\uffff}>";
 
-			private static readonly string[] DFA10_transitionS;
+			private static readonly string[] DFA9_transitionS;
 
-			private static readonly short[] DFA10_eot;
+			private static readonly short[] DFA9_eot;
 
-			private static readonly short[] DFA10_eof;
+			private static readonly short[] DFA9_eof;
 
-			private static readonly char[] DFA10_min;
+			private static readonly char[] DFA9_min;
 
-			private static readonly char[] DFA10_max;
+			private static readonly char[] DFA9_max;
 
-			private static readonly short[] DFA10_accept;
+			private static readonly short[] DFA9_accept;
 
-			private static readonly short[] DFA10_special;
+			private static readonly short[] DFA9_special;
 
-			private static readonly short[][] DFA10_transition;
+			private static readonly short[][] DFA9_transition;
 
-			public override string Description => "1:1: Tokens : ( T__60 | T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | ID | INT | HEXINT | COMMENT | WS | STRING | CHAR | COMMA | NOT | BWOR | BWAND | OR | AND | RPAREN | LPAREN | HASH | SEMICOLON | RSQ | LSQ | LCURL | RCURL | PLUS | MINUS | TIMES | DIVIDE | MOD | EQ | ASSIGN | NEQ | GTHAN | LTHAN | LEQ | GEQ | SHIFT_LEFT | SHIFT_RIGHT );";
+			public override string Description => "1:1: Tokens : ( T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | ID | INT | HEXINT | COMMENT | WS | STRING | CHAR | COMMA | NOT | BWOR | BWAND | OR | AND | RPAREN | LPAREN | HASH | SEMICOLON | RSQ | LSQ | LCURL | RCURL | PLUS | MINUS | TIMES | DIVIDE | MOD | EQ | ASSIGN | NEQ | GTHAN | LTHAN | LEQ | GEQ | SHIFT_LEFT | SHIFT_RIGHT );";
 
-			static DFA10()
+			static DFA9()
 			{
-				DFA10_transitionS = new string[77]
+				DFA9_transitionS = new string[76]
 				{
-					"\u0002\f\u0002\uffff\u0001\f\u0012\uffff\u0001\f\u0001\u0010\u0001\r\u0001\u0015\u0001\uffff\u0001\u001d\u0001\u0012\u0001\u000e\u0001\u0014\u0001\u0013\u0001\u001c\u0001\u001b\u0001\u000f\u0001\b\u0001\u0001\u0001\v\u0001\t\t\n\u0001\uffff\u0001\u0016\u0001 \u0001\u001e\u0001\u001f\u0002\uffff\u0005\a\u0001\u0002\a\a\u0001\u0003\u0005\a\u0001\u0004\u0006\a\u0001\u0018\u0001\uffff\u0001\u0017\u0001\uffff\u0001\a\u0001\uffff\u0004\a\u0001\u0005\u0003\a\u0001\u0006\u0011\a\u0001\u0019\u0001\u0011\u0001\u001a",
+					"\u0002\v\u0002\uffff\u0001\v\u0012\uffff\u0001\v\u0001\u000f\u0001\f\u0001\u0014\u0001\uffff\u0001\u001d\u0001\u0011\u0001\r\u0001\u0013\u0001\u0012\u0001\u001c\u0001\u001a\u0001\u000e\u0001\u001b\u0001\u0001\u0001\n\u0001\b\t\t\u0001\uffff\u0001\u0015\u0001 \u0001\u001e\u0001\u001f\u0002\uffff\u0005\a\u0001\u0002\a\a\u0001\u0003\u0005\a\u0001\u0004\u0006\a\u0001\u0017\u0001\uffff\u0001\u0016\u0001\uffff\u0001\a\u0001\uffff\u0004\a\u0001\u0005\u0003\a\u0001\u0006\u0011\a\u0001\u0018\u0001\u0010\u0001\u0019",
 					string.Empty,
 					"\u0001!",
 					"\u0001\"",
@@ -52,18 +52,16 @@ namespace AntlrTest
 					"\u0001$",
 					"\u0001%\a\uffff\u0001&",
 					string.Empty,
-					"\n\n",
-					"\u0001(",
+					"\u0001'",
 					string.Empty,
-					"\u0001)\u0004\uffff\u0001)",
-					string.Empty,
+					"\u0001(\u0004\uffff\u0001(",
 					string.Empty,
 					string.Empty,
 					string.Empty,
-					"\u0001+",
-					"\u0001-",
-					"\u0001/",
 					string.Empty,
+					"\u0001*",
+					"\u0001,",
+					"\u0001.",
 					string.Empty,
 					string.Empty,
 					string.Empty,
@@ -74,79 +72,80 @@ namespace AntlrTest
 					string.Empty,
 					string.Empty,
 					string.Empty,
-					"\u00011",
-					"\u00013\u00014",
-					"\u00017\u00016",
+					string.Empty,
+					string.Empty,
+					"\u00010",
+					"\u00012\u00013",
+					"\u00016\u00015",
+					"\u00018",
 					"\u00019",
 					"\u0001:",
 					"\u0001;",
-					"\u0001<",
 					"\n\a\a\uffff\u001a\a\u0004\uffff\u0001\a\u0001\uffff\u001a\a",
+					"\u0001=",
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
+					string.Empty,
 					"\u0001>",
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
-					string.Empty,
 					"\u0001?",
 					"\u0001@",
 					"\u0001A",
+					string.Empty,
 					"\u0001B",
-					string.Empty,
 					"\u0001C",
-					"\u0001D",
 					"\n\a\a\uffff\u001a\a\u0004\uffff\u0001\a\u0001\uffff\u001a\a",
 					"\n\a\a\uffff\u001a\a\u0004\uffff\u0001\a\u0001\uffff\u001a\a",
 					"\n\a\a\uffff\u001a\a\u0004\uffff\u0001\a\u0001\uffff\u001a\a",
-					"\u0001H",
+					"\u0001G",
 					"\n\a\a\uffff\u001a\a\u0004\uffff\u0001\a\u0001\uffff\u001a\a",
 					string.Empty,
 					string.Empty,
+					string.Empty,
+					"\u0001I",
 					string.Empty,
 					"\u0001J",
-					string.Empty,
-					"\u0001K",
 					"\n\a\a\uffff\u001a\a\u0004\uffff\u0001\a\u0001\uffff\u001a\a",
 					string.Empty
 				};
-				DFA10_eot = DFA.UnpackEncodedString("\u0002\uffff\u0005\a\u0001\uffff\u0001'\u0001\n\u0001\uffff\u0001*\u0004\uffff\u0001,\u0001.\u00010\v\uffff\u00012\u00015\u00018\u0004\a\u0001=\u0001\a\u0012\uffff\u0004\a\u0001\uffff\u0002\a\u0001E\u0001F\u0001G\u0001\a\u0001I\u0003\uffff\u0001\a\u0001\uffff\u0001\a\u0001L\u0001\uffff");
-				DFA10_eof = DFA.UnpackEncodedString("M\uffff");
-				DFA10_min = DFA.UnpackEncodedStringToUnsignedChars("\u0001\t\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001f\u0001\uffff\u00010\u0001x\u0001\uffff\u0001*\u0004\uffff\u0001=\u0001|\u0001&\v\uffff\u0002=\u0001<\u0002L\u0001U\u0001s\u00010\u0001c\u0012\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u00030\u0001u\u00010\u0003\uffff\u0001d\u0001\uffff\u0001e\u00010\u0001\uffff");
-				DFA10_max = DFA.UnpackEncodedStringToUnsignedChars("\u0001}\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001n\u0001\uffff\u00019\u0001x\u0001\uffff\u0001/\u0004\uffff\u0001=\u0001|\u0001&\v\uffff\u0001=\u0001>\u0001=\u0002L\u0001U\u0001s\u0001z\u0001c\u0012\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u0003z\u0001u\u0001z\u0003\uffff\u0001d\u0001\uffff\u0001e\u0001z\u0001\uffff");
-				DFA10_accept = DFA.UnpackEncodedString("\u0001\uffff\u0001\u0001\u0005\uffff\u0001\b\u0002\uffff\u0001\t\u0001\uffff\u0001\f\u0001\r\u0001\u000e\u0001\u000f\u0003\uffff\u0001\u0015\u0001\u0016\u0001\u0017\u0001\u0018\u0001\u0019\u0001\u001a\u0001\u001b\u0001\u001c\u0001\u001d\u0001\u001f\u0001!\t\uffff\u0001\u001e\u0001\n\u0001\v\u0001 \u0001$\u0001\u0010\u0001\u0013\u0001\u0011\u0001\u0014\u0001\u0012\u0001\"\u0001#\u0001(\u0001*\u0001%\u0001'\u0001)\u0001&\u0004\uffff\u0001\u0006\a\uffff\u0001\u0003\u0001\u0004\u0001\u0005\u0001\uffff\u0001\u0002\u0002\uffff\u0001\a");
-				DFA10_special = DFA.UnpackEncodedString("M\uffff}>");
-				int num = DFA10_transitionS.Length;
-				DFA10_transition = new short[num][];
+				DFA9_eot = DFA.UnpackEncodedString("\u0002\uffff\u0005\a\u0001\uffff\u0001\t\u0001\uffff\u0001)\u0004\uffff\u0001+\u0001-\u0001/\f\uffff\u00011\u00014\u00017\u0004\a\u0001<\u0001\a\u0011\uffff\u0004\a\u0001\uffff\u0002\a\u0001D\u0001E\u0001F\u0001\a\u0001H\u0003\uffff\u0001\a\u0001\uffff\u0001\a\u0001K\u0001\uffff");
+				DFA9_eof = DFA.UnpackEncodedString("L\uffff");
+				DFA9_min = DFA.UnpackEncodedStringToUnsignedChars("\u0001\t\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001f\u0001\uffff\u0001x\u0001\uffff\u0001*\u0004\uffff\u0001=\u0001|\u0001&\f\uffff\u0002=\u0001<\u0002L\u0001U\u0001s\u00010\u0001c\u0011\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u00030\u0001u\u00010\u0003\uffff\u0001d\u0001\uffff\u0001e\u00010\u0001\uffff");
+				DFA9_max = DFA.UnpackEncodedStringToUnsignedChars("\u0001}\u0001\uffff\u0001A\u0001U\u0001R\u0001l\u0001n\u0001\uffff\u0001x\u0001\uffff\u0001/\u0004\uffff\u0001=\u0001|\u0001&\f\uffff\u0001=\u0001>\u0001=\u0002L\u0001U\u0001s\u0001z\u0001c\u0011\uffff\u0001S\u0001L\u0001E\u0001e\u0001\uffff\u0001l\u0001E\u0003z\u0001u\u0001z\u0003\uffff\u0001d\u0001\uffff\u0001e\u0001z\u0001\uffff");
+				DFA9_accept = DFA.UnpackEncodedString("\u0001\uffff\u0001\u0001\u0005\uffff\u0001\b\u0001\uffff\u0001\t\u0001\uffff\u0001\f\u0001\r\u0001\u000e\u0001\u000f\u0003\uffff\u0001\u0015\u0001\u0016\u0001\u0017\u0001\u0018\u0001\u0019\u0001\u001a\u0001\u001b\u0001\u001c\u0001\u001d\u0001\u001e\u0001\u001f\u0001!\t\uffff\u0001\n\u0001\v\u0001 \u0001$\u0001\u0010\u0001\u0013\u0001\u0011\u0001\u0014\u0001\u0012\u0001\"\u0001#\u0001(\u0001*\u0001%\u0001'\u0001)\u0001&\u0004\uffff\u0001\u0006\a\uffff\u0001\u0003\u0001\u0004\u0001\u0005\u0001\uffff\u0001\u0002\u0002\uffff\u0001\a");
+				DFA9_special = DFA.UnpackEncodedString("L\uffff}>");
+				int num = DFA9_transitionS.Length;
+				DFA9_transition = new short[num][];
 				for (int i = 0; i < num; i++)
 				{
-					DFA10_transition[i] = DFA.UnpackEncodedString(DFA10_transitionS[i]);
+					DFA9_transition[i] = DFA.UnpackEncodedString(DFA9_transitionS[i]);
 				}
 			}
 
-			public DFA10(BaseRecognizer recognizer)
+			public DFA9(BaseRecognizer recognizer)
 			{
 				base.recognizer = recognizer;
-				decisionNumber = 10;
-				eot = DFA10_eot;
-				eof = DFA10_eof;
-				min = DFA10_min;
-				max = DFA10_max;
-				accept = DFA10_accept;
-				special = DFA10_special;
-				transition = DFA10_transition;
+				decisionNumber = 9;
+				eot = DFA9_eot;
+				eof = DFA9_eof;
+				min = DFA9_min;
+				max = DFA9_max;
+				accept = DFA9_accept;
+				special = DFA9_special;
+				transition = DFA9_transition;
 			}
 
 			public override void Error(NoViableAltException nvae)
@@ -260,15 +259,15 @@ namespace AntlrTest
 
 		public const int TYPESTRING = 55;
 
-		public const int TYPEVARIABLE = 56;
+		public const int TYPEUNARY = 56;
 
-		public const int VAR = 57;
+		public const int TYPEVARIABLE = 57;
 
-		public const int VARDECL = 58;
+		public const int VAR = 58;
 
-		public const int WS = 59;
+		public const int VARDECL = 59;
 
-		public const int T__60 = 60;
+		public const int WS = 60;
 
 		public const int T__61 = 61;
 
@@ -282,9 +281,11 @@ namespace AntlrTest
 
 		public const int T__66 = 66;
 
-		private DFA10 dfa10;
+		public const int T__67 = 67;
 
-		public override string GrammarFileName => "D:\\Projects\\higurashi-ch-5-meakashi\\Assets\\Scripts\\Compiler\\BGICompiler\\Grammar\\bgitest.g";
+		private DFA9 dfa9;
+
+		public override string GrammarFileName => "D:\\Projects\\higurashi-ch-6-tsumihoroboshi\\Assets\\Scripts\\Compiler\\BGICompiler\\Grammar\\bgitest.g";
 
 		public bgitestLexer()
 		{
@@ -300,22 +301,6 @@ namespace AntlrTest
 		{
 		}
 
-		[GrammarRule("T__60")]
-		private void mT__60()
-		{
-			try
-			{
-				int type = 60;
-				int channel = 0;
-				Match(46);
-				state.type = type;
-				state.channel = channel;
-			}
-			finally
-			{
-			}
-		}
-
 		[GrammarRule("T__61")]
 		private void mT__61()
 		{
@@ -323,7 +308,7 @@ namespace AntlrTest
 			{
 				int type = 61;
 				int channel = 0;
-				Match("FALSE");
+				Match(46);
 				state.type = type;
 				state.channel = channel;
 			}
@@ -339,7 +324,7 @@ namespace AntlrTest
 			{
 				int type = 62;
 				int channel = 0;
-				Match("NULL");
+				Match("FALSE");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -355,7 +340,7 @@ namespace AntlrTest
 			{
 				int type = 63;
 				int channel = 0;
-				Match("TRUE");
+				Match("NULL");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -371,7 +356,7 @@ namespace AntlrTest
 			{
 				int type = 64;
 				int channel = 0;
-				Match("else");
+				Match("TRUE");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -387,7 +372,7 @@ namespace AntlrTest
 			{
 				int type = 65;
 				int channel = 0;
-				Match("if");
+				Match("else");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -402,6 +387,22 @@ namespace AntlrTest
 			try
 			{
 				int type = 66;
+				int channel = 0;
+				Match("if");
+				state.type = type;
+				state.channel = channel;
+			}
+			finally
+			{
+			}
+		}
+
+		[GrammarRule("T__67")]
+		private void mT__67()
+		{
+			try
+			{
+				int type = 67;
 				int channel = 0;
 				Match("include");
 				state.type = type;
@@ -467,55 +468,33 @@ namespace AntlrTest
 			{
 				int type = 24;
 				int channel = 0;
-				int num = 2;
-				try
-				{
-					try
-					{
-						int num2 = input.LA(1);
-						if (num2 == 45)
-						{
-							num = 1;
-						}
-					}
-					finally
-					{
-					}
-					if (num == 1)
-					{
-						Match(45);
-					}
-				}
-				finally
-				{
-				}
-				int num3 = 0;
+				int num = 0;
 				try
 				{
 					while (true)
 					{
-						int num4 = 2;
+						int num2 = 2;
 						try
 						{
-							int num5 = input.LA(1);
-							if (num5 >= 48 && num5 <= 57)
+							int num3 = input.LA(1);
+							if (num3 >= 48 && num3 <= 57)
 							{
-								num4 = 1;
+								num2 = 1;
 							}
 						}
 						finally
 						{
 						}
-						if (num4 != 1)
+						if (num2 != 1)
 						{
 							break;
 						}
 						input.Consume();
-						num3++;
+						num++;
 					}
-					if (num3 < 1)
+					if (num < 1)
 					{
-						EarlyExitException ex = new EarlyExitException(3, input);
+						EarlyExitException ex = new EarlyExitException(2, input);
 						throw ex;
 					}
 				}
@@ -565,7 +544,7 @@ namespace AntlrTest
 					}
 					if (num < 1)
 					{
-						EarlyExitException ex = new EarlyExitException(4, input);
+						EarlyExitException ex = new EarlyExitException(3, input);
 						throw ex;
 					}
 				}
@@ -593,7 +572,7 @@ namespace AntlrTest
 					int num2 = input.LA(1);
 					if (num2 != 47)
 					{
-						NoViableAltException ex = new NoViableAltException(string.Empty, 8, 0, input, 1);
+						NoViableAltException ex = new NoViableAltException(string.Empty, 7, 0, input, 1);
 						throw ex;
 					}
 					switch (input.LA(2))
@@ -606,7 +585,7 @@ namespace AntlrTest
 						break;
 					default:
 					{
-						NoViableAltException ex2 = new NoViableAltException(string.Empty, 8, 1, input, 2);
+						NoViableAltException ex2 = new NoViableAltException(string.Empty, 7, 1, input, 2);
 						throw ex2;
 					}
 					}
@@ -728,7 +707,7 @@ namespace AntlrTest
 		{
 			try
 			{
-				int type = 59;
+				int type = 60;
 				int channel = 0;
 				if ((input.LA(1) < 9 || input.LA(1) > 10) && input.LA(1) != 13 && input.LA(1) != 32)
 				{
@@ -1284,7 +1263,7 @@ namespace AntlrTest
 			int num = 42;
 			try
 			{
-				num = dfa10.Predict(input);
+				num = dfa9.Predict(input);
 			}
 			catch (NoViableAltException)
 			{
@@ -1296,25 +1275,25 @@ namespace AntlrTest
 			switch (num)
 			{
 			case 1:
-				mT__60();
-				break;
-			case 2:
 				mT__61();
 				break;
-			case 3:
+			case 2:
 				mT__62();
 				break;
-			case 4:
+			case 3:
 				mT__63();
 				break;
-			case 5:
+			case 4:
 				mT__64();
 				break;
-			case 6:
+			case 5:
 				mT__65();
 				break;
-			case 7:
+			case 6:
 				mT__66();
+				break;
+			case 7:
+				mT__67();
 				break;
 			case 8:
 				mID();
@@ -1427,7 +1406,7 @@ namespace AntlrTest
 		protected override void InitDFAs()
 		{
 			base.InitDFAs();
-			dfa10 = new DFA10(this);
+			dfa9 = new DFA9(this);
 		}
 	}
 }

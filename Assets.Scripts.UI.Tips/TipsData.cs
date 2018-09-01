@@ -10,164 +10,101 @@ namespace Assets.Scripts.UI.Tips
 		{
 			new TipsDataEntry
 			{
-				Id = 1,
-				Script = "_meak_tips_01",
-				Title = "The Notebook's Beginning",
-				TitleJp = "考察メモ冒頭"
+				Id = 24,
+				Script = "_tsum_tips_001",
+				Title = "A Beautiful Day",
+				TitleJp = "■いいお天気"
 			},
 			new TipsDataEntry
 			{
-				Id = 2,
-				Script = "_meak_tips_02",
-				Title = "A Smudged Diary",
-				TitleJp = "にじんだ日記"
+				Id = 25,
+				Script = "_tsum_tips_002",
+				Title = "Business Card",
+				TitleJp = "■名刺"
 			},
 			new TipsDataEntry
 			{
-				Id = 3,
-				Script = "_meak_tips_03",
-				Title = "A Crumpled Diary",
-				TitleJp = "くしゃくしゃの日記"
+				Id = 26,
+				Script = "_tsum_tips_003",
+				Title = "My Summer Picture Diary",
+				TitleJp = "■夏休みの絵日記"
 			},
 			new TipsDataEntry
 			{
-				Id = 4,
-				Script = "_meak_tips_04",
-				Title = "Notebook Page 21",
-				TitleJp = "ノ\u30fcト２１ペ\u30fcジ"
+				Id = 27,
+				Script = "_tsum_tips_004",
+				Title = "Rainy Days Are On Their Way",
+				TitleJp = "■雨雲の予感"
 			},
 			new TipsDataEntry
 			{
-				Id = 5,
-				Script = "_meak_tips_05",
-				Title = "Notebook Page 24",
-				TitleJp = "ノ\u30fcト２４ペ\u30fcジ"
+				Id = 28,
+				Script = "_tsum_tips_005",
+				Title = "Property Estimate",
+				TitleJp = "■お見積書"
 			},
 			new TipsDataEntry
 			{
-				Id = 6,
-				Script = "_meak_tips_06",
-				Title = "A Torn Diary",
-				TitleJp = "粉\u3005の日記"
+				Id = 29,
+				Script = "_tsum_tips_006",
+				Title = "My Very Favorite Wine",
+				TitleJp = "■お気に入りのワイン"
 			},
 			new TipsDataEntry
 			{
-				Id = 7,
-				Script = "_meak_tips_07",
-				Title = "Notebook Page 29",
-				TitleJp = "ノ\u30fcト２９ペ\u30fcジ"
+				Id = 30,
+				Script = "_tsum_tips_007",
+				Title = "Notice from the Forestry Service",
+				TitleJp = "■営林署便り"
 			},
 			new TipsDataEntry
 			{
-				Id = 8,
-				Script = "_meak_tips_08",
-				Title = "Notebook Page 34",
-				TitleJp = "ノ\u30fcトの３４ペ\u30fcジ"
+				Id = 31,
+				Script = "_tsum_tips_008",
+				Title = "Lunch Takeout List",
+				TitleJp = "■昼の出前リスト"
 			},
 			new TipsDataEntry
 			{
-				Id = 9,
-				Script = "_meak_tips_09",
-				Title = "Notebook Page 42",
-				TitleJp = "ノ\u30fcトの４２ペ\u30fcジ"
+				Id = 32,
+				Script = "_tsum_tips_009",
+				Title = "Lunch Takeout List 2",
+				TitleJp = "■昼の出前リスト２"
 			},
 			new TipsDataEntry
 			{
-				Id = 10,
-				Script = "_meak_tips_10",
-				Title = "Notebook Page 50",
-				TitleJp = "ノ\u30fcトの５０ペ\u30fcジ"
+				Id = 33,
+				Script = "_tsum_tips_010",
+				Title = "Lunch Takeout List 3",
+				TitleJp = "■昼の出前リスト３"
 			},
 			new TipsDataEntry
 			{
-				Id = 11,
-				Script = "_meak_tips_11",
-				Title = "Notebook Page 64",
-				TitleJp = "ノ\u30fcトの６４ペ\u30fcジ"
+				Id = 34,
+				Script = "_tsum_tips_011",
+				Title = "The Others",
+				TitleJp = "■やつら"
 			},
 			new TipsDataEntry
 			{
-				Id = 12,
-				Script = "_meak_tips_12",
-				Title = "Notebook Page 85",
-				TitleJp = "ノ\u30fcトの８５ペ\u30fcジ"
+				Id = 35,
+				Script = "_tsum_tips_012",
+				Title = "Our Reason to Move to Hinamizawa",
+				TitleJp = "■雛見沢だった訳"
 			},
 			new TipsDataEntry
 			{
-				Id = 13,
-				Script = "_meak_tips_13",
-				Title = "Notebook Page 172",
-				TitleJp = "ノ\u30fcトの１７２ペ\u30fcジ"
+				Id = 36,
+				Script = "_tsum_tips_013",
+				Title = "Last Night",
+				TitleJp = "■前夜"
 			},
 			new TipsDataEntry
 			{
-				Id = 14,
-				Script = "_meak_tips_14",
-				Title = "Notebook Page 173",
-				TitleJp = "ノ\u30fcトの１７３ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 15,
-				Script = "_meak_tips_15",
-				Title = "Notebook Page 179",
-				TitleJp = "ノ\u30fcトの１７９ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 16,
-				Script = "_meak_tips_16",
-				Title = "Notebook Page 183",
-				TitleJp = "ノ\u30fcトの１８３ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 17,
-				Script = "_meak_tips_17",
-				Title = "Notebook Page 185",
-				TitleJp = "ノ\u30fcトの１８５ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 18,
-				Script = "_meak_tips_18",
-				Title = "Notebook Page 188",
-				TitleJp = "ノ\u30fcトの１８８ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 19,
-				Script = "_meak_tips_19",
-				Title = "Notebook Page 195",
-				TitleJp = "ノ\u30fcトの１９５ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 20,
-				Script = "_meak_tips_20",
-				Title = "Notebook Page 196",
-				TitleJp = "ノ\u30fcトの１９６ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 21,
-				Script = "_meak_tips_21",
-				Title = "Notebook Page 199",
-				TitleJp = "ノ\u30fcトの１９９ペ\u30fcジ"
-			},
-			new TipsDataEntry
-			{
-				Id = 22,
-				Script = "_meak_tips_22",
-				Title = "A Happy Diary",
-				TitleJp = "幸せのノ\u30fcト"
-			},
-			new TipsDataEntry
-			{
-				Id = 23,
-				Script = "_meak_tips_23",
-				Title = "Disowned",
-				TitleJp = "チャンバラで勘当"
+				Id = 37,
+				Script = "_tsum_tips_014",
+				Title = "The Demon's Script",
+				TitleJp = "■悪魔の脚本"
 			}
 		};
 
@@ -178,11 +115,15 @@ namespace Assets.Scripts.UI.Tips
 			if (global)
 			{
 				int num = instance.GetGlobalFlag("GTotalTips").IntValue();
+				if (instance.GetGlobalFlag("GFlag_GameClear").BoolValue())
+				{
+					num = 999;
+				}
 				Debug.Log("Displaying tips up to " + num);
 				{
 					foreach (TipsDataEntry tip in Tips)
 					{
-						if (tipsDataGroup.TipsAvailable < num)
+						if (tip.Id < num)
 						{
 							tipsDataGroup.TipsAvailable++;
 							tipsDataGroup.TipsUnlocked++;
@@ -197,16 +138,17 @@ namespace Assets.Scripts.UI.Tips
 			Debug.Log("Displaying tips " + num2 + " to " + num3);
 			for (int i = 0; i < Tips.Count; i++)
 			{
+				int id = Tips[i].Id;
 				if (onlyNew)
 				{
-					if (i >= num2 && i < num3)
+					if (id >= num2 && id < num3)
 					{
 						tipsDataGroup.TipsAvailable++;
 						tipsDataGroup.TipsUnlocked++;
 						tipsDataGroup.Tips.Add(Tips[i]);
 					}
 				}
-				else if (i < num3)
+				else if (id < num3)
 				{
 					tipsDataGroup.TipsAvailable++;
 					tipsDataGroup.TipsUnlocked++;

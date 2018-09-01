@@ -59,7 +59,7 @@ namespace BGICompiler.Compiler
 					switch (c)
 					{
 					case 'i':
-						if (values[num].Type != BurikoValueType.Int && values[num].Type != BurikoValueType.Bool && values[num].Type != BurikoValueType.Variable && values[num].Type != BurikoValueType.Operation && values[num].Type != BurikoValueType.Math)
+						if (values[num].Type != BurikoValueType.Int && values[num].Type != BurikoValueType.Bool && values[num].Type != BurikoValueType.Variable && values[num].Type != BurikoValueType.Operation && values[num].Type != BurikoValueType.Math && values[num].Type != BurikoValueType.Unary)
 						{
 							Debug.LogWarning(values[num].Type);
 							return false;

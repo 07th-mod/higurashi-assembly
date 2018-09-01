@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Linq
 {
-	public abstract class JContainer : JToken, IList<JToken>, ICollection<JToken>, IEnumerable<JToken>, IEnumerable, ITypedList, IBindingList, IList, ICollection
+	public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingList, ICollection<JToken>, IEnumerable<JToken>, IEnumerable, IList, ICollection
 	{
 		private class JTokenReferenceEqualityComparer : IEqualityComparer<JToken>
 		{

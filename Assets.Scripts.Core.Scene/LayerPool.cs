@@ -6,9 +6,9 @@ namespace Assets.Scripts.Core.Scene
 {
 	public class LayerPool : MonoBehaviour
 	{
-		public GameObject Panel;
-
 		public int PoolSize;
+
+		public SceneController SceneController;
 
 		private Stack<GameObject> layerList = new Stack<GameObject>();
 
@@ -23,7 +23,8 @@ namespace Assets.Scripts.Core.Scene
 				Initialize();
 			}
 			GameObject gameObject = layerList.Pop();
-			gameObject.transform.parent = Panel.transform;
+			GameObject activePanel = SceneController.GetActivePanel();
+			gameObject.transform.parent = activePanel.transform;
 			gameObject.transform.localPosition = new Vector3(0f, 0f, 0f);
 			gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
 			Layer component = gameObject.GetComponent<Layer>();

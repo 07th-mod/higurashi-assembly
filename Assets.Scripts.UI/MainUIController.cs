@@ -1,5 +1,6 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Scene;
+using Assets.Scripts.Core.TextWindow;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -33,8 +34,6 @@ namespace Assets.Scripts.UI
 
 		private Layer bgLayer;
 
-		private Layer bgLayer2;
-
 		private bool carretVisible;
 
 		private bool language;
@@ -61,7 +60,8 @@ namespace Assets.Scripts.UI
 		private void UpdateAlpha(float a)
 		{
 			panel.alpha = a;
-			gameSystem.TextController.TextArea.color = new Color(1f, 1f, 1f, a);
+			Color color = TextController.TextColor;
+			gameSystem.TextController.TextArea.color = new Color(color.r, color.g, color.b, a);
 		}
 
 		public void StopShake()
@@ -84,7 +84,6 @@ namespace Assets.Scripts.UI
 			if (gameSystem.MessageBoxVisible)
 			{
 				bgLayer.SetRange(alpha);
-				bgLayer2.SetRange(alpha);
 			}
 		}
 
@@ -94,10 +93,9 @@ namespace Assets.Scripts.UI
 			{
 				ShowCarret();
 			}
-			if (bgLayer != null && bgLayer2 != null)
+			if (bgLayer != null)
 			{
 				bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
-				bgLayer2.FadeTo(gameSystem.MessageWindowOpacity, time);
 			}
 			else
 			{
@@ -105,20 +103,12 @@ namespace Assets.Scripts.UI
 				{
 					bgLayer = LayerPool.ActivateLayer();
 				}
-				bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene1");
+				bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
+				bgLayer.transform.parent = GameSystem.Instance.SceneController.FacePanel.transform;
 				bgLayer.SetPriority(62);
-				bgLayer.name = "Window Background 1";
+				bgLayer.name = "Window Background";
 				bgLayer.IsStatic = true;
 				bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
-				if (bgLayer2 == null)
-				{
-					bgLayer2 = LayerPool.ActivateLayer();
-				}
-				bgLayer2.gameObject.layer = LayerMask.NameToLayer("Scene2");
-				bgLayer2.SetPriority(62);
-				bgLayer2.name = "Window Background 2";
-				bgLayer2.IsStatic = true;
-				bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 			}
 		}
 
@@ -130,10 +120,6 @@ namespace Assets.Scripts.UI
 				{
 					bgLayer.FadeTo(0f, time);
 				}
-				if (bgLayer2 != null)
-				{
-					bgLayer2.FadeTo(0f, time);
-				}
 			}
 			else
 			{
@@ -143,21 +129,10 @@ namespace Assets.Scripts.UI
 					{
 						bgLayer.FadeTo(0f, time);
 					}
-					if (bgLayer2 != null)
-					{
-						bgLayer2.FadeTo(0f, time);
-					}
 				}
-				else
+				else if (bgLayer != null)
 				{
-					if (bgLayer != null)
-					{
-						bgLayer.FadeTo(0f, time);
-					}
-					if (bgLayer2 != null)
-					{
-						bgLayer2.FadeTo(0f, time);
-					}
+					bgLayer.FadeTo(0f, time);
 				}
 				HideCarret();
 			}
@@ -167,7 +142,6 @@ namespace Assets.Scripts.UI
 		{
 			ShowLayerBackground(0f);
 			bgLayer.FinishAll();
-			bgLayer2.FinishAll();
 			iTween.Stop(base.gameObject);
 			UpdateAlpha(1f);
 			GameSystem.Instance.MessageBoxVisible = true;
@@ -182,10 +156,6 @@ namespace Assets.Scripts.UI
 			if (bgLayer != null)
 			{
 				bgLayer.FinishAll();
-			}
-			if (bgLayer2 != null)
-			{
-				bgLayer2.FinishAll();
 			}
 			iTween.Stop(base.gameObject);
 			GameSystem.Instance.MessageBoxVisible = false;

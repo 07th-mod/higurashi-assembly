@@ -35,7 +35,12 @@ namespace Assets.Scripts.Core.Buriko.VarTypes
 
 		public BurikoVariable GetObject(BurikoReference reference)
 		{
-			return new BurikoVariable(Stringlist[reference.Member]);
+			int num = reference.Member;
+			if (num == -1)
+			{
+				num = 0;
+			}
+			return new BurikoVariable(Stringlist[num]);
 		}
 
 		public void SetValue(BurikoReference reference, BurikoVariable var)
