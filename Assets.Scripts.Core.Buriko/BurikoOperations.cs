@@ -124,6 +124,16 @@ namespace Assets.Scripts.Core.Buriko
 		SetWindowMargins,
 		SetNameFormat,
 		SetScreenAspect,
-		SetGuiPosition
+		SetGuiPosition,
+		ModEnableNVLModeInADVMode,
+		ModDisableNVLModeInADVMode,
+		ModADVModeSettingLoad,
+		ModNVLModeSettingLoad,
+		ModNVLADVModeSettingLoad,
+		ModCallScriptSection,
+		ModDrawCharacter,
+		ModDrawCharacterWithFiltering,
+		ModPlayVoiceLS,
+		ModPlayMovie
 	}
 }

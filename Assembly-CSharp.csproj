@@ -48,6 +48,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>DLLs\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveAnimation.cs" />
@@ -218,6 +221,17 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\IMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\MODApplyToMaterial.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\MovieInfo.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
+    <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
+    <Compile Include="MOD.Scripts.Core.TextWindow\MODTextController.cs" />
+    <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonArray.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryType.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryWriter.cs" />
@@ -404,6 +418,30 @@
     <Compile Include="Quart.cs" />
     <Compile Include="Quint.cs" />
     <Compile Include="RealTime.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\AlphaPacking.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\ApplyToMaterial.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\ApplyToMesh.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\AudioOutput.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\BaseMediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\CubemapCube.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\DisplayBackground.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\DisplayIMGUI.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\DisplayUGUI.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\ErrorCode.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\Helper.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaConsumer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaControl.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaInfo.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaProducer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\MediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\MediaPlayerEvent.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\NullMediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\Platform.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\StereoPacking.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\UpdateStereoMaterial.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\Windows.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\WindowsMediaPlayer.cs" />
     <Compile Include="Rotator.cs" />
     <Compile Include="Sine.cs" />
     <Compile Include="SpringPanel.cs" />

@@ -1,4 +1,5 @@
-using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
+using MOD.Scripts.Core.TextWindow;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System.Collections.Generic;
@@ -283,67 +284,24 @@ namespace Assets.Scripts.Core.Audio
 
 		public void PlayVoice(string filename, int channel, float volume)
 		{
-			string text = filename.Substring(0, 4);
-			bool flag = false;
-			switch (text)
+			MODTextController.MODCurrentVoiceLayerDetect = channel;
+			AudioLayer audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{
-			case "chie":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVChie").BoolValue();
-				break;
-			case "eiji":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVEiji").BoolValue();
-				break;
-			case "kana":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVKana").BoolValue();
-				break;
-			case "kira":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVKira").BoolValue();
-				break;
-			case "mast":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVMast").BoolValue();
-				break;
-			case "mura":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVMura").BoolValue();
-				break;
-			case "riho":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVRiho").BoolValue();
-				break;
-			case "rmn_":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVRmn_").BoolValue();
-				break;
-			case "sari":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVSari").BoolValue();
-				break;
-			case "tika":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVTika").BoolValue();
-				break;
-			case "yayo":
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVYayo").BoolValue();
-				break;
-			default:
-				flag = BurikoMemory.Instance.GetGlobalFlag("GVOther").BoolValue();
-				break;
+				currentAudio[AudioType.Voice].Remove(channel);
 			}
-			if (!flag)
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			if (audio.IsPlaying())
 			{
-				AudioLayer audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-				if (currentAudio[AudioType.Voice].ContainsKey(channel))
+				audio.StopAudio();
+			}
+			audio.PlayAudio(filename, AudioType.Voice, volume);
+			if (GameSystem.Instance.IsAuto)
+			{
+				audio.OnLoadCallback(delegate
 				{
-					currentAudio[AudioType.Voice].Remove(channel);
-				}
-				currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
-				if (audio.IsPlaying())
-				{
-					audio.StopAudio();
-				}
-				audio.PlayAudio(filename, AudioType.Voice, volume);
-				if (GameSystem.Instance.IsAuto)
-				{
-					audio.OnLoadCallback(delegate
-					{
-						GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
-					});
-				}
+					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
+				});
 			}
 		}
 
@@ -508,6 +466,42 @@ namespace Assets.Scripts.Core.Audio
 			{
 				AudioLayer audioLayer4 = channelDictionary[GetChannelByTypeChannel(AudioType.System, l)];
 				audioLayer4.SetBaseVolume(SystemVolume * GlobalVolume);
+			}
+		}
+
+		public bool IsSEPlaying(int channel)
+		{
+			return channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)].IsPlaying();
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public void MODPlayVoiceLS(string filename, int channel, float volume, int character)
+		{
+			MODTextController.MODCurrentVoiceLayerDetect = channel;
+			AudioLayer audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			if (currentAudio[AudioType.Voice].ContainsKey(channel))
+			{
+				currentAudio[AudioType.Voice].Remove(channel);
+			}
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			if (audio.IsPlaying())
+			{
+				audio.StopAudio();
+			}
+			audio.PlayAudio(filename, AudioType.Voice, volume);
+			if (MODSystem.instance.modSceneController.MODLipSyncBoolCheck(character))
+			{
+				GameSystem.Instance.SceneController.MODLipSyncStart(character, channel, filename);
+			}
+			if (GameSystem.Instance.IsAuto)
+			{
+				audio.OnLoadCallback(delegate
+				{
+					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
+				});
 			}
 		}
 	}
