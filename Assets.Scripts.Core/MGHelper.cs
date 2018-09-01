@@ -194,7 +194,7 @@ namespace Assets.Scripts.Core
 				{
 					text = Environment.ExpandEnvironmentVariables("%appdata%");
 				}
-				_savepath = Path.Combine(text, "Mangagamer\\higurashi03");
+				_savepath = Path.Combine(text, "Mangagamer\\higurashi04");
 				Directory.CreateDirectory(_savepath);
 			}
 			return _savepath;

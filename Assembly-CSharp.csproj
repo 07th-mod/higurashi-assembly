@@ -39,14 +39,14 @@
     <Reference Include="System.Xml">
       <HintPath>DLLs\System.Xml.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="Antlr3.Runtime">
       <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="NVorbis">
       <HintPath>DLLs\NVorbis.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>DLLs\UnityEngine.UI.dll</HintPath>
@@ -70,6 +70,7 @@
     <Compile Include="Assets.Scripts.Core.Audio\AudioFinishCallback.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioLayer.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\OnFinishLoad.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoObjectConverter.cs" />
@@ -209,17 +210,8 @@
     <Compile Include="Expo.cs" />
     <Compile Include="iTween.cs" />
     <Compile Include="LanguageSelection.cs" />
-    <Compile Include="LeanTween.cs" />
-    <Compile Include="LeanTweenType.cs" />
     <Compile Include="Linear.cs" />
     <Compile Include="Localization.cs" />
-    <Compile Include="LTBezier.cs" />
-    <Compile Include="LTBezierPath.cs" />
-    <Compile Include="LTDescr.cs" />
-    <Compile Include="LTEvent.cs" />
-    <Compile Include="LTGUI.cs" />
-    <Compile Include="LTRect.cs" />
-    <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonArray.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryType.cs" />
@@ -417,6 +409,9 @@
     <Compile Include="System.Runtime.Serialization\DataContractAttribute.cs" />
     <Compile Include="System.Runtime.Serialization\DataMemberAttribute.cs" />
     <Compile Include="System.Runtime.Serialization\EnumMemberAttribute.cs" />
+    <Compile Include="TestingColorTweening.cs" />
+    <Compile Include="TestingIssue.cs" />
+    <Compile Include="TestingIssue2.cs" />
     <Compile Include="TextRefresher.cs" />
     <Compile Include="TMPro\Compute_DistanceTransform_EventTypes.cs" />
     <Compile Include="TMPro\Compute_DT_EventArgs.cs" />
@@ -472,7 +467,6 @@
     <Compile Include="TMPro\VertexGradient.cs" />
     <Compile Include="TMPro\WordWrapState.cs" />
     <Compile Include="Triangulate.cs" />
-    <Compile Include="TweenAction.cs" />
     <Compile Include="TweenAlpha.cs" />
     <Compile Include="TweenColor.cs" />
     <Compile Include="TweenFOV.cs" />

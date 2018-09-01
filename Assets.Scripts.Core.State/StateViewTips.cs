@@ -26,13 +26,13 @@ namespace Assets.Scripts.Core.State
 
 		public void OpenTips(string script)
 		{
-			BurikoScriptSystem.Instance.CallScript(script);
 			gameSystem.AudioController.FadeOutBGM(0, 500, waitForFade: false);
 			gameSystem.TextController.ClearText();
 			gameSystem.CanSave = false;
 			tipsManager.Hide(delegate
 			{
 				gameSystem.PopStateStack();
+				BurikoScriptSystem.Instance.CallScript(script);
 			});
 		}
 

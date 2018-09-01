@@ -17,7 +17,7 @@ namespace Assets.Scripts.UI
 
 		private void OnClick()
 		{
-			if (UICamera.currentTouchID == -1 && !(cooldown > 0f))
+			if (UICamera.currentTouchID >= -1 && !(cooldown > 0f))
 			{
 				switch (Type)
 				{

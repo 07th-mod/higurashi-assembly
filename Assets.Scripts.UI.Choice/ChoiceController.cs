@@ -50,7 +50,7 @@ namespace Assets.Scripts.UI.Choice
 				component.ChangeText(optstrings[num2]);
 				component.SetCallback(this, delegate
 				{
-					GameSystem.Instance.ScriptSystem.SetFlag("LOCALWORK_NO_RESULT", id);
+					GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);
 					Debug.Log("ID: " + id);
 					FinishChoice();
 				});

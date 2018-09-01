@@ -41,6 +41,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("JumpScript", new OpType(BurikoOperations.JumpScript, "s"));
 			paramLookup.Add("CallSection", new OpType(BurikoOperations.CallSection, "s"));
 			paramLookup.Add("JumpSection", new OpType(BurikoOperations.JumpSection, "s"));
+			paramLookup.Add("Return", new OpType(BurikoOperations.Return, string.Empty));
 			paramLookup.Add("Wait", new OpType(BurikoOperations.Wait, "i"));
 			paramLookup.Add("WaitForInput", new OpType(BurikoOperations.WaitForInput, string.Empty));
 			paramLookup.Add("SetValidityOfInput", new OpType(BurikoOperations.SetValidityOfInput, "b"));

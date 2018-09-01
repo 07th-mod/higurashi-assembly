@@ -26,7 +26,7 @@ namespace Assets.Scripts.UI.ChapterScreen
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID == -1 && GameSystem.Instance.GameState == GameState.ChapterScreen)
+			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ChapterScreen)
 			{
 				StateChapterScreen stateChapterScreen = GameSystem.Instance.GetStateObject() as StateChapterScreen;
 				if (stateChapterScreen != null)

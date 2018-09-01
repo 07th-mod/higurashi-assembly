@@ -1,5 +1,6 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Audio;
+using TMPro;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Choice
@@ -8,11 +9,7 @@ namespace Assets.Scripts.UI.Choice
 	{
 		public delegate void ClickCallback();
 
-		public UILabel ButtonText;
-
-		public UITweener AlphaTweener;
-
-		public UITweener ColorTweener;
+		public TextMeshPro ButtonTextMesh;
 
 		private float fadeInTime = 0.5f;
 
@@ -20,9 +17,21 @@ namespace Assets.Scripts.UI.Choice
 
 		private bool isEnabled = true;
 
+		private void UpdateColor(Color c)
+		{
+			ButtonTextMesh.color = c;
+		}
+
+		private void FadeToColor(Color c)
+		{
+			LeanTween.cancel(base.gameObject);
+			Color color = ButtonTextMesh.color;
+			LeanTween.value(base.gameObject, UpdateColor, color, c, fadeInTime);
+		}
+
 		private void OnClick()
 		{
-			if (GameSystem.Instance.GameState == GameState.ChoiceScreen && !(fadeInTime > 0f) && isEnabled && UICamera.currentTouchID == -1)
+			if (GameSystem.Instance.GameState == GameState.ChoiceScreen && !(fadeInTime > 0f) && isEnabled && UICamera.currentTouchID >= -1)
 			{
 				if (clickCallback != null)
 				{
@@ -38,24 +47,26 @@ namespace Assets.Scripts.UI.Choice
 			{
 				if (ishover)
 				{
-					ColorTweener.PlayForward();
+					FadeToColor(new Color(1f, 0f, 0f, 1f));
 				}
 				else
 				{
-					ColorTweener.PlayReverse();
+					FadeToColor(new Color(1f, 1f, 1f, 1f));
 				}
 			}
 		}
 
 		public void ChangeText(string newtxt)
 		{
-			ButtonText.text = newtxt;
+			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
+			ButtonTextMesh.font = currentFont;
+			ButtonTextMesh.text = newtxt;
 		}
 
 		public void DisableButton()
 		{
 			isEnabled = false;
-			AlphaTweener.PlayReverse();
+			FadeToColor(new Color(1f, 1f, 1f, 0f));
 		}
 
 		public void SetCallback(ChoiceController controller, ClickCallback callback)
@@ -65,7 +76,8 @@ namespace Assets.Scripts.UI.Choice
 
 		private void Start()
 		{
-			AlphaTweener.PlayForward();
+			UpdateColor(new Color(1f, 1f, 1f, 0f));
+			FadeToColor(new Color(1f, 1f, 1f, 1f));
 		}
 
 		private void Update()

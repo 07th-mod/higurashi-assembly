@@ -11,7 +11,7 @@ public class ConfigButton : MonoBehaviour
 
 	private void OnClick()
 	{
-		if (!(cooldown > 0f) && UICamera.currentTouchID == -1)
+		if (!(cooldown > 0f) && UICamera.currentTouchID >= -1)
 		{
 			switch (base.name)
 			{

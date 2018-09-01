@@ -13,6 +13,7 @@ namespace Assets.Scripts.Core.Buriko
 		JumpScript,
 		CallSection,
 		JumpSection,
+		Return,
 		Wait,
 		WaitForInput,
 		SetValidityOfSkipping,

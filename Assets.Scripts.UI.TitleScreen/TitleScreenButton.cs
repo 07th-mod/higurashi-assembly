@@ -28,7 +28,7 @@ namespace Assets.Scripts.UI.TitleScreen
 		private void OnClick()
 		{
 			GameSystem gameSystem = GameSystem.Instance;
-			if (gameSystem.GameState == GameState.TitleScreen && !(time > 0f) && UICamera.currentTouchID == -1)
+			if (gameSystem.GameState == GameState.TitleScreen && !(time > 0f) && UICamera.currentTouchID >= -1)
 			{
 				StateTitle stateTitle = gameSystem.GetStateObject() as StateTitle;
 				if (stateTitle != null)

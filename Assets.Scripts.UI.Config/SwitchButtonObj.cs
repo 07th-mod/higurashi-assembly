@@ -15,7 +15,7 @@ namespace Assets.Scripts.UI.Config
 
 		private void OnClick()
 		{
-			if (!(cooldown > 0f) && UICamera.currentTouchID == -1)
+			if (!(cooldown > 0f) && UICamera.currentTouchID >= -1)
 			{
 				AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
 				controller.Click();

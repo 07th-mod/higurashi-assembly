@@ -111,7 +111,6 @@ namespace Assets.Scripts.Core.Buriko
 				throw new Exception("Could not return from script, as the script is currently at the bottom of the call stack.");
 			}
 			BurikoStackEntry burikoStackEntry = callStack.Pop();
-			Logger.Log($"Returning from script {currentScript.Filename} to script {burikoStackEntry.Script} LineNum {burikoStackEntry.LineNum}");
 			if (!burikoStackEntry.Script.IsInitialized)
 			{
 				burikoStackEntry.Script.InitializeScript();

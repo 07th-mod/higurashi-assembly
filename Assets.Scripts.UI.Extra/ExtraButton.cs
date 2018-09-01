@@ -26,7 +26,7 @@ namespace Assets.Scripts.UI.Extra
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID == -1 && GameSystem.Instance.GameState == GameState.ExtraScreen)
+			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ExtraScreen)
 			{
 				StateExtraScreen stateExtraScreen = GameSystem.Instance.GetStateObject() as StateExtraScreen;
 				if (stateExtraScreen != null)
@@ -35,7 +35,7 @@ namespace Assets.Scripts.UI.Extra
 					{
 					case "CastReview":
 						stateExtraScreen.RequestLeave();
-						BurikoScriptSystem.Instance.CallScript("omake_03");
+						BurikoScriptSystem.Instance.CallScript("omake_04");
 						break;
 					case "ChapterJump":
 						stateExtraScreen.RequestLeave();

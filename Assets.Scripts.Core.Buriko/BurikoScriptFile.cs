@@ -241,6 +241,11 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationReturn()
+		{
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationSetLocalFlag()
 		{
 			SetOperationType("SetLocalFlag");
@@ -689,7 +694,6 @@ namespace Assets.Scripts.Core.Buriko
 			int loopcount = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
 			num *= 2f;
-			Debug.Log("ShakeScreen");
 			gameSystem.SceneController.ShakeScene(num, level, attenuation, vector, loopcount, isblocking: true);
 			return BurikoVariable.Null;
 		}
@@ -1902,6 +1906,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationCallSection();
 			case BurikoOperations.JumpSection:
 				return OperationJumpSection();
+			case BurikoOperations.Return:
+				return OperationReturn();
 			case BurikoOperations.StoreValueToLocalWork:
 				return OperationStoreValueToLocalWork();
 			case BurikoOperations.LoadValueFromLocalWork:

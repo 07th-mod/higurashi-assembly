@@ -1,5 +1,4 @@
 using Assets.Scripts.Core;
-using Assets.Scripts.Core.Audio;
 using System.Collections;
 using UnityEngine;
 
@@ -20,7 +19,6 @@ public class MenuUIController : MonoBehaviour
 		{
 			yield return (object)new WaitForSeconds(time);
 		}
-		AudioController.Instance.PlaySystemSound("sysse05.ogg");
 		yield return (object)null;
 		yield return (object)null;
 		LeanTween.value(this.Panel.gameObject, delegate(float f)
@@ -54,7 +52,6 @@ public class MenuUIController : MonoBehaviour
 		{
 			Panel.alpha = f;
 		}, 0f, 1f, 0.3f).setDelay(0.3f);
-		AudioController.Instance.PlaySystemSound("sysse05.ogg");
 	}
 
 	private void Update()

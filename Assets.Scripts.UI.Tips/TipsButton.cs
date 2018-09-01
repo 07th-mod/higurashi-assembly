@@ -23,7 +23,7 @@ namespace Assets.Scripts.UI.Tips
 		private void OnClick()
 		{
 			GameSystem instance = GameSystem.Instance;
-			if (instance.GameState == GameState.TipsScreen && isEnabled && manager.isActive && UICamera.currentTouchID == -1)
+			if (instance.GameState == GameState.TipsScreen && isEnabled && manager.isActive && UICamera.currentTouchID >= -1)
 			{
 				StateViewTips stateViewTips = instance.GetStateObject() as StateViewTips;
 				if (stateViewTips != null)

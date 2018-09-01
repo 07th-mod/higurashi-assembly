@@ -40,10 +40,12 @@ namespace Assets.Scripts.Core.Buriko
 			memorylist = new Dictionary<string, BurikoMemoryEntry>();
 			variableReference.Add("LOCALWORK_NO_RESULT", 0);
 			variableReference.Add("TipsMode", 1);
+			variableReference.Add("SelectResult", 2);
 			variableReference.Add("ChapterNumber", 10);
 			variableReference.Add("LOnikakushiDay", 30);
 			variableReference.Add("LWatanagashiDay", 32);
 			variableReference.Add("LTatarigoroshiDay", 33);
+			variableReference.Add("LHimatsubushiDay", 33);
 			variableReference.Add("LTextFade", 31);
 			variableReference.Add("GFlag_FirstPlay", 0);
 			variableReference.Add("GFlag_GameClear", 1);
@@ -51,6 +53,9 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GOnikakushiDay", 3);
 			variableReference.Add("GWatanagashiDay", 4);
 			variableReference.Add("GTatarigoroshiDay", 5);
+			variableReference.Add("GHimatsubushiDay", 6);
+			variableReference.Add("redbox", 7);
+			variableReference.Add("bluebox", 8);
 			variableReference.Add("GMessageSpeed", 10);
 			variableReference.Add("GAutoSpeed", 11);
 			variableReference.Add("GAutoAdvSpeed", 12);

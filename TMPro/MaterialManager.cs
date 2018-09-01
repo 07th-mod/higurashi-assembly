@@ -176,7 +176,7 @@ namespace TMPro
 			m_maskComponents = obj.GetComponentsInParent<Mask>();
 			for (int i = 0; i < m_maskComponents.Length; i++)
 			{
-				if (m_maskComponents[i].IsActive())
+				if (m_maskComponents[i].MaskEnabled())
 				{
 					num++;
 				}

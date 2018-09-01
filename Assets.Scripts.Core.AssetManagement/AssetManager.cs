@@ -229,6 +229,12 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
+		public string GetAudioFilePath(string filename, Assets.Scripts.Core.Audio.AudioType type)
+		{
+			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
+			return Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()).Replace("\\", "/");
+		}
+
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
 		{
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);

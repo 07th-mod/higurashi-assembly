@@ -27,7 +27,7 @@ namespace Assets.Scripts.UI.SaveLoad
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if (gameSystem.GameState == GameState.SaveLoadScreen && !(time > 0f) && UICamera.currentTouchID == -1 && isEnabled)
+			if (gameSystem.GameState == GameState.SaveLoadScreen && !(time > 0f) && UICamera.currentTouchID >= -1 && isEnabled)
 			{
 				StateSaveLoad state = gameSystem.GetStateObject() as StateSaveLoad;
 				if (state != null)
@@ -142,9 +142,8 @@ namespace Assets.Scripts.UI.SaveLoad
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if (gameSystem.GameState == GameState.SaveLoadScreen && hover && time < 0f && isEnabled)
+			if (gameSystem.GameState == GameState.SaveLoadScreen)
 			{
-				AudioController.Instance.PlaySystemSound("sysse01.ogg");
 			}
 		}
 
