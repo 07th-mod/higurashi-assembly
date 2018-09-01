@@ -42,7 +42,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				}
 				try
 				{
-					if (SteamAPI.RestartAppIfNecessary(new AppId_t(310360u)))
+					if (SteamAPI.RestartAppIfNecessary(new AppId_t(410890u)))
 					{
 						GameSystem.Instance.CanExit = true;
 						Application.Quit();

@@ -695,8 +695,14 @@ namespace Assets.Scripts.Core.Scene
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			int num2 = num / height;
-			int width2 = Mathf.RoundToInt((float)Mathf.Clamp(width, 1, num2 * width));
-			mesh = MGHelper.CreateMeshWithOrigin(width2, num, origin);
+			int num3 = Mathf.RoundToInt((float)Mathf.Clamp(width, 1, num2 * width));
+			if (num > num3)
+			{
+				num3 = Mathf.Clamp(width, 1, 640);
+				num2 = num3 / width;
+				num = Mathf.RoundToInt((float)Mathf.Clamp(height, 1, num2 * height));
+			}
+			mesh = MGHelper.CreateMeshWithOrigin(num3, num, origin);
 			meshFilter.mesh = mesh;
 		}
 
@@ -704,8 +710,14 @@ namespace Assets.Scripts.Core.Scene
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			float num2 = (float)num / (float)height;
-			int width2 = Mathf.RoundToInt(Mathf.Clamp((float)width, 1f, num2 * (float)width));
-			mesh = MGHelper.CreateMesh(width2, num, alignment);
+			int num3 = Mathf.RoundToInt(Mathf.Clamp((float)width, 1f, num2 * (float)width));
+			if (num > num3)
+			{
+				num3 = Mathf.Clamp(width, 1, 640);
+				num2 = (float)num3 / (float)width;
+				num = Mathf.RoundToInt(Mathf.Clamp((float)height, 1f, num2 * (float)height));
+			}
+			mesh = MGHelper.CreateMesh(num3, num, alignment);
 			meshFilter.mesh = mesh;
 		}
 

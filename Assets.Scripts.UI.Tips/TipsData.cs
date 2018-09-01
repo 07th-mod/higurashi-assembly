@@ -10,195 +10,155 @@ namespace Assets.Scripts.UI.Tips
 		{
 			new TipsDataEntry
 			{
-				Id = 21,
-				Script = "wata_tips_01",
+				Id = 45,
+				Script = "tata_tips_01",
 				UnlockChapter = 1,
-				Title = "Who's Mion's Uncle?",
-				TitleJp = "魅音の叔父さんって？"
+				Title = "Satoko's Trap Course (Elementary)",
+				TitleJp = "沙都子のトラップ講座（初級）"
 			},
 			new TipsDataEntry
 			{
-				Id = 22,
-				Script = "wata_tips_02",
+				Id = 46,
+				Script = "tata_tips_02",
 				UnlockChapter = 2,
-				Title = "Is There Really a Shion?",
-				TitleJp = "詩音って本当にいるの？"
+				Title = "Satoko's Trap Course (Intermediate)",
+				TitleJp = "沙都子のトラップ講座（中級）"
 			},
 			new TipsDataEntry
 			{
-				Id = 23,
-				Script = "wata_tips_03",
-				UnlockChapter = 2,
-				Title = "An Introduction to Angel Mort",
-				TitleJp = "エンジェルモ\u30fcト紹介記事"
-			},
-			new TipsDataEntry
-			{
-				Id = 24,
-				Script = "wata_tips_04",
+				Id = 47,
+				Script = "tata_tips_03",
 				UnlockChapter = 3,
-				Title = "It Was Delicious",
-				TitleJp = "ごちそうさま"
+				Title = "Satoko's Trap Course (Advanced)",
+				TitleJp = "沙都子のトラップ講座（上級）"
 			},
 			new TipsDataEntry
 			{
-				Id = 25,
-				Script = "wata_tips_05",
+				Id = 48,
+				Script = "tata_tips_04",
 				UnlockChapter = 4,
-				Title = "Details of the Delinquent Three",
-				TitleJp = "三人組の顛末"
+				Title = "The Slacking Manager",
+				TitleJp = "サボりマネ\u30fcジャ\u30fc"
 			},
 			new TipsDataEntry
 			{
-				Id = 26,
-				Script = "wata_tips_06",
+				Id = 49,
+				Script = "tata_tips_05",
+				UnlockChapter = 4,
+				Title = "Copy of the Preliminary Autopsy",
+				TitleJp = "検死初見コピ\u30fc"
+			},
+			new TipsDataEntry
+			{
+				Id = 50,
+				Script = "tata_tips_06",
+				UnlockChapter = 4,
+				Title = "East Round Three",
+				TitleJp = "東三局"
+			},
+			new TipsDataEntry
+			{
+				Id = 51,
+				Script = "tata_tips_07",
 				UnlockChapter = 5,
-				Title = "It Hasn't Been a While",
-				TitleJp = "初めましてじゃないです"
+				Title = "Research Notes",
+				TitleJp = "研究ノ\u30fcト"
 			},
 			new TipsDataEntry
 			{
-				Id = 27,
-				Script = "wata_tips_07",
-				UnlockChapter = 7,
-				Title = "From the Scrapbook I",
-				TitleJp = "スクラップ帳より"
+				Id = 52,
+				Script = "tata_tips_08",
+				UnlockChapter = 5,
+				Title = "Ooishi's Post Memo",
+				TitleJp = "大石席のメモ"
 			},
 			new TipsDataEntry
 			{
-				Id = 28,
-				Script = "wata_tips_08",
-				UnlockChapter = 7,
-				Title = "From the Scrapbook II",
-				TitleJp = "スクラップ帳より"
+				Id = 53,
+				Script = "tata_tips_09",
+				UnlockChapter = 6,
+				Title = "Case 31",
+				TitleJp = "事例３１"
 			},
 			new TipsDataEntry
 			{
-				Id = 29,
-				Script = "wata_tips_09",
-				UnlockChapter = 7,
-				Title = "From the Scrapbook III",
-				TitleJp = "スクラップ帳より"
-			},
-			new TipsDataEntry
-			{
-				Id = 30,
-				Script = "wata_tips_10",
-				UnlockChapter = 7,
-				Title = "Festival's Around the Corner",
-				TitleJp = "いよいよお祭り"
-			},
-			new TipsDataEntry
-			{
-				Id = 31,
-				Script = "wata_tips_11",
+				Id = 54,
+				Script = "tata_tips_10",
 				UnlockChapter = 8,
-				Title = "From the Scrapbook IV",
-				TitleJp = "スクラップ帳より"
+				Title = "Article",
+				TitleJp = "条文"
 			},
 			new TipsDataEntry
 			{
-				Id = 32,
-				Script = "wata_tips_12",
+				Id = 55,
+				Script = "tata_tips_11",
 				UnlockChapter = 8,
-				Title = "From the Scrapbook V",
-				TitleJp = "スクラップ帳より"
+				Title = "Statistics from the Ministry of Health and Welfare",
+				TitleJp = "厚生省統計"
 			},
 			new TipsDataEntry
 			{
-				Id = 33,
-				Script = "wata_tips_13",
-				UnlockChapter = 8,
-				Title = "After the Festival",
-				TitleJp = "後夜祭"
+				Id = 56,
+				Script = "tata_tips_12",
+				UnlockChapter = 11,
+				Title = "Emergency",
+				TitleJp = "緊急"
 			},
 			new TipsDataEntry
 			{
-				Id = 34,
-				Script = "wata_tips_14",
-				UnlockChapter = 10,
-				Title = "From the Scrapbook VI",
-				TitleJp = "スクラップ帳より"
+				Id = 57,
+				Script = "tata_tips_13",
+				UnlockChapter = 11,
+				Title = "D2-3 Number 44",
+				TitleJp = "エ２−３第４４号"
 			},
 			new TipsDataEntry
 			{
-				Id = 35,
-				Script = "wata_tips_15",
-				UnlockChapter = 10,
-				Title = "From the Scrapbook VII",
-				TitleJp = "スクラップ帳より"
+				Id = 58,
+				Script = "tata_tips_14",
+				UnlockChapter = 13,
+				Title = "For the attention of those on the housewife slaughter incident case",
+				TitleJp = "主婦撲殺事件担当課御中"
 			},
 			new TipsDataEntry
 			{
-				Id = 36,
-				Script = "wata_tips_16",
-				UnlockChapter = 10,
-				Title = "Late-Night Phone Call",
-				TitleJp = "深夜の電話"
-			},
-			new TipsDataEntry
-			{
-				Id = 37,
-				Script = "wata_tips_17",
-				UnlockChapter = 12,
-				Title = "From the Scrapbook VIII",
-				TitleJp = "脅迫"
-			},
-			new TipsDataEntry
-			{
-				Id = 38,
-				Script = "wata_tips_18",
-				UnlockChapter = 12,
-				Title = "Their Punishment Isn't Over?",
-				TitleJp = "４人だけの罪に終わらない？"
-			},
-			new TipsDataEntry
-			{
-				Id = 39,
-				Script = "wata_tips_19",
-				UnlockChapter = 14,
-				Title = "From the Scrapbook IX",
-				TitleJp = "スクラップ帳より"
-			},
-			new TipsDataEntry
-			{
-				Id = 40,
-				Script = "wata_tips_20",
-				UnlockChapter = 14,
-				Title = "The Elderly Leader of the Sonozaki Family?",
-				TitleJp = "園崎家の老当主は？"
-			},
-			new TipsDataEntry
-			{
-				Id = 41,
-				Script = "wata_tips_21",
-				UnlockChapter = 14,
-				Title = "From the Scrapbook X",
-				TitleJp = "スクラップ帳より"
-			},
-			new TipsDataEntry
-			{
-				Id = 42,
-				Script = "wata_tips_22",
-				UnlockChapter = 14,
-				Title = "Request Denied",
-				TitleJp = "請求却下"
-			},
-			new TipsDataEntry
-			{
-				Id = 43,
-				Script = "wata_tips_23",
+				Id = 59,
+				Script = "tata_tips_15",
 				UnlockChapter = 16,
-				Title = "From the Scrapbook XI",
-				TitleJp = "スクラップ帳より"
+				Title = "Fire from Hell",
+				TitleJp = "地獄の業火"
 			},
 			new TipsDataEntry
 			{
-				Id = 44,
-				Script = "wata_tips_24",
+				Id = 60,
+				Script = "tata_tips_16",
 				UnlockChapter = 16,
-				Title = "At the Suzu Mahjong Parlor",
-				TitleJp = "雀荘「鈴」"
+				Title = "Victim of the Fifth Year",
+				TitleJp = "５年目の犠牲者"
+			},
+			new TipsDataEntry
+			{
+				Id = 61,
+				Script = "tata_tips_17",
+				UnlockChapter = 17,
+				Title = "Inquiry Request",
+				TitleJp = "照会要請"
+			},
+			new TipsDataEntry
+			{
+				Id = 62,
+				Script = "tata_tips_18",
+				UnlockChapter = 17,
+				Title = "Record of Malice",
+				TitleJp = "恨み帳？"
+			},
+			new TipsDataEntry
+			{
+				Id = 63,
+				Script = "tata_tips_19",
+				UnlockChapter = 19,
+				Title = "Research Notes",
+				TitleJp = "研究ノ\u30fcト"
 			}
 		};
 
@@ -208,7 +168,7 @@ namespace Assets.Scripts.UI.Tips
 			BurikoMemory instance = BurikoMemory.Instance;
 			if (global)
 			{
-				int num = instance.GetGlobalFlag("GWatanagashiDay").IntValue();
+				int num = instance.GetGlobalFlag("GTatarigoroshiDay").IntValue();
 				{
 					foreach (TipsDataEntry tip in Tips)
 					{
@@ -222,7 +182,7 @@ namespace Assets.Scripts.UI.Tips
 					return tipsDataGroup;
 				}
 			}
-			int num2 = instance.GetFlag("LWatanagashiDay").IntValue();
+			int num2 = instance.GetFlag("LTatarigoroshiDay").IntValue();
 			Debug.Log("current chapter " + num2);
 			foreach (TipsDataEntry tip2 in Tips)
 			{
