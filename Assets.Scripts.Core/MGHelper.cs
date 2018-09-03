@@ -1,3 +1,4 @@
+using MOD.Scripts.Core;
 using System;
 using System.IO;
 using UnityEngine;
@@ -196,6 +197,11 @@ namespace Assets.Scripts.Core
 				}
 				_savepath = Path.Combine(text, "Mangagamer\\higurashi01");
 				Directory.CreateDirectory(_savepath);
+			}
+			string saveSubdirectory = MODSystem.instance.modConfig.SaveSubdirectory;
+			if (!string.IsNullOrEmpty(saveSubdirectory))
+			{
+				_savepath = Path.Combine(_savepath, saveSubdirectory);
 			}
 			return _savepath;
 		}

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{0BA774AA-B2B4-468C-B002-CAA0652C466E}</ProjectGuid>
@@ -221,6 +221,8 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
+    <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\IMovieRenderer.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\MODApplyToMaterial.cs" />
