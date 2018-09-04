@@ -228,6 +228,22 @@ namespace Assets.Scripts.Core
 			{
 				PlayerPrefs.SetInt("height", 480);
 			}
+			if (PlayerPrefs.GetInt("width") < 640)
+			{
+				PlayerPrefs.SetInt("width", 640);
+			}
+			if (PlayerPrefs.GetInt("height") < 480)
+			{
+				PlayerPrefs.SetInt("height", 480);
+			}
+			if ((Screen.width < 640 || Screen.height < 480) && !Screen.fullScreen)
+			{
+				Screen.SetResolution(640, 480, fullscreen: false);
+			}
+			if (Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				KeyHook = new KeyHook();
+			}
 		}
 
 		public void UpdateAspectRatio(float newratio)
@@ -838,6 +854,10 @@ namespace Assets.Scripts.Core
 
 		private void OnDestroy()
 		{
+			if (Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				KeyHook.Unhook();
+			}
 		}
 
 		private void OnApplicationQuit()

@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.Tips;
 using Steamworks;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -19,6 +20,45 @@ namespace Assets.Scripts.Core.SteamWorks
 		private bool hasStats;
 
 		private bool needPushStats;
+
+		private void Awake()
+		{
+			if (Environment.GetCommandLineArgs().Contains("-nosteam"))
+			{
+				Debug.Log("-nosteam switch set, skipping steamworks initialization.");
+			}
+			else
+			{
+				GameObject gameObject = new GameObject("SteamManager");
+				steamManager = gameObject.AddComponent<SteamManager>();
+				userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);
+				gameID = new CGameID(SteamUtils.GetAppID());
+				Debug.Log("Steamworks initialized. AppId: " + gameID);
+			}
+		}
+
+		private void Update()
+		{
+			if (!(steamManager == null) && SteamManager.Initialized)
+			{
+				if (!requestedStats)
+				{
+					bool flag = requestedStats = SteamUserStats.RequestCurrentStats();
+				}
+				if (Input.GetKeyDown(KeyCode.R) && Application.platform == RuntimePlatform.WindowsEditor)
+				{
+					Debug.Log("Resetting achievements");
+					SteamUserStats.ResetAllStats(bAchievementsToo: true);
+					requestedStats = false;
+				}
+				if (needPushStats)
+				{
+					Debug.Log("Storing steam stats.");
+					SteamUserStats.StoreStats();
+					needPushStats = false;
+				}
+			}
+		}
 
 		public void Close()
 		{
