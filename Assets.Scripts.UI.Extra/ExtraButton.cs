@@ -85,7 +85,6 @@ namespace Assets.Scripts.UI.Extra
 			{
 				base.gameObject.SetActive(value: false);
 			}
-			Debug.Log($">>>>>There are currently {MODSystem.instance.modTipsController.Tips.Count} tips");
 			if (base.name == "ViewTips" && !MODSystem.instance.modTipsController.Tips.Any())
 			{
 				base.gameObject.SetActive(value: false);
