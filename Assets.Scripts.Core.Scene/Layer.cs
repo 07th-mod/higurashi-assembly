@@ -81,6 +81,10 @@ namespace Assets.Scripts.Core.Scene
 
 		public bool IsInUse => primary != null;
 
+		public Material MODMaterial => material;
+
+		public MeshRenderer MODMeshRenderer => meshRenderer;
+
 		public void RestoreScaleAndPosition(Vector3 scale, Vector3 position)
 		{
 			targetPosition = position;
@@ -595,7 +599,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void SetPrimaryTexture(Texture2D tex)
+		public void SetPrimaryTexture(Texture2D tex)
 		{
 			primary = tex;
 			material.SetTexture("_Primary", primary);
@@ -709,7 +713,7 @@ namespace Assets.Scripts.Core.Scene
 			meshFilter.mesh = mesh;
 		}
 
-		private void Initialize()
+		public void Initialize()
 		{
 			shaderDefault = Shader.Find("MGShader/LayerShader");
 			shaderAlphaBlend = Shader.Find("MGShader/LayerShaderAlpha");
@@ -747,6 +751,84 @@ namespace Assets.Scripts.Core.Scene
 
 		private void Update()
 		{
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public void MODDrawLayer(string textureName, Texture2D tex2d, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		{
+			FinishAll();
+			if (textureName == string.Empty)
+			{
+				HideLayer();
+			}
+			else if (tex2d == null)
+			{
+				Logger.LogError("Failed to load texture " + textureName);
+			}
+			else
+			{
+				startRange = 0f;
+				targetRange = alpha;
+				targetAlpha = alpha;
+				meshRenderer.enabled = true;
+				shaderType = type;
+				PrimaryName = textureName;
+				float num = 1f;
+				if (z > 0)
+				{
+					num = 1f - (float)z / 400f;
+				}
+				if (z < 0)
+				{
+					num = 1f + (float)z / -400f;
+				}
+				if (mesh == null)
+				{
+					alignment = LayerAlignment.AlignCenter;
+					if ((x != 0 || y != 0) && !isBustshot)
+					{
+						alignment = LayerAlignment.AlignTopleft;
+					}
+					if (origin.HasValue)
+					{
+						CreateMesh(tex2d.width, tex2d.height, origin.GetValueOrDefault());
+					}
+					else
+					{
+						CreateMesh(tex2d.width, tex2d.height, alignment);
+					}
+				}
+				if (primary != null)
+				{
+					material.shader = shaderCrossfade;
+					SetSecondaryTexture(primary);
+					SetPrimaryTexture(tex2d);
+					startRange = 1f;
+					targetRange = 0f;
+					targetAlpha = 1f;
+				}
+				else
+				{
+					material.shader = shaderDefault;
+					if (type == 3)
+					{
+						material.shader = shaderMultiply;
+					}
+					SetPrimaryTexture(tex2d);
+				}
+				SetRange(startRange);
+				base.transform.localPosition = new Vector3((float)x, 0f - (float)y, (float)Priority * -0.1f);
+				base.transform.localScale = new Vector3(num, num, 1f);
+				targetPosition = base.transform.localPosition;
+				targetScale = base.transform.localScale;
+				if (Mathf.Approximately(wait, 0f))
+				{
+					FinishFade();
+				}
+			}
 		}
 	}
 }

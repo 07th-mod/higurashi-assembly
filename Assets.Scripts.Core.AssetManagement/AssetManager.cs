@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Audio;
+using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
 using System;
 using System.Collections.Generic;
@@ -232,8 +233,61 @@ namespace Assets.Scripts.Core.AssetManagement
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
 		{
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
-			string path = Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
-			return File.ReadAllBytes(path);
+			string text = null;
+			string text2 = Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
+			string text3 = Path.Combine(assetPath, archiveNameByAudioType + "Alt/" + filename.ToLower());
+			switch (archiveNameByAudioType)
+			{
+			case "BGM":
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() == 0)
+				{
+					goto default;
+				}
+				if (File.Exists(text3))
+				{
+					text = text3;
+					break;
+				}
+				goto IL_00f5;
+			case "SE":
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() == 0)
+				{
+					goto default;
+				}
+				if (File.Exists(text3))
+				{
+					text = text3;
+					break;
+				}
+				goto IL_00f5;
+			case "voice":
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() != 0)
+				{
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue() == 0)
+					{
+						goto default;
+					}
+					if (File.Exists(text3))
+					{
+						text = text3;
+						break;
+					}
+				}
+				goto IL_00f5;
+			default:
+				{
+					if (!File.Exists(text2))
+					{
+						text = text3;
+						break;
+					}
+					goto IL_00f5;
+				}
+				IL_00f5:
+				text = text2;
+				break;
+			}
+			return File.ReadAllBytes(text);
 		}
 
 		public byte[] GetScriptData(string filename)
