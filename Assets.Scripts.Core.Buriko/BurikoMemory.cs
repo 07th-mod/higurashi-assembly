@@ -99,6 +99,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("DisableModHotkey", 72);
 			variableReference.Add("GMOD_DEBUG_MODE", 73);
 			variableReference.Add("GLipSync", 74);
+			variableReference.Add("LArc", 75);
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
@@ -132,6 +133,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetFlag("LTextFade", 1);
 			SetFlag("NVL_in_ADV", 0);
 			SetFlag("DisableModHotkey", 0);
+			SetFlag("LArc", 0);
 			Instance = this;
 			LoadGlobals();
 		}

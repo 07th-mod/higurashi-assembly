@@ -2,6 +2,8 @@ using Assets.Scripts.Core;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Scripts.Core;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Extra
@@ -80,6 +82,11 @@ namespace Assets.Scripts.UI.Extra
 		{
 			button = GetComponent<UIButton>();
 			if (base.name == "CastReview" && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue())
+			{
+				base.gameObject.SetActive(value: false);
+			}
+			Debug.Log($">>>>>There are currently {MODSystem.instance.modTipsController.Tips.Count} tips");
+			if (base.name == "ViewTips" && !MODSystem.instance.modTipsController.Tips.Any())
 			{
 				base.gameObject.SetActive(value: false);
 			}

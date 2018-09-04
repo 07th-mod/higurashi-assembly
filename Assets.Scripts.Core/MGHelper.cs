@@ -180,30 +180,36 @@ namespace Assets.Scripts.Core
 
 		public static string GetSavePath()
 		{
+			string savePath;
 			if (Application.platform == RuntimePlatform.OSXPlayer)
 			{
-				return Application.persistentDataPath;
+				savePath = Application.persistentDataPath;
 			}
-			if (Application.platform == RuntimePlatform.LinuxPlayer)
+			else if (Application.platform == RuntimePlatform.LinuxPlayer)
 			{
-				return Application.persistentDataPath;
+				savePath = Application.persistentDataPath;
 			}
-			if (_savepath == string.Empty)
+			else
 			{
-				string text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				if (!Directory.Exists(text) || text == string.Empty)
+				if (_savepath == string.Empty)
 				{
-					text = Environment.ExpandEnvironmentVariables("%appdata%");
+					string text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+					if (!Directory.Exists(text) || text == string.Empty)
+					{
+						text = Environment.ExpandEnvironmentVariables("%appdata%");
+					}
+					_savepath = Path.Combine(text, "Mangagamer\\higurashi01");
+					Directory.CreateDirectory(_savepath);
 				}
-				_savepath = Path.Combine(text, "Mangagamer\\higurashi01");
-				Directory.CreateDirectory(_savepath);
+				savePath = _savepath;
 			}
-			string saveSubdirectory = MODSystem.instance.modConfig.SaveSubdirectory;
-			if (!string.IsNullOrEmpty(saveSubdirectory))
+			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+			if (!string.IsNullOrEmpty(subdir))
 			{
-				_savepath = Path.Combine(_savepath, saveSubdirectory);
+				savePath = Path.Combine(_savepath, subdir);
 			}
-			return _savepath;
+			Directory.CreateDirectory(savePath);
+			return savePath;
 		}
 
 		public static string GetDataPath()
