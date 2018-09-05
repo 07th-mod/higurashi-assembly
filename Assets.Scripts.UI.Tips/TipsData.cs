@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -121,7 +122,7 @@ namespace Assets.Scripts.UI.Tips
 				}
 				Debug.Log("Displaying tips up to " + num);
 				{
-					foreach (TipsDataEntry tip in Tips)
+					foreach (TipsDataEntry tip in MODSystem.instance.modTipsController.Tips)
 					{
 						if (tip.Id < num)
 						{
@@ -136,7 +137,7 @@ namespace Assets.Scripts.UI.Tips
 			int num2 = instance.GetFlag("NewTipsStart").IntValue();
 			int num3 = num2 + instance.GetFlag("NewTipsCount").IntValue();
 			Debug.Log("Displaying tips " + num2 + " to " + num3);
-			for (int i = 0; i < Tips.Count; i++)
+			for (int i = 0; i < MODSystem.instance.modTipsController.Tips.Count; i++)
 			{
 				int id = Tips[i].Id;
 				if (onlyNew)
