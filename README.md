@@ -31,6 +31,6 @@ Ongoing development will be based on the `mod` branch and the relevant branch fo
 
 These projects (`Assembly-CSharp.csproj`) have been built successfully with Visual Studio Community 2017 v15.7.5 and msbuild v15.7.180.61344, though in theory any compiler supporting C# 7.1 should suffice.
 
-In each arc-specific branch the resulting DLL is at `bin/Debug/Assembly-CSharp.dll`.  Because these are committed inline with code, mistakes may put the code and DLL out of sync; when in doubt, a new DLL can be built, but beware false positives: a DLL built separately may show as not being different but may be functionally the same.
+In each arc-specific branch the resulting DLL is at `bin/Debug/Assembly-CSharp.dll`.  Because these are committed inline with code, mistakes may put the code and DLL out of sync; when in doubt, a new DLL can be built, but beware false positives: a DLL built separately may show as being different but may be functionally the same.
 
 Other branches may not have up-to-date READMEs.
