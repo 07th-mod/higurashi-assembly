@@ -97,6 +97,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GMOD_DEBUG_MODE", 521);
 			variableReference.Add("GLipSync", 235);
 			variableReference.Add("LArc", 523);
+			variableReference.Add("GConsoleChoice", 600);
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
