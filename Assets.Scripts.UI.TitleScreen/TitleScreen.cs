@@ -67,7 +67,10 @@ namespace Assets.Scripts.UI.TitleScreen
 		{
 			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear");
 			BackgroundTexture.mainTexture = (globalFlag.BoolValue() ? BG2 : BG1);
-			if (BurikoMemory.Instance.GetGlobalFlag("GHimatsubushiDay").IntValue() < 1)
+			// -- Begin hide extras menu for now since they don't work yet
+			const bool forceHideExtras = true;
+			// -- End hide extras 
+			if (forceHideExtras || BurikoMemory.Instance.GetGlobalFlag("GHimatsubushiDay").IntValue() < 1)
 			{
 				Sprites[4].transform.localPosition = new Vector3(0f, -224f, 0f);
 				UISprite uISprite = Sprites[3];
