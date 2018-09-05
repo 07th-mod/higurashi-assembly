@@ -413,6 +413,14 @@ namespace Assets.Scripts.Core.Buriko
 						GameSystem.Instance.CanSave = true;
 						int flag2 = GetFlag("LTextFade");
 						GameSystem.Instance.TextController.SetTextFade(flag2 == 1);
+						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 && BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() == 2 && BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 0)
+						{
+							GameSystem.Instance.MainUIController.MODdisableNVLModeINADVMode();
+						}
+						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 && BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() == 0 && BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+						{
+							GameSystem.Instance.MainUIController.MODenableNVLModeINADVMode();
+						}
 					}
 				}
 			}

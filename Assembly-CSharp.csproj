@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{0BA774AA-B2B4-468C-B002-CAA0652C466E}</ProjectGuid>
@@ -69,7 +69,7 @@
     <Compile Include="Assets.Scripts.Core.Audio\AudioController.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioFinishCallback.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioLayer.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\OnFinishLoad.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoObjectConverter.cs" />
@@ -221,6 +221,20 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
+    <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\IMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\MODApplyToMaterial.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\MovieInfo.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
+    <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
+    <Compile Include="MOD.Scripts.Core.TextWindow\MODTextController.cs" />
+    <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
+    <Compile Include="MOD.Scripts.UI.Tips\MODTipsController.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonArray.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryType.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryWriter.cs" />
@@ -407,6 +421,30 @@
     <Compile Include="Quart.cs" />
     <Compile Include="Quint.cs" />
     <Compile Include="RealTime.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\AlphaPacking.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\ApplyToMaterial.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\ApplyToMesh.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\AudioOutput.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\BaseMediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\CubemapCube.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\DisplayBackground.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\DisplayIMGUI.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\DisplayUGUI.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\ErrorCode.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\Helper.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaConsumer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaControl.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaInfo.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\IMediaProducer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\MediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\MediaPlayerEvent.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\NullMediaPlayer.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\Platform.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\StereoPacking.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\UpdateStereoMaterial.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\Windows.cs" />
+    <Compile Include="RenderHeads.Media.AVProVideo\WindowsMediaPlayer.cs" />
     <Compile Include="Rotator.cs" />
     <Compile Include="Sine.cs" />
     <Compile Include="SpringPanel.cs" />
