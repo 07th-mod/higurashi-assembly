@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Audio;
+using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
 using System;
 using System.Collections.Generic;
@@ -223,10 +224,56 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
-		public string GetAudioFilePath(string filename, Assets.Scripts.Core.Audio.AudioType type)
+		public string GetAudioFilePath(string filename, Audio.AudioType type)
 		{
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
-			return Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()).Replace("\\", "/");
+			string text = null;
+			string text2 = Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
+			string text3 = Path.Combine(assetPath, archiveNameByAudioType + "Alt/" + filename.ToLower());
+			switch (archiveNameByAudioType)
+			{
+				case "BGM":
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() != 0)
+					{
+						if (File.Exists(text3))
+						{
+							return text3;
+						}
+						break;
+					}
+					goto default;
+				case "SE":
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() != 0)
+					{
+						if (File.Exists(text3))
+						{
+							return text3;
+						}
+						break;
+					}
+					goto default;
+				case "voice":
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() == 0)
+					{
+						break;
+					}
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue() != 0)
+					{
+						if (File.Exists(text3))
+						{
+							return text3;
+						}
+						break;
+					}
+					goto default;
+				default:
+					if (!File.Exists(text2))
+					{
+						return text3;
+					}
+					break;
+			}
+			return text2;
 		}
 
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)

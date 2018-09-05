@@ -19,6 +19,7 @@ namespace Assets.Scripts.Core
 		TipsScreen,
 		ChapterScreen,
 		ChapterJumpScreen,
-		ChapterPreview
+		ChapterPreview,
+		Movie
 	}
 }
