@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Assets.Scripts.Core.Buriko
 {
@@ -81,6 +82,10 @@ namespace Assets.Scripts.Core.Buriko
 							saveEntry2.Time = DateTime.FromBinary(binaryReader.ReadInt64());
 							string textJp = binaryReader.ReadString();
 							string text = saveEntry2.Text = binaryReader.ReadString();
+							string pattern = "[<](size)[=][+](.+)[<][/](size)[>]";
+							textJp = Regex.Replace(textJp, pattern, string.Empty);
+							text = Regex.Replace(text, pattern, string.Empty);
+							saveEntry.Text = text;
 							saveEntry2.TextJp = textJp;
 						}
 					}

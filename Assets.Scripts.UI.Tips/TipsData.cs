@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -130,7 +131,7 @@ namespace Assets.Scripts.UI.Tips
 			{
 				int num = instance.GetGlobalFlag("GHimatsubushiDay").IntValue();
 				{
-					foreach (TipsDataEntry tip in Tips)
+					foreach (TipsDataEntry tip in MODSystem.instance.modTipsController.Tips)
 					{
 						tipsDataGroup.TipsAvailable++;
 						if (tip.UnlockChapter <= num)
@@ -144,7 +145,7 @@ namespace Assets.Scripts.UI.Tips
 			}
 			int num2 = instance.GetFlag("LHimatsubushiDay").IntValue();
 			Debug.Log("current chapter " + num2);
-			foreach (TipsDataEntry tip2 in Tips)
+			foreach (TipsDataEntry tip2 in MODSystem.instance.modTipsController.Tips)
 			{
 				if (onlyNew)
 				{

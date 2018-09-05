@@ -1,7 +1,6 @@
 using Assets.Scripts.Core.AssetManagement;
 using System;
 using System.Collections;
-using System.IO;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.Audio
@@ -100,7 +99,7 @@ namespace Assets.Scripts.Core.Audio
 			}
 			if (audioClip != null)
 			{
-				UnityEngine.Object.Destroy(audioClip);
+				Destroy(audioClip);
 			}
 			loadedName = string.Empty;
 			audioClip = null;
@@ -126,27 +125,20 @@ namespace Assets.Scripts.Core.Audio
 			{
 				return -1f;
 			}
-			return audioSource.time - audioSource.clip.length;
+			return audioSource.clip.length - audioSource.time;
 		}
 
 		private IEnumerator WaitForLoad(string filename, AudioType type)
 		{
 			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
-			if (!File.Exists(path))
-			{
-				Debug.Log("Audio file does not exist: " + path);
-			}
-			else
-			{
-				WWW audioLoader = new WWW("file:///" + path);
-				yield return (object)audioLoader;
-				loadedName = filename;
-				audioClip = audioLoader.audioClip;
-				isLoading = false;
-				isLoaded = true;
-				loadCoroutine = null;
-				OnFinishLoading();
-			}
+			WWW audioLoader = new WWW("file://" + path);
+			yield return audioLoader;
+			loadedName = filename;
+			audioClip = audioLoader.audioClip;
+			isLoading = false;
+			isLoaded = true;
+			loadCoroutine = null;
+			OnFinishLoading();
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)

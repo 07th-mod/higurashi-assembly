@@ -127,6 +127,16 @@ namespace Assets.Scripts.Core.Buriko
 		SetScreenAspect,
 		SetGuiPosition,
 		SetValidityOfLoading,
-		ActivateScreenEffectForcedly
+		ActivateScreenEffectForcedly,
+		ModEnableNVLModeInADVMode,
+		ModDisableNVLModeInADVMode,
+		ModADVModeSettingLoad,
+		ModNVLModeSettingLoad,
+		ModNVLADVModeSettingLoad,
+		ModCallScriptSection,
+		ModDrawCharacter,
+		ModDrawCharacterWithFiltering,
+		ModPlayVoiceLS,
+		ModPlayMovie
 	}
 }

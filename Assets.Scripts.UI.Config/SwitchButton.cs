@@ -1,6 +1,7 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Config
@@ -155,9 +156,7 @@ namespace Assets.Scripts.UI.Config
 				GameSystem.Instance.TextController.SwapLanguages();
 				break;
 			case ConfigButtonType.ArtStyle:
-				AssetManager.Instance.UseNewArt = !AssetManager.Instance.UseNewArt;
-				BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.UseNewArt ? 1 : 0);
-				GameSystem.Instance.SceneController.ReloadAllImages();
+				MODSystem.instance.modTextureController.ToggleArtStyle();
 				break;
 			case ConfigButtonType.AutoHideUI:
 			{
