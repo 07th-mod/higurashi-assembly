@@ -31,7 +31,7 @@ namespace Assets.Scripts.Core.Audio
 
 		public float SystemVolume = 1f;
 
-		private readonly Dictionary<int, AudioLayer> channelDictionary = new Dictionary<int, AudioLayer>();
+		private readonly Dictionary<int, AudioLayerUnity> channelDictionary = new Dictionary<int, AudioLayerUnity>();
 
 		private Dictionary<AudioType, Dictionary<int, AudioInfo>> currentAudio = new Dictionary<AudioType, Dictionary<int, AudioInfo>>();
 
@@ -51,37 +51,37 @@ namespace Assets.Scripts.Core.Audio
 			for (int i = 0; i < 6; i++)
 			{
 				GameObject gameObject = new GameObject("BGM Channel " + i.ToString("D2"));
-				AudioLayer audioLayer = gameObject.AddComponent<AudioLayer>();
+				AudioLayerUnity audioLayerUnity = gameObject.AddComponent<AudioLayerUnity>();
 				gameObject.transform.parent = audioParent.transform;
-				audioLayer.Prepare(num);
-				channelDictionary.Add(num, audioLayer);
+				audioLayerUnity.Prepare(num);
+				channelDictionary.Add(num, audioLayerUnity);
 				num++;
 			}
 			for (int j = 0; j < 8; j++)
 			{
 				GameObject gameObject2 = new GameObject("Voice Channel " + j.ToString("D2"));
-				AudioLayer audioLayer2 = gameObject2.AddComponent<AudioLayer>();
+				AudioLayerUnity audioLayerUnity2 = gameObject2.AddComponent<AudioLayerUnity>();
 				gameObject2.transform.parent = audioParent.transform;
-				audioLayer2.Prepare(num);
-				channelDictionary.Add(num, audioLayer2);
+				audioLayerUnity2.Prepare(num);
+				channelDictionary.Add(num, audioLayerUnity2);
 				num++;
 			}
 			for (int k = 0; k < 8; k++)
 			{
 				GameObject gameObject3 = new GameObject("SE Channel " + k.ToString("D2"));
-				AudioLayer audioLayer3 = gameObject3.AddComponent<AudioLayer>();
+				AudioLayerUnity audioLayerUnity3 = gameObject3.AddComponent<AudioLayerUnity>();
 				gameObject3.transform.parent = audioParent.transform;
-				audioLayer3.Prepare(num);
-				channelDictionary.Add(num, audioLayer3);
+				audioLayerUnity3.Prepare(num);
+				channelDictionary.Add(num, audioLayerUnity3);
 				num++;
 			}
 			for (int l = 0; l < 2; l++)
 			{
 				GameObject gameObject4 = new GameObject("System Channel " + l.ToString("D2"));
-				AudioLayer audioLayer4 = gameObject4.AddComponent<AudioLayer>();
+				AudioLayerUnity audioLayerUnity4 = gameObject4.AddComponent<AudioLayerUnity>();
 				gameObject4.transform.parent = audioParent.transform;
-				audioLayer4.Prepare(num);
-				channelDictionary.Add(num, audioLayer4);
+				audioLayerUnity4.Prepare(num);
+				channelDictionary.Add(num, audioLayerUnity4);
 				num++;
 			}
 			AudioSettings.outputSampleRate = 44100;
@@ -180,33 +180,33 @@ namespace Assets.Scripts.Core.Audio
 
 		public bool IsVoicePlaying(int channel)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-			return audioLayer.IsPlaying();
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			return audioLayerUnity.IsPlaying();
 		}
 
 		public void AddVoiceFinishCallback(int channel, AudioFinishCallback callback)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-			audioLayer.RegisterCallback(callback);
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			audioLayerUnity.RegisterCallback(callback);
 		}
 
 		public float GetRemainingSEPlayTime(int channel)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)];
-			return audioLayer.GetRemainingPlayTime();
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)];
+			return audioLayerUnity.GetRemainingPlayTime();
 		}
 
 		public float GetRemainingVoicePlayTime(int channel)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-			return audioLayer.GetRemainingPlayTime();
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			return audioLayerUnity.GetRemainingPlayTime();
 		}
 
 		public void ChangeVolumeOfBGM(int channel, float volume, float time)
 		{
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
 			float time2 = time / 1000f;
-			AudioLayer audioLayer = channelDictionary[channelByTypeChannel];
+			AudioLayerUnity audioLayerUnity = channelDictionary[channelByTypeChannel];
 			if (currentAudio[AudioType.BGM].ContainsKey(channel))
 			{
 				currentAudio[AudioType.BGM][channel].Volume = volume;
@@ -215,18 +215,18 @@ namespace Assets.Scripts.Core.Audio
 			{
 				Debug.LogWarning("ChangeVolumeOfBGM could not find existing currentAudio for channel!");
 			}
-			audioLayer.StartVolumeFade(volume, time2);
+			audioLayerUnity.StartVolumeFade(volume, time2);
 		}
 
 		public void FadeOutBGM(int channel, int time, bool waitForFade)
 		{
 			float num = (float)time / 1000f;
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
-			AudioLayer audioLayer = channelDictionary[channelByTypeChannel];
-			audioLayer.FadeOut(num);
+			AudioLayerUnity audioLayerUnity = channelDictionary[channelByTypeChannel];
+			audioLayerUnity.FadeOut(num);
 			if (waitForFade)
 			{
-				GameSystem.Instance.AddWait(new Wait(num, WaitTypes.WaitForAudio, audioLayer.StopAudio));
+				GameSystem.Instance.AddWait(new Wait(num, WaitTypes.WaitForAudio, audioLayerUnity.StopAudio));
 			}
 			if (currentAudio[AudioType.BGM].ContainsKey(channel))
 			{
@@ -236,8 +236,8 @@ namespace Assets.Scripts.Core.Audio
 
 		public void StopBGM(int channel)
 		{
-			AudioLayer audioLayer = channelDictionary[channel];
-			audioLayer.StopAudio();
+			AudioLayerUnity audioLayerUnity = channelDictionary[channel];
+			audioLayerUnity.StopAudio();
 			if (currentAudio[AudioType.BGM].ContainsKey(channel))
 			{
 				currentAudio[AudioType.BGM].Remove(channel);
@@ -254,36 +254,36 @@ namespace Assets.Scripts.Core.Audio
 
 		public void PlaySE(string filename, int channel, float volume, float pan)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)];
-			if (audioLayer.IsPlaying())
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)];
+			if (audioLayerUnity.IsPlaying())
 			{
-				audioLayer.StopAudio();
+				audioLayerUnity.StopAudio();
 			}
-			audioLayer.PlayAudio(filename, AudioType.SE, volume);
+			audioLayerUnity.PlayAudio(filename, AudioType.SE, volume);
 		}
 
 		public void StopSE(int channel)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)];
-			audioLayer.StopAudio();
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)];
+			audioLayerUnity.StopAudio();
 		}
 
 		public void FadeOutSE(int channel, float time, bool waitForFade)
 		{
 			float num = time / 1000f;
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.SE, channel);
-			AudioLayer audioLayer = channelDictionary[channelByTypeChannel];
-			audioLayer.FadeOut(num);
+			AudioLayerUnity audioLayerUnity = channelDictionary[channelByTypeChannel];
+			audioLayerUnity.FadeOut(num);
 			if (waitForFade)
 			{
-				GameSystem.Instance.AddWait(new Wait(num, WaitTypes.WaitForAudio, audioLayer.StopAudio));
+				GameSystem.Instance.AddWait(new Wait(num, WaitTypes.WaitForAudio, audioLayerUnity.StopAudio));
 			}
 		}
 
 		public void PlayVoice(string filename, int channel, float volume)
 		{
 			MODTextController.MODCurrentVoiceLayerDetect = channel;
-			AudioLayer audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
 			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
@@ -305,8 +305,8 @@ namespace Assets.Scripts.Core.Audio
 
 		public void StopVoice(int channel)
 		{
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-			audioLayer.StopAudio();
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			audioLayerUnity.StopAudio();
 			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
@@ -325,10 +325,10 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = 0; i < 8; i++)
 			{
-				AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, i)];
-				if (audioLayer.IsPlaying())
+				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, i)];
+				if (audioLayerUnity.IsPlaying())
 				{
-					audioLayer.StopAudio();
+					audioLayerUnity.StopAudio();
 				}
 			}
 		}
@@ -337,26 +337,26 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = 0; i < 6; i++)
 			{
-				AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
-				if (audioLayer.IsPlaying())
+				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
+				if (audioLayerUnity.IsPlaying())
 				{
-					audioLayer.StopAudio();
+					audioLayerUnity.StopAudio();
 				}
 			}
 			for (int j = 0; j < 8; j++)
 			{
-				AudioLayer audioLayer2 = channelDictionary[GetChannelByTypeChannel(AudioType.SE, j)];
-				if (audioLayer2.IsPlaying())
+				AudioLayerUnity audioLayerUnity2 = channelDictionary[GetChannelByTypeChannel(AudioType.SE, j)];
+				if (audioLayerUnity2.IsPlaying())
 				{
-					audioLayer2.StopAudio();
+					audioLayerUnity2.StopAudio();
 				}
 			}
 			for (int k = 0; k < 8; k++)
 			{
-				AudioLayer audioLayer3 = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, k)];
-				if (audioLayer3.IsPlaying())
+				AudioLayerUnity audioLayerUnity3 = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, k)];
+				if (audioLayerUnity3.IsPlaying())
 				{
-					audioLayer3.StopAudio();
+					audioLayerUnity3.StopAudio();
 				}
 			}
 		}
@@ -369,10 +369,10 @@ namespace Assets.Scripts.Core.Audio
 				fadeintime /= 1000f;
 				startvolume = 0f;
 			}
-			AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(type, channel)];
-			if (audioLayer.IsPlaying())
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(type, channel)];
+			if (audioLayerUnity.IsPlaying())
 			{
-				audioLayer.StopAudio();
+				audioLayerUnity.StopAudio();
 			}
 			bool loop = type == AudioType.BGM;
 			if (type == AudioType.BGM)
@@ -383,10 +383,10 @@ namespace Assets.Scripts.Core.Audio
 				}
 				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename));
 			}
-			audioLayer.PlayAudio(filename, type, startvolume, loop);
+			audioLayerUnity.PlayAudio(filename, type, startvolume, loop);
 			if (fadeintime > 0.05f)
 			{
-				audioLayer.StartVolumeFade(volume, fadeintime);
+				audioLayerUnity.StartVolumeFade(volume, fadeintime);
 			}
 		}
 
@@ -447,23 +447,23 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = 0; i < 6; i++)
 			{
-				AudioLayer audioLayer = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
-				audioLayer.SetBaseVolume(BGMVolume * GlobalVolume);
+				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
+				audioLayerUnity.SetBaseVolume(BGMVolume * GlobalVolume);
 			}
 			for (int j = 0; j < 8; j++)
 			{
-				AudioLayer audioLayer2 = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, j)];
-				audioLayer2.SetBaseVolume(VoiceVolume * GlobalVolume);
+				AudioLayerUnity audioLayerUnity2 = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, j)];
+				audioLayerUnity2.SetBaseVolume(VoiceVolume * GlobalVolume);
 			}
 			for (int k = 0; k < 8; k++)
 			{
-				AudioLayer audioLayer3 = channelDictionary[GetChannelByTypeChannel(AudioType.SE, k)];
-				audioLayer3.SetBaseVolume(SoundVolume * GlobalVolume);
+				AudioLayerUnity audioLayerUnity3 = channelDictionary[GetChannelByTypeChannel(AudioType.SE, k)];
+				audioLayerUnity3.SetBaseVolume(SoundVolume * GlobalVolume);
 			}
 			for (int l = 0; l < 2; l++)
 			{
-				AudioLayer audioLayer4 = channelDictionary[GetChannelByTypeChannel(AudioType.System, l)];
-				audioLayer4.SetBaseVolume(SystemVolume * GlobalVolume);
+				AudioLayerUnity audioLayerUnity4 = channelDictionary[GetChannelByTypeChannel(AudioType.System, l)];
+				audioLayerUnity4.SetBaseVolume(SystemVolume * GlobalVolume);
 			}
 		}
 
@@ -479,7 +479,7 @@ namespace Assets.Scripts.Core.Audio
 		public void MODPlayVoiceLS(string filename, int channel, float volume, int character)
 		{
 			MODTextController.MODCurrentVoiceLayerDetect = channel;
-			AudioLayer audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
 			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
