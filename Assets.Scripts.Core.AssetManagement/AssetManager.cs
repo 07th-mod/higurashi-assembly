@@ -230,7 +230,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
-		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
+		public string GetAudioFilePath(string filename, Audio.AudioType type)
 		{
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
 			string text = null;
@@ -238,56 +238,55 @@ namespace Assets.Scripts.Core.AssetManagement
 			string text3 = Path.Combine(assetPath, archiveNameByAudioType + "Alt/" + filename.ToLower());
 			switch (archiveNameByAudioType)
 			{
-			case "BGM":
-				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() == 0)
-				{
-					goto default;
-				}
-				if (File.Exists(text3))
-				{
-					text = text3;
-					break;
-				}
-				goto IL_00f5;
-			case "SE":
-				if (BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() == 0)
-				{
-					goto default;
-				}
-				if (File.Exists(text3))
-				{
-					text = text3;
-					break;
-				}
-				goto IL_00f5;
-			case "voice":
-				if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() != 0)
-				{
-					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue() == 0)
+				case "BGM":
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() != 0)
 					{
-						goto default;
-					}
-					if (File.Exists(text3))
-					{
-						text = text3;
+						if (File.Exists(text3))
+						{
+							return text3;
+						}
 						break;
 					}
-				}
-				goto IL_00f5;
-			default:
-				{
+					goto default;
+				case "SE":
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() != 0)
+					{
+						if (File.Exists(text3))
+						{
+							return text3;
+						}
+						break;
+					}
+					goto default;
+				case "voice":
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() == 0)
+					{
+						break;
+					}
+					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue() != 0)
+					{
+						if (File.Exists(text3))
+						{
+							return text3;
+						}
+						break;
+					}
+					goto default;
+				default:
 					if (!File.Exists(text2))
 					{
-						text = text3;
-						break;
+						return text3;
 					}
-					goto IL_00f5;
-				}
-				IL_00f5:
-				text = text2;
-				break;
+					break;
 			}
-			return File.ReadAllBytes(text);
+			return text2;
+		}
+
+		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
+		{
+			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
+			string path = Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
+			return File.ReadAllBytes(path);
 		}
 
 		public byte[] GetScriptData(string filename)

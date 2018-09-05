@@ -69,7 +69,7 @@
     <Compile Include="Assets.Scripts.Core.Audio\AudioController.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioFinishCallback.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioLayer.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\OnFinishLoad.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoObjectConverter.cs" />
