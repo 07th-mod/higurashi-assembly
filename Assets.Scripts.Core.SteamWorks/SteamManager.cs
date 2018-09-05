@@ -40,22 +40,6 @@ namespace Assets.Scripts.Core.SteamWorks
 				{
 					Debug.LogError("[Steamworks.NET] DllCheck Test returned false, One or more of the Steamworks binaries seems to be the wrong version.", this);
 				}
-				try
-				{
-					if (SteamAPI.RestartAppIfNecessary(new AppId_t(668350u)))
-					{
-						GameSystem.Instance.CanExit = true;
-						Application.Quit();
-						return;
-					}
-				}
-				catch (DllNotFoundException arg)
-				{
-					Debug.LogError("[Steamworks.NET] Could not load [lib]steam_api.dll/so/dylib. It's likely not in the correct location. Refer to the README for more details.\n" + arg, this);
-					GameSystem.Instance.CanExit = true;
-					Application.Quit();
-					return;
-				}
 				m_bInitialized = SteamAPI.Init();
 				if (!m_bInitialized)
 				{
