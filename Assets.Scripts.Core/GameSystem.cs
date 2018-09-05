@@ -245,6 +245,10 @@ namespace Assets.Scripts.Core
 			{
 				Screen.SetResolution(640, 480, fullscreen: false);
 			}
+			if (Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				KeyHook = new KeyHook();
+			}
 		}
 
 		public void UpdateAspectRatio(float newratio)
@@ -895,6 +899,10 @@ namespace Assets.Scripts.Core
 
 		private void OnDestroy()
 		{
+			if (Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				KeyHook.Unhook();
+			}
 		}
 
 		private void OnApplicationQuit()
