@@ -54,6 +54,8 @@ namespace Assets.Scripts.Core
 					{
 						GameSystem.Instance.GoFullscreen();
 					}
+					MOD.Scripts.UI.MODMainUIController controller = new MOD.Scripts.UI.MODMainUIController();
+					controller.FixFullscreenUIScale(fullscreen: !Screen.fullScreen);
 					return (IntPtr)1;
 				}
 			}

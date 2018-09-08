@@ -579,6 +579,8 @@ namespace Assets.Scripts.Core.State
 						{
 							GameSystem.Instance.GoFullscreen();
 						}
+						MOD.Scripts.UI.MODMainUIController controller = new MOD.Scripts.UI.MODMainUIController();
+						controller.FixFullscreenUIScale(fullscreen: !Screen.fullScreen);
 					}
 					if (Input.GetKeyDown(KeyCode.L))
 					{

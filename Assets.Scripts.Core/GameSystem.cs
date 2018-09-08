@@ -239,12 +239,26 @@ namespace Assets.Scripts.Core
 			{
 				KeyHook = new KeyHook();
 			}
+			if (Screen.fullScreen)
+			{
+				// This is needed because if you start the game in fullscreen it won't letterbox
+				// until the resolution is changed to something else and then back to the fullscreen resolution.
+				// It will get changed back when UpdateAspectRatio is called.
+				fullscreenResolution.width = PlayerPrefs.GetInt("fullscreen_width", Screen.width);
+				fullscreenResolution.height = PlayerPrefs.GetInt("fullscreen_height", Screen.height);
+				Screen.SetResolution(640, 480, fullscreen: true);
+			}
 		}
 
 		public void UpdateAspectRatio(float newratio)
 		{
 			AspectRatio = newratio;
-			if (!Screen.fullScreen)
+			if (Screen.fullScreen)
+			{
+				Resolution resolution = GetFullscreenResolution();
+				Screen.SetResolution(resolution.width, resolution.height, fullscreen: true);
+			}
+			else
 			{
 				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
 				Screen.SetResolution(width, Screen.height, fullscreen: false);
@@ -749,12 +763,11 @@ namespace Assets.Scripts.Core
 
 		public void GoFullscreen()
 		{
-			int width = fullscreenResolution.width;
-			int height = fullscreenResolution.height;
-			Screen.SetResolution(width, height, fullscreen: true);
-			Debug.Log(width + " , " + height);
-			PlayerPrefs.SetInt("fullscreen_width", width);
-			PlayerPrefs.SetInt("fullscreen_height", height);
+			Resolution resolution = GetFullscreenResolution();
+			Screen.SetResolution(resolution.width, resolution.height, fullscreen: true);
+			Debug.Log(resolution.width + " , " + resolution.height);
+			PlayerPrefs.SetInt("fullscreen_width", resolution.width);
+			PlayerPrefs.SetInt("fullscreen_height", resolution.height);
 		}
 
 		private void OnApplicationFocus(bool focusStatus)
@@ -897,6 +910,35 @@ namespace Assets.Scripts.Core
 			{
 				SteamController.Close();
 			}
+		}
+
+		public Resolution GetFullscreenResolution()
+		{
+			Resolution resolution = new Resolution();
+			if (!Screen.fullScreen || Application.platform == RuntimePlatform.OSXPlayer)
+			{
+				resolution.width = this.fullscreenResolution.width = Screen.currentResolution.width;
+				resolution.height = this.fullscreenResolution.height = Screen.currentResolution.height;
+			}
+			else if (this.fullscreenResolution.width > 0 && this.fullscreenResolution.height > 0)
+			{
+				resolution.width = this.fullscreenResolution.width;
+				resolution.height = this.fullscreenResolution.height;
+			}
+			else
+			{
+				resolution.width = Screen.currentResolution.width;
+				resolution.height = Screen.currentResolution.height;
+			}
+			if (PlayerPrefs.HasKey("fullscreen_width_override"))
+			{
+				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+			}
+			if (PlayerPrefs.HasKey("fullscreen_height_override"))
+			{
+				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+			}
+			return resolution;
 		}
 	}
 }
