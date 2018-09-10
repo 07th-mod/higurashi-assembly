@@ -914,21 +914,29 @@ namespace Assets.Scripts.Core
 
 		public Resolution GetFullscreenResolution()
 		{
-			Resolution resolution = new Resolution();
-			if (!Screen.fullScreen || Application.platform == RuntimePlatform.OSXPlayer)
+			Resolution resolution;
+			if (Screen.resolutions.Length > 0)
 			{
-				resolution.width = this.fullscreenResolution.width = Screen.currentResolution.width;
-				resolution.height = this.fullscreenResolution.height = Screen.currentResolution.height;
-			}
-			else if (this.fullscreenResolution.width > 0 && this.fullscreenResolution.height > 0)
-			{
-				resolution.width = this.fullscreenResolution.width;
-				resolution.height = this.fullscreenResolution.height;
+				resolution = Screen.resolutions[Screen.resolutions.Length - 1];
 			}
 			else
 			{
-				resolution.width = Screen.currentResolution.width;
-				resolution.height = Screen.currentResolution.height;
+				resolution = new Resolution();
+				if (!Screen.fullScreen || Application.platform == RuntimePlatform.OSXPlayer)
+				{
+					resolution.width = this.fullscreenResolution.width = Screen.currentResolution.width;
+					resolution.height = this.fullscreenResolution.height = Screen.currentResolution.height;
+				}
+				else if (this.fullscreenResolution.width > 0 && this.fullscreenResolution.height > 0)
+				{
+					resolution.width = this.fullscreenResolution.width;
+					resolution.height = this.fullscreenResolution.height;
+				}
+				else
+				{
+					resolution.width = Screen.currentResolution.width;
+					resolution.height = Screen.currentResolution.height;
+				}
 			}
 			if (PlayerPrefs.HasKey("fullscreen_width_override"))
 			{
@@ -938,6 +946,7 @@ namespace Assets.Scripts.Core
 			{
 				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
 			}
+			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution.");
 			return resolution;
 		}
 	}
