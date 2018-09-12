@@ -23,36 +23,24 @@ namespace Assets.Scripts.UI.Config
 				{
 				case 640:
 				{
-					if (Application.platform == RuntimePlatform.OSXPlayer)
-					{
-						Screen.fullScreen = false;
-					}
 					int num2 = Mathf.RoundToInt(480f * GameSystem.Instance.AspectRatio);
-					Screen.SetResolution(num2, 480, fullscreen: false);
+					GameSystem.Instance.DeFullscreen(width: num2, height: 480);
 					PlayerPrefs.SetInt("width", num2);
 					PlayerPrefs.SetInt("height", 480);
 					break;
 				}
 				case 800:
 				{
-					if (Application.platform == RuntimePlatform.OSXPlayer)
-					{
-						Screen.fullScreen = false;
-					}
 					int num3 = Mathf.RoundToInt(600f * GameSystem.Instance.AspectRatio);
-					Screen.SetResolution(num3, 600, fullscreen: false);
+					GameSystem.Instance.DeFullscreen(width: num3, height: 600);
 					PlayerPrefs.SetInt("width", num3);
 					PlayerPrefs.SetInt("height", 600);
 					break;
 				}
 				case 1024:
 				{
-					if (Application.platform == RuntimePlatform.OSXPlayer)
-					{
-						Screen.fullScreen = false;
-					}
 					int num = Mathf.RoundToInt(768f * GameSystem.Instance.AspectRatio);
-					Screen.SetResolution(num, 768, fullscreen: false);
+					GameSystem.Instance.DeFullscreen(width: num, height: 768);
 					PlayerPrefs.SetInt("width", num);
 					PlayerPrefs.SetInt("height", 768);
 					break;
@@ -60,16 +48,16 @@ namespace Assets.Scripts.UI.Config
 				}
 			}
 			MOD.Scripts.UI.MODMainUIController controller = new MOD.Scripts.UI.MODMainUIController();
-			controller.FixFullscreenUIScale(fullscreen: IsFullscreen);
+			controller.FixFullscreenUIScale();
 		}
 
 		private bool ShouldBeDown()
 		{
 			if (IsFullscreen)
 			{
-				return Screen.fullScreen;
+				return GameSystem.Instance.IsFullscreen;
 			}
-			return Width == Screen.width;
+			return (3 * Width / 4) == Screen.height;
 		}
 
 		private void Start()

@@ -84,10 +84,10 @@ namespace MOD.Scripts.UI
 
 		private static int NVLADVModeFontID;
 
-		public void FixFullscreenUIScale(bool fullscreen)
+		public void FixFullscreenUIScale()
 		{
 			float aspectRatio = GameSystem.Instance.AspectRatio;
-			if (fullscreen)
+			if (GameSystem.Instance.IsFullscreen)
 			{
 				Resolution resolution = GameSystem.Instance.GetFullscreenResolution();
 				aspectRatio = resolution.width / (float)resolution.height;
