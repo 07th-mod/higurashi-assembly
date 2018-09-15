@@ -10,6 +10,15 @@ namespace Assets.Scripts.Core.History
 
 		private TextMeshPro textMesh;
 
+		public TextMeshPro GetTextMesh()
+		{
+			if (textMesh == null)
+			{
+				textMesh = GetComponent<TextMeshPro>();
+			}
+			return textMesh;
+		}
+
 		private void OnHover(bool isHover)
 		{
 		}
