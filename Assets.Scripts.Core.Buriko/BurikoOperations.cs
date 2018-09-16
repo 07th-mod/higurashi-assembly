@@ -136,6 +136,7 @@ namespace Assets.Scripts.Core.Buriko
 		ModDrawCharacter,
 		ModDrawCharacterWithFiltering,
 		ModPlayVoiceLS,
-		ModPlayMovie
+		ModPlayMovie,
+		ModSetConfigFontSize
 	}
 }
