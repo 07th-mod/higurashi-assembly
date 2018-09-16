@@ -2322,6 +2322,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODPlayVoiceLS();
 			case BurikoOperations.ModPlayMovie:
 				return OperationMODPlayMovie();
+			case BurikoOperations.ModSetConfigFontSize:
+				return OperationMODSetConfigFontSize();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2679,6 +2681,14 @@ namespace Assets.Scripts.Core.Buriko
 			string moviename = ReadVariable().StringValue();
 			GameSystem.Instance.PushStateObject(new StateMovie(moviename));
 			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetConfigFontSize()
+		{
+			SetOperationType("MODSetConfigFontSize");
+			int size = ReadVariable().IntValue();
+			GameSystem.Instance.ConfigMenuFontSize = size;
 			return BurikoVariable.Null;
 		}
 	}
