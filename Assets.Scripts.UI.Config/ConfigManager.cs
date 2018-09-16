@@ -61,6 +61,13 @@ namespace Assets.Scripts.UI.Config
 			GameSystem.Instance.MainUIController.FadeOut(0.3f, false);
 			GameSystem.Instance.SceneController.HideFace(0.3f);
 			GameSystem.Instance.ExecuteActions();
+			if (GameSystem.Instance.ConfigMenuFontSize > 0)
+			{
+				foreach (TextRefresher text in Panel.GetComponentsInChildren<TextRefresher>())
+				{
+					text.SetFontSize(GameSystem.Instance.ConfigMenuFontSize);
+				}
+			}
 			yield break;
 		}
 
