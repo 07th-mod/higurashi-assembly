@@ -166,6 +166,8 @@ namespace Assets.Scripts.Core
 
 		public bool IsFullscreen { get; private set; }
 
+		public float ConfigMenuFontSize = 0;
+
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
 		public GameState GameState
