@@ -561,7 +561,7 @@ namespace Assets.Scripts.Core.State
 					}
 					if (Input.GetKeyDown(KeyCode.F))
 					{
-						if (Screen.fullScreen)
+						if (GameSystem.Instance.IsFullscreen)
 						{
 							int num14 = PlayerPrefs.GetInt("width");
 							int num15 = PlayerPrefs.GetInt("height");
@@ -570,12 +570,14 @@ namespace Assets.Scripts.Core.State
 								num14 = 640;
 								num15 = 480;
 							}
-							Screen.SetResolution(num14, num15, fullscreen: false);
+							GameSystem.Instance.DeFullscreen(width: num14, height: num15);
 						}
 						else
 						{
 							GameSystem.Instance.GoFullscreen();
 						}
+						MOD.Scripts.UI.MODMainUIController controller = new MOD.Scripts.UI.MODMainUIController();
+						controller.FixFullscreenUIScale();
 					}
 					if (Input.GetKeyDown(KeyCode.L))
 					{
