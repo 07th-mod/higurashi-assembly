@@ -47,8 +47,6 @@ namespace Assets.Scripts.UI.Config
 				}
 				}
 			}
-			MOD.Scripts.UI.MODMainUIController controller = new MOD.Scripts.UI.MODMainUIController();
-			controller.FixFullscreenUIScale();
 		}
 
 		private bool ShouldBeDown()
