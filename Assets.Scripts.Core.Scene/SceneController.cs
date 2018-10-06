@@ -68,6 +68,8 @@ namespace Assets.Scripts.Core.Scene
 
 		private int lastWidth;
 
+		private int lastHeight;
+
 		private IEnumerator MODLipSyncCoroutine;
 
 		public Scene MODActiveScene => GetActiveScene();
@@ -772,8 +774,23 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.CheckinSystem();
 		}
 
+		public void UpdateScreenSize() {
+			float screenAspectRatio = Screen.width / (float)Screen.height;
+			float gameAspectRatio = GameSystem.Instance.AspectRatio;
+			float scale = (!(gameAspectRatio > screenAspectRatio)) ? 1f : (gameAspectRatio / screenAspectRatio);
+			float num6 = 2f / (scale * 480f);
+			base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
+			GameSystem.Instance.MainUIController.UpdateGuiScale(1 / scale, 1 / scale);
+			lastWidth = Screen.width;
+			lastHeight = Screen.height;
+		}
+
 		private void Update()
 		{
+			if (Screen.width != lastWidth || Screen.height != lastHeight)
+			{
+				UpdateScreenSize();
+			}
 		}
 
 		public void MODOnlyRecompile()

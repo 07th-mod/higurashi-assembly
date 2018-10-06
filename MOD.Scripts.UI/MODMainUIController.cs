@@ -84,18 +84,6 @@ namespace MOD.Scripts.UI
 
 		private static int NVLADVModeFontID;
 
-		public void FixFullscreenUIScale()
-		{
-			float aspectRatio = GameSystem.Instance.AspectRatio;
-			if (GameSystem.Instance.IsFullscreen)
-			{
-				Resolution resolution = GameSystem.Instance.GetFullscreenResolution();
-				aspectRatio = resolution.width / (float)resolution.height;
-			}
-			float scale = aspectRatio / GameSystem.Instance.AspectRatio;
-			GameSystem.Instance.MainUIController.UpdateGuiScale(scale, scale);
-		}
-
 		public void ADVModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
 		{
 			ADVModeNameFormat = name;

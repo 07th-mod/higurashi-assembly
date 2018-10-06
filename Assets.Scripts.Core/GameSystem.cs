@@ -247,20 +247,7 @@ namespace Assets.Scripts.Core
 
 			if (IsFullscreen)
 			{
-				// Going fullscreen too early breaks unity.
-				// In addition, our finalizer hack doesn't work on Windows for some reason,
-				// meaning that it will read the fact that it should be fullscreen from its
-				// state save and break itself (see above) so we need another way of fixing it.
-				// We can fix that issue by switching to a non-native resolution and then back to
-				// the native one after waiting a few frames.
-				IEnumerator goFullscreen()
-				{
-					Screen.SetResolution(640, 480, fullscreen: true);
-					yield return new WaitForEndOfFrame();
-					yield return new WaitForEndOfFrame();
-					Screen.SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
-				}
-				StartCoroutine(goFullscreen());
+				Screen.SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
 			}
 			else if (PlayerPrefs.HasKey("height") && PlayerPrefs.HasKey("width"))
 			{
@@ -290,6 +277,7 @@ namespace Assets.Scripts.Core
 			}
 			PlayerPrefs.SetInt("width", Mathf.RoundToInt(PlayerPrefs.GetInt("height") * AspectRatio));
 			MainUIController.UpdateBlackBars();
+			SceneController.UpdateScreenSize();
 		}
 
 		public void CheckinSystem()
