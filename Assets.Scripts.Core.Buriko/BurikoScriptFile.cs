@@ -1862,8 +1862,6 @@ namespace Assets.Scripts.Core.Buriko
 			string s = ReadVariable().StringValue();
 			float newratio = 1f / float.Parse(s, CultureInfo.InvariantCulture);
 			gameSystem.UpdateAspectRatio(newratio);
-			MODMainUIController modMainUIController = new MODMainUIController();
-			modMainUIController.FixFullscreenUIScale();
 			return BurikoVariable.Null;
 		}
 
