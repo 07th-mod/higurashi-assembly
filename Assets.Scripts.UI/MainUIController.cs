@@ -338,6 +338,21 @@ namespace Assets.Scripts.UI
 			textContainer.margins.Set((float)left, (float)top, (float)right, (float)bottom);
 		}
 
+		public TextMeshProFont GetEnglishFont()
+		{
+			return Resources.Load<TextMeshProFont>(FontList[altFontId]);
+		}
+
+		public TextMeshProFont GetJapaneseFont()
+		{
+			return Resources.Load<TextMeshProFont>(FontList[0]);
+		}
+
+		public TextMeshProFont GetCurrentFont()
+		{
+			return TextWindow.font;
+		}
+
 		public void ChangeFontId(int id)
 		{
 			altFontId = id;

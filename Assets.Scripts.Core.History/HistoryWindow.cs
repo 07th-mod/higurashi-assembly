@@ -109,9 +109,11 @@ namespace Assets.Scripts.Core.History
 			lastStep = Slider.numberOfSteps;
 			stepsize = 1f / (float)lastStep;
 			textButtons = new HistoryTextButton[5];
+			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
 			for (int i = 0; i < 5; i++)
 			{
 				textButtons[i] = Labels[i].gameObject.GetComponent<HistoryTextButton>();
+				textButtons[i].GetTextMesh().font = currentFont;
 			}
 			FillText();
 			HistoryTextButton[] array = textButtons;
