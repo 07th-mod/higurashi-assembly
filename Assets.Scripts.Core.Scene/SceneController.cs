@@ -70,6 +70,8 @@ namespace Assets.Scripts.Core.Scene
 
 		private int lastWidth;
 
+		private int lastHeight;
+
 		private IEnumerator MODLipSyncCoroutine;
 
 		public Scene MODActiveScene => GetActiveScene();
@@ -848,19 +850,22 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.CheckinSystem();
 		}
 
+		public void UpdateScreenSize() {
+			float screenAspectRatio = Screen.width / (float)Screen.height;
+			float gameAspectRatio = GameSystem.Instance.AspectRatio;
+			float scale = (!(gameAspectRatio > screenAspectRatio)) ? 1f : (gameAspectRatio / screenAspectRatio);
+			float num6 = 2f / (scale * 480f);
+			base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
+			GameSystem.Instance.MainUIController.UpdateGuiScale(1 / scale, 1 / scale);
+			lastWidth = Screen.width;
+			lastHeight = Screen.height;
+		}
+
 		private void Update()
 		{
-			if (Screen.width != lastWidth)
+			if (Screen.width != lastWidth || Screen.height != lastHeight)
 			{
-				Vector2 screenSize = NGUITools.screenSize;
-				float num = screenSize.x / screenSize.y;
-				float num2 = GameSystem.Instance.AspectRatio * 480f;
-				float num3 = 480f;
-				float num4 = num2 / num3;
-				float num5 = (!(num4 > num)) ? num3 : ((float)Mathf.RoundToInt(num2 / num));
-				float num6 = 2f / num5;
-				base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
-				lastWidth = Screen.width;
+				UpdateScreenSize();
 			}
 		}
 

@@ -282,7 +282,6 @@ namespace Assets.Scripts.Core.Audio
 
 		public void PlayVoice(string filename, int channel, float volume)
 		{
-			MODTextController.MODCurrentVoiceLayerDetect = channel;
 			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
 			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{

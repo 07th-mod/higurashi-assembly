@@ -1,5 +1,4 @@
 using Assets.Scripts.Core.AssetManagement;
-using Assets.Scripts.Core.Audio;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -36,8 +35,8 @@ namespace Assets.Scripts.Core.Audio
 
 		private float[] chvolume = new float[2]
 		{
-		1f,
-		1f
+			1f,
+			1f
 		};
 
 		private bool isLoading;

@@ -49,9 +49,27 @@ namespace Assets.Scripts.UI
 
 		private GameSystem gameSystem;
 
+		private Vector3 unscaledPosition;
+
 		public void UpdateGuiPosition(int x, int y)
 		{
-			mainuiPanel.transform.localPosition = new Vector3((float)x, (float)y, 0f);
+			unscaledPosition = new Vector3((float)x, (float)y, 0f);
+			UpdateGuiPosition();
+		}
+
+		public void UpdateGuiScale(float x, float y)
+		{
+			mainuiPanel.transform.localScale = new Vector3(x, y, 1f);
+			UpdateGuiPosition();
+		}
+
+		private void UpdateGuiPosition()
+		{
+			Vector3 scaledPosition = new Vector3(unscaledPosition.x, unscaledPosition.y, unscaledPosition.z);
+			scaledPosition.x *= mainuiPanel.transform.localScale.x;
+			scaledPosition.y *= mainuiPanel.transform.localScale.y;
+			scaledPosition.z *= mainuiPanel.transform.localScale.z;
+			mainuiPanel.transform.localPosition = scaledPosition;
 		}
 
 		public void UpdateBlackBars()

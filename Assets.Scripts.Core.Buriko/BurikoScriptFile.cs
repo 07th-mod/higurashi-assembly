@@ -724,8 +724,8 @@ namespace Assets.Scripts.Core.Buriko
 			int num = ReadVariable().IntValue();
 			int loopcount = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
-			int num2 = (256 - num) * 5;
-			gameSystem.SceneController.ShakeScene(num2, level, attenuation, vector, loopcount, isblocking: true);
+			num = (256 - num) * 5;
+			gameSystem.SceneController.ShakeScene(num, level, attenuation, vector, loopcount, isblocking: true);
 			return BurikoVariable.Null;
 		}
 

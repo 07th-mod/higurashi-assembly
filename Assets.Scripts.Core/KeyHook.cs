@@ -46,9 +46,9 @@ namespace Assets.Scripts.Core
 				int num = Marshal.ReadInt32(lParam);
 				if (num == 13 && GameSystem.Instance.HasFocus)
 				{
-					if (Screen.fullScreen)
+					if (GameSystem.Instance.IsFullscreen)
 					{
-						Screen.SetResolution(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"), fullscreen: false);
+						GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
 					}
 					else
 					{
