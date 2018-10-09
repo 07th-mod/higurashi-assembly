@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using MOD.Scripts.Core;
 
 namespace MOD.Scripts.UI.Tips
 {
@@ -11,7 +12,7 @@ namespace MOD.Scripts.UI.Tips
 	{
 		private bool initialized;
 		private Dictionary<int, List<TipsDataEntry>> fixedTips;
-		private static readonly string TipsFilePath = Path.Combine(Application.dataPath, "tips.json");
+		private static readonly string TipsFilePath = Path.Combine(MODSystem.BaseDirectory, "tips.json");
 
 		/// <summary>
 		/// This returns the current tips for the arc.
