@@ -12,7 +12,7 @@ namespace MOD.Scripts.Core.Config
 			DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
 		};
 
-		private static readonly string ConfigFilePath = Path.Combine(Application.dataPath, "nipah.json");
+		private static readonly string ConfigFilePath = Path.Combine(MODSystem.BaseDirectory, "nipah.json");
 
 		private static TextReader EmptyConfigReader => new StringReader("{}");
 
