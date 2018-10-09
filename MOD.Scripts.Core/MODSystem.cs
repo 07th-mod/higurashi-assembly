@@ -3,6 +3,8 @@ using MOD.Scripts.Core.Scene;
 using MOD.Scripts.Core.TextWindow;
 using MOD.Scripts.UI;
 using MOD.Scripts.UI.Tips;
+using UnityEngine;
+using System.IO;
 
 namespace MOD.Scripts.Core
 {
@@ -27,5 +29,20 @@ namespace MOD.Scripts.Core
 		public readonly MODTipsController modTipsController = fixedMODTipsControllerInstance;
 
 		private static readonly MODTipsController fixedMODTipsControllerInstance = new MODTipsController();
+
+		public static string BaseDirectory
+		{
+			get
+			{
+				if (Application.platform == RuntimePlatform.OSXPlayer)
+				{
+					return Path.Combine(Application.dataPath, "Resources/Data");
+				}
+				else
+				{
+					return Application.dataPath;
+				}
+			}
+		}
 	}
 }
