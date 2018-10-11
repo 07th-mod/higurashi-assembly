@@ -45,7 +45,7 @@ namespace Assets.Scripts.UI.Choice
 				}
 				gameObject2.transform.parent = gameObject.transform;
 				gameObject2.transform.localScale = Vector3.one;
-				gameObject2.transform.localPosition = new Vector3(0f, (float)(170 - num * num2), 0f);
+				gameObject2.transform.localPosition = new Vector3(GameSystem.Instance.GetGUIOffset(), (float)(170 - num * num2), 0f);
 				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
 				component.ChangeText(optstrings[num2]);
 				component.SetCallback(this, delegate
