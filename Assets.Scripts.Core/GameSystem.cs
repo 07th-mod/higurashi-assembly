@@ -1022,6 +1022,15 @@ namespace Assets.Scripts.Core
 			return resolution;
 		}
 
+		/// <summary>
+		/// Gets the amount you should offset gui elements to center them properly based on the current aspect ratio.
+		/// Add this number to GUI elements' positions to center them, subtract it from window positions.
+		/// </summary>
+		public float GetGUIOffset() {
+			float differenceFrom43 = (4f / 3f) - AspectRatio;
+			return differenceFrom43 * 384f;
+		}
+
 		~GameSystem()
 		{
 			// Fixes an issue where Unity would write garbage values to its saved state on Linux
