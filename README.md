@@ -29,7 +29,12 @@ oni-mg
 
 Ongoing development will be based on the `mod` branch and the relevant branch for each arc is `<arc>-mod`, with the exception of `console-arcs`, which is branched off `hima-mod`.
 
-These projects (`Assembly-CSharp.csproj`) have been built successfully with Visual Studio Community 2017 v15.7.5 and msbuild v15.7.180.61344, though in theory any compiler supporting C# 7.1 should suffice.
+
+Build info:
+* These projects (`Assembly-CSharp.csproj`) have been built successfully with Visual Studio Community 2017 v15.7.5 and msbuild v15.7.180.61344, though in theory any compiler supporting C# 7.1 should suffice.
+* To build with Visual Studio, load the sln file and use build command.
+* To build with msbuild, execute `msbuild Assembly-CSharp.csproj` via the command line.  On Windows, this may require a developer command prompt to have `msbuild` in your PATH; this comes with Visual Studio.
+* The resulting `Assembly-CSharp.dll` will be located at `bin/Debug/Assembly-CSharp.dll`.
 
 The built DLLs are available here:
 
