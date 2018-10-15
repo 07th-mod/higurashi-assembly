@@ -62,7 +62,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("bluebox", 8);
 			variableReference.Add("GTotalTips", 9);
 			variableReference.Add("GHighestChapter", 10);
-			variableReference.Add("GMessageSpeed", 10);
+			variableReference.Add("GMessageSpeed", 52);
 			variableReference.Add("GAutoSpeed", 11);
 			variableReference.Add("GAutoAdvSpeed", 12);
 			variableReference.Add("GUsePrompts", 13);
