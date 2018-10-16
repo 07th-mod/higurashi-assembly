@@ -1,5 +1,7 @@
 using Assets.Scripts.Core.Audio;
 using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
 
 namespace Assets.Scripts.Core.History
 {
@@ -13,7 +15,21 @@ namespace Assets.Scripts.Core.History
 
 		private HistoryLine last;
 
+		private TextMeshPro textMeasurer;
+
+		public int EnglishLineCount { get; private set; } = 0;
+
+		public int JapaneseLineCount { get; private set; } = 0;
+
 		public int LineCount => lines.Count;
+
+		public TextHistory() {
+			TextMeshPro prefabTMP = GameSystem.Instance.HistoryPrefab.GetComponent<HistoryWindow>().Labels[0];
+			GameObject tmpObject = Object.Instantiate(prefabTMP.gameObject);
+			tmpObject.SetActive(false);
+			textMeasurer = tmpObject.GetComponent<TextMeshPro>();
+		}
+
 
 		public void ClearHistory()
 		{
@@ -49,10 +65,15 @@ namespace Assets.Scripts.Core.History
 		{
 			if (last != null)
 			{
+				last.CalculateHeight(textMeasurer);
+				EnglishLineCount += last.EnglishHeight;
+				JapaneseLineCount += last.JapaneseHeight;
 				lines.Add(last);
 			}
 			if (lines.Count > 100)
 			{
+				EnglishLineCount -= lines[0].EnglishHeight;
+				JapaneseLineCount -= lines[0].JapaneseHeight;
 				lines.RemoveAt(0);
 			}
 			last = null;
