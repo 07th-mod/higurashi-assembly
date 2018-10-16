@@ -26,6 +26,8 @@ namespace Assets.Scripts.Core.History
 
 		private float stepsize;
 
+		private float textHeight = 600;
+
 		private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose)
 		{
 			yield return (object)new WaitForEndOfFrame();
@@ -63,20 +65,21 @@ namespace Assets.Scripts.Core.History
 			{
 				int id = i + lastStep;
 				HistoryLine line = textHistory.GetLine(id);
+				TextMeshPro label = textButtons[i].GetTextMesh();
 				if (line == null)
 				{
-					Labels[i].text = string.Empty;
+					label.text = string.Empty;
 					textButtons[i].ClearVoice();
 				}
 				else
 				{
 					if (GameSystem.Instance.UseEnglishText)
 					{
-						Labels[i].text = line.TextEnglish;
+						label.text = line.TextEnglish;
 					}
 					else
 					{
-						Labels[i].text = line.TextJapanese;
+						label.text = line.TextJapanese;
 					}
 					if (line.VoiceFile != null)
 					{
@@ -108,12 +111,20 @@ namespace Assets.Scripts.Core.History
 			Slider.value = 1f;
 			lastStep = Slider.numberOfSteps;
 			stepsize = 1f / (float)lastStep;
-			textButtons = new HistoryTextButton[5];
+			textButtons = new HistoryTextButton[20];
 			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < textButtons.Length; i++)
 			{
-				textButtons[i] = Labels[i].gameObject.GetComponent<HistoryTextButton>();
+				GameObject tmp = Instantiate(Labels[0].gameObject);
+				tmp.transform.SetParent(Labels[0].gameObject.transform.parent, worldPositionStays: false);
+				textButtons[i] = tmp.GetComponent<HistoryTextButton>();
+				textButtons[i].GetTextMesh().text = "";
 				textButtons[i].GetTextMesh().font = currentFont;
+			}
+			// We're not using these anymore because there's only 5 and we might need more than that.
+			foreach (TextMeshPro label in Labels) {
+				label.transform.SetParent(null);
+				label.text = "";
 			}
 			FillText();
 			HistoryTextButton[] array = textButtons;
