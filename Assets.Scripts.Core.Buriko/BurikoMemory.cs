@@ -96,6 +96,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("DisableModHotkey", 520);
 			variableReference.Add("GMOD_DEBUG_MODE", 521);
 			variableReference.Add("GLipSync", 522);
+			variableReference.Add("GVideoOpening", 523);
 			variableReference.Add("LConsoleArc", 600);
 			variableReference.Add("GConsoleChoice", 601);
 			SetGlobalFlag("GMessageSpeed", 60);
