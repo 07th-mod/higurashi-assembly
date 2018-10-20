@@ -206,7 +206,7 @@ namespace Assets.Scripts.Core
 			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
 			if (!string.IsNullOrEmpty(subdir))
 			{
-				savePath = Path.Combine(_savepath, subdir);
+				savePath = Path.Combine(savePath, subdir);
 			}
 			Directory.CreateDirectory(savePath);
 			return savePath;
