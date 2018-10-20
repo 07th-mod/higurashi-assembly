@@ -40,6 +40,7 @@ namespace Assets.Scripts.Core.Buriko
 			memorylist = new Dictionary<string, BurikoMemoryEntry>();
 			variableReference.Add("LOCALWORK_NO_RESULT", 0);
 			variableReference.Add("TipsMode", 1);
+			variableReference.Add("SelectResult", 2);
 			variableReference.Add("ChapterNumber", 10);
 			variableReference.Add("LOnikakushiDay", 30);
 			variableReference.Add("LTextFade", 31);
