@@ -48,7 +48,7 @@ namespace MOD.Scripts.UI.Tips
 				}
 				if (fixedTips != null)
 				{
-					fixedTips.TryGetValue(BurikoMemory.Instance.GetFlag("LArc").IntValue(), out List<TipsDataEntry> value);
+					fixedTips.TryGetValue(BurikoMemory.Instance.GetFlag("LConsoleArc").IntValue(), out List<TipsDataEntry> value);
 					return value ?? new List<TipsDataEntry>();
 				}
 				return TipsData.Tips;
