@@ -23,10 +23,14 @@ namespace Assets.Scripts.Core.History
 		private int stepCount;
 
 		private int lastStep = -1;
+		// Stores the item and position of the line at the bottom of the window
+		private int lastHistoryIndex = -1;
+		private int lineInLastHistoryIndex = -1;
 
 		private float stepsize;
 
-		private float textHeight = 600;
+		private static readonly float textAreaHeight = 600;
+		private static readonly int totalLinesInWindow = 20;
 
 		private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose)
 		{
@@ -43,8 +47,7 @@ namespace Assets.Scripts.Core.History
 			}, 1f, 0f, 0.2f);
 			GameSystem.Instance.MainUIController.FadeIn(0.2f);
 			GameSystem.Instance.SceneController.RevealFace(0.2f);
-			HistoryTextButton[] array = textButtons;
-			foreach (HistoryTextButton t in array)
+			foreach (HistoryTextButton t in textButtons)
 			{
 				t.FadeOut(0.2f);
 			}
@@ -59,36 +62,113 @@ namespace Assets.Scripts.Core.History
 			StartCoroutine(LeaveMenuAnimation(onClose));
 		}
 
+		/// <summary>
+		/// Trims the text in the TextMeshPro object based on the given line number
+		/// A positive line number will trim anything after the given line
+		/// A negative line number will trim off the first `-line` lines
+		/// </summary>
+		/// <param name="tmp">The TextMeshPro object containing the text you want to trim</param>
+		/// <param name="line">The line number for trimming</param>
+		private void TrimTextInTMP(TextMeshPro tmp, int line)
+		{
+			tmp.ForceMeshUpdate();
+			TMP_CharacterInfo[] charInfo = tmp.textInfo.characterInfo;
+			if (tmp.textInfo.lineCount <= line - 1)
+			{
+				return;
+			}
+			//Debug.Log("Trimming " + tmp.text + " to " + line + " lines");
+			int target = line;
+			if (target < 0)
+			{
+				target = -target - 1;
+			}
+			int foundChar = -1;
+			int multiCharChars = 0;
+			foreach (TMP_CharacterInfo info in charInfo)
+			{
+				//Debug.Log("Character Info: index " + info.index + " meshIndex " + info.meshIndex + " visible " + info.isVisible + " xAdvance " + info.xAdvance);
+				if (info.lineNumber > target)
+				{
+					foundChar = info.index;
+					break;
+				}
+				// Things like \n take up two characters in the string but are parsed by TMP as one
+				if (tmp.text[info.index] == '\\')
+				{
+					//Debug.Log("Found multiChar char");
+					multiCharChars += 1;
+				}
+			}
+			if (foundChar == -1)
+			{
+				return;
+			}
+			string newText = tmp.text;
+			if (line < 0)
+			{
+				newText = newText.Substring(foundChar + multiCharChars);
+			}
+			else {
+				newText = newText.Substring(0, foundChar + multiCharChars);
+			}
+			//Debug.Log("Trimmed " + tmp.text + " to " + newText);
+			tmp.text = newText;
+		}
+
 		private void FillText()
 		{
-			for (int i = 0; i < 5; i++)
+			int lineNum = totalLinesInWindow;
+			for (int i = 0; i < totalLinesInWindow; i++)
 			{
-				int id = i + lastStep;
-				HistoryLine line = textHistory.GetLine(id);
+				int index = lastHistoryIndex - i;
+				HistoryLine line = textHistory.GetLine(index);
 				TextMeshPro label = textButtons[i].GetTextMesh();
-				if (line == null)
+				if (line == null || lineNum <= 0)
 				{
-					label.text = string.Empty;
+					label.text = "";
 					textButtons[i].ClearVoice();
+					continue;
+				}
+				// Put voice and text in it
+				label.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.TextJapanese, english: line.TextEnglish);
+				if (line.VoiceFile != null)
+				{
+					textButtons[i].RegisterVoice(line.VoiceFile);
 				}
 				else
 				{
-					if (GameSystem.Instance.UseEnglishText)
+					textButtons[i].ClearVoice();
+				}
+				// Update lineNum and trim text if needed
+				if (i == 0)
+				{
+					lineNum -= (lineInLastHistoryIndex + 1);
+					TrimTextInTMP(label, lineInLastHistoryIndex);
+				}
+				else
+				{
+					lineNum -= GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.JapaneseHeight, english: line.EnglishHeight);
+					if (lineNum < 0)
 					{
-						label.text = line.TextEnglish;
+						TrimTextInTMP(label, lineNum);
+						lineNum = 0;
 					}
-					else
-					{
-						label.text = line.TextJapanese;
-					}
-					if (line.VoiceFile != null)
-					{
-						textButtons[i].RegisterVoice(line.VoiceFile);
-					}
-					else
-					{
-						textButtons[i].ClearVoice();
-					}
+				}
+				//Debug.Log("Outputting to line " + lineNum + ": " + label.text);
+				// Move the label into position
+				Vector3 position = textButtons[i].gameObject.transform.localPosition;
+				position.y = -(textAreaHeight / totalLinesInWindow) * lineNum;
+				textButtons[i].gameObject.transform.localPosition = position;
+			}
+			// Move lines up to the top if we didn't fully fill them
+			if (lineNum > 0)
+			{
+				foreach (HistoryTextButton textButton in textButtons)
+				{
+					Vector3 position = textButton.gameObject.transform.localPosition;
+					position.y += 30 * lineNum;
+					textButton.gameObject.transform.localPosition = position;
 				}
 			}
 		}
@@ -102,16 +182,35 @@ namespace Assets.Scripts.Core.History
 			Slider.value -= f * stepsize;
 		}
 
+		private int GetNumberOfSteps()
+		{
+			return GameSystem.Instance.ChooseJapaneseEnglish(japanese: textHistory.JapaneseLineCount, english: textHistory.EnglishLineCount) - totalLinesInWindow + 1;
+		}
+
+		private int GetLinesInHistoryItemAtIndex(int index)
+		{
+			HistoryLine line = textHistory.GetLine(index);
+			if (line == null)
+			{
+				return 0;
+			}
+			return GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.JapaneseHeight, english: line.EnglishHeight);
+		}
+
 		private void Awake()
 		{
 			gameSystem = GameSystem.Instance;
 			textHistory = gameSystem.TextHistory;
-			stepCount = textHistory.LineCount - 4;
-			Slider.numberOfSteps = Mathf.Clamp(stepCount, 1, 100);
+			stepCount = GetNumberOfSteps();
+			Slider.numberOfSteps = Mathf.Max(stepCount, 1);
 			Slider.value = 1f;
-			lastStep = Slider.numberOfSteps;
-			stepsize = 1f / (float)lastStep;
-			textButtons = new HistoryTextButton[20];
+			lastStep = -1;
+			stepsize = 1f / (float)Slider.numberOfSteps;
+
+			lastHistoryIndex = textHistory.LineCount - 1;
+			lineInLastHistoryIndex = GetLinesInHistoryItemAtIndex(lastHistoryIndex) - 1;
+
+			textButtons = new HistoryTextButton[totalLinesInWindow];
 			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
 			for (int i = 0; i < textButtons.Length; i++)
 			{
@@ -123,12 +222,11 @@ namespace Assets.Scripts.Core.History
 			}
 			// We're not using these anymore because there's only 5 and we might need more than that.
 			foreach (TextMeshPro label in Labels) {
-				label.transform.SetParent(null);
-				label.text = "";
+				Destroy(label.gameObject);
 			}
+
 			FillText();
-			HistoryTextButton[] array = textButtons;
-			foreach (HistoryTextButton historyTextButton in array)
+			foreach (HistoryTextButton historyTextButton in textButtons)
 			{
 				historyTextButton.FadeIn(0.2f);
 			}
@@ -144,6 +242,74 @@ namespace Assets.Scripts.Core.History
 			}, 0f, 1f, 0.2f);
 		}
 
+		/// <summary>
+		/// Updates all the things needed to scroll to the given line
+		/// </summary>
+		/// <param name="line">The line to scroll to</param>
+		private void MoveToLine(int line)
+		{
+			if (lastStep == -1 || textHistory.LineCount == 0) { lastStep = line; }
+			int distance = lastStep - line;
+			lastStep = line;
+			if (distance < 0)
+			{
+				distance = -distance;
+				// Scrolling down
+				int linesInHistoryItem = GetLinesInHistoryItemAtIndex(lastHistoryIndex);
+				while (true)
+				{
+					if (linesInHistoryItem - lineInLastHistoryIndex > distance)
+					{
+						// Scroll within the current history item
+						lineInLastHistoryIndex += distance;
+						break;
+					}
+					else if (lastHistoryIndex >= textHistory.LineCount - 1)
+					{
+						// This shouldn't happen but who knows
+						Debug.Log("Tried to scroll off the bottom of the text history!");
+						lineInLastHistoryIndex = linesInHistoryItem - 1;
+						break;
+					}
+					else
+					{
+						// Scroll to next history item
+						distance -= (linesInHistoryItem - lineInLastHistoryIndex);
+						lastHistoryIndex += 1;
+						lineInLastHistoryIndex = 0;
+						linesInHistoryItem = GetLinesInHistoryItemAtIndex(lastHistoryIndex);
+					}
+				}
+			}
+			else if (distance > 0)
+			{
+				// Scrolling up
+				while (true)
+				{
+					if (lineInLastHistoryIndex >= distance)
+					{
+						// Scroll within the current history item
+						lineInLastHistoryIndex -= distance;
+						break;
+					}
+					else if (lastHistoryIndex <= 0)
+					{
+						// This shouldn't happen but who knows
+						Debug.Log("Tried to scroll off the top of the text history!");
+						lineInLastHistoryIndex = 0;
+						break;
+					}
+					else
+					{
+						// Scroll to previous history item
+						distance -= (lineInLastHistoryIndex + 1);
+						lastHistoryIndex -= 1;
+						lineInLastHistoryIndex = GetLinesInHistoryItemAtIndex(lastHistoryIndex) - 1;
+					}
+				}
+			}
+		}
+
 		private void Update()
 		{
 			if (!Mathf.Approximately(Input.GetAxis("Mouse ScrollWheel"), 0f))
@@ -153,7 +319,7 @@ namespace Assets.Scripts.Core.History
 			int num = Mathf.RoundToInt(Slider.value * (float)(Slider.numberOfSteps - 1));
 			if (num != lastStep)
 			{
-				lastStep = num;
+				MoveToLine(num);
 				FillText();
 			}
 		}
