@@ -34,6 +34,10 @@ namespace Assets.Scripts.Core.History
 		public void ClearHistory()
 		{
 			lines = new List<HistoryLine>();
+			lastVoice = null;
+			last = null;
+			EnglishLineCount = 0;
+			JapaneseLineCount = 0;
 		}
 
 		public void RegisterLine(string english, string japanese, string nameen, string namejp)
@@ -57,7 +61,12 @@ namespace Assets.Scripts.Core.History
 			{
 				string english2 = string.Format(GameSystem.Instance.TextController.NameFormat, nameen) + english;
 				string japanese2 = string.Format(GameSystem.Instance.TextController.NameFormat, namejp) + japanese;
-				last = new HistoryLine(english2, japanese2, null);
+				last = new HistoryLine(english2, japanese2);
+			}
+			if (lastVoice != null)
+			{
+				last.AddVoiceFile(lastVoice);
+				lastVoice = null;
 			}
 		}
 
@@ -86,6 +95,11 @@ namespace Assets.Scripts.Core.History
 				return null;
 			}
 			return lines[id];
+		}
+
+		public void RegisterVoice(AudioInfo voice)
+		{
+			lastVoice = voice;
 		}
 	}
 }

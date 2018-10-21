@@ -29,8 +29,8 @@ namespace Assets.Scripts.Core.History
 
 		private float stepsize;
 
-		private static readonly float textAreaHeight = 600;
-		private static readonly int totalLinesInWindow = 20;
+		private const float textAreaHeight = 600;
+		private const int totalLinesInWindow = 20;
 
 		private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose)
 		{
@@ -127,39 +127,50 @@ namespace Assets.Scripts.Core.History
 				if (line == null || lineNum <= 0)
 				{
 					label.text = "";
-					textButtons[i].ClearVoice();
+					textButtons[i].ClearVoices();
 					continue;
 				}
 				// Put voice and text in it
 				label.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.TextJapanese, english: line.TextEnglish);
-				if (line.VoiceFile != null)
+				if (line.VoiceFiles != null)
 				{
-					textButtons[i].RegisterVoice(line.VoiceFile);
+					textButtons[i].RegisterVoices(line.VoiceFiles);
 				}
 				else
 				{
-					textButtons[i].ClearVoice();
+					textButtons[i].ClearVoices();
 				}
+
 				// Update lineNum and trim text if needed
+				int lineCount = 0;
 				if (i == 0)
 				{
-					lineNum -= (lineInLastHistoryIndex + 1);
+					lineCount = (lineInLastHistoryIndex + 1);
 					TrimTextInTMP(label, lineInLastHistoryIndex);
 				}
 				else
 				{
-					lineNum -= GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.JapaneseHeight, english: line.EnglishHeight);
-					if (lineNum < 0)
+					lineCount = GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.JapaneseHeight, english: line.EnglishHeight);
+					if (lineCount > lineNum)
 					{
-						TrimTextInTMP(label, lineNum);
-						lineNum = 0;
+						TrimTextInTMP(label, lineNum - lineCount);
+						lineCount = lineNum;
 					}
 				}
-				//Debug.Log("Outputting to line " + lineNum + ": " + label.text);
+				lineNum -= lineCount;
+
 				// Move the label into position
 				Vector3 position = textButtons[i].gameObject.transform.localPosition;
 				position.y = -(textAreaHeight / totalLinesInWindow) * lineNum;
 				textButtons[i].gameObject.transform.localPosition = position;
+
+				// Resize the line's hitbox
+				label.ForceMeshUpdate();
+				BoxCollider hitbox = textButtons[i].gameObject.GetComponent<BoxCollider>();
+				hitbox.size = label.bounds.size;
+				hitbox.center = label.bounds.center;
+
+				Debug.Log("Outputting to line " + lineNum + ": " + label.text);
 			}
 			// Move lines up to the top if we didn't fully fill them
 			if (lineNum > 0)

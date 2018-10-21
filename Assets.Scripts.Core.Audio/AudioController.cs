@@ -288,7 +288,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
 			}
-			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename, channel));
 			if (audio.IsPlaying())
 			{
 				audio.StopAudio();
@@ -301,6 +301,37 @@ namespace Assets.Scripts.Core.Audio
 					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
 				});
 			}
+		}
+
+		private void PlayVoices(List<AudioInfo> voices, int index)
+		{
+			if (index >= voices.Count)
+			{
+				return;
+			}
+			AudioInfo voice = voices[index];
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, voice.Channel)];
+			MODTextController.MODCurrentVoiceLayerDetect = voice.Channel;
+			if (currentAudio[AudioType.Voice].ContainsKey(voice.Channel))
+			{
+				currentAudio[AudioType.Voice].Remove(voice.Channel);
+			}
+			currentAudio[AudioType.Voice].Add(voice.Channel, voice);
+			if (audio.IsPlaying())
+			{
+				audio.StopAudio();
+			}
+			audio.PlayAudio(voice.Filename, AudioType.Voice, voice.Volume);
+			audio.RegisterCallback(delegate
+			{
+				PlayVoices(voices, index + 1);
+			});
+		}
+
+
+		public void PlayVoices(List<AudioInfo> voices)
+		{
+			PlayVoices(voices, 0);
 		}
 
 		public void StopVoice(int channel)
@@ -381,7 +412,7 @@ namespace Assets.Scripts.Core.Audio
 				{
 					currentAudio[AudioType.BGM].Remove(channel);
 				}
-				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename));
+				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename, channel));
 			}
 			audioLayerUnity.PlayAudio(filename, type, startvolume, loop);
 			if (fadeintime > 0.05f)
@@ -484,7 +515,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
 			}
-			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename, channel));
 			if (audio.IsPlaying())
 			{
 				audio.StopAudio();
