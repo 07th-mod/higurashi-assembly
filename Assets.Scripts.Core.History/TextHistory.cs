@@ -51,7 +51,7 @@ namespace Assets.Scripts.Core.History
 			}
 			else
 			{
-				return sizeTagRegex.Replace(string.Format(GameSystem.Instance.TextController.NameFormat, name), "");
+				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.NameFormat, name) + "</line-height>";
 			}
 		}
 

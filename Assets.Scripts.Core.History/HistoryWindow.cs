@@ -175,9 +175,9 @@ namespace Assets.Scripts.Core.History
 				hitbox.size = label.bounds.size;
 				hitbox.center = label.bounds.center;
 
-				Debug.Log("Outputting to line " + lineNum + ": " + label.text);
+				//Debug.Log("Outputting to line " + lineNum + ": " + label.text);
 			}
-			// Move lines up to the top if we didn't fully fill them
+			// Move lines up to the top if we didn't fully fill the screen
 			if (lineNum > 0)
 			{
 				foreach (HistoryTextButton textButton in textButtons)

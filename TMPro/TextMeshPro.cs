@@ -3276,6 +3276,7 @@ namespace TMPro
 					}
 					m_htmlColor = HexCharsToColor(m_htmlTag, num);
 					return true;
+				case 6691:
 				case 1901:
 					m_lineHeight = ConvertToFloat(m_htmlTag, startIndex2, num - 1, decimalPointIndex);
 					return true;
@@ -3300,6 +3301,7 @@ namespace TMPro
 				case 2287:
 					UnityEngine.Debug.Log("Sprite Tag used.");
 					return true;
+				case 7840:
 				case 2521:
 					m_lineHeight = 0f;
 					return true;
