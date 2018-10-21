@@ -77,6 +77,11 @@ namespace Assets.Scripts.Core.History
 			{
 				return;
 			}
+			if (tmp.textInfo.lineCount <= -line)
+			{
+				tmp.text = "";
+				return;
+			}
 			//Debug.Log("Trimming " + tmp.text + " to " + line + " lines");
 			int target = line;
 			if (target < 0)

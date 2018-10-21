@@ -1,5 +1,6 @@
 using Assets.Scripts.Core.Audio;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 
@@ -8,6 +9,8 @@ namespace Assets.Scripts.Core.History
 	public class TextHistory
 	{
 		private const int MaxEntries = 100;
+
+		private static readonly Regex sizeTagRegex = new Regex("<\\/?size(?:=[+-]?\\d+)?>");
 
 		private List<HistoryLine> lines = new List<HistoryLine>();
 
@@ -40,14 +43,28 @@ namespace Assets.Scripts.Core.History
 			JapaneseLineCount = 0;
 		}
 
+		private string FormatName(string name)
+		{
+			if (name == "")
+			{
+				return name;
+			}
+			else
+			{
+				return sizeTagRegex.Replace(string.Format(GameSystem.Instance.TextController.NameFormat, name), "");
+			}
+		}
+
 		public void RegisterLine(string english, string japanese, string nameen, string namejp)
 		{
+			english = sizeTagRegex.Replace(english, "");
+			japanese = sizeTagRegex.Replace(japanese, "");
 			if (english.StartsWith("\n"))
 			{
 				english = english.Replace("\n", string.Empty);
 				japanese = japanese.Replace("\n", string.Empty);
 				PushHistory();
-				if (english == string.Empty || japanese == string.Empty)
+				if (english == string.Empty && japanese == string.Empty)
 				{
 					return;
 				}
@@ -59,8 +76,8 @@ namespace Assets.Scripts.Core.History
 			}
 			else
 			{
-				string english2 = string.Format(GameSystem.Instance.TextController.NameFormat, nameen) + english;
-				string japanese2 = string.Format(GameSystem.Instance.TextController.NameFormat, namejp) + japanese;
+				string english2 = FormatName(nameen) + english;
+				string japanese2 = FormatName(namejp) + japanese;
 				last = new HistoryLine(english2, japanese2);
 			}
 			if (lastVoice != null)
@@ -74,6 +91,8 @@ namespace Assets.Scripts.Core.History
 		{
 			if (last != null)
 			{
+				last.TextEnglish += "\n ";
+				last.TextJapanese += "\n ";
 				last.CalculateHeight(textMeasurer);
 				EnglishLineCount += last.EnglishHeight;
 				JapaneseLineCount += last.JapaneseHeight;
