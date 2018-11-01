@@ -945,6 +945,12 @@ namespace Assets.Scripts.Core
 				resolution.height = this.fullscreenResolution.height;
 				source = "Stored fullscreenResolution";
 			}
+			else if (PlayerPrefs.HasKey("fullscreen_width") && PlayerPrefs.HasKey("fullscreen_height"))
+			{
+				resolution.width = PlayerPrefs.GetInt("fullscreen_width");
+				resolution.height = PlayerPrefs.GetInt("fullscreen_height");
+				source = "PlayerPrefs";
+			}
 			else
 			{
 				resolution.width = Screen.currentResolution.width;
