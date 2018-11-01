@@ -931,21 +931,31 @@ namespace Assets.Scripts.Core
 		public Resolution GetFullscreenResolution()
 		{
 			Resolution resolution = new Resolution();
+			string source = "";
 			// Try to guess resolution from Screen.currentResolution
 			if (!Screen.fullScreen || Application.platform == RuntimePlatform.OSXPlayer)
 			{
 				resolution.width = this.fullscreenResolution.width = Screen.currentResolution.width;
 				resolution.height = this.fullscreenResolution.height = Screen.currentResolution.height;
+				source = "Screen.currentResolution";
 			}
 			else if (this.fullscreenResolution.width > 0 && this.fullscreenResolution.height > 0)
 			{
 				resolution.width = this.fullscreenResolution.width;
 				resolution.height = this.fullscreenResolution.height;
+				source = "Stored fullscreenResolution";
+			}
+			else if (PlayerPrefs.HasKey("fullscreen_width") && PlayerPrefs.HasKey("fullscreen_height"))
+			{
+				resolution.width = PlayerPrefs.GetInt("fullscreen_width");
+				resolution.height = PlayerPrefs.GetInt("fullscreen_height");
+				source = "PlayerPrefs";
 			}
 			else
 			{
 				resolution.width = Screen.currentResolution.width;
 				resolution.height = Screen.currentResolution.height;
+				source = "Screen.currentResolution as Fallback";
 			}
 
 			// Above can be glitchy on Linux, so also check the maximum resolution of a single monitor
@@ -957,18 +967,21 @@ namespace Assets.Scripts.Core
 				Resolution tmp = Screen.resolutions[Screen.resolutions.Length - 1];
 				if (tmp.width <= resolution.width && tmp.height <= resolution.height) {
 					resolution = tmp;
+					source = "Screen.resolutions #" + (Screen.resolutions.Length - 1);
 				}
 			}
 
 			if (PlayerPrefs.HasKey("fullscreen_width_override"))
 			{
 				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+				source += " + Width Override";
 			}
 			if (PlayerPrefs.HasKey("fullscreen_height_override"))
 			{
 				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+				source += " + Height Override";
 			}
-			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution.");
+			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			return resolution;
 		}
 
