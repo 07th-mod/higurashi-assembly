@@ -563,6 +563,17 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		public void HideAllLayers(float time)
+		{
+			for (int i = 0; i < 32; i++)
+			{
+				if (layers[i] != null && layers[i].IsInUse)
+				{
+					layers[i].FadeOutLayer(time, isBlocking: false);
+				}
+			}
+		}
+
 		public void SerializeScene(MemoryStream ms)
 		{
 			BinaryWriter binaryWriter = new BinaryWriter(ms);
