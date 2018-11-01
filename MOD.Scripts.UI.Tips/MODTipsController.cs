@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Core.Buriko;
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.Tips;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -48,7 +48,16 @@ namespace MOD.Scripts.UI.Tips
 				}
 				if (fixedTips != null)
 				{
-					fixedTips.TryGetValue(BurikoMemory.Instance.GetFlag("LConsoleArc").IntValue(), out List<TipsDataEntry> value);
+					int arc;
+					try
+					{
+						arc = BurikoMemory.Instance.GetFlag("LConsoleArc").IntValue();
+					}
+					catch
+					{
+						arc = 0;
+					}
+					fixedTips.TryGetValue(arc, out List<TipsDataEntry> value);
 					return value ?? new List<TipsDataEntry>();
 				}
 				return TipsData.Tips;
