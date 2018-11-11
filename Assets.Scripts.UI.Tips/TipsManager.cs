@@ -121,6 +121,7 @@ namespace Assets.Scripts.UI.Tips
 			default:
 				throw new ArgumentOutOfRangeException("tipstype for TipsManager.Show() must be  between 0 and 2 (" + tipstype + " given)");
 			}
+			tipsTitleText.font = GameSystem.Instance.MainUIController.GetCurrentFont();
 			page = 0;
 			numPages = tipsData.TipsAvailable / 8;
 			if (numPages >= ReturnPage)
