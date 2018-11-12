@@ -164,9 +164,21 @@ namespace Assets.Scripts.Core
 
 		public float AspectRatio;
 
-		public bool IsFullscreen { get; private set; }
+		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
+		// so use private ones with public accessors
+		private bool _isFullscreen;
+		public bool IsFullscreen
+		{
+			get => _isFullscreen;
+			private set => _isFullscreen = value;
+		}
 
-		public float ConfigMenuFontSize = 0;
+		private float _configMenuFontSize = 0;
+		public float ConfigMenuFontSize
+		{
+			get => _configMenuFontSize;
+			set => _configMenuFontSize = value;
+		}
 
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
