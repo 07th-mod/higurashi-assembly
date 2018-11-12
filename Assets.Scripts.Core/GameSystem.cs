@@ -175,9 +175,30 @@ namespace Assets.Scripts.Core
 
 		public float AspectRatio;
 
-		public bool IsFullscreen { get; private set; }
+		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
+		// so use private ones with public accessors
+		private bool _isFullscreen;
+		public bool IsFullscreen
+		{
+			get => _isFullscreen;
+			private set => _isFullscreen = value;
+		}
 
-		public float ConfigMenuFontSize = 0;
+		private float _configMenuFontSize = 0;
+		public float ConfigMenuFontSize
+		{
+			get => _configMenuFontSize;
+			set => _configMenuFontSize = value;
+		}
+
+		private float _chapterJumpFontSizeJapanese = 0;
+		private float _chapterJumpFontSizeEnglish = 0;
+		public float ChapterJumpFontSize => ChooseJapaneseEnglish(japanese: _chapterJumpFontSizeJapanese, english: _chapterJumpFontSizeEnglish);
+		public void SetChapterJumpFontSize(float japanese, float english)
+		{
+			_chapterJumpFontSizeJapanese = japanese;
+			_chapterJumpFontSizeEnglish = english;
+		}
 
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
@@ -975,6 +996,24 @@ namespace Assets.Scripts.Core
 			else
 			{
 				SteamController.Close();
+			}
+		}
+
+		/// <summary>
+		/// Chooses between a Japanese and English object based on the current language setting
+		/// </summary>
+		/// <returns>Either the Japanese or English object that was passed in</returns>
+		/// <param name="japanese">The Japanese object</param>
+		/// <param name="english">The English object</param>
+		public T ChooseJapaneseEnglish<T>(T japanese, T english)
+		{
+			if (UseEnglishText)
+			{
+				return english;
+			}
+			else
+			{
+				return japanese;
 			}
 		}
 
