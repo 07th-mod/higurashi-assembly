@@ -180,6 +180,15 @@ namespace Assets.Scripts.Core
 			set => _configMenuFontSize = value;
 		}
 
+		private float _chapterJumpFontSizeJapanese = 0;
+		private float _chapterJumpFontSizeEnglish = 0;
+		public float ChapterJumpFontSize => ChooseJapaneseEnglish(japanese: _chapterJumpFontSizeJapanese, english: _chapterJumpFontSizeEnglish);
+		public void SetChapterJumpFontSize(float japanese, float english)
+		{
+			_chapterJumpFontSizeJapanese = japanese;
+			_chapterJumpFontSizeEnglish = english;
+		}
+
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
 		public GameState GameState
@@ -937,6 +946,24 @@ namespace Assets.Scripts.Core
 			else
 			{
 				SteamController.Close();
+			}
+		}
+
+		/// <summary>
+		/// Chooses between a Japanese and English object based on the current language setting
+		/// </summary>
+		/// <returns>Either the Japanese or English object that was passed in</returns>
+		/// <param name="japanese">The Japanese object</param>
+		/// <param name="english">The English object</param>
+		public T ChooseJapaneseEnglish<T>(T japanese, T english)
+		{
+			if (UseEnglishText)
+			{
+				return english;
+			}
+			else
+			{
+				return japanese;
 			}
 		}
 

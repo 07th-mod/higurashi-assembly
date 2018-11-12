@@ -71,6 +71,15 @@ namespace Assets.Scripts.UI.ChapterJump
 			}
 		}
 
+		public void SetFontSize(float size)
+		{
+			if (name != "Return")
+			{
+				TextMeshPro tmp = GetComponent<TextMeshPro>();
+				tmp.fontSize = size;
+			}
+		}
+
 		private void LateUpdate()
 		{
 		}

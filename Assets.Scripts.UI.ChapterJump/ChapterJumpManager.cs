@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Buriko;
+using Assets.Scripts.Core;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,14 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		public void Show()
 		{
+			float fontSize = GameSystem.Instance.ChapterJumpFontSize;
+			if (fontSize > 0)
+			{
+				foreach (var button in GetComponentsInChildren<ChapterJumpButton>())
+				{
+					button.SetFontSize(fontSize);
+				}
+			}
 			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 		}
 
