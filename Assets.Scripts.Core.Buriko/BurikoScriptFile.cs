@@ -2151,6 +2151,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODPlayMovie();
 			case BurikoOperations.ModSetConfigFontSize:
 				return OperationMODSetConfigFontSize();
+			case BurikoOperations.ModSetChapterJumpFontSize:
+				return OperationMODSetChapterJumpFontSize();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2501,6 +2503,15 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("MODSetConfigFontSize");
 			int size = ReadVariable().IntValue();
 			GameSystem.Instance.ConfigMenuFontSize = size;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetChapterJumpFontSize()
+		{
+			SetOperationType("MODSetChapterJumpFontSize");
+			int japanese = ReadVariable().IntValue();
+			int english = ReadVariable().IntValue();
+			GameSystem.Instance.SetChapterJumpFontSize(japanese, english);
 			return BurikoVariable.Null;
 		}
 	}
