@@ -166,6 +166,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModPlayVoiceLS", new OpType(BurikoOperations.ModPlayVoiceLS, "iisib"));
 			paramLookup.Add("ModPlayMovie", new OpType(BurikoOperations.ModPlayMovie, "s"));
 			paramLookup.Add("ModSetConfigFontSize", new OpType(BurikoOperations.ModSetConfigFontSize, "i"));
+			paramLookup.Add("ModSetChapterJumpFontSize", new OpType(BurikoOperations.ModSetChapterJumpFontSize, "ii"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)
