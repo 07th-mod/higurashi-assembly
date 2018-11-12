@@ -22,6 +22,19 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		public string BlockName;
 
+		private TextMeshPro _text = null;
+		public TextMeshPro Text
+		{
+			get
+			{
+				if (_text == null)
+				{
+					_text = GetComponent<TextMeshPro>();
+				}
+				return _text;
+			}
+		}
+
 		private bool isActive = true;
 
 		public void Disable()
@@ -63,21 +76,18 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void Start()
 		{
-			TextMeshPro component = GetComponent<TextMeshPro>();
-			component.text = ((!GameSystem.Instance.UseEnglishText) ? Japanese : English);
+			Text.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: Japanese, english: English);
 			if (!(base.name == "Return") && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && BurikoMemory.Instance.GetGlobalFlag("GOnikakushiDay").IntValue() < ChapterNumber)
 			{
 				base.gameObject.SetActive(value: false);
 			}
 		}
 
+		public bool IsChapterButton => name != "Return";
+
 		public void SetFontSize(float size)
 		{
-			if (name != "Return")
-			{
-				TextMeshPro tmp = GetComponent<TextMeshPro>();
-				tmp.fontSize = size;
-			}
+			Text.fontSize = size;
 		}
 
 		private void LateUpdate()
