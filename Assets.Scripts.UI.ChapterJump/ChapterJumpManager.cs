@@ -3,6 +3,7 @@ using Assets.Scripts.Core;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Assets.Scripts.UI.ChapterJump
 {
@@ -23,14 +24,8 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void PopulateJumpButtonList() 
 		{
-			JumpButtons.Clear();
-			foreach (var button in GetComponentsInChildren<ChapterJumpButton>())
-			{
-				if (button.IsChapterButton)
-				{
-					JumpButtons.Add(button);
-				}
-			}
+			// For some reason `JumpButtons` is empty on load and nothing seems to populate it
+			JumpButtons = GetComponentsInChildren<ChapterJumpButton>().Where( button => button.IsChapterButton ).ToList();
 		}
 
 		// Rearranges buttons to fit on screen nicely
@@ -38,61 +33,53 @@ namespace Assets.Scripts.UI.ChapterJump
 		{
 			// Every single game seems to have this in a slightly different position
 			var windowPos = JumpButtons[0].transform.parent.localPosition;
-			windowPos.x = -215;
+			windowPos.x = -215; // What Onikakushi uses
 			JumpButtons[0].transform.parent.localPosition = windowPos;
 
+			var activeButtons = JumpButtons.Where( button => button.isActiveAndEnabled ).ToList();
+			activeButtons.ForEach( button => button.Text.ForceMeshUpdate() );
+
+			// Things with x values below this are considered to be on the left half, others are on the right
 			var cutoff = (windowEndPos - windowStartPos) / 4 + windowStartPos;
-			float lowestRightButton = 0; // Buttons on top are at y=0, buttons below have negative y
+
+			// Split buttons into left and right half
+			var leftButtons = activeButtons.Where( button => button.transform.localPosition.x < cutoff ).ToList();
+			var rightButtons = activeButtons.Where( button => button.transform.localPosition.x >= cutoff ).ToList();
+
 			// Find how many items are active on the right side
 			// (This will allows overlap of right side buttons if they're disabled)
-			foreach (var button in JumpButtons)
-			{
-				if (button.isActiveAndEnabled)
-				{
-					button.Text.ForceMeshUpdate();
-					if (button.transform.localPosition.x >= cutoff)
-					{
-						lowestRightButton = Mathf.Min(lowestRightButton, button.transform.localPosition.y);
-					}
-				}
-			}
+			// Buttons on top are at y=0, buttons below have negative y
+			float lowestRightButton = rightButtons.Select( button => button.transform.localPosition.y ).Min();
+
 			// Calculate the maximum sizes of the buttons that actually could overlap
-			float leftSize = 0, rightSize = 0;
-			foreach (var button in JumpButtons)
-			{
-				if (button.isActiveAndEnabled)
-				{
-					var size = button.Text.bounds.size.x;
-					if (button.transform.localPosition.x < cutoff)
-					{
-						// Only take into account buttons that have another button next to them
-						if (button.transform.localPosition.y >= lowestRightButton)
-						{
-							leftSize = Mathf.Max(size, leftSize);
-						}
-					}
-					else
-					{
-						rightSize = Mathf.Max(size, rightSize);
-					}
-				}
-			}
+			float leftSize = leftButtons
+				// Only take into account buttons that have another button next to them
+				.Where( button => button.transform.localPosition.y >= lowestRightButton )
+				.Select( button => button.Text.bounds.size.x )
+				.Max();
+			float rightSize = rightButtons.Select( button => button.Text.bounds.size.x ).Max();
+
 			// Left-aligns left buttons and right-aligns the longest right button
 			float leftPos = windowStartPos, rightPos = windowEndPos - rightSize;
-			// If that causes the left and right buttons to overlap, push them apart (centered)
+			// If that causes the left and right buttons to overlap, push them apart
 			if (leftPos + leftSize + minPadding > rightPos)
 			{
 				float amountOver = (leftPos + leftSize + minPadding) - rightPos;
+				// If they're way over, it looks better to center everything
 				if (amountOver > 70)
 				{
 					leftPos -= (amountOver / 2);
 				}
+				// It doesn't look to great when the starts of the left side are just 
+				// barely in the red strip, so in this case just push everything
+				// as close to the red strip as possible, which is about 5px
 				else
 				{
 					leftPos -= Mathf.Min(5, amountOver / 2);
 				}
 				rightPos = leftPos + leftSize + minPadding;
 			}
+
 			// Set the new positions into the buttons
 			foreach (var button in JumpButtons)
 			{
