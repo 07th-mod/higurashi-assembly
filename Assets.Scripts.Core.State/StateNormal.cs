@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Buriko;
+using Assets.Scripts.Core.Audio;
 using MOD.Scripts.Core;
 using UnityEngine;
 
@@ -49,6 +50,11 @@ namespace Assets.Scripts.Core.State
 			{
 				gameSystem.IsSkipping = false;
 				gameSystem.IsForceSkip = false;
+			}
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				AudioController.Instance.MODLastVoicePlay();
+				return false;
 			}
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
