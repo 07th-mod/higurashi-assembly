@@ -37,8 +37,6 @@ namespace Assets.Scripts.UI
 
 		private Layer bgLayer;
 
-		private Layer bgLayer2;
-
 		private bool carretVisible;
 
 		private bool language;
@@ -118,10 +116,9 @@ namespace Assets.Scripts.UI
 				{
 					ShowCarret();
 				}
-				if (bgLayer != null && bgLayer2 != null)
+				if (bgLayer != null)
 				{
 					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
-					bgLayer2.FadeTo(gameSystem.MessageWindowOpacity, time);
 				}
 				else
 				{
@@ -134,15 +131,6 @@ namespace Assets.Scripts.UI
 					bgLayer.name = "Window Background 1";
 					bgLayer.IsStatic = true;
 					bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
-					if (bgLayer2 == null)
-					{
-						bgLayer2 = LayerPool.ActivateLayer();
-					}
-					bgLayer2.gameObject.layer = LayerMask.NameToLayer("Scene2");
-					bgLayer2.SetPriority(62);
-					bgLayer2.name = "Window Background 2";
-					bgLayer2.IsStatic = true;
-					bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
 			}
 			else
@@ -151,10 +139,9 @@ namespace Assets.Scripts.UI
 				{
 					ShowCarret();
 				}
-				if (bgLayer != null && bgLayer2 != null)
+				if (bgLayer != null)
 				{
 					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
-					bgLayer2.FadeTo(gameSystem.MessageWindowOpacity, time);
 				}
 				else
 				{
@@ -167,46 +154,37 @@ namespace Assets.Scripts.UI
 					bgLayer.name = "Window Background 1";
 					bgLayer.IsStatic = true;
 					bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
-					if (bgLayer2 == null)
-					{
-						bgLayer2 = LayerPool.ActivateLayer();
-					}
-					bgLayer2.gameObject.layer = LayerMask.NameToLayer("Scene2");
-					bgLayer2.SetPriority(62);
-					bgLayer2.name = "Window Background 2";
-					bgLayer2.IsStatic = true;
-					bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
 			}
 		}
 
 		private void HideLayerBackground(float time)
 		{
-			if (bgLayer == null || !bgLayer.IsInUse)
-			{
-				if (bgLayer != null)
-				{
-					bgLayer.FadeTo(0f, time);
-				}
-			}
-			else
-			{
-				if (Mathf.Approximately(time, 0f))
-				{
-					if (bgLayer != null)
-					{
-						bgLayer.FadeTo(0f, time);
-					}
-				}
-				else if (bgLayer != null)
-				{
-					bgLayer.FadeTo(0f, time);
-				}
-				HideCarret();
-			}
-		}
+            if (bgLayer == null || !bgLayer.IsInUse)
+            {
+                if (bgLayer != null)
+                {
+                    bgLayer.FadeTo(0f, time);
+                }
+            }
+            else
+            {
+                if (Mathf.Approximately(time, 0f))
+                {
+                    if (bgLayer != null)
+                    {
+                        bgLayer.FadeTo(0f, time);
+                    }
+                }
+                else if (bgLayer != null)
+                {
+                    bgLayer.FadeTo(0f, time);
+                }
+                HideCarret();
+            }
+        }
 
-		public void ShowMessageBox()
+        public void ShowMessageBox()
 		{
 			ShowLayerBackground(0f);
 			bgLayer.FinishAll();
@@ -451,9 +429,7 @@ namespace Assets.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
 				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 				mODMainUIController.NVLModeSettingStore();
 			}
 			else
@@ -461,9 +437,7 @@ namespace Assets.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
 				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
 				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 				mODMainUIController.ADVModeSettingStore();
 			}
 		}
@@ -476,9 +450,7 @@ namespace Assets.Scripts.UI
 				MODMainUIController mODMainUIController = new MODMainUIController();
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
 				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_nvladv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_nvladv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 				mODMainUIController.NVLADVModeSettingStore();
 			}
 		}
@@ -491,9 +463,7 @@ namespace Assets.Scripts.UI
 				MODMainUIController mODMainUIController = new MODMainUIController();
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
 				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
 				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 				mODMainUIController.ADVModeSettingStore();
 			}
 		}
