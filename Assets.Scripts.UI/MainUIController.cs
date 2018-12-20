@@ -126,9 +126,9 @@ namespace Assets.Scripts.UI
 					{
 						bgLayer = LayerPool.ActivateLayer();
 					}
-					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene1");
+					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
 					bgLayer.SetPriority(62);
-					bgLayer.name = "Window Background 1";
+					bgLayer.name = "Window Background";
 					bgLayer.IsStatic = true;
 					bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
@@ -149,9 +149,9 @@ namespace Assets.Scripts.UI
 					{
 						bgLayer = LayerPool.ActivateLayer();
 					}
-					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene1");
+					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
 					bgLayer.SetPriority(62);
-					bgLayer.name = "Window Background 1";
+					bgLayer.name = "Window Background";
 					bgLayer.IsStatic = true;
 					bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
