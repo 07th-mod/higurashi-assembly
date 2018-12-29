@@ -169,9 +169,30 @@ namespace Assets.Scripts.Core
 
 		public float AspectRatio;
 
-		public bool IsFullscreen { get; private set; }
+		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
+		// so use private ones with public accessors
+		private bool _isFullscreen;
+		public bool IsFullscreen
+		{
+			get => _isFullscreen;
+			private set => _isFullscreen = value;
+		}
 
-		public float ConfigMenuFontSize = 0;
+		private float _configMenuFontSize = 0;
+		public float ConfigMenuFontSize
+		{
+			get => _configMenuFontSize;
+			set => _configMenuFontSize = value;
+		}
+
+		private float _chapterJumpFontSizeJapanese = 0;
+		private float _chapterJumpFontSizeEnglish = 0;
+		public float ChapterJumpFontSize => ChooseJapaneseEnglish(japanese: _chapterJumpFontSizeJapanese, english: _chapterJumpFontSizeEnglish);
+		public void SetChapterJumpFontSize(float japanese, float english)
+		{
+			_chapterJumpFontSizeJapanese = japanese;
+			_chapterJumpFontSizeEnglish = english;
+		}
 
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
@@ -933,24 +954,52 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		/// <summary>
+		/// Chooses between a Japanese and English object based on the current language setting
+		/// </summary>
+		/// <returns>Either the Japanese or English object that was passed in</returns>
+		/// <param name="japanese">The Japanese object</param>
+		/// <param name="english">The English object</param>
+		public T ChooseJapaneseEnglish<T>(T japanese, T english)
+		{
+			if (UseEnglishText)
+			{
+				return english;
+			}
+			else
+			{
+				return japanese;
+			}
+		}
+
 		public Resolution GetFullscreenResolution()
 		{
 			Resolution resolution = new Resolution();
+			string source = "";
 			// Try to guess resolution from Screen.currentResolution
 			if (!Screen.fullScreen || Application.platform == RuntimePlatform.OSXPlayer)
 			{
 				resolution.width = this.fullscreenResolution.width = Screen.currentResolution.width;
 				resolution.height = this.fullscreenResolution.height = Screen.currentResolution.height;
+				source = "Screen.currentResolution";
 			}
 			else if (this.fullscreenResolution.width > 0 && this.fullscreenResolution.height > 0)
 			{
 				resolution.width = this.fullscreenResolution.width;
 				resolution.height = this.fullscreenResolution.height;
+				source = "Stored fullscreenResolution";
+			}
+			else if (PlayerPrefs.HasKey("fullscreen_width") && PlayerPrefs.HasKey("fullscreen_height"))
+			{
+				resolution.width = PlayerPrefs.GetInt("fullscreen_width");
+				resolution.height = PlayerPrefs.GetInt("fullscreen_height");
+				source = "PlayerPrefs";
 			}
 			else
 			{
 				resolution.width = Screen.currentResolution.width;
 				resolution.height = Screen.currentResolution.height;
+				source = "Screen.currentResolution as Fallback";
 			}
 
 			// Above can be glitchy on Linux, so also check the maximum resolution of a single monitor
@@ -962,18 +1011,21 @@ namespace Assets.Scripts.Core
 				Resolution tmp = Screen.resolutions[Screen.resolutions.Length - 1];
 				if (tmp.width <= resolution.width && tmp.height <= resolution.height) {
 					resolution = tmp;
+					source = "Screen.resolutions #" + (Screen.resolutions.Length - 1);
 				}
 			}
 
 			if (PlayerPrefs.HasKey("fullscreen_width_override"))
 			{
 				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+				source += " + Width Override";
 			}
 			if (PlayerPrefs.HasKey("fullscreen_height_override"))
 			{
 				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+				source += " + Height Override";
 			}
-			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution.");
+			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			return resolution;
 		}
 
