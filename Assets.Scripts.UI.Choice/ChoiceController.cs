@@ -44,21 +44,21 @@ namespace Assets.Scripts.UI.Choice
 					float x;
 					if (i == count - 1 && count % 2 == 1)
 					{
-						x = -150f;
+						x = GameSystem.Instance.GetGUIOffset();
 					}
 					else if (i % 2 == 0)
 					{
-						x = -450f;
+						x = GameSystem.Instance.GetGUIOffset() - 300f;
 					}
 					else
 					{
-						x = 150f;
+						x = GameSystem.Instance.GetGUIOffset() + 300f;
 					}
 					gameObject2.transform.localPosition = new Vector3(x, (float)(-75 * (i / 2) + 27 * count - 50), 0f);
 				}
 				else
 				{
-					gameObject2.transform.localPosition = new Vector3(-150f, (float)(-75 * i + 27 * count + 50), 0f);
+					gameObject2.transform.localPosition = new Vector3(GameSystem.Instance.GetGUIOffset(), (float)(-75 * i + 27 * count + 50), 0f);
 				}
 				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
 				component.ChangeText(optstrings[i]);
