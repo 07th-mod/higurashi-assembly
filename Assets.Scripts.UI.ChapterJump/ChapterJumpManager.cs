@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using MOD.Scripts.UI.ChapterJump;
 
 namespace Assets.Scripts.UI.ChapterJump
 {
@@ -20,12 +21,69 @@ namespace Assets.Scripts.UI.ChapterJump
 		private bool relayoutDone = false;
 		private static readonly float windowStartPos = 0;
 		private static readonly float windowEndPos = 440;
+		/// <summary>
+		/// The minimum space allowed between left and right columns
+		/// </summary>
 		private static readonly float minPadding = 10;
+		/// <summary>
+		/// The maximum space allowed between left and right columns
+		/// </summary>
+		private static readonly float maxPadding = 100;
+
+		private static readonly float minYPos = -330;
+		private static readonly float ySpacing = 30;
 
 		private void PopulateJumpButtonList() 
 		{
 			// For some reason `JumpButtons` is empty on load and nothing seems to populate it
 			JumpButtons = GetComponentsInChildren<ChapterJumpButton>().Where( button => button.IsChapterButton ).ToList();
+			/*
+			foreach (var button in JumpButtons)
+			{
+				Debug.Log("Found button at " + button.gameObject.transform.localPosition.ToString()
+					+ "\n\tEnglish: " + button.English
+					+ "\n\tJapanese: " + button.Japanese
+					+ "\n\tChapter Number: " + button.ChapterNumber
+					+ "\n\tBlockName: " + button.BlockName);
+			}
+			*/
+		}
+
+		private void LoadJSONButtons()
+		{
+			if (MODChapterJumpController.ChapterJumpsOrNull != null)
+			{
+				var baseButton = JumpButtons[0];
+				var position = new Vector3(0, 0, 0);
+				List<ChapterJumpButton> newButtons = new List<ChapterJumpButton>();
+				foreach (var entry in MODChapterJumpController.ChapterJumpsOrNull)
+				{
+					var newButtonObject = Instantiate(baseButton.gameObject);
+					newButtonObject.transform.SetParent(baseButton.gameObject.transform.parent, worldPositionStays: false);
+					newButtonObject.transform.localPosition = position;
+					ChapterJumpButton newButton = newButtonObject.GetComponent<ChapterJumpButton>();
+
+					newButton.English = entry.English;
+					newButton.Japanese = entry.Japanese;
+					newButton.ChapterNumber = entry.ChapterNumber;
+					newButton.BlockName = entry.BlockName;
+					newButton.UpdateTextAndActive();
+
+					newButtons.Add(newButton);
+
+					position.y -= ySpacing;
+					if (position.y < minYPos)
+					{
+						position.y = 0;
+						position.x += 200; // Will be set properly by RelayoutButtons
+					}
+				}
+				foreach (var old in JumpButtons)
+				{
+					Destroy(old.gameObject);
+				}
+				JumpButtons = newButtons;
+			}
 		}
 
 		// Rearranges buttons to fit on screen nicely
@@ -49,18 +107,20 @@ namespace Assets.Scripts.UI.ChapterJump
 			// Find how many items are active on the right side
 			// (This will allows overlap of right side buttons if they're disabled)
 			// Buttons on top are at y=0, buttons below have negative y
-			float lowestRightButton = rightButtons.Select( button => button.transform.localPosition.y ).Min();
+			float lowestRightButton = rightButtons.Select( button => button.transform.localPosition.y ).DefaultIfEmpty().Min();
 
 			// Calculate the maximum sizes of the buttons that actually could overlap
 			float leftSize = leftButtons
 				// Only take into account buttons that have another button next to them
 				.Where( button => button.transform.localPosition.y >= lowestRightButton )
 				.Select( button => button.Text.bounds.size.x )
+				.DefaultIfEmpty()
 				.Max();
-			float rightSize = rightButtons.Select( button => button.Text.bounds.size.x ).Max();
+			float rightSize = rightButtons.Select( button => button.Text.bounds.size.x ).DefaultIfEmpty().Max();
 
 			// Left-aligns left buttons and right-aligns the longest right button
-			float leftPos = windowStartPos, rightPos = windowEndPos - rightSize;
+			float leftPos = windowStartPos, rightPos = Mathf.Min(windowEndPos - rightSize, leftPos + leftSize + maxPadding);
+
 			// If that causes the left and right buttons to overlap, push them apart
 			if (leftPos + leftSize + minPadding > rightPos)
 			{
@@ -111,7 +171,6 @@ namespace Assets.Scripts.UI.ChapterJump
 					button.SetFontSize(fontSize);
 				}
 			}
-			RelayoutButtons();
 			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 		}
 
@@ -149,9 +208,12 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void Update()
 		{
+			// Something else keeps rearranging the buttons after `Show` is called
+			// Not sure what, but if we adjust them in the first update instead everything goes fine
 			if (!relayoutDone)
 			{
 				relayoutDone = true;
+				LoadJSONButtons();
 				RelayoutButtons();
 			}
 		}

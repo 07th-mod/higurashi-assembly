@@ -83,6 +83,11 @@ namespace Assets.Scripts.UI.ChapterJump
 			}
 		}
 
+		public void UpdateTextAndActive()
+		{
+			Start();
+		}
+
 		public bool IsChapterButton => name != "Return";
 
 		public void SetFontSize(float size)
