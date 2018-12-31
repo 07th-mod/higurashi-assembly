@@ -607,6 +607,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				throw new Exception("Can't display options, two few options are present for the amount to be displayed!");
 			}
+			this.gameSystem.MainUIController.HideLayerBackground(0.25f);
 			gameSystem.DisplayChoices(stringList, num);
 			gameSystem.ExecuteActions();
 			gameSystem.AddWait(new Wait(1f, WaitTypes.WaitForTime, null));
