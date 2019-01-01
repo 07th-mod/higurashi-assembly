@@ -179,7 +179,7 @@ namespace Assets.Scripts.UI
 			}
 		}
 
-		private void HideLayerBackground(float time)
+		public void HideLayerBackground(float time)
 		{
 			if (bgLayer == null || !bgLayer.IsInUse)
 			{
