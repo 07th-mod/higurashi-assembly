@@ -58,16 +58,18 @@ namespace Assets.Scripts.UI.ChapterJump
 				List<ChapterJumpButton> newButtons = new List<ChapterJumpButton>();
 				foreach (var entry in MODChapterJumpController.ChapterJumpsOrNull)
 				{
+
 					var newButtonObject = Instantiate(baseButton.gameObject);
 					newButtonObject.transform.SetParent(baseButton.gameObject.transform.parent, worldPositionStays: false);
 					newButtonObject.transform.localPosition = position;
 					ChapterJumpButton newButton = newButtonObject.GetComponent<ChapterJumpButton>();
 
-					newButton.English = entry.English;
-					newButton.Japanese = entry.Japanese;
-					newButton.ChapterNumber = entry.ChapterNumber;
-					newButton.BlockName = entry.BlockName;
-					newButton.UpdateTextAndActive();
+					newButton.UpdateFromChapterJumpEntry(entry);
+					if (!newButton.isActiveAndEnabled)
+					{
+						Destroy(newButton);
+						continue;
+					}
 
 					newButtons.Add(newButton);
 

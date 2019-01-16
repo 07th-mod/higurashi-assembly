@@ -18,7 +18,9 @@ namespace MOD.Scripts.UI.ChapterJump
 			public string English;
 			public string Japanese;
 			public int ChapterNumber;
+			public int ArcNumber;
 			public string BlockName;
+			public string FileName;
 		}
 
 		public static List<ChapterJumpEntry> ChapterJumpsOrNull
