@@ -102,7 +102,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GMOD_DEBUG_MODE", 521);
 			variableReference.Add("GLipSync", 522);
 			variableReference.Add("GVideoOpening", 523);
-			// 601 - 609 used for additional chapter progress info
+			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
@@ -232,7 +232,7 @@ namespace Assets.Scripts.Core.Buriko
 				SetGlobalFlag("GHighestChapter", number);
 				return;
 			}
-			int target = arcNumber + 600;
+			int target = arcNumber + 610;
 			SetGlobalFlag(target, number);
 		}
 
@@ -282,7 +282,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				return GetGlobalFlag("GHighestChapter");
 			}
-			int target = arcNumber + 600;
+			int target = arcNumber + 610;
 			return GetGlobalFlag(target);
 		}
 
