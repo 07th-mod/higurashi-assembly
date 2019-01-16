@@ -48,6 +48,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GFlag_GameClear", 1);
 			variableReference.Add("GQsaveNum", 2);
 			variableReference.Add("GOnikakushiDay", 3);
+			variableReference.Add("GHighestChapter", 3); // For consistency between chapters
 			variableReference.Add("GMessageSpeed", 10);
 			variableReference.Add("GAutoSpeed", 11);
 			variableReference.Add("GAutoAdvSpeed", 12);
@@ -101,6 +102,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GMOD_DEBUG_MODE", 521);
 			variableReference.Add("GLipSync", 522);
 			variableReference.Add("GVideoOpening", 523);
+			// 601 - 609 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
@@ -198,20 +200,40 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
-		public void SetGlobalFlag(string flagname, int val)
+		public void SetGlobalFlag(int key, int val)
 		{
-			if (!variableReference.TryGetValue(flagname, out int value))
+			if (!globalFlags.ContainsKey(key))
 			{
-				throw new Exception("Unable to set flag with the name " + flagname + ", flag not found.");
-			}
-			if (!globalFlags.ContainsKey(value))
-			{
-				globalFlags.Add(value, val);
+				globalFlags.Add(key, val);
 			}
 			else
 			{
-				globalFlags[value] = val;
+				globalFlags[key] = val;
 			}
+		}
+
+		public void SetGlobalFlag(string flagname, int val)
+		{
+			if (!variableReference.TryGetValue(flagname, out int key))
+			{
+				throw new Exception("Unable to set flag with the name " + flagname + ", flag not found.");
+			}
+			SetGlobalFlag(key, val);
+		}
+
+		public void SetHighestChapterFlag(int arcNumber, int number)
+		{
+			if (arcNumber < 0 || arcNumber >= 10)
+			{
+				throw new Exception("Attempted to set highest chapter for chapter " + arcNumber + ", only 0-9 are allowed.");
+			}
+			if (arcNumber == 0)
+			{
+				SetGlobalFlag("GHighestChapter", number);
+				return;
+			}
+			int target = arcNumber + 600;
+			SetGlobalFlag(target, number);
 		}
 
 		public bool IsFlag(string name)
@@ -232,17 +254,41 @@ namespace Assets.Scripts.Core.Buriko
 			return new BurikoVariable(flags[value]);
 		}
 
+		private BurikoVariable GetGlobalFlag(int key)
+		{
+			if (!globalFlags.ContainsKey(key))
+			{
+				return new BurikoVariable(0);
+			}
+			return new BurikoVariable(globalFlags[key]);
+		}
+
 		public BurikoVariable GetGlobalFlag(string flagname)
 		{
 			if (!variableReference.TryGetValue(flagname, out int value))
 			{
 				throw new Exception("Unable to get global flag with the name " + flagname + ", flag not found.");
 			}
-			if (!globalFlags.ContainsKey(value))
+			return GetGlobalFlag(value);
+		}
+
+		public BurikoVariable GetHighestChapterFlag(int arcNumber)
+		{
+			if (arcNumber < 0 || arcNumber >= 10)
 			{
-				return new BurikoVariable(0);
+				throw new Exception("Attempted to set highest chapter for chapter " + arcNumber + ", only 0-9 are allowed.");
 			}
-			return new BurikoVariable(globalFlags[value]);
+			if (arcNumber == 0)
+			{
+				return GetGlobalFlag("GHighestChapter");
+			}
+			int target = arcNumber + 600;
+			return GetGlobalFlag(target);
+		}
+
+		public int[] GetHighestChapterFlags()
+		{
+			return Enumerable.Range(0, 10).Select( arc => GetHighestChapterFlag(arc).IntValue() ).ToArray();
 		}
 
 		public void MarkLineAsRead(string scriptname, int line)
