@@ -4,13 +4,14 @@ using Assets.Scripts.Core.Buriko;
 using MOD.Scripts.Core;
 using Newtonsoft.Json;
 using UnityEngine;
+using System.Linq;
 
 namespace MOD.Scripts.UI.ChapterJump
 {
 	public class MODChapterJumpController
 	{
 		private static bool initialized = false;
-		private static Dictionary<int, List<ChapterJumpEntry>> cachedChapterJumps;
+		private static List<ChapterJumpEntry> cachedChapterJumps;
 		private static readonly string ChapterJumpFilePath = Path.Combine(MODSystem.BaseDirectory, "chapterjump.json");
 
 		public class ChapterJumpEntry
@@ -36,7 +37,17 @@ namespace MOD.Scripts.UI.ChapterJump
 						{
 							using (var reader = new JsonTextReader(new StreamReader(ChapterJumpFilePath)))
 							{
-								cachedChapterJumps = JsonSerializer.Create(new JsonSerializerSettings()).Deserialize<Dictionary<int, List<ChapterJumpEntry>>>(reader);
+								var loadedJumps = JsonSerializer.Create(new JsonSerializerSettings()).Deserialize<Dictionary<int, List<ChapterJumpEntry>>>(reader).ToList();
+								loadedJumps.Sort( (a, b) => a.Key.CompareTo(b.Key) );
+								cachedChapterJumps = new List<ChapterJumpEntry>();
+								foreach (var arc in loadedJumps)
+								{
+									foreach (var chapter in arc.Value)
+									{
+										chapter.ArcNumber = arc.Key;
+										cachedChapterJumps.Add(chapter);
+									}
+								}
 							}
 						}
 						catch (System.Exception e)
@@ -49,21 +60,7 @@ namespace MOD.Scripts.UI.ChapterJump
 						Debug.Log("No chapter jump JSON available, falling back to hardcoded chapter jumps");
 					}
 				}
-				if (cachedChapterJumps == null)
-				{
-					return null;
-				}
-				int arc;
-				try
-				{
-					arc = BurikoMemory.Instance.GetFlag("LConsoleArc").IntValue();
-				}
-				catch
-				{
-					arc = 0;
-				}
-				cachedChapterJumps.TryGetValue(arc, out var entry);
-				return entry;
+				return cachedChapterJumps;
 			}
 		}
 	}
