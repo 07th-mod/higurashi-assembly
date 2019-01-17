@@ -54,6 +54,11 @@ namespace Assets.Scripts.UI.ChapterJump
 			if (MODChapterJumpController.ChapterJumpsOrNull != null)
 			{
 				var baseButton = JumpButtons[0];
+
+				// Copied from Onikakushi
+				// Himatsubushi has less options so they moved the object down further, which messes up positioning
+				baseButton.transform.parent.localPosition = new Vector3(-215.0f, 223.0f, 0.0f);
+
 				var position = new Vector3(0, 0, 0);
 				List<ChapterJumpButton> newButtons = new List<ChapterJumpButton>();
 				foreach (var entry in MODChapterJumpController.ChapterJumpsOrNull)
