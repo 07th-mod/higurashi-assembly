@@ -44,10 +44,7 @@ namespace MOD.Scripts.Core.Scene
 
 		public void ToggleArtStyle()
 		{
-			AssetManager.Instance.UseNewArt = !AssetManager.Instance.UseNewArt;
-			BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.UseNewArt ? 1 : 0);
-			RestoreTextures();
-			GameSystem.Instance.SceneController.ReloadAllImages();
+			// PS3LOCK - Disabled for console arcs; only PS3 art present
 		}
 	}
 }
