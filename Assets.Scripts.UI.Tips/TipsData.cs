@@ -137,23 +137,25 @@ namespace Assets.Scripts.UI.Tips
 			int num2 = instance.GetFlag("NewTipsStart").IntValue();
 			int num3 = num2 + instance.GetFlag("NewTipsCount").IntValue();
 			Debug.Log("Displaying tips " + num2 + " to " + num3);
-			for (int i = 0; i < MODSystem.instance.modTipsController.Tips.Count; i++)
+			var tips = MODSystem.instance.modTipsController.Tips;
+			for (int i = 0; i < tips.Count; i++)
 			{
-				int id = Tips[i].Id;
+				var tip = tips[i];
+				int id = tip.Id;
 				if (onlyNew)
 				{
 					if (id >= num2 && id < num3)
 					{
 						tipsDataGroup.TipsAvailable++;
 						tipsDataGroup.TipsUnlocked++;
-						tipsDataGroup.Tips.Add(Tips[i]);
+						tipsDataGroup.Tips.Add(tip);
 					}
 				}
 				else if (id < num3)
 				{
 					tipsDataGroup.TipsAvailable++;
 					tipsDataGroup.TipsUnlocked++;
-					tipsDataGroup.Tips.Add(Tips[i]);
+					tipsDataGroup.Tips.Add(tip);
 				}
 			}
 			return tipsDataGroup;
