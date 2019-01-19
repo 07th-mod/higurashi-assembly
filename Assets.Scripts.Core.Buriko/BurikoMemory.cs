@@ -114,7 +114,8 @@ namespace Assets.Scripts.Core.Buriko
 			SetGlobalFlag("GCutVoiceOnClick", 0);
 			SetGlobalFlag("GUseSystemSound", 1);
 			SetGlobalFlag("GLanguage", 1);
-			SetGlobalFlag("GArtStyle", 1);
+			// PS3LOCK - default to 0
+			SetGlobalFlag("GArtStyle", 0);
 			SetGlobalFlag("GHideButtons", 0);
 			SetGlobalFlag("GLipSync", 1);
 			SetFlag("LTextFade", 1);
@@ -410,6 +411,8 @@ namespace Assets.Scripts.Core.Buriko
 				}
 				try
 				{
+					// PS3LOCK - force GArtStyle=0 for people updating console arcs (defaults won't take effect)
+					SetGlobalFlag("GArtStyle", 0);
 					GameSystem.Instance.TextController.TextSpeed = GetGlobalFlag("GMessageSpeed").IntValue();
 					GameSystem.Instance.TextController.AutoSpeed = GetGlobalFlag("GAutoSpeed").IntValue();
 					GameSystem.Instance.TextController.AutoPageSpeed = GetGlobalFlag("GAutoAdvSpeed").IntValue();
