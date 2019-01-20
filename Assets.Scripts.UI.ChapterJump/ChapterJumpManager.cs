@@ -98,13 +98,14 @@ namespace Assets.Scripts.UI.ChapterJump
 			var tipsManager = gameSystem.TipsPrefab.GetComponent<Tips.TipsManager>();
 
 			// Steal buttons from tips manager
-			var leftButton = Instantiate(tipsManager.PageLeft);
+			var leftButton = Instantiate(tipsManager.PageLeft.gameObject);
 			leftButton.transform.SetParent(returnButton.gameObject.transform.parent, worldPositionStays: false);
 			PageLeft = leftButton.GetComponent<UIButton>();
-			var rightButton = Instantiate(tipsManager.PageRight);
+			var rightButton = Instantiate(tipsManager.PageRight.gameObject);
 			rightButton.transform.SetParent(returnButton.gameObject.transform.parent, worldPositionStays: false);
 			PageRight = rightButton.GetComponent<UIButton>();
-			var pageNumberText = Instantiate(tipsManager.tipsPageText);
+			var pageNumberText = Instantiate(returnButton.gameObject);
+			Destroy(pageNumberText.GetComponent<ChapterJumpButton>());
 			pageNumberText.transform.SetParent(returnButton.gameObject.transform.parent, worldPositionStays: false);
 			PageNumberText = pageNumberText.GetComponent<TextMeshPro>();
 
