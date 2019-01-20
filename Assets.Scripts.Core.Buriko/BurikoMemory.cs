@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
+using MOD.Scripts.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -212,6 +213,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				globalFlags[value] = val;
 			}
+			MODSyncState();
 		}
 
 		public bool IsFlag(string name)
@@ -466,6 +468,15 @@ namespace Assets.Scripts.Core.Buriko
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
 			File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+		}
+
+		/// <summary>
+		/// Syncs internal state with global flags.  We could technically add all the stuff in LoadGlobals() if we wanted to - just seemed like a lot of overhead.
+		/// </summary>
+		public void MODSyncState()
+		{
+			// Sync Art Style.  This is really set up to support only init.txt initialization
+			AssetManager.Instance.UseNewArt = GetGlobalFlag("GArtStyle").BoolValue();
 		}
 	}
 }
