@@ -134,6 +134,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetFlag("LTextFade", 1);
 			SetFlag("NVL_in_ADV", 0);
 			SetFlag("DisableModHotkey", 0);
+			SetFlag("GFlagMonitor", 0);
 			Instance = this;
 			LoadGlobals();
 		}
