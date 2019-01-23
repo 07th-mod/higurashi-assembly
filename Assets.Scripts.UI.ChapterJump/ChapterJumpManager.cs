@@ -315,6 +315,7 @@ namespace Assets.Scripts.UI.ChapterJump
 			if (!relayoutDone)
 			{
 				relayoutDone = true;
+				RelayoutButtons();
 				LoadJSONButtons();
 				SetupPageButtons();
 			}

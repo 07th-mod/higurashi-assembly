@@ -88,6 +88,7 @@ namespace Assets.Scripts.UI.ChapterJump
 		private void Start()
 		{
 			Text.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: Japanese, english: English);
+			Text.ForceMeshUpdate();
 			if (!(base.name == "Return")
 			    && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue()
 			    && BurikoMemory.Instance.GetHighestChapterFlag(ArcNumber).IntValue() < ChapterNumber)
