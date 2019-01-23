@@ -139,6 +139,8 @@ namespace Assets.Scripts.Core.Buriko
 		ModPlayVoiceLS,
 		ModPlayMovie,
 		ModSetConfigFontSize,
-		ModSetChapterJumpFontSize
+		ModSetChapterJumpFontSize,
+		ModSetHighestChapterFlag,
+		ModGetHighestChapterFlag
 	}
 }
