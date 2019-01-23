@@ -2177,6 +2177,10 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODSetConfigFontSize();
 			case BurikoOperations.ModSetChapterJumpFontSize:
 				return OperationMODSetChapterJumpFontSize();
+			case BurikoOperations.ModSetHighestChapterFlag:
+				return OperationMODSetHighestChapterFlag();
+			case BurikoOperations.ModGetHighestChapterFlag:
+				return OperationMODGetHighestChapterFlag();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2537,6 +2541,22 @@ namespace Assets.Scripts.Core.Buriko
 			int english = ReadVariable().IntValue();
 			GameSystem.Instance.SetChapterJumpFontSize(japanese, english);
 			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetHighestChapterFlag()
+		{
+			SetOperationType("MODSetHighestChapterFlag");
+			int key = ReadVariable().IntValue();
+			int value = ReadVariable().IntValue();
+			BurikoMemory.Instance.SetHighestChapterFlag(key, value);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODGetHighestChapterFlag()
+		{
+			SetOperationType("MODGetHighestChapterFlag");
+			int key = ReadVariable().IntValue();
+			return BurikoMemory.Instance.GetHighestChapterFlag(key);
 		}
 	}
 }

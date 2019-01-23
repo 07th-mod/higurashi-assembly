@@ -167,6 +167,8 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModPlayMovie", new OpType(BurikoOperations.ModPlayMovie, "s"));
 			paramLookup.Add("ModSetConfigFontSize", new OpType(BurikoOperations.ModSetConfigFontSize, "i"));
 			paramLookup.Add("ModSetChapterJumpFontSize", new OpType(BurikoOperations.ModSetChapterJumpFontSize, "ii"));
+			paramLookup.Add("ModSetHighestChapterFlag", new OpType(BurikoOperations.ModSetHighestChapterFlag, "ii"));
+			paramLookup.Add("ModGetHighestChapterFlag", new OpType(BurikoOperations.ModGetHighestChapterFlag, "i"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)
