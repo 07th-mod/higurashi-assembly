@@ -2,6 +2,7 @@ using Assets.Scripts.Core.Buriko;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Assets.Scripts.UI.TitleScreen
 {
@@ -67,7 +68,7 @@ namespace Assets.Scripts.UI.TitleScreen
 		{
 			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear");
 			BackgroundTexture.mainTexture = (globalFlag.BoolValue() ? BG2 : BG1);
-			if (BurikoMemory.Instance.GetGlobalFlag("GOnikakushiDay").IntValue() < 1)
+			if (!BurikoMemory.Instance.GetHighestChapterFlags().Where( x => x > 0 ).Any())
 			{
 				Sprites[4].transform.localPosition = new Vector3(0f, -224f, 0f);
 				UISprite uISprite = Sprites[3];
