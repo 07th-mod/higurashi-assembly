@@ -52,7 +52,10 @@ Steps to get the code for a new game (using Minagoroshi as an example)):
   * Compare to the previous arc's code using `git diff`.
   * If the diff looks substantial, then it may require manually analyzing the code to figure out its intended behavior and correction from there.
   * If the diff looks trivial, then it is probably the same old code as the last arc; you can checkout the corresponding code from the previous arc instead.
-  * Once the build succeeeds and the resulting Assembly-CSharp.dll works for the vanilla game, then it is ready to be checked in.
+* Test the build by copying over the resulting Assembly-CSharp.dll to the games's installation directory and running the game.  Ensure everything looks to be in a working state before proceeding.
+* Run the program located at https://github.com/07th-mod/reorder-attributes on all the C# files (e.g. using a combination of `find` and `xargs` in a unix command line).  After doing this, `git diff` should not show changes resulting from inconsistent attribute ordering.
+* Test the new build again for good measure.
+* Check in the new branch.
 * For the <arc>-steam branch, this process can either be repeated with the steam version's DLL with the parent branch being the mg version of this game instead of the previous arc, or one can merge the `steam` branch (recommended).
   * If doing it from the Steam DLL, check the `steam` branch history to see what changes we have made to the base Steam code and apply those accordingly.
 * For the <arc>-mod branch, create the <arc>-mod branch based on the steam branch and merge the mod branch.  It may also be possible to base this branch off of the previous branch's mod branch for less conflicts, but the previous arcs all has a branch parentage of arc-mg <- arc-steam <- arc-mod as in the diagram above.
