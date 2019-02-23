@@ -11,6 +11,7 @@ namespace Assets.Scripts.Core.History
 		private const int MaxEntries = 100;
 
 		private static readonly Regex sizeTagRegex = new Regex("<\\/?size(?:=[+-]?\\d+)?>");
+		private static readonly Regex uncoloredNameRegex = new Regex("</color>([^<]+)<color");
 
 		private List<HistoryLine> lines = new List<HistoryLine>();
 
@@ -51,7 +52,8 @@ namespace Assets.Scripts.Core.History
 			}
 			else
 			{
-				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.NameFormat, name) + "</line-height>";
+				var explicitlyWhite = uncoloredNameRegex.Replace(name, (match) => "</color><color=#ffffff>" + match.Groups[1].Value + "</color><color");
+				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.NameFormat, explicitlyWhite) + "</line-height>";
 			}
 		}
 
