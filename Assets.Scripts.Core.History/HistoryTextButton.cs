@@ -11,7 +11,7 @@ namespace Assets.Scripts.Core.History
 
 		private TextMeshPro textMesh;
 
-		private List<AudioInfo> voices;
+		private List<List<AudioInfo>> voices;
 
 		public TextMeshPro GetTextMesh()
 		{
@@ -74,7 +74,7 @@ namespace Assets.Scripts.Core.History
 			UpdateColor(new Color(1f, 1f, 1f));
 		}
 
-		public void RegisterVoices(List<AudioInfo> voices)
+		public void RegisterVoices(List<List<AudioInfo>> voices)
 		{
 			this.voices = voices;
 		}

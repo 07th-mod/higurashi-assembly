@@ -14,13 +14,13 @@ namespace Assets.Scripts.Core.History
 
 		public int JapaneseHeight { get; private set; }
 
-		public List<AudioInfo> VoiceFiles;
+		public List<List<AudioInfo>> VoiceFiles;
 
 		public HistoryLine(string english, string japanese)
 		{
 			TextJapanese = japanese;
 			TextEnglish = english;
-			VoiceFiles = new List<AudioInfo>();
+			VoiceFiles = new List<List<AudioInfo>>();
 		}
 
 		private int CalculateHeight(TextMeshPro measurer, TextMeshProFont font, string text)
@@ -37,7 +37,7 @@ namespace Assets.Scripts.Core.History
 			JapaneseHeight = CalculateHeight(measurer, GameSystem.Instance.MainUIController.GetJapaneseFont(), TextJapanese);
 		}
 
-		public void AddVoiceFile(AudioInfo voice)
+		public void AddVoiceFile(List<AudioInfo> voice)
 		{
 			VoiceFiles.Add(voice);
 		}

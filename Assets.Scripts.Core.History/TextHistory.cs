@@ -15,7 +15,7 @@ namespace Assets.Scripts.Core.History
 
 		private List<HistoryLine> lines = new List<HistoryLine>();
 
-		private AudioInfo lastVoice;
+		private List<AudioInfo> lastVoice = new List<AudioInfo>();
 
 		private HistoryLine last;
 
@@ -38,7 +38,7 @@ namespace Assets.Scripts.Core.History
 		public void ClearHistory()
 		{
 			lines = new List<HistoryLine>();
-			lastVoice = null;
+			lastVoice = new List<AudioInfo>();
 			last = null;
 			EnglishLineCount = 0;
 			JapaneseLineCount = 0;
@@ -82,10 +82,10 @@ namespace Assets.Scripts.Core.History
 				string japanese2 = FormatName(namejp) + japanese;
 				last = new HistoryLine(english2, japanese2);
 			}
-			if (lastVoice != null)
+			if (lastVoice.Count > 0)
 			{
 				last.AddVoiceFile(lastVoice);
-				lastVoice = null;
+				lastVoice = new List<AudioInfo>();
 			}
 		}
 
@@ -120,7 +120,7 @@ namespace Assets.Scripts.Core.History
 
 		public void RegisterVoice(AudioInfo voice)
 		{
-			lastVoice = voice;
+			lastVoice.Add(voice);
 		}
 	}
 }

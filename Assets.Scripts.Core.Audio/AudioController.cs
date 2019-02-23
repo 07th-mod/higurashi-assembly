@@ -303,33 +303,44 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		private void PlayVoices(List<AudioInfo> voices, int index)
+		private void PlayVoices(List<List<AudioInfo>> voices, int index)
 		{
 			if (index >= voices.Count)
 			{
 				return;
 			}
-			AudioInfo voice = voices[index];
-			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, voice.Channel)];
-			MODTextController.MODCurrentVoiceLayerDetect = voice.Channel;
-			if (currentAudio[AudioType.Voice].ContainsKey(voice.Channel))
+			List<AudioInfo> voiceSet = voices[index];
+			var doneCount = 0;
+			foreach (AudioInfo voice in voiceSet)
 			{
-				currentAudio[AudioType.Voice].Remove(voice.Channel);
+				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, voice.Channel)];
+				MODTextController.MODCurrentVoiceLayerDetect = voice.Channel;
+				if (currentAudio[AudioType.Voice].ContainsKey(voice.Channel))
+				{
+					currentAudio[AudioType.Voice].Remove(voice.Channel);
+				}
+				currentAudio[AudioType.Voice].Add(voice.Channel, voice);
+				if (audio.IsPlaying())
+				{
+					audio.StopAudio();
+				}
+				audio.PlayAudio(voice.Filename, AudioType.Voice, voice.Volume);
+				audio.RegisterCallback(delegate
+				{
+					doneCount += 1;
+					if (doneCount == voiceSet.Count)
+					{
+						PlayVoices(voices, index + 1);
+					}
+				});
 			}
-			currentAudio[AudioType.Voice].Add(voice.Channel, voice);
-			if (audio.IsPlaying())
-			{
-				audio.StopAudio();
-			}
-			audio.PlayAudio(voice.Filename, AudioType.Voice, voice.Volume);
-			audio.RegisterCallback(delegate
-			{
-				PlayVoices(voices, index + 1);
-			});
 		}
 
-
-		public void PlayVoices(List<AudioInfo> voices)
+		/// <summary>
+		/// Plays multiple voices in parallel/series
+		/// </summary>
+		/// <param name="voices">The voices to play.  The outer array is played in series while inner arrays are played in parallel</param>
+		public void PlayVoices(List<List<AudioInfo>> voices)
 		{
 			PlayVoices(voices, 0);
 		}
