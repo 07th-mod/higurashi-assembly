@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Assets.Scripts.Core.Audio;
+using TMPro;
 
 namespace Assets.Scripts.Core.History
 {
@@ -8,13 +10,36 @@ namespace Assets.Scripts.Core.History
 
 		public string TextJapanese;
 
-		public AudioInfo VoiceFile;
+		public int EnglishHeight { get; private set; }
 
-		public HistoryLine(string english, string japanese, AudioInfo voice)
+		public int JapaneseHeight { get; private set; }
+
+		public List<List<AudioInfo>> VoiceFiles;
+
+		public HistoryLine(string english, string japanese)
 		{
 			TextJapanese = japanese;
 			TextEnglish = english;
-			VoiceFile = voice;
+			VoiceFiles = new List<List<AudioInfo>>();
+		}
+
+		private int CalculateHeight(TextMeshPro measurer, TextMeshProFont font, string text)
+		{
+			measurer.font = font;
+			measurer.text = text;
+			measurer.ForceMeshUpdate();
+			return measurer.textInfo.lineCount;
+		}
+
+		public void CalculateHeight(TextMeshPro measurer)
+		{
+			EnglishHeight = CalculateHeight(measurer, GameSystem.Instance.MainUIController.GetEnglishFont(), TextEnglish);
+			JapaneseHeight = CalculateHeight(measurer, GameSystem.Instance.MainUIController.GetJapaneseFont(), TextJapanese);
+		}
+
+		public void AddVoiceFile(List<AudioInfo> voice)
+		{
+			VoiceFiles.Add(voice);
 		}
 	}
 }
