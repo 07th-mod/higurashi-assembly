@@ -557,6 +557,7 @@ namespace Assets.Scripts.Core.Buriko
 			int channel = ReadVariable().IntValue();
 			string filename = ReadVariable().StringValue() + ".ogg";
 			float volume = (float)ReadVariable().IntValue() / 128f;
+			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			AudioController.Instance.PlayVoice(filename, channel, volume);
 			return BurikoVariable.Null;
 		}
@@ -2512,6 +2513,7 @@ namespace Assets.Scripts.Core.Buriko
 			string filename = ReadVariable().StringValue() + ".ogg";
 			float volume = (float)ReadVariable().IntValue() / 128f;
 			bool flag = ReadVariable().BoolValue();
+			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			if ((MODSystem.instance.modSceneController.MODLipSyncIsEnabled() && !gameSystem.IsSkipping) & flag)
 			{
 				MODSystem.instance.modSceneController.MODLipSyncPrepareVoice(character, channel);

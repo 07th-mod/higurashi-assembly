@@ -9,10 +9,13 @@ namespace Assets.Scripts.Core.Audio
 
 		public string Filename;
 
-		public AudioInfo(float volume, string filename)
+		public int Channel;
+
+		public AudioInfo(float volume, string filename, int channel)
 		{
 			Volume = volume;
 			Filename = filename;
+			Channel = channel;
 		}
 	}
 }
