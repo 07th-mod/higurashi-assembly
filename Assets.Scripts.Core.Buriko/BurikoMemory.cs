@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
+using MOD.Scripts.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -100,7 +101,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GFlagForTest2", 516);
 			variableReference.Add("GFlagForTest3", 517);
 			variableReference.Add("NVL_in_ADV", 518);
-			variableReference.Add("GFlagMonitor", 519);
+			variableReference.Add("LFlagMonitor", 519);
 			variableReference.Add("DisableModHotkey", 520);
 			variableReference.Add("GMOD_DEBUG_MODE", 521);
 			variableReference.Add("GLipSync", 522);
@@ -130,6 +131,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetFlag("LTextFade", 1);
 			SetFlag("NVL_in_ADV", 0);
 			SetFlag("DisableModHotkey", 0);
+			SetFlag("LFlagMonitor", 0);
 			Instance = this;
 			LoadGlobals();
 		}
@@ -213,6 +215,7 @@ namespace Assets.Scripts.Core.Buriko
 				throw new Exception("Unable to set flag with the name " + flagname + ", flag not found.");
 			}
 			SetGlobalFlag(key, val);
+			MODSyncState();
 		}
 
 		public void SetHighestChapterFlag(int arcNumber, int number)
@@ -509,6 +512,15 @@ namespace Assets.Scripts.Core.Buriko
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
 			File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+		}
+
+		/// <summary>
+		/// Syncs internal state with global flags.  We could technically add all the stuff in LoadGlobals() if we wanted to - just seemed like a lot of overhead.
+		/// </summary>
+		public void MODSyncState()
+		{
+			// Sync Art Style.  This is really set up to support only init.txt initialization
+			AssetManager.Instance.UseNewArt = GetGlobalFlag("GArtStyle").BoolValue();
 		}
 	}
 }

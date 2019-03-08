@@ -29,10 +29,9 @@ namespace Assets.Scripts.Core.TextWindow
 		public string GetCharacter(float delta)
 		{
 			time += delta;
-			string text = TextController.TextColor.ToInt().ToString("X6");
 			if (StartTime > time)
 			{
-				return "<#" + text + "00>" + ch;
+				return "<alpha=#00>" + ch;
 			}
 			if (ch == ' ')
 			{
@@ -44,7 +43,7 @@ namespace Assets.Scripts.Core.TextWindow
 			}
 			float t = (time - StartTime) / (FinishTime - StartTime);
 			int num = (int)Mathf.Lerp(0f, 255f, t);
-			return "<#" + text + num.ToString("X2") + ">" + ch;
+			return "<alpha=#" + num.ToString("X2") + ">" + ch;
 		}
 
 		public void Finish()

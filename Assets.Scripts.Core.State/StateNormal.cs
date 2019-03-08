@@ -303,29 +303,29 @@ namespace Assets.Scripts.Core.State
 					}
 					if (BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() != 1 && BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() != 2)
 					{
-						if (BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() == 0)
+						if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 0)
 						{
-							BurikoMemory.Instance.SetGlobalFlag("GFlagMonitor", 1);
+							BurikoMemory.Instance.SetFlag("LFlagMonitor", 1);
 							return true;
 						}
-						if (BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() == 1)
+						if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 1)
 						{
-							BurikoMemory.Instance.SetGlobalFlag("GFlagMonitor", 2);
+							BurikoMemory.Instance.SetFlag("LFlagMonitor", 2);
 							return true;
 						}
-						BurikoMemory.Instance.SetGlobalFlag("GFlagMonitor", 0);
+						BurikoMemory.Instance.SetFlag("LFlagMonitor", 0);
 						return true;
 					}
-					int num8 = BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue();
+					int num8 = BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue();
 					if (num8 < 4)
 					{
 						num8++;
-						BurikoMemory.Instance.SetGlobalFlag("GFlagMonitor", num8);
+						BurikoMemory.Instance.SetFlag("LFlagMonitor", num8);
 						return true;
 					}
 					if (num8 >= 4 || num8 < 0)
 					{
-						BurikoMemory.Instance.SetGlobalFlag("GFlagMonitor", 0);
+						BurikoMemory.Instance.SetFlag("LFlagMonitor", 0);
 						return true;
 					}
 				}
