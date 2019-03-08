@@ -23,18 +23,29 @@ namespace Assets.Scripts.Core.History
 			VoiceFiles = new List<List<AudioInfo>>();
 		}
 
-		private int CalculateHeight(TextMeshPro measurer, TextMeshProFont font, string text)
+		/// <summary>
+		/// Calculates the height (number of lines) of the text
+		/// </summary>
+		/// <param name="targetLocation">The location that you will display the text (number of lines is dependent on the width of the place it's going)</param>
+		/// <param name="font">The font the text will be rendered with (fonts have different widths which means different line wrappings)</param>
+		/// <param name="text">The text that will be attempted to be displayed</param>
+		/// <returns>The number of lines the given text will take up if displayed in the given location with the given font</returns>
+		private static int CalculateHeight(TextMeshPro targetLocation, TextMeshProFont font, string text)
 		{
-			measurer.font = font;
-			measurer.text = text;
-			measurer.ForceMeshUpdate();
-			return measurer.textInfo.lineCount;
+			targetLocation.font = font;
+			targetLocation.text = text;
+			targetLocation.ForceMeshUpdate();
+			return targetLocation.textInfo.lineCount;
 		}
 
-		public void CalculateHeight(TextMeshPro measurer)
+		/// <summary>
+		/// Calculates and saves the height (number of lines) of the text
+		/// </summary>
+		/// <param name="targetLocation">The location that you will display the text (number of lines is dependent on the width of the place it's going)</param>
+		public void CalculateHeight(TextMeshPro targetLocation)
 		{
-			EnglishHeight = CalculateHeight(measurer, GameSystem.Instance.MainUIController.GetEnglishFont(), TextEnglish);
-			JapaneseHeight = CalculateHeight(measurer, GameSystem.Instance.MainUIController.GetJapaneseFont(), TextJapanese);
+			EnglishHeight = CalculateHeight(targetLocation, GameSystem.Instance.MainUIController.GetEnglishFont(), TextEnglish);
+			JapaneseHeight = CalculateHeight(targetLocation, GameSystem.Instance.MainUIController.GetJapaneseFont(), TextJapanese);
 		}
 
 		public void AddVoiceFile(List<AudioInfo> voice)
