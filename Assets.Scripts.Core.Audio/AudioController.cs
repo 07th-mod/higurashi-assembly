@@ -288,7 +288,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
 			}
-			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename, channel));
 			if (audio.IsPlaying())
 			{
 				audio.StopAudio();
@@ -301,6 +301,48 @@ namespace Assets.Scripts.Core.Audio
 					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
 				});
 			}
+		}
+
+		private void PlayVoices(List<List<AudioInfo>> voices, int index)
+		{
+			if (index >= voices.Count)
+			{
+				return;
+			}
+			List<AudioInfo> voiceSet = voices[index];
+			var doneCount = 0;
+			foreach (AudioInfo voice in voiceSet)
+			{
+				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, voice.Channel)];
+				MODTextController.MODCurrentVoiceLayerDetect = voice.Channel;
+				if (currentAudio[AudioType.Voice].ContainsKey(voice.Channel))
+				{
+					currentAudio[AudioType.Voice].Remove(voice.Channel);
+				}
+				currentAudio[AudioType.Voice].Add(voice.Channel, voice);
+				if (audio.IsPlaying())
+				{
+					audio.StopAudio();
+				}
+				audio.PlayAudio(voice.Filename, AudioType.Voice, voice.Volume);
+				audio.RegisterCallback(delegate
+				{
+					doneCount += 1;
+					if (doneCount == voiceSet.Count)
+					{
+						PlayVoices(voices, index + 1);
+					}
+				});
+			}
+		}
+
+		/// <summary>
+		/// Plays multiple voices in parallel/series
+		/// </summary>
+		/// <param name="voices">The voices to play.  The outer array is played in series while inner arrays are played in parallel</param>
+		public void PlayVoices(List<List<AudioInfo>> voices)
+		{
+			PlayVoices(voices, 0);
 		}
 
 		public void StopVoice(int channel)
@@ -381,7 +423,7 @@ namespace Assets.Scripts.Core.Audio
 				{
 					currentAudio[AudioType.BGM].Remove(channel);
 				}
-				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename));
+				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename, channel));
 			}
 			audioLayerUnity.PlayAudio(filename, type, startvolume, loop);
 			if (fadeintime > 0.05f)
@@ -484,7 +526,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				currentAudio[AudioType.Voice].Remove(channel);
 			}
-			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename, channel));
 			if (audio.IsPlaying())
 			{
 				audio.StopAudio();
