@@ -525,7 +525,7 @@ namespace Assets.Scripts.UI
 				gameSystem.CanInput = true;
 				gameSystem.ShowUIControls();
 			}
-			if ((BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() == 1) | (BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() == 2))
+			if ((BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 1) | (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2))
 			{
 				string[] array = new string[6]
 				{
@@ -616,14 +616,14 @@ namespace Assets.Scripts.UI
 				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + "\nAlternative BGM Flow = " + array6[2] + array5[2] + "\nAlternative SE = " + array2[2] + "\nAlternative SE Flow = " + array6[3] + array5[3] + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
 				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), text7, 900);
 			}
-			if (BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() == 2)
+			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
 				string text8 = "[Vanilla Hotkey]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF : FullScreen\nSpace : Hide Text\nL : Swap Language\nP : Swap Sprites\n\n[MOD Hotkey]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Setting Monitor\nM : Increase Voice Volume\nN : Decrease Voice Volume\n1 : Alternative BGM\n2 : Alternative BGM Flow\n3 : Alternative SE\n4 : Alternative SE Flow\n5 : Alternative Voice\n6 : Alternative Voice Priority\n7 : Lip-Sync\nLShift + F9 : Restore Settings\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MIN";
 				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), text8, 900);
 			}
-			if (BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() >= 3)
+			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 3)
 			{
-				string[] array7 = new string[21]
+				string[] array7 = new string[]
 				{
 					"GADVMode",
 					"GLinemodeSp",
@@ -643,7 +643,6 @@ namespace Assets.Scripts.UI
 					"GFlagForTest1",
 					"GFlagForTest2",
 					"GFlagForTest3",
-					"GFlagMonitor",
 					"GMOD_DEBUG_MODE",
 					"GLipSync"
 				};
@@ -660,10 +659,11 @@ namespace Assets.Scripts.UI
 					str += array9[m];
 				}
 				str += "\n[MOD Local Flags]\n";
-				string[] array10 = new string[2]
+				string[] array10 = new string[]
 				{
 					"NVL_in_ADV",
-					"DisableModHotkey"
+					"DisableModHotkey",
+					"LFlagMonitor"
 				};
 				string[] array11 = new string[array10.Length];
 				for (int n = 0; n < array10.Length; n++)
@@ -692,7 +692,7 @@ namespace Assets.Scripts.UI
 				str += text9;
 				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), str, 900);
 			}
-			if (BurikoMemory.Instance.GetGlobalFlag("GFlagMonitor").IntValue() >= 4)
+			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 4)
 			{
 				string[] array13 = new string[33]
 				{
