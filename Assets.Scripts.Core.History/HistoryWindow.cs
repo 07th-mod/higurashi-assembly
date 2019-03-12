@@ -99,7 +99,7 @@ namespace Assets.Scripts.Core.History
 					break;
 				}
 				// Things like \n take up two characters in the string but are parsed by TMP as one
-				if (tmp.text[info.index] == '\\')
+				if (tmp.text[info.index + multiCharChars] == '\\')
 				{
 					//Debug.Log("Found multiChar char");
 					multiCharChars += 1;
@@ -131,10 +131,10 @@ namespace Assets.Scripts.Core.History
 				TextMeshPro label = textButtons[i].GetTextMesh();
 				if (line == null || lineNum <= 0)
 				{
-					label.text = "";
-					textButtons[i].ClearVoices();
+					label.gameObject.SetActive(false);
 					continue;
 				}
+				label.gameObject.SetActive(true);
 				// Put voice and text in it
 				label.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.TextJapanese, english: line.TextEnglish);
 				if (line.VoiceFiles != null)
@@ -244,7 +244,10 @@ namespace Assets.Scripts.Core.History
 			FillText();
 			foreach (HistoryTextButton historyTextButton in textButtons)
 			{
-				historyTextButton.FadeIn(0.2f);
+				if (historyTextButton.isActiveAndEnabled)
+				{
+					historyTextButton.FadeIn(0.2f);
+				}
 			}
 			BackgroundTexture.alpha = 0f;
 			HistoryPanel.alpha = 0f;
