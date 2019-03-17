@@ -54,8 +54,8 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GOnikakushiDay", 3);
 			variableReference.Add("GWatanagashiDay", 4);
 			variableReference.Add("GTatarigoroshiDay", 5);
-            variableReference.Add("GHimatsubushiDay", 6);
-            variableReference.Add("GHighestChapter", 6); // For consistency between chapters
+			variableReference.Add("GHimatsubushiDay", 6);
+			variableReference.Add("GHighestChapter", 6); // For consistency between chapters
 			variableReference.Add("redbox", 7);
 			variableReference.Add("bluebox", 8);
 			variableReference.Add("GMessageSpeed", 10);
