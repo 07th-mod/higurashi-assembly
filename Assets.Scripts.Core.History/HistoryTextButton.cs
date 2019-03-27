@@ -68,15 +68,13 @@ namespace Assets.Scripts.Core.History
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", 1, "to", 0, "time", t, "onupdate", "UpdateAlpha", "oncomplete", "UpdateAlpha", "oncompleteparams", 0));
 		}
 
-		public void ClearVoices()
-		{
-			this.voices = null;
-			UpdateColor(new Color(1f, 1f, 1f));
-		}
-
 		public void RegisterVoices(List<List<AudioInfo>> voices)
 		{
 			this.voices = voices;
+			if (voices == null || voices.Count == 0)
+			{
+				UpdateColor(new Color(1f, 1f, 1f));
+			}
 		}
 
 		private void LateUpdate()
