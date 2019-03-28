@@ -13,6 +13,8 @@ namespace Assets.Scripts.Core.History
 
 		private List<List<AudioInfo>> voices;
 
+		private bool isHovered = false;
+
 		public TextMeshPro GetTextMesh()
 		{
 			if (textMesh == null)
@@ -22,16 +24,22 @@ namespace Assets.Scripts.Core.History
 			return textMesh;
 		}
 
-		private void OnHover(bool isHover)
+		private void UpdateColorForHover()
 		{
-			if (voices != null && voices.Count > 0)
+			if (isHovered && voices != null && voices.Count > 0)
 			{
-				UpdateColor(isHover ? new Color(0.2f, 0.7f, 1f) : new Color(1f, 1f, 1f));
+				UpdateColor(new Color(0.2f, 0.7f, 1f));
 			}
 			else
 			{
 				UpdateColor(new Color(1f, 1f, 1f));
 			}
+		}
+
+		private void OnHover(bool isHover)
+		{
+			isHovered = isHover;
+			UpdateColorForHover();
 		}
 
 		private void OnClick()
@@ -71,10 +79,7 @@ namespace Assets.Scripts.Core.History
 		public void RegisterVoices(List<List<AudioInfo>> voices)
 		{
 			this.voices = voices;
-			if (voices == null || voices.Count == 0)
-			{
-				UpdateColor(new Color(1f, 1f, 1f));
-			}
+			UpdateColorForHover();
 		}
 
 		private void LateUpdate()
