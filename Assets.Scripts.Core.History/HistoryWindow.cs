@@ -137,14 +137,7 @@ namespace Assets.Scripts.Core.History
 				label.gameObject.SetActive(true);
 				// Put voice and text in it
 				label.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: line.TextJapanese, english: line.TextEnglish);
-				if (line.VoiceFiles != null)
-				{
-					textButtons[i].RegisterVoices(line.VoiceFiles);
-				}
-				else
-				{
-					textButtons[i].ClearVoices();
-				}
+				textButtons[i].RegisterVoices(line.VoiceFiles);
 
 				// Update lineNum and trim text if needed
 				int lineCount = 0;
