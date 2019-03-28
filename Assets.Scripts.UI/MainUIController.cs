@@ -614,7 +614,9 @@ namespace Assets.Scripts.UI
 				{
 					text6 = "Game avoid any input now\n";
 				}
-				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + "\nAlternative BGM Flow = " + array6[2] + array5[2] + "\nAlternative SE = " + array2[2] + "\nAlternative SE Flow = " + array6[3] + array5[3] + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
+				var videoOpeningValue = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue();
+				var videoOpeningDescription = videoOpeningValue == 0 ? "Unset" : videoOpeningValue == 1 ? "Disabled" : videoOpeningValue == 2 ? "In-game" : videoOpeningValue == 3 ? "At launch + in-game" : "Unknown";
+				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + "\nAlternative BGM Flow = " + array6[2] + array5[2] + "\nAlternative SE = " + array2[2] + "\nAlternative SE Flow = " + array6[3] + array5[3] + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + $"\nOP movies = {videoOpeningDescription} ({videoOpeningValue})" + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
 				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), text7, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
@@ -645,7 +647,8 @@ namespace Assets.Scripts.UI
 					"GFlagForTest2",
 					"GFlagForTest3",
 					"GMOD_DEBUG_MODE",
-					"GLipSync"
+					"GLipSync",
+					"GVideoOpening"
 				};
 				string[] array8 = new string[array7.Length];
 				for (int l = 0; l < array7.Length; l++)
