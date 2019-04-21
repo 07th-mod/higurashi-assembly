@@ -138,6 +138,7 @@ namespace Assets.Scripts.Core.Buriko
 		ModSetConfigFontSize,
 		ModSetChapterJumpFontSize,
 		ModSetHighestChapterFlag,
-		ModGetHighestChapterFlag
+		ModGetHighestChapterFlag,
+		ModSetMainFontOutlineWidth
 	}
 }

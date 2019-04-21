@@ -2158,6 +2158,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODSetHighestChapterFlag();
 			case BurikoOperations.ModGetHighestChapterFlag:
 				return OperationMODGetHighestChapterFlag();
+			case BurikoOperations.ModSetMainFontOutlineWidth:
+				return OperationMODSetMainFontOutlineWidth();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2535,6 +2537,15 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("MODGetHighestChapterFlag");
 			int key = ReadVariable().IntValue();
 			return BurikoMemory.Instance.GetHighestChapterFlag(key);
+		}
+
+		private BurikoVariable OperationMODSetMainFontOutlineWidth()
+		{
+			SetOperationType("MODSetMainFontOutlineWidth");
+			int width = ReadVariable().IntValue();
+			GameSystem.Instance.OutlineWidth = width / 100f;
+			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			return BurikoVariable.Null;
 		}
 	}
 }
