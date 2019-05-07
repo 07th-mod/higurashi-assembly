@@ -200,6 +200,13 @@ namespace Assets.Scripts.Core
 			_chapterJumpFontSizeEnglish = english;
 		}
 
+		private float _outlineWidth = 0.15f;
+		public float OutlineWidth
+		{
+			get => _outlineWidth;
+			set => _outlineWidth = value;
+		}
+
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
 		public GameState GameState

@@ -322,6 +322,7 @@ namespace Assets.Scripts.UI
 			{
 				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
 			}
+			TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 		}
 
 		private void Awake()
@@ -335,6 +336,7 @@ namespace Assets.Scripts.UI
 			{
 				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
 			}
+			TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 		}
 
 		public void ShowCarret()
@@ -418,6 +420,7 @@ namespace Assets.Scripts.UI
 				{
 					TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
 				}
+				TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 			}
 		}
 
