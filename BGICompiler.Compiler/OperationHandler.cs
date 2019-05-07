@@ -172,6 +172,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModSetChapterJumpFontSize", new OpType(BurikoOperations.ModSetChapterJumpFontSize, "ii"));
 			paramLookup.Add("ModSetHighestChapterFlag", new OpType(BurikoOperations.ModSetHighestChapterFlag, "ii"));
 			paramLookup.Add("ModGetHighestChapterFlag", new OpType(BurikoOperations.ModGetHighestChapterFlag, "i"));
+			paramLookup.Add("ModSetMainFontOutlineWidth", new OpType(BurikoOperations.ModSetMainFontOutlineWidth, "i"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)
