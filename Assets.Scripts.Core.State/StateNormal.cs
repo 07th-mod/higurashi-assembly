@@ -610,7 +610,30 @@ namespace Assets.Scripts.Core.State
 						}
 						MODSystem.instance.modTextureController.ToggleArtStyle();
 					}
-					return true;
+                    if (Input.GetKeyDown(KeyCode.I))
+                    {
+                        if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
+                        {
+                            return false;
+                        }
+                        if (!gameSystem.HasWaitOfType(WaitTypes.WaitForInput))
+                        {
+                            return false;
+                        }
+                        if (BurikoMemory.Instance.GetFlag("DisableModHotkey").IntValue() == 1)
+                        {
+                            return false;
+                        }
+                        if (BurikoMemory.Instance.GetGlobalFlag("GItaloVer").IntValue() == 1)
+                        {
+                            BurikoMemory.Instance.SetGlobalFlag("GItaloVer", 0);
+                            GameSystem.Instance.AudioController.PlaySystemSound("switchsound/disable.ogg");
+                            return true;
+                        }
+                        BurikoMemory.Instance.SetGlobalFlag("GItaloVer", 1);
+                        GameSystem.Instance.AudioController.PlaySystemSound("switchsound/enable.ogg");
+                    }
+                    return true;
 				}
 				if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
 				{
