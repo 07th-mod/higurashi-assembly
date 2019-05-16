@@ -539,7 +539,7 @@ namespace Assets.Scripts.UI
 					"GAltVoice",
 					"GAltVoicePriority",
 					"GLipSync",
-                    "GItaloVer"
+					"GItaloVer"
 				};
 				string[] array2 = new string[array.Length];
 				for (int i = 0; i < array.Length; i++)
@@ -620,18 +620,18 @@ namespace Assets.Scripts.UI
 				}
 				var videoOpeningValue = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue();
 				var videoOpeningDescription = videoOpeningValue == 0 ? "Unset" : videoOpeningValue == 1 ? "Disabled" : videoOpeningValue == 2 ? "In-game" : videoOpeningValue == 3 ? "At launch + in-game" : "Unknown";
-                var AltBGMValue = BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue();
-                var AltBGMDescription = AltBGMValue == 0 ? "07th-Mod Audio Pack" : AltBGMValue == 1 ? "Original [2002]" : AltBGMValue == 2 ? "New Update [2019]" : AltBGMValue == 3 ? "Console" : AltBGMValue == 4 ? "MangaGamer [2009]" : AltBGMValue == 5 ? "Anime" : "Unknown";
-                var AltSEValue = BurikoMemory.Instance.GetGlobalFlag("GAltSEflow").IntValue();
-                var AltSEDescription = AltSEValue == 0 ? "07th-Mod Audio Pack" : AltSEValue == 1 ? "Original [2002]" : AltSEValue == 2 ? "New Update [2019]" : AltSEValue == 3 ? "Console" : AltSEValue == 4 ? "MangaGamer [2009]" : "Unknown";
-                var AudioSwitchValue = BurikoMemory.Instance.GetGlobalFlag("GAudioSwitch").IntValue();
-                var AudioSwitchDescription = AudioSwitchValue == 0 ? "Ask" : AudioSwitchValue == 1 ? "In Progress" : AudioSwitchValue == 2 ? "Don't ask again" : AudioSwitchValue == 3 ? "Keep last used" : "Unknown";
-                string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + $"\nAlternative BGM Flow = {AltBGMDescription} ({AltBGMValue})" + "\nItalo Remakes = " + array2[6] + "\nAlternative SE = " + array2[2] + $"\nAlternative SE Flow = {AltSEDescription} ({AltSEValue})" + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + $"\nOP movies = {videoOpeningDescription} ({videoOpeningValue})" + $"\nStartup Audio Switch = {AudioSwitchDescription} ({AudioSwitchValue})" + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
+				var AltBGMValue = BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue();
+				var AltBGMDescription = AltBGMValue == 0 ? "07th-Mod Audio Pack" : AltBGMValue == 1 ? "Original [2002]" : AltBGMValue == 2 ? "New Update [2019]" : AltBGMValue == 3 ? "Console" : AltBGMValue == 4 ? "MangaGamer [2009]" : AltBGMValue == 5 ? "Anime" : "Unknown";
+				var AltSEValue = BurikoMemory.Instance.GetGlobalFlag("GAltSEflow").IntValue();
+				var AltSEDescription = AltSEValue == 0 ? "07th-Mod Audio Pack" : AltSEValue == 1 ? "Original [2002]" : AltSEValue == 2 ? "New Update [2019]" : AltSEValue == 3 ? "Console" : AltSEValue == 4 ? "MangaGamer [2009]" : "Unknown";
+				var AudioSwitchValue = BurikoMemory.Instance.GetGlobalFlag("GAudioSwitch").IntValue();
+				var AudioSwitchDescription = AudioSwitchValue == 0 ? "Ask" : AudioSwitchValue == 1 ? "In Progress" : AudioSwitchValue == 2 ? "Don't ask again" : AudioSwitchValue == 3 ? "Keep last used" : "Unknown";
+				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + $"\nAlternative BGM Flow = {AltBGMDescription} ({AltBGMValue})" + "\nItalo Remakes = " + array2[6] + "\nAlternative SE = " + array2[2] + $"\nAlternative SE Flow = {AltSEDescription} ({AltSEValue})" + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + $"\nOP movies = {videoOpeningDescription} ({videoOpeningValue})" + $"\nStartup Audio Switch = {AudioSwitchDescription} ({AudioSwitchValue})" + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
                 GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), text7, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
-                string text8 = "[Vanilla Hotkey]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF : FullScreen\nSpace : Hide Text\nL : Swap Language\nP : Swap Sprites\n\n[MOD Hotkey]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Setting Monitor\nM : Increase Voice Volume\nN : Decrease Voice Volume\nI : Toggle Italo's BGM Remakes\n1 : Alternative BGM\n2 : Alternative BGM Flow\n3 : Alternative SE\n4 : Alternative SE Flow\n5 : Alternative Voice\n6 : Alternative Voice Priority\n7 : Lip-Sync\nLShift + F9 : Restore Settings\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MIN";
+				string text8 = "[Vanilla Hotkey]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF : FullScreen\nSpace : Hide Text\nL : Swap Language\nP : Swap Sprites\n\n[MOD Hotkey]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Setting Monitor\nM : Increase Voice Volume\nN : Decrease Voice Volume\nI : Toggle Italo's BGM Remakes\n1 : Alternative BGM\n2 : Alternative BGM Flow\n3 : Alternative SE\n4 : Alternative SE Flow\n5 : Alternative Voice\n6 : Alternative Voice Priority\n7 : Lip-Sync\nLShift + F9 : Restore Settings\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MIN";
                 GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), text8, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 3)
@@ -659,8 +659,8 @@ namespace Assets.Scripts.UI
 					"GMOD_DEBUG_MODE",
 					"GLipSync",
 					"GVideoOpening",
-                    "GItaloVer",
-                    "GAudioSwitch"
+					"GItaloVer",
+					"GAudioSwitch"
 				};
 				string[] array8 = new string[array7.Length];
 				for (int l = 0; l < array7.Length; l++)
