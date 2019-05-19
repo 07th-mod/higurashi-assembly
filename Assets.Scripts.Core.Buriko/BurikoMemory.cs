@@ -105,6 +105,8 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GVideoOpening", 523);
 			variableReference.Add("GItaloVer", 524);
 			variableReference.Add("GAudioSwitch", 525);
+			variableReference.Add("GADVTextbox", 526);
+			variableReference.Add("GADVTextboxMaxNum", 527);
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);

@@ -481,7 +481,55 @@ namespace Assets.Scripts.UI
 			}
 			else
 			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
+				if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 1)
+				{
+					BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
+					BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+					GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+					GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
+					GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv2", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+					GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv2", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+					mODMainUIController.ADVModeTextbox2SettingStore();
+				}
+				if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 0)
+				{
+					BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
+					BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+					GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+					GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
+					GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+					GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+					mODMainUIController.ADVModeSettingStore();
+				}
+			}
+		}
+
+		public void MODADVModeTextbox2SettingLoad()
+		{
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 1)
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GADVTextbox", 1);
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv2", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv2", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.ADVModeTextbox2SettingStore();
+			}
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 0)
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GADVTextbox", 0);
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.ADVModeSettingStore();
+			}
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() > 1)
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GADVTextbox", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
 				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
 				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
@@ -626,7 +674,8 @@ namespace Assets.Scripts.UI
 				var AltSEDescription = AltSEValue == 0 ? "07th-Mod Audio Pack" : AltSEValue == 1 ? "Original [2002]" : AltSEValue == 2 ? "New Update [2019]" : AltSEValue == 3 ? "Console" : AltSEValue == 4 ? "MangaGamer [2009]" : "Unknown";
 				var AudioSwitchValue = BurikoMemory.Instance.GetGlobalFlag("GAudioSwitch").IntValue();
 				var AudioSwitchDescription = AudioSwitchValue == 0 ? "Ask" : AudioSwitchValue == 1 ? "In Progress" : AudioSwitchValue == 2 ? "Don't ask again" : AudioSwitchValue == 3 ? "Keep last used" : "Unknown";
-				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + $"\nAlternative BGM Flow = {AltBGMDescription} ({AltBGMValue})" + "\nItalo Remakes = " + array2[6] + "\nAlternative SE = " + array2[2] + $"\nAlternative SE Flow = {AltSEDescription} ({AltSEValue})" + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + $"\nOP movies = {videoOpeningDescription} ({videoOpeningValue})" + $"\nStartup Audio Switch = {AudioSwitchDescription} ({AudioSwitchValue})" + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
+				var ADVTextboxValue = BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue();
+				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + $"\nADV Textbox = {ADVTextboxValue}" + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + $"\nAlternative BGM Flow = {AltBGMDescription} ({AltBGMValue})" + "\nItalo Remakes = " + array2[6] + "\nAlternative SE = " + array2[2] + $"\nAlternative SE Flow = {AltSEDescription} ({AltSEValue})" + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + $"\nOP movies = {videoOpeningDescription} ({videoOpeningValue})" + $"\nStartup Audio Switch = {AudioSwitchDescription} ({AudioSwitchValue})" + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
 				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), text7, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
@@ -660,7 +709,8 @@ namespace Assets.Scripts.UI
 					"GLipSync",
 					"GVideoOpening",
 					"GItaloVer",
-					"GAudioSwitch"
+					"GAudioSwitch",
+					"GADVTextbox"
 				};
 				string[] array8 = new string[array7.Length];
 				for (int l = 0; l < array7.Length; l++)

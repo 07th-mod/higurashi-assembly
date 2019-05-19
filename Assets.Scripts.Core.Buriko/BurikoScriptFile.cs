@@ -2137,6 +2137,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODdisableNVLModeInADVMode();
 			case BurikoOperations.ModADVModeSettingLoad:
 				return OperationMODADVModeSettingLoad();
+			case BurikoOperations.ModADVModeTextbox2SettingLoad:
+				return OperationMODADVModeTextbox2SettingLoad();
 			case BurikoOperations.ModNVLModeSettingLoad:
 				return OperationMODNVLModeSettingLoad();
 			case BurikoOperations.ModNVLADVModeSettingLoad:
@@ -2322,6 +2324,27 @@ namespace Assets.Scripts.Core.Buriko
 			int lspace = ReadVariable().IntValue();
 			int fsize = ReadVariable().IntValue();
 			mODMainUIController.ADVModeSettingLoad(name, posx, posy, sizex, sizey, mleft, mtop, mright, mbottom, font, cspace, lspace, fsize);
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODADVModeTextbox2SettingLoad()
+		{
+			SetOperationType("ModADVModeTextbox2SettingLoad");
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			string name = ReadVariable().StringValue();
+			int posx = ReadVariable().IntValue();
+			int posy = ReadVariable().IntValue();
+			int sizex = ReadVariable().IntValue();
+			int sizey = ReadVariable().IntValue();
+			int mleft = ReadVariable().IntValue();
+			int mtop = ReadVariable().IntValue();
+			int mright = ReadVariable().IntValue();
+			int mbottom = ReadVariable().IntValue();
+			int font = ReadVariable().IntValue();
+			int cspace = ReadVariable().IntValue();
+			int lspace = ReadVariable().IntValue();
+			int fsize = ReadVariable().IntValue();
+			mODMainUIController.ADVModeTextbox2SettingLoad(name, posx, posy, sizex, sizey, mleft, mtop, mright, mbottom, font, cspace, lspace, fsize);
 			return BurikoVariable.Null;
 		}
 

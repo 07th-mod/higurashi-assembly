@@ -189,6 +189,33 @@ namespace Assets.Scripts.Core.State
 						return true;
 					}
 				}
+				if (Input.GetKeyDown(KeyCode.Y))
+				{
+					if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
+					{
+						return false;
+					}
+					if (!gameSystem.HasWaitOfType(WaitTypes.WaitForInput))
+					{
+						return false;
+					}
+					if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+					{
+						return false;
+					}
+					int num17 = BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue();
+					int num18 = BurikoMemory.Instance.GetGlobalFlag("GADVTextboxMaxNum").IntValue();
+					if (num17 < num18 && num17 >= 0)
+					{
+						num17++;
+						BurikoMemory.Instance.SetGlobalFlag("GADVTextbox", num17);
+						GameSystem.Instance.MainUIController.MODADVModeTextbox2SettingLoad();
+						return true;
+					}
+					num17 = 0;
+					BurikoMemory.Instance.SetGlobalFlag("GADVTextbox", num17);
+					GameSystem.Instance.MainUIController.MODADVModeTextbox2SettingLoad();
+				}
 				if (Input.GetKeyDown(KeyCode.F1))
 				{
 					if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
