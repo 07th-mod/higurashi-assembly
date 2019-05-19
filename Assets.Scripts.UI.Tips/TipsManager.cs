@@ -105,7 +105,18 @@ namespace Assets.Scripts.UI.Tips
 			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 			lTDescr.onComplete = delegate
 			{
-				GameSystem.Instance.AudioController.PlayAudio("msys14.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f);
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == 1)
+				{ const string Filename1 = "Original\\msys14.ogg"; GameSystem.Instance.AudioController.PlayAudio(Filename1, Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f); }
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == 2)
+				{ const string Filename2 = "April2019Update\\msys14.ogg"; GameSystem.Instance.AudioController.PlayAudio(Filename2, Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f); }
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == 3)
+				{ const string Filename3 = "Console\\hm11_85.ogg"; GameSystem.Instance.AudioController.PlayAudio(Filename3, Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f); }
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == 4)
+				{ const string Filename4 = "MangaGamer\\mg07.ogg"; GameSystem.Instance.AudioController.PlayAudio(Filename4, Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f); }
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() < 1)
+				{ GameSystem.Instance.AudioController.PlayAudio("msys14.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f); }
+				if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() > 4)
+				{ GameSystem.Instance.AudioController.PlayAudio("msys14.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f); }
 			};
 			switch (tipstype)
 			{
