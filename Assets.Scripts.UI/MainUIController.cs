@@ -132,7 +132,14 @@ namespace Assets.Scripts.UI
 					bgLayer.SetPriority(62);
 					bgLayer.name = "Window Background 1";
 					bgLayer.IsStatic = true;
-					bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 0)
+					{
+						bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					}
+					if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 1)
+					{
+						bgLayer.DrawLayer("windo_filter_adv2", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					}
 					if (bgLayer2 == null)
 					{
 						bgLayer2 = LayerPool.ActivateLayer();
@@ -141,7 +148,14 @@ namespace Assets.Scripts.UI
 					bgLayer2.SetPriority(62);
 					bgLayer2.name = "Window Background 2";
 					bgLayer2.IsStatic = true;
-					bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 0)
+					{
+						bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					}
+					if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 1)
+					{
+						bgLayer2.DrawLayer("windo_filter_adv2", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					}
 				}
 			}
 			else

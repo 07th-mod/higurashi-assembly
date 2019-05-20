@@ -125,10 +125,13 @@ namespace MOD.Scripts.UI
 			ADVModeCharSpacing = cspace;
 			ADVModeLineSpacing = lspace;
 			ADVModeFontSize = fsize;
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 0)
 			{
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				ADVModeSettingStore();
+				if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+				{
+					BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+					ADVModeSettingStore();
+				}
 			}
 		}
 
@@ -147,10 +150,13 @@ namespace MOD.Scripts.UI
 			ADVModeTextbox2CharSpacing = cspace;
 			ADVModeTextbox2LineSpacing = lspace;
 			ADVModeTextbox2FontSize = fsize;
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVTextbox").IntValue() == 1)
 			{
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				ADVModeTextbox2SettingStore();
+				if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+				{
+					BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+					ADVModeTextbox2SettingStore();
+				}
 			}
 		}
 
