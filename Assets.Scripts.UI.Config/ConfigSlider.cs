@@ -26,23 +26,23 @@ namespace Assets.Scripts.UI.Config
 			int num = 0;
 			switch (base.name)
 			{
-			case "0-TextSpeed":
-				num = GameSystem.Instance.TextController.TextSpeed;
-				break;
-			case "1-AutoSpeed":
-				num = GameSystem.Instance.TextController.AutoSpeed;
-				break;
-			case "2-AutoPageSpeed":
-				num = GameSystem.Instance.TextController.AutoPageSpeed;
-				break;
-			case "3-WindowOpacity":
+			case "0-WindowOpacity":
 				num = (int)(GameSystem.Instance.MessageWindowOpacity * 100f);
 				break;
-			case "4-BGMVolume":
+			case "1-VoiceVolume":
+				num = (int)(GameSystem.Instance.AudioController.VoiceVolume * 100f);
+				break;
+			case "2-BGMVolume":
 				num = (int)(GameSystem.Instance.AudioController.BGMVolume * 100f);
 				break;
-			case "5-SEVolume":
+			case "3-SEVolume":
 				num = (int)(GameSystem.Instance.AudioController.SoundVolume * 100f);
+				break;
+			case "4-TextSpeed":
+				num = GameSystem.Instance.TextController.TextSpeed;
+				break;
+			case "5-AutoPageSpeed":
+				num = GameSystem.Instance.TextController.AutoPageSpeed;
 				break;
 			}
 			slider.value = (float)num / 100f;
@@ -66,33 +66,36 @@ namespace Assets.Scripts.UI.Config
 				int num = (int)(100f * laststep);
 				switch (base.name)
 				{
-				case "0-TextSpeed":
-					GameSystem.Instance.TextController.TextSpeed = num;
-					BurikoMemory.Instance.SetGlobalFlag("GMessageSpeed", num);
-					break;
-				case "1-AutoSpeed":
-					GameSystem.Instance.TextController.AutoSpeed = num;
-					BurikoMemory.Instance.SetGlobalFlag("GAutoSpeed", num);
-					break;
-				case "2-AutoPageSpeed":
-					GameSystem.Instance.TextController.AutoPageSpeed = num;
-					BurikoMemory.Instance.SetGlobalFlag("GAutoAdvSpeed", num);
-					break;
-				case "3-WindowOpacity":
+				case "0-WindowOpacity":
 					GameSystem.Instance.MessageWindowOpacity = laststep;
 					GameSystem.Instance.MainUIController.SetWindowOpacity(laststep);
 					BurikoMemory.Instance.SetGlobalFlag("GWindowOpacity", num);
 					break;
-				case "4-BGMVolume":
+				case "1-VoiceVolume":
+					GameSystem.Instance.AudioController.VoiceVolume = laststep;
+					GameSystem.Instance.AudioController.RefreshLayerVolumes();
+					BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", num);
+					break;
+				case "2-BGMVolume":
 					GameSystem.Instance.AudioController.BGMVolume = laststep;
 					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 					BurikoMemory.Instance.SetGlobalFlag("GBGMVolume", num);
 					break;
-				case "5-SEVolume":
+				case "3-SEVolume":
 					GameSystem.Instance.AudioController.SoundVolume = laststep;
 					GameSystem.Instance.AudioController.SystemVolume = laststep;
 					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 					BurikoMemory.Instance.SetGlobalFlag("GSEVolume", num);
+					break;
+				case "4-TextSpeed":
+					GameSystem.Instance.TextController.TextSpeed = num;
+					BurikoMemory.Instance.SetGlobalFlag("GMessageSpeed", num);
+					GameSystem.Instance.TextController.AutoSpeed = num;
+					BurikoMemory.Instance.SetGlobalFlag("GAutoSpeed", num);
+					break;
+				case "5-AutoPageSpeed":
+					GameSystem.Instance.TextController.AutoPageSpeed = num;
+					BurikoMemory.Instance.SetGlobalFlag("GAutoAdvSpeed", num);
 					break;
 				}
 			}
