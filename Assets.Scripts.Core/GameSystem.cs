@@ -1010,10 +1010,19 @@ namespace Assets.Scripts.Core
 			// not just the one the game is running under, so it could *also* be wrong, which is why we check both methods
 			if (Screen.resolutions.Length > 0)
 			{
-				Resolution tmp = Screen.resolutions[Screen.resolutions.Length - 1];
-				if (tmp.width <= resolution.width && tmp.height <= resolution.height) {
-					resolution = tmp;
-					source = "Screen.resolutions #" + (Screen.resolutions.Length - 1);
+				int index = 0;
+				Resolution best = Screen.resolutions[0];
+				for (int i = 1; i < Screen.resolutions.Length; i++)
+				{
+					if (Screen.resolutions[i].height * Screen.resolutions[i].width > best.height * best.width)
+					{
+						best = Screen.resolutions[i];
+						index = i;
+					}
+				}
+				if (best.width <= resolution.width && best.height <= resolution.height) {
+					resolution = best;
+					source = "Screen.resolutions #" + index;
 				}
 			}
 
