@@ -1025,13 +1025,21 @@ namespace Assets.Scripts.Core
 					source = "Screen.resolutions #" + index;
 				}
 			}
+			if (!PlayerPrefs.HasKey("fullscreen_width_override"))
+			{
+				PlayerPrefs.SetInt("fullscreen_width_override", 0);
+			}
+			if (!PlayerPrefs.HasKey("fullscreen_height_override"))
+			{
+				PlayerPrefs.SetInt("fullscreen_height_override", 0);
+			}
 
-			if (PlayerPrefs.HasKey("fullscreen_width_override"))
+			if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
 			{
 				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
 				source += " + Width Override";
 			}
-			if (PlayerPrefs.HasKey("fullscreen_height_override"))
+			if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
 			{
 				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
 				source += " + Height Override";
