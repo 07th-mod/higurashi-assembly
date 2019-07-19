@@ -51,6 +51,7 @@ namespace Assets.Scripts.UI.Choice
 				component.SetCallback(this, delegate
 				{
 					GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);
+					GameSystem.Instance.ScriptSystem.SetFlag("LOCALWORK_NO_RESULT", id);
 					Debug.Log("ID: " + id);
 					FinishChoice();
 				});

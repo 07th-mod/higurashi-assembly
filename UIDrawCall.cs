@@ -26,11 +26,11 @@ public class UIDrawCall : MonoBehaviour
 
 	[HideInInspector]
 	[NonSerialized]
-	public int depthStart = 2147483647;
+	public int depthStart = int.MaxValue;
 
 	[HideInInspector]
 	[NonSerialized]
-	public int depthEnd = -2147483648;
+	public int depthEnd = int.MinValue;
 
 	[HideInInspector]
 	[NonSerialized]
@@ -501,81 +501,82 @@ public class UIDrawCall : MonoBehaviour
 		{
 			onRender(mDynamicMat ?? mMaterial);
 		}
-		if (!(mDynamicMat == null) && mClipCount != 0)
+		if (mDynamicMat == null || mClipCount == 0)
 		{
-			if (mTextureClip)
+			return;
+		}
+		if (mTextureClip)
+		{
+			Vector4 drawCallClipRange = panel.drawCallClipRange;
+			Vector2 clipSoftness = panel.clipSoftness;
+			Vector2 vector = new Vector2(1000f, 1000f);
+			if (clipSoftness.x > 0f)
 			{
-				Vector4 drawCallClipRange = panel.drawCallClipRange;
-				Vector2 clipSoftness = panel.clipSoftness;
-				Vector2 vector = new Vector2(1000f, 1000f);
-				if (clipSoftness.x > 0f)
-				{
-					vector.x = drawCallClipRange.z / clipSoftness.x;
-				}
-				if (clipSoftness.y > 0f)
-				{
-					vector.y = drawCallClipRange.w / clipSoftness.y;
-				}
-				mDynamicMat.SetVector(ClipRange[0], new Vector4((0f - drawCallClipRange.x) / drawCallClipRange.z, (0f - drawCallClipRange.y) / drawCallClipRange.w, 1f / drawCallClipRange.z, 1f / drawCallClipRange.w));
-				mDynamicMat.SetTexture("_ClipTex", clipTexture);
+				vector.x = drawCallClipRange.z / clipSoftness.x;
 			}
-			else if (!mLegacyShader)
+			if (clipSoftness.y > 0f)
 			{
-				UIPanel parentPanel = panel;
-				int num = 0;
-				while (parentPanel != null)
+				vector.y = drawCallClipRange.w / clipSoftness.y;
+			}
+			mDynamicMat.SetVector(ClipRange[0], new Vector4((0f - drawCallClipRange.x) / drawCallClipRange.z, (0f - drawCallClipRange.y) / drawCallClipRange.w, 1f / drawCallClipRange.z, 1f / drawCallClipRange.w));
+			mDynamicMat.SetTexture("_ClipTex", clipTexture);
+		}
+		else if (!mLegacyShader)
+		{
+			UIPanel parentPanel = panel;
+			int num = 0;
+			while (parentPanel != null)
+			{
+				if (parentPanel.hasClipping)
 				{
-					if (parentPanel.hasClipping)
+					float angle = 0f;
+					Vector4 drawCallClipRange2 = parentPanel.drawCallClipRange;
+					if (parentPanel != panel)
 					{
-						float angle = 0f;
-						Vector4 drawCallClipRange2 = parentPanel.drawCallClipRange;
-						if (parentPanel != panel)
+						Vector3 vector2 = parentPanel.cachedTransform.InverseTransformPoint(panel.cachedTransform.position);
+						drawCallClipRange2.x -= vector2.x;
+						drawCallClipRange2.y -= vector2.y;
+						Vector3 eulerAngles = panel.cachedTransform.rotation.eulerAngles;
+						Vector3 eulerAngles2 = parentPanel.cachedTransform.rotation.eulerAngles;
+						Vector3 vector3 = eulerAngles2 - eulerAngles;
+						vector3.x = NGUIMath.WrapAngle(vector3.x);
+						vector3.y = NGUIMath.WrapAngle(vector3.y);
+						vector3.z = NGUIMath.WrapAngle(vector3.z);
+						if (Mathf.Abs(vector3.x) > 0.001f || Mathf.Abs(vector3.y) > 0.001f)
 						{
-							Vector3 vector2 = parentPanel.cachedTransform.InverseTransformPoint(panel.cachedTransform.position);
-							drawCallClipRange2.x -= vector2.x;
-							drawCallClipRange2.y -= vector2.y;
-							Vector3 eulerAngles = panel.cachedTransform.rotation.eulerAngles;
-							Vector3 eulerAngles2 = parentPanel.cachedTransform.rotation.eulerAngles;
-							Vector3 vector3 = eulerAngles2 - eulerAngles;
-							vector3.x = NGUIMath.WrapAngle(vector3.x);
-							vector3.y = NGUIMath.WrapAngle(vector3.y);
-							vector3.z = NGUIMath.WrapAngle(vector3.z);
-							if (Mathf.Abs(vector3.x) > 0.001f || Mathf.Abs(vector3.y) > 0.001f)
-							{
-								Debug.LogWarning("Panel can only be clipped properly if X and Y rotation is left at 0", panel);
-							}
-							angle = vector3.z;
+							Debug.LogWarning("Panel can only be clipped properly if X and Y rotation is left at 0", panel);
 						}
-						SetClipping(num++, drawCallClipRange2, parentPanel.clipSoftness, angle);
+						angle = vector3.z;
 					}
-					parentPanel = parentPanel.parentPanel;
+					SetClipping(num++, drawCallClipRange2, parentPanel.clipSoftness, angle);
 				}
+				parentPanel = parentPanel.parentPanel;
 			}
-			else
+		}
+		else
+		{
+			Vector2 clipSoftness2 = panel.clipSoftness;
+			Vector4 drawCallClipRange3 = panel.drawCallClipRange;
+			Vector2 mainTextureOffset = new Vector2((0f - drawCallClipRange3.x) / drawCallClipRange3.z, (0f - drawCallClipRange3.y) / drawCallClipRange3.w);
+			Vector2 mainTextureScale = new Vector2(1f / drawCallClipRange3.z, 1f / drawCallClipRange3.w);
+			Vector2 v = new Vector2(1000f, 1000f);
+			if (clipSoftness2.x > 0f)
 			{
-				Vector2 clipSoftness2 = panel.clipSoftness;
-				Vector4 drawCallClipRange3 = panel.drawCallClipRange;
-				Vector2 mainTextureOffset = new Vector2((0f - drawCallClipRange3.x) / drawCallClipRange3.z, (0f - drawCallClipRange3.y) / drawCallClipRange3.w);
-				Vector2 mainTextureScale = new Vector2(1f / drawCallClipRange3.z, 1f / drawCallClipRange3.w);
-				Vector2 v = new Vector2(1000f, 1000f);
-				if (clipSoftness2.x > 0f)
-				{
-					v.x = drawCallClipRange3.z / clipSoftness2.x;
-				}
-				if (clipSoftness2.y > 0f)
-				{
-					v.y = drawCallClipRange3.w / clipSoftness2.y;
-				}
-				mDynamicMat.mainTextureOffset = mainTextureOffset;
-				mDynamicMat.mainTextureScale = mainTextureScale;
-				mDynamicMat.SetVector("_ClipSharpness", v);
+				v.x = drawCallClipRange3.z / clipSoftness2.x;
 			}
+			if (clipSoftness2.y > 0f)
+			{
+				v.y = drawCallClipRange3.w / clipSoftness2.y;
+			}
+			mDynamicMat.mainTextureOffset = mainTextureOffset;
+			mDynamicMat.mainTextureScale = mainTextureScale;
+			mDynamicMat.SetVector("_ClipSharpness", v);
 		}
 	}
 
 	private void SetClipping(int index, Vector4 cr, Vector2 soft, float angle)
 	{
-		angle *= -0.0174532924f;
+		angle *= -(float)Math.PI / 180f;
 		Vector2 vector = new Vector2(1000f, 1000f);
 		if (soft.x > 0f)
 		{
@@ -599,8 +600,8 @@ public class UIDrawCall : MonoBehaviour
 
 	private void OnDisable()
 	{
-		depthStart = 2147483647;
-		depthEnd = -2147483648;
+		depthStart = int.MaxValue;
+		depthEnd = int.MinValue;
 		panel = null;
 		manager = null;
 		mMaterial = null;
@@ -715,22 +716,23 @@ public class UIDrawCall : MonoBehaviour
 
 	public static void Destroy(UIDrawCall dc)
 	{
-		if ((bool)dc)
+		if (!(bool)dc)
 		{
-			dc.onRender = null;
-			if (Application.isPlaying)
+			return;
+		}
+		dc.onRender = null;
+		if (Application.isPlaying)
+		{
+			if (mActiveList.Remove(dc))
 			{
-				if (mActiveList.Remove(dc))
-				{
-					NGUITools.SetActive(dc.gameObject, state: false);
-					mInactiveList.Add(dc);
-				}
+				NGUITools.SetActive(dc.gameObject, state: false);
+				mInactiveList.Add(dc);
 			}
-			else
-			{
-				mActiveList.Remove(dc);
-				NGUITools.DestroyImmediate(dc.gameObject);
-			}
+		}
+		else
+		{
+			mActiveList.Remove(dc);
+			NGUITools.DestroyImmediate(dc.gameObject);
 		}
 	}
 }

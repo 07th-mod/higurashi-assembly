@@ -85,36 +85,36 @@ public class UIRoot : MonoBehaviour
 				float num = screenSize.x / screenSize.y;
 				if (screenSize.y < (float)minimumHeight)
 				{
-					screenSize.y = (float)minimumHeight;
+					screenSize.y = minimumHeight;
 					screenSize.x = screenSize.y * num;
 				}
 				else if (screenSize.y > (float)maximumHeight)
 				{
-					screenSize.y = (float)maximumHeight;
+					screenSize.y = maximumHeight;
 					screenSize.x = screenSize.y * num;
 				}
 				int num2 = Mathf.RoundToInt((!shrinkPortraitUI || !(screenSize.y > screenSize.x)) ? screenSize.y : (screenSize.y / num));
-				return (!adjustByDPI) ? num2 : NGUIMath.AdjustByDPI((float)num2);
+				return (!adjustByDPI) ? num2 : NGUIMath.AdjustByDPI(num2);
 			}
 			Constraint constraint = this.constraint;
-			if (constraint != Constraint.FitHeight)
+			if (constraint == Constraint.FitHeight)
 			{
-				Vector2 screenSize2 = NGUITools.screenSize;
-				float num3 = screenSize2.x / screenSize2.y;
-				float num4 = (float)manualWidth / (float)manualHeight;
-				switch (constraint)
-				{
-				case Constraint.FitWidth:
-					return Mathf.RoundToInt((float)manualWidth / num3);
-				case Constraint.Fit:
-					return (!(num4 > num3)) ? manualHeight : Mathf.RoundToInt((float)manualWidth / num3);
-				case Constraint.Fill:
-					return (!(num4 < num3)) ? manualHeight : Mathf.RoundToInt((float)manualWidth / num3);
-				default:
-					return manualHeight;
-				}
+				return manualHeight;
 			}
-			return manualHeight;
+			Vector2 screenSize2 = NGUITools.screenSize;
+			float num3 = screenSize2.x / screenSize2.y;
+			float num4 = (float)manualWidth / (float)manualHeight;
+			switch (constraint)
+			{
+			case Constraint.FitWidth:
+				return Mathf.RoundToInt((float)manualWidth / num3);
+			case Constraint.Fit:
+				return (!(num4 > num3)) ? manualHeight : Mathf.RoundToInt((float)manualWidth / num3);
+			case Constraint.Fill:
+				return (!(num4 < num3)) ? manualHeight : Mathf.RoundToInt((float)manualWidth / num3);
+			default:
+				return manualHeight;
+			}
 		}
 	}
 
@@ -188,17 +188,18 @@ public class UIRoot : MonoBehaviour
 
 	private void Update()
 	{
-		if (mTrans != null)
+		if (!(mTrans != null))
 		{
-			float num = (float)activeHeight;
-			if (num > 0f)
+			return;
+		}
+		float num = activeHeight;
+		if (num > 0f)
+		{
+			float num2 = 2f / num;
+			Vector3 localScale = mTrans.localScale;
+			if (!(Mathf.Abs(localScale.x - num2) <= float.Epsilon) || !(Mathf.Abs(localScale.y - num2) <= float.Epsilon) || !(Mathf.Abs(localScale.z - num2) <= float.Epsilon))
 			{
-				float num2 = 2f / num;
-				Vector3 localScale = mTrans.localScale;
-				if (!(Mathf.Abs(localScale.x - num2) <= 1.401298E-45f) || !(Mathf.Abs(localScale.y - num2) <= 1.401298E-45f) || !(Mathf.Abs(localScale.z - num2) <= 1.401298E-45f))
-				{
-					mTrans.localScale = new Vector3(num2, num2, num2);
-				}
+				mTrans.localScale = new Vector3(num2, num2, num2);
 			}
 		}
 	}
@@ -221,17 +222,15 @@ public class UIRoot : MonoBehaviour
 		if (param == null)
 		{
 			Debug.LogError("SendMessage is bugged when you try to pass 'null' in the parameter field. It behaves as if no parameter was specified.");
+			return;
 		}
-		else
+		int i = 0;
+		for (int count = list.Count; i < count; i++)
 		{
-			int i = 0;
-			for (int count = list.Count; i < count; i++)
+			UIRoot uIRoot = list[i];
+			if (uIRoot != null)
 			{
-				UIRoot uIRoot = list[i];
-				if (uIRoot != null)
-				{
-					uIRoot.BroadcastMessage(funcName, param, SendMessageOptions.DontRequireReceiver);
-				}
+				uIRoot.BroadcastMessage(funcName, param, SendMessageOptions.DontRequireReceiver);
 			}
 		}
 	}

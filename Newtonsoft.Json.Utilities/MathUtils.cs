@@ -14,7 +14,7 @@ namespace Newtonsoft.Json.Utilities
 			{
 				return 1;
 			}
-			return (int)Math.Floor(Math.Log10((double)i)) + 1;
+			return (int)Math.Floor(Math.Log10(i)) + 1;
 		}
 
 		public static int HexToInt(char h)
@@ -46,7 +46,7 @@ namespace Newtonsoft.Json.Utilities
 		public static int GetDecimalPlaces(double value)
 		{
 			int num = 10;
-			double num2 = Math.Pow(0.1, (double)num);
+			double num2 = Math.Pow(0.1, num);
 			if (value == 0.0)
 			{
 				return 0;

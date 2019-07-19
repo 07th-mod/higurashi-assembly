@@ -62,7 +62,7 @@ public static class NGUITools
 		}
 	}
 
-	public static Vector2 screenSize => new Vector2((float)Screen.width, (float)Screen.height);
+	public static Vector2 screenSize => new Vector2(Screen.width, Screen.height);
 
 	public static AudioSource PlaySound(AudioClip clip)
 	{
@@ -187,47 +187,50 @@ public static class NGUITools
 
 	public static void AddWidgetCollider(GameObject go, bool considerInactive)
 	{
-		if (go != null)
+		if (!(go != null))
 		{
-			Collider component = go.GetComponent<Collider>();
-			BoxCollider boxCollider = component as BoxCollider;
-			if (boxCollider != null)
+			return;
+		}
+		Collider component = go.GetComponent<Collider>();
+		BoxCollider boxCollider = component as BoxCollider;
+		if (boxCollider != null)
+		{
+			UpdateWidgetCollider(boxCollider, considerInactive);
+		}
+		else
+		{
+			if (component != null)
 			{
-				UpdateWidgetCollider(boxCollider, considerInactive);
+				return;
 			}
-			else if (!(component != null))
+			BoxCollider2D component2 = go.GetComponent<BoxCollider2D>();
+			if (component2 != null)
 			{
-				BoxCollider2D component2 = go.GetComponent<BoxCollider2D>();
-				if (component2 != null)
+				UpdateWidgetCollider(component2, considerInactive);
+				return;
+			}
+			UICamera uICamera = UICamera.FindCameraForLayer(go.layer);
+			if (uICamera != null && (uICamera.eventType == UICamera.EventType.World_2D || uICamera.eventType == UICamera.EventType.UI_2D))
+			{
+				component2 = go.AddComponent<BoxCollider2D>();
+				component2.isTrigger = true;
+				UIWidget component3 = go.GetComponent<UIWidget>();
+				if (component3 != null)
 				{
-					UpdateWidgetCollider(component2, considerInactive);
+					component3.autoResizeBoxCollider = true;
 				}
-				else
+				UpdateWidgetCollider(component2, considerInactive);
+			}
+			else
+			{
+				boxCollider = go.AddComponent<BoxCollider>();
+				boxCollider.isTrigger = true;
+				UIWidget component4 = go.GetComponent<UIWidget>();
+				if (component4 != null)
 				{
-					UICamera uICamera = UICamera.FindCameraForLayer(go.layer);
-					if (uICamera != null && (uICamera.eventType == UICamera.EventType.World_2D || uICamera.eventType == UICamera.EventType.UI_2D))
-					{
-						component2 = go.AddComponent<BoxCollider2D>();
-						component2.isTrigger = true;
-						UIWidget component3 = go.GetComponent<UIWidget>();
-						if (component3 != null)
-						{
-							component3.autoResizeBoxCollider = true;
-						}
-						UpdateWidgetCollider(component2, considerInactive);
-					}
-					else
-					{
-						boxCollider = go.AddComponent<BoxCollider>();
-						boxCollider.isTrigger = true;
-						UIWidget component4 = go.GetComponent<UIWidget>();
-						if (component4 != null)
-						{
-							component4.autoResizeBoxCollider = true;
-						}
-						UpdateWidgetCollider(boxCollider, considerInactive);
-					}
+					component4.autoResizeBoxCollider = true;
 				}
+				UpdateWidgetCollider(boxCollider, considerInactive);
 			}
 		}
 	}
@@ -239,55 +242,55 @@ public static class NGUITools
 
 	public static void UpdateWidgetCollider(GameObject go, bool considerInactive)
 	{
-		if (go != null)
+		if (!(go != null))
 		{
-			BoxCollider component = go.GetComponent<BoxCollider>();
-			if (component != null)
-			{
-				UpdateWidgetCollider(component, considerInactive);
-			}
-			else
-			{
-				BoxCollider2D component2 = go.GetComponent<BoxCollider2D>();
-				if (component2 != null)
-				{
-					UpdateWidgetCollider(component2, considerInactive);
-				}
-			}
+			return;
+		}
+		BoxCollider component = go.GetComponent<BoxCollider>();
+		if (component != null)
+		{
+			UpdateWidgetCollider(component, considerInactive);
+			return;
+		}
+		BoxCollider2D component2 = go.GetComponent<BoxCollider2D>();
+		if (component2 != null)
+		{
+			UpdateWidgetCollider(component2, considerInactive);
 		}
 	}
 
 	public static void UpdateWidgetCollider(BoxCollider box, bool considerInactive)
 	{
-		if (box != null)
+		if (!(box != null))
 		{
-			GameObject gameObject = box.gameObject;
-			UIWidget component = gameObject.GetComponent<UIWidget>();
-			if (component != null)
+			return;
+		}
+		GameObject gameObject = box.gameObject;
+		UIWidget component = gameObject.GetComponent<UIWidget>();
+		if (component != null)
+		{
+			Vector4 drawRegion = component.drawRegion;
+			if (drawRegion.x != 0f || drawRegion.y != 0f || drawRegion.z != 1f || drawRegion.w != 1f)
 			{
-				Vector4 drawRegion = component.drawRegion;
-				if (drawRegion.x != 0f || drawRegion.y != 0f || drawRegion.z != 1f || drawRegion.w != 1f)
-				{
-					Vector4 drawingDimensions = component.drawingDimensions;
-					box.center = new Vector3((drawingDimensions.x + drawingDimensions.z) * 0.5f, (drawingDimensions.y + drawingDimensions.w) * 0.5f);
-					box.size = new Vector3(drawingDimensions.z - drawingDimensions.x, drawingDimensions.w - drawingDimensions.y);
-				}
-				else
-				{
-					Vector3[] localCorners = component.localCorners;
-					box.center = Vector3.Lerp(localCorners[0], localCorners[2], 0.5f);
-					box.size = localCorners[2] - localCorners[0];
-				}
+				Vector4 drawingDimensions = component.drawingDimensions;
+				box.center = new Vector3((drawingDimensions.x + drawingDimensions.z) * 0.5f, (drawingDimensions.y + drawingDimensions.w) * 0.5f);
+				box.size = new Vector3(drawingDimensions.z - drawingDimensions.x, drawingDimensions.w - drawingDimensions.y);
 			}
 			else
 			{
-				Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
-				box.center = bounds.center;
-				Vector3 size = bounds.size;
-				float x = size.x;
-				Vector3 size2 = bounds.size;
-				box.size = new Vector3(x, size2.y, 0f);
+				Vector3[] localCorners = component.localCorners;
+				box.center = Vector3.Lerp(localCorners[0], localCorners[2], 0.5f);
+				box.size = localCorners[2] - localCorners[0];
 			}
+		}
+		else
+		{
+			Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
+			box.center = bounds.center;
+			Vector3 size = bounds.size;
+			float x = size.x;
+			Vector3 size2 = bounds.size;
+			box.size = new Vector3(x, size2.y, 0f);
 		}
 	}
 
@@ -302,16 +305,14 @@ public static class NGUITools
 				Vector3[] localCorners = component.localCorners;
 				box.offset = Vector3.Lerp(localCorners[0], localCorners[2], 0.5f);
 				box.size = localCorners[2] - localCorners[0];
+				return;
 			}
-			else
-			{
-				Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
-				box.offset = bounds.center;
-				Vector3 size = bounds.size;
-				float x = size.x;
-				Vector3 size2 = bounds.size;
-				box.size = new Vector2(x, size2.y);
-			}
+			Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
+			box.offset = bounds.center;
+			Vector3 size = bounds.size;
+			float x = size.x;
+			Vector3 size2 = bounds.size;
+			box.size = new Vector2(x, size2.y);
 		}
 	}
 
@@ -402,7 +403,7 @@ public static class NGUITools
 		{
 			return 0;
 		}
-		int num = 2147483647;
+		int num = int.MaxValue;
 		int i = 0;
 		for (int num2 = componentsInChildren.Length; i < num2; i++)
 		{
@@ -525,24 +526,23 @@ public static class NGUITools
 	public static void NormalizeWidgetDepths(UIWidget[] list)
 	{
 		int num = list.Length;
-		if (num > 0)
+		if (num <= 0)
 		{
-			Array.Sort(list, UIWidget.FullCompareFunc);
-			int num2 = 0;
-			int depth = list[0].depth;
-			for (int i = 0; i < num; i++)
+			return;
+		}
+		Array.Sort(list, UIWidget.FullCompareFunc);
+		int num2 = 0;
+		int depth = list[0].depth;
+		for (int i = 0; i < num; i++)
+		{
+			UIWidget uIWidget = list[i];
+			if (uIWidget.depth == depth)
 			{
-				UIWidget uIWidget = list[i];
-				if (uIWidget.depth == depth)
-				{
-					uIWidget.depth = num2;
-				}
-				else
-				{
-					depth = uIWidget.depth;
-					num2 = (uIWidget.depth = num2 + 1);
-				}
+				uIWidget.depth = num2;
+				continue;
 			}
+			depth = uIWidget.depth;
+			num2 = (uIWidget.depth = num2 + 1);
 		}
 	}
 
@@ -550,24 +550,23 @@ public static class NGUITools
 	{
 		UIPanel[] array = FindActive<UIPanel>();
 		int num = array.Length;
-		if (num > 0)
+		if (num <= 0)
 		{
-			Array.Sort(array, UIPanel.CompareFunc);
-			int num2 = 0;
-			int depth = array[0].depth;
-			for (int i = 0; i < num; i++)
+			return;
+		}
+		Array.Sort(array, UIPanel.CompareFunc);
+		int num2 = 0;
+		int depth = array[0].depth;
+		for (int i = 0; i < num; i++)
+		{
+			UIPanel uIPanel = array[i];
+			if (uIPanel.depth == depth)
 			{
-				UIPanel uIPanel = array[i];
-				if (uIPanel.depth == depth)
-				{
-					uIPanel.depth = num2;
-				}
-				else
-				{
-					depth = uIPanel.depth;
-					num2 = (uIPanel.depth = num2 + 1);
-				}
+				uIPanel.depth = num2;
+				continue;
 			}
+			depth = uIPanel.depth;
+			num2 = (uIPanel.depth = num2 + 1);
 		}
 	}
 
@@ -780,21 +779,22 @@ public static class NGUITools
 
 	public static void Destroy(UnityEngine.Object obj)
 	{
-		if (obj != null)
+		if (!(obj != null))
 		{
-			if (Application.isPlaying)
+			return;
+		}
+		if (Application.isPlaying)
+		{
+			if (obj is GameObject)
 			{
-				if (obj is GameObject)
-				{
-					GameObject gameObject = obj as GameObject;
-					gameObject.transform.parent = null;
-				}
-				UnityEngine.Object.Destroy(obj);
+				GameObject gameObject = obj as GameObject;
+				gameObject.transform.parent = null;
 			}
-			else
-			{
-				UnityEngine.Object.DestroyImmediate(obj);
-			}
+			UnityEngine.Object.Destroy(obj);
+		}
+		else
+		{
+			UnityEngine.Object.DestroyImmediate(obj);
 		}
 	}
 
@@ -858,23 +858,24 @@ public static class NGUITools
 	private static void Activate(Transform t, bool compatibilityMode)
 	{
 		SetActiveSelf(t.gameObject, state: true);
-		if (compatibilityMode)
+		if (!compatibilityMode)
 		{
-			int i = 0;
-			for (int childCount = t.childCount; i < childCount; i++)
+			return;
+		}
+		int i = 0;
+		for (int childCount = t.childCount; i < childCount; i++)
+		{
+			Transform child = t.GetChild(i);
+			if (child.gameObject.activeSelf)
 			{
-				Transform child = t.GetChild(i);
-				if (child.gameObject.activeSelf)
-				{
-					return;
-				}
+				return;
 			}
-			int j = 0;
-			for (int childCount2 = t.childCount; j < childCount2; j++)
-			{
-				Transform child2 = t.GetChild(j);
-				Activate(child2, compatibilityMode: true);
-			}
+		}
+		int j = 0;
+		for (int childCount2 = t.childCount; j < childCount2; j++)
+		{
+			Transform child2 = t.GetChild(j);
+			Activate(child2, compatibilityMode: true);
 		}
 	}
 

@@ -309,25 +309,23 @@ namespace Newtonsoft.Json.Utilities
 			if (_genericDictionary != null)
 			{
 				_genericDictionary.CopyTo(array, arrayIndex);
+				return;
 			}
-			else
+			IDictionaryEnumerator enumerator = _dictionary.GetEnumerator();
+			try
 			{
-				IDictionaryEnumerator enumerator = _dictionary.GetEnumerator();
-				try
+				while (enumerator.MoveNext())
 				{
-					while (enumerator.MoveNext())
-					{
-						DictionaryEntry dictionaryEntry = (DictionaryEntry)enumerator.Current;
-						array[arrayIndex++] = new KeyValuePair<TKey, TValue>((TKey)dictionaryEntry.Key, (TValue)dictionaryEntry.Value);
-					}
+					DictionaryEntry dictionaryEntry = (DictionaryEntry)enumerator.Current;
+					array[arrayIndex++] = new KeyValuePair<TKey, TValue>((TKey)dictionaryEntry.Key, (TValue)dictionaryEntry.Value);
 				}
-				finally
+			}
+			finally
+			{
+				IDisposable disposable;
+				if ((disposable = (enumerator as IDisposable)) != null)
 				{
-					IDisposable disposable;
-					if ((disposable = (enumerator as IDisposable)) != null)
-					{
-						disposable.Dispose();
-					}
+					disposable.Dispose();
 				}
 			}
 		}

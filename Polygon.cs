@@ -237,7 +237,7 @@ public class Polygon : MonoBehaviour
 							vector5 *= -1f;
 							vector6 *= -1f;
 						}
-						if (Vector2.Dot(vector5, vector6) > Mathf.Cos(0.0174532924f * SmoothAngle))
+						if (Vector2.Dot(vector5, vector6) > Mathf.Cos((float)Math.PI / 180f * SmoothAngle))
 						{
 							list4.Add(vector7);
 							list4.Add(vector7);

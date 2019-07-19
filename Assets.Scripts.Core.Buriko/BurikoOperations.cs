@@ -133,6 +133,11 @@ namespace Assets.Scripts.Core.Buriko
 		SetScreenAspect,
 		SetGuiPosition,
 		SetValidityOfLoading,
-		ActivateScreenEffectForcedly
+		ActivateScreenEffectForcedly,
+		DrawFragment,
+		StopFragment,
+		DrawSpriteFixedSize,
+		DrawSpriteWithFilteringFixedSize,
+		Update
 	}
 }

@@ -56,7 +56,7 @@ public class UIPopupList : UIWidgetContainer
 
 	public Color backgroundColor = Color.white;
 
-	public Color highlightColor = new Color(0.882352948f, 0.784313738f, 0.5882353f, 1f);
+	public Color highlightColor = new Color(0.882352948f, 40f / 51f, 0.5882353f, 1f);
 
 	public bool isAnimated = true;
 
@@ -332,21 +332,22 @@ public class UIPopupList : UIWidgetContainer
 			EventDelegate.Add(onChange, textLabel.SetCurrentSelection);
 			textLabel = null;
 		}
-		if (Application.isPlaying)
+		if (!Application.isPlaying)
 		{
-			if (string.IsNullOrEmpty(mSelectedItem))
+			return;
+		}
+		if (string.IsNullOrEmpty(mSelectedItem))
+		{
+			if (items.Count > 0)
 			{
-				if (items.Count > 0)
-				{
-					this.value = items[0];
-				}
+				this.value = items[0];
 			}
-			else
-			{
-				string value = mSelectedItem;
-				mSelectedItem = null;
-				this.value = value;
-			}
+		}
+		else
+		{
+			string value = mSelectedItem;
+			mSelectedItem = null;
+			this.value = value;
 		}
 	}
 
@@ -360,27 +361,27 @@ public class UIPopupList : UIWidgetContainer
 
 	private void Highlight(UILabel lbl, bool instant)
 	{
-		if (mHighlight != null)
+		if (!(mHighlight != null))
 		{
-			mHighlightedLabel = lbl;
-			UISpriteData atlasSprite = mHighlight.GetAtlasSprite();
-			if (atlasSprite != null)
-			{
-				Vector3 highlightPosition = GetHighlightPosition();
-				if (instant || !isAnimated)
-				{
-					mHighlight.cachedTransform.localPosition = highlightPosition;
-				}
-				else
-				{
-					TweenPosition.Begin(mHighlight.gameObject, 0.1f, highlightPosition).method = UITweener.Method.EaseOut;
-					if (!mTweening)
-					{
-						mTweening = true;
-						StartCoroutine(UpdateTweenPosition());
-					}
-				}
-			}
+			return;
+		}
+		mHighlightedLabel = lbl;
+		UISpriteData atlasSprite = mHighlight.GetAtlasSprite();
+		if (atlasSprite == null)
+		{
+			return;
+		}
+		Vector3 highlightPosition = GetHighlightPosition();
+		if (instant || !isAnimated)
+		{
+			mHighlight.cachedTransform.localPosition = highlightPosition;
+			return;
+		}
+		TweenPosition.Begin(mHighlight.gameObject, 0.1f, highlightPosition).method = UITweener.Method.EaseOut;
+		if (!mTweening)
+		{
+			mTweening = true;
+			StartCoroutine(UpdateTweenPosition());
 		}
 	}
 
@@ -403,17 +404,16 @@ public class UIPopupList : UIWidgetContainer
 
 	private IEnumerator UpdateTweenPosition()
 	{
-		if (this.mHighlight != null && this.mHighlightedLabel != null)
+		if (mHighlight != null && mHighlightedLabel != null)
 		{
-			TweenPosition tp = this.mHighlight.GetComponent<TweenPosition>();
+			TweenPosition tp = mHighlight.GetComponent<TweenPosition>();
 			while (tp != null && tp.enabled)
 			{
-				tp.to = this.GetHighlightPosition();
+				tp.to = GetHighlightPosition();
 				yield return null;
 			}
 		}
-		this.mTweening = false;
-		yield break;
+		mTweening = false;
 	}
 
 	private void OnItemHover(GameObject go, bool isOver)
@@ -457,31 +457,32 @@ public class UIPopupList : UIWidgetContainer
 
 	private void OnKey(KeyCode key)
 	{
-		if (base.enabled && NGUITools.GetActive(base.gameObject) && handleEvents)
+		if (!base.enabled || !NGUITools.GetActive(base.gameObject) || !handleEvents)
 		{
-			int num = mLabelList.IndexOf(mHighlightedLabel);
-			if (num == -1)
+			return;
+		}
+		int num = mLabelList.IndexOf(mHighlightedLabel);
+		if (num == -1)
+		{
+			num = 0;
+		}
+		switch (key)
+		{
+		case KeyCode.UpArrow:
+			if (num > 0)
 			{
-				num = 0;
+				Select(mLabelList[--num], instant: false);
 			}
-			switch (key)
+			break;
+		case KeyCode.DownArrow:
+			if (num + 1 < mLabelList.Count)
 			{
-			case KeyCode.UpArrow:
-				if (num > 0)
-				{
-					Select(mLabelList[--num], instant: false);
-				}
-				break;
-			case KeyCode.DownArrow:
-				if (num + 1 < mLabelList.Count)
-				{
-					Select(mLabelList[++num], instant: false);
-				}
-				break;
-			case KeyCode.Escape:
-				OnSelect(isSelected: false);
-				break;
+				Select(mLabelList[++num], instant: false);
 			}
+			break;
+		case KeyCode.Escape:
+			OnSelect(isSelected: false);
+			break;
 		}
 	}
 
@@ -500,37 +501,38 @@ public class UIPopupList : UIWidgetContainer
 
 	public void Close()
 	{
-		if (mChild != null)
+		if (!(mChild != null))
 		{
-			mLabelList.Clear();
-			handleEvents = false;
-			if (isAnimated)
-			{
-				UIWidget[] componentsInChildren = mChild.GetComponentsInChildren<UIWidget>();
-				int i = 0;
-				for (int num = componentsInChildren.Length; i < num; i++)
-				{
-					UIWidget uIWidget = componentsInChildren[i];
-					Color color = uIWidget.color;
-					color.a = 0f;
-					TweenColor.Begin(uIWidget.gameObject, 0.15f, color).method = UITweener.Method.EaseOut;
-				}
-				Collider[] componentsInChildren2 = mChild.GetComponentsInChildren<Collider>();
-				int j = 0;
-				for (int num2 = componentsInChildren2.Length; j < num2; j++)
-				{
-					componentsInChildren2[j].enabled = false;
-				}
-				UnityEngine.Object.Destroy(mChild, 0.15f);
-			}
-			else
-			{
-				UnityEngine.Object.Destroy(mChild);
-			}
-			mBackground = null;
-			mHighlight = null;
-			mChild = null;
+			return;
 		}
+		mLabelList.Clear();
+		handleEvents = false;
+		if (isAnimated)
+		{
+			UIWidget[] componentsInChildren = mChild.GetComponentsInChildren<UIWidget>();
+			int i = 0;
+			for (int num = componentsInChildren.Length; i < num; i++)
+			{
+				UIWidget uIWidget = componentsInChildren[i];
+				Color color = uIWidget.color;
+				color.a = 0f;
+				TweenColor.Begin(uIWidget.gameObject, 0.15f, color).method = UITweener.Method.EaseOut;
+			}
+			Collider[] componentsInChildren2 = mChild.GetComponentsInChildren<Collider>();
+			int j = 0;
+			for (int num2 = componentsInChildren2.Length; j < num2; j++)
+			{
+				componentsInChildren2[j].enabled = false;
+			}
+			UnityEngine.Object.Destroy(mChild, 0.15f);
+		}
+		else
+		{
+			UnityEngine.Object.Destroy(mChild);
+		}
+		mBackground = null;
+		mHighlight = null;
+		mChild = null;
 	}
 
 	private void AnimateColor(UIWidget widget)
@@ -620,131 +622,132 @@ public class UIPopupList : UIWidgetContainer
 			mHighlight.pivot = UIWidget.Pivot.TopLeft;
 			mHighlight.color = highlightColor;
 			UISpriteData atlasSprite = mHighlight.GetAtlasSprite();
-			if (atlasSprite != null)
+			if (atlasSprite == null)
 			{
-				float num = (float)atlasSprite.borderTop;
-				float num2 = (float)activeFontSize;
-				float activeFontScale = this.activeFontScale;
-				float num3 = num2 * activeFontScale;
-				float num4 = 0f;
-				float num5 = 0f - padding.y;
-				List<UILabel> list = new List<UILabel>();
-				if (!items.Contains(mSelectedItem))
+				return;
+			}
+			float num = atlasSprite.borderTop;
+			float num2 = activeFontSize;
+			float activeFontScale = this.activeFontScale;
+			float num3 = num2 * activeFontScale;
+			float num4 = 0f;
+			float num5 = 0f - padding.y;
+			List<UILabel> list = new List<UILabel>();
+			if (!items.Contains(mSelectedItem))
+			{
+				mSelectedItem = null;
+			}
+			int i = 0;
+			for (int count = items.Count; i < count; i++)
+			{
+				string text = items[i];
+				UILabel uILabel = NGUITools.AddWidget<UILabel>(mChild);
+				uILabel.name = i.ToString();
+				uILabel.pivot = UIWidget.Pivot.TopLeft;
+				uILabel.bitmapFont = bitmapFont;
+				uILabel.trueTypeFont = trueTypeFont;
+				uILabel.fontSize = fontSize;
+				uILabel.fontStyle = fontStyle;
+				uILabel.text = ((!isLocalized) ? text : Localization.Get(text));
+				uILabel.color = textColor;
+				Transform cachedTransform = uILabel.cachedTransform;
+				float num6 = border.x + padding.x;
+				Vector2 pivotOffset = uILabel.pivotOffset;
+				cachedTransform.localPosition = new Vector3(num6 - pivotOffset.x, num5, -1f);
+				uILabel.overflowMethod = UILabel.Overflow.ResizeFreely;
+				uILabel.alignment = alignment;
+				list.Add(uILabel);
+				num5 -= num3;
+				num5 -= padding.y;
+				float a = num4;
+				Vector2 printedSize = uILabel.printedSize;
+				num4 = Mathf.Max(a, printedSize.x);
+				UIEventListener uIEventListener = UIEventListener.Get(uILabel.gameObject);
+				uIEventListener.onHover = OnItemHover;
+				uIEventListener.onPress = OnItemPress;
+				uIEventListener.onClick = OnItemClick;
+				uIEventListener.parameter = text;
+				if (mSelectedItem == text || (i == 0 && string.IsNullOrEmpty(mSelectedItem)))
 				{
-					mSelectedItem = null;
+					Highlight(uILabel, instant: true);
 				}
-				int i = 0;
-				for (int count = items.Count; i < count; i++)
+				mLabelList.Add(uILabel);
+			}
+			float a2 = num4;
+			Vector3 size = bounds.size;
+			num4 = Mathf.Max(a2, size.x * activeFontScale - (border.x + padding.x) * 2f);
+			float num7 = num4;
+			Vector3 vector = new Vector3(num7 * 0.5f, (0f - num2) * 0.5f, 0f);
+			Vector3 vector2 = new Vector3(num7, num3 + padding.y, 1f);
+			int j = 0;
+			for (int count2 = list.Count; j < count2; j++)
+			{
+				UILabel uILabel2 = list[j];
+				NGUITools.AddWidgetCollider(uILabel2.gameObject);
+				uILabel2.autoResizeBoxCollider = false;
+				BoxCollider component = uILabel2.GetComponent<BoxCollider>();
+				if (component != null)
 				{
-					string text = items[i];
-					UILabel uILabel = NGUITools.AddWidget<UILabel>(mChild);
-					uILabel.name = i.ToString();
-					uILabel.pivot = UIWidget.Pivot.TopLeft;
-					uILabel.bitmapFont = bitmapFont;
-					uILabel.trueTypeFont = trueTypeFont;
-					uILabel.fontSize = fontSize;
-					uILabel.fontStyle = fontStyle;
-					uILabel.text = ((!isLocalized) ? text : Localization.Get(text));
-					uILabel.color = textColor;
-					Transform cachedTransform = uILabel.cachedTransform;
-					float num6 = border.x + padding.x;
-					Vector2 pivotOffset = uILabel.pivotOffset;
-					cachedTransform.localPosition = new Vector3(num6 - pivotOffset.x, num5, -1f);
-					uILabel.overflowMethod = UILabel.Overflow.ResizeFreely;
-					uILabel.alignment = alignment;
-					list.Add(uILabel);
-					num5 -= num3;
-					num5 -= padding.y;
-					float a = num4;
-					Vector2 printedSize = uILabel.printedSize;
-					num4 = Mathf.Max(a, printedSize.x);
-					UIEventListener uIEventListener = UIEventListener.Get(uILabel.gameObject);
-					uIEventListener.onHover = OnItemHover;
-					uIEventListener.onPress = OnItemPress;
-					uIEventListener.onClick = OnItemClick;
-					uIEventListener.parameter = text;
-					if (mSelectedItem == text || (i == 0 && string.IsNullOrEmpty(mSelectedItem)))
-					{
-						Highlight(uILabel, instant: true);
-					}
-					mLabelList.Add(uILabel);
+					Vector3 center = component.center;
+					vector.z = center.z;
+					component.center = vector;
+					component.size = vector2;
 				}
-				float a2 = num4;
-				Vector3 size = bounds.size;
-				num4 = Mathf.Max(a2, size.x * activeFontScale - (border.x + padding.x) * 2f);
-				float num7 = num4;
-				Vector3 vector = new Vector3(num7 * 0.5f, (0f - num2) * 0.5f, 0f);
-				Vector3 vector2 = new Vector3(num7, num3 + padding.y, 1f);
-				int j = 0;
-				for (int count2 = list.Count; j < count2; j++)
+				else
 				{
-					UILabel uILabel2 = list[j];
-					NGUITools.AddWidgetCollider(uILabel2.gameObject);
-					uILabel2.autoResizeBoxCollider = false;
-					BoxCollider component = uILabel2.GetComponent<BoxCollider>();
-					if (component != null)
-					{
-						Vector3 center = component.center;
-						vector.z = center.z;
-						component.center = vector;
-						component.size = vector2;
-					}
-					else
-					{
-						BoxCollider2D component2 = uILabel2.GetComponent<BoxCollider2D>();
-						component2.offset = vector;
-						component2.size = vector2;
-					}
+					BoxCollider2D component2 = uILabel2.GetComponent<BoxCollider2D>();
+					component2.offset = vector;
+					component2.size = vector2;
 				}
-				int width = Mathf.RoundToInt(num4);
-				num4 += (border.x + padding.x) * 2f;
-				num5 -= border.y;
-				mBackground.width = Mathf.RoundToInt(num4);
-				mBackground.height = Mathf.RoundToInt(0f - num5 + border.y);
-				int k = 0;
-				for (int count3 = list.Count; k < count3; k++)
+			}
+			int width = Mathf.RoundToInt(num4);
+			num4 += (border.x + padding.x) * 2f;
+			num5 -= border.y;
+			mBackground.width = Mathf.RoundToInt(num4);
+			mBackground.height = Mathf.RoundToInt(0f - num5 + border.y);
+			int k = 0;
+			for (int count3 = list.Count; k < count3; k++)
+			{
+				UILabel uILabel3 = list[k];
+				uILabel3.overflowMethod = UILabel.Overflow.ShrinkContent;
+				uILabel3.width = width;
+			}
+			float num8 = 2f * atlas.pixelSize;
+			float f = num4 - (border.x + padding.x) * 2f + (float)atlasSprite.borderLeft * num8;
+			float f2 = num3 + num * num8;
+			mHighlight.width = Mathf.RoundToInt(f);
+			mHighlight.height = Mathf.RoundToInt(f2);
+			bool flag = position == Position.Above;
+			if (position == Position.Auto)
+			{
+				UICamera uICamera = UICamera.FindCameraForLayer(base.gameObject.layer);
+				if (uICamera != null)
 				{
-					UILabel uILabel3 = list[k];
-					uILabel3.overflowMethod = UILabel.Overflow.ShrinkContent;
-					uILabel3.width = width;
+					Vector3 vector3 = uICamera.cachedCamera.WorldToViewportPoint(transform.position);
+					flag = (vector3.y < 0.5f);
 				}
-				float num8 = 2f * atlas.pixelSize;
-				float f = num4 - (border.x + padding.x) * 2f + (float)atlasSprite.borderLeft * num8;
-				float f2 = num3 + num * num8;
-				mHighlight.width = Mathf.RoundToInt(f);
-				mHighlight.height = Mathf.RoundToInt(f2);
-				bool flag = position == Position.Above;
-				if (position == Position.Auto)
+			}
+			if (isAnimated)
+			{
+				float bottom = num5 + num3;
+				Animate(mHighlight, flag, bottom);
+				int l = 0;
+				for (int count4 = list.Count; l < count4; l++)
 				{
-					UICamera uICamera = UICamera.FindCameraForLayer(base.gameObject.layer);
-					if (uICamera != null)
-					{
-						Vector3 vector3 = uICamera.cachedCamera.WorldToViewportPoint(transform.position);
-						flag = (vector3.y < 0.5f);
-					}
+					Animate(list[l], flag, bottom);
 				}
-				if (isAnimated)
-				{
-					float bottom = num5 + num3;
-					Animate(mHighlight, flag, bottom);
-					int l = 0;
-					for (int count4 = list.Count; l < count4; l++)
-					{
-						Animate(list[l], flag, bottom);
-					}
-					AnimateColor(mBackground);
-					AnimateScale(mBackground, flag, bottom);
-				}
-				if (flag)
-				{
-					Transform transform3 = transform2;
-					Vector3 min = bounds.min;
-					float x = min.x;
-					Vector3 max = bounds.max;
-					float y = max.y - num5 - border.y;
-					Vector3 min2 = bounds.min;
-					transform3.localPosition = new Vector3(x, y, min2.z);
-				}
+				AnimateColor(mBackground);
+				AnimateScale(mBackground, flag, bottom);
+			}
+			if (flag)
+			{
+				Transform transform3 = transform2;
+				Vector3 min = bounds.min;
+				float x = min.x;
+				Vector3 max = bounds.max;
+				float y = max.y - num5 - border.y;
+				Vector3 min2 = bounds.min;
+				transform3.localPosition = new Vector3(x, y, min2.z);
 			}
 		}
 		else

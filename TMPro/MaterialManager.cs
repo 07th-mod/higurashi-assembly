@@ -39,7 +39,7 @@ namespace TMPro
 				material2.name = material2.name + " Masking ID:" + stencilID;
 				material.shaderKeywords = baseMaterial.shaderKeywords;
 				ShaderUtilities.GetShaderPropertyIDs();
-				material.SetFloat(ShaderUtilities.ID_StencilID, (float)stencilID);
+				material.SetFloat(ShaderUtilities.ID_StencilID, stencilID);
 				material.SetFloat(ShaderUtilities.ID_StencilComp, 4f);
 				MaskingMaterial maskingMaterial = new MaskingMaterial();
 				maskingMaterial.baseMaterial = baseMaterial;
@@ -69,7 +69,7 @@ namespace TMPro
 
 		public static Material SetStencil(Material material, int stencilID)
 		{
-			material.SetFloat(ShaderUtilities.ID_StencilID, (float)stencilID);
+			material.SetFloat(ShaderUtilities.ID_StencilID, stencilID);
 			if (stencilID == 0)
 			{
 				material.SetFloat(ShaderUtilities.ID_StencilComp, 8f);
@@ -154,15 +154,13 @@ namespace TMPro
 			if (m_materialList.Count() == 0)
 			{
 				Debug.Log("Material List has already been cleared.");
+				return;
 			}
-			else
+			for (int i = 0; i < m_materialList.Count(); i++)
 			{
-				for (int i = 0; i < m_materialList.Count(); i++)
-				{
-					Material stencilMaterial = m_materialList[i].stencilMaterial;
-					Object.DestroyImmediate(stencilMaterial);
-					m_materialList.RemoveAt(i);
-				}
+				Material stencilMaterial = m_materialList[i].stencilMaterial;
+				Object.DestroyImmediate(stencilMaterial);
+				m_materialList.RemoveAt(i);
 			}
 		}
 

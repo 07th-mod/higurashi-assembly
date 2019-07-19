@@ -71,17 +71,15 @@ public class UIPlayAnimation : MonoBehaviour
 			{
 				animator.enabled = false;
 			}
+			return;
 		}
-		else
+		if (target == null)
 		{
-			if (target == null)
-			{
-				target = GetComponentInChildren<Animation>();
-			}
-			if (target != null && target.enabled)
-			{
-				target.enabled = false;
-			}
+			target = GetComponentInChildren<Animation>();
+		}
+		if (target != null && target.enabled)
+		{
+			target.enabled = false;
 		}
 	}
 
@@ -204,33 +202,34 @@ public class UIPlayAnimation : MonoBehaviour
 
 	public void Play(bool forward, bool onlyIfDifferent)
 	{
-		if ((bool)target || (bool)animator)
+		if (!(bool)target && !(bool)animator)
 		{
-			if (onlyIfDifferent)
+			return;
+		}
+		if (onlyIfDifferent)
+		{
+			if (mActivated == forward)
 			{
-				if (mActivated == forward)
-				{
-					return;
-				}
-				mActivated = forward;
+				return;
 			}
-			if (clearSelection && UICamera.selectedObject == base.gameObject)
+			mActivated = forward;
+		}
+		if (clearSelection && UICamera.selectedObject == base.gameObject)
+		{
+			UICamera.selectedObject = null;
+		}
+		int num = 0 - playDirection;
+		Direction direction = (Direction)((!forward) ? num : ((int)playDirection));
+		ActiveAnimation activeAnimation = (!(bool)target) ? ActiveAnimation.Play(animator, clipName, direction, ifDisabledOnPlay, disableWhenFinished) : ActiveAnimation.Play(target, clipName, direction, ifDisabledOnPlay, disableWhenFinished);
+		if (activeAnimation != null)
+		{
+			if (resetOnPlay)
 			{
-				UICamera.selectedObject = null;
+				activeAnimation.Reset();
 			}
-			int num = 0 - playDirection;
-			Direction direction = (Direction)((!forward) ? num : ((int)playDirection));
-			ActiveAnimation activeAnimation = (!(bool)target) ? ActiveAnimation.Play(animator, clipName, direction, ifDisabledOnPlay, disableWhenFinished) : ActiveAnimation.Play(target, clipName, direction, ifDisabledOnPlay, disableWhenFinished);
-			if (activeAnimation != null)
+			for (int i = 0; i < onFinished.Count; i++)
 			{
-				if (resetOnPlay)
-				{
-					activeAnimation.Reset();
-				}
-				for (int i = 0; i < onFinished.Count; i++)
-				{
-					EventDelegate.Add(activeAnimation.onFinished, OnFinished, oneShot: true);
-				}
+				EventDelegate.Add(activeAnimation.onFinished, OnFinished, oneShot: true);
 			}
 		}
 	}

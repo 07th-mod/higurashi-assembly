@@ -23,27 +23,23 @@ namespace Newtonsoft.Json.Converters
 			if (value == null)
 			{
 				writer.WriteNull();
+				return;
 			}
-			else
+			Enum @enum = (Enum)value;
+			string text = @enum.ToString("G");
+			if (char.IsNumber(text[0]) || text[0] == '-')
 			{
-				Enum @enum = (Enum)value;
-				string text = @enum.ToString("G");
-				if (char.IsNumber(text[0]) || text[0] == '-')
-				{
-					writer.WriteValue(value);
-				}
-				else
-				{
-					BidirectionalDictionary<string, string> enumNameMap = GetEnumNameMap(@enum.GetType());
-					enumNameMap.TryGetByFirst(text, out string second);
-					second = (second ?? text);
-					if (CamelCaseText)
-					{
-						second = StringUtils.ToCamelCase(second);
-					}
-					writer.WriteValue(second);
-				}
+				writer.WriteValue(value);
+				return;
 			}
+			BidirectionalDictionary<string, string> enumNameMap = GetEnumNameMap(@enum.GetType());
+			enumNameMap.TryGetByFirst(text, out string second);
+			second = (second ?? text);
+			if (CamelCaseText)
+			{
+				second = StringUtils.ToCamelCase(second);
+			}
+			writer.WriteValue(second);
 		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)

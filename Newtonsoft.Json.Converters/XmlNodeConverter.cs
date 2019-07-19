@@ -194,40 +194,37 @@ namespace Newtonsoft.Json.Converters
 				if (IsArray(node) && node.ChildNodes.All((IXmlNode n) => n.LocalName == node.LocalName) && node.ChildNodes.Count > 0)
 				{
 					SerializeGroupedNodes(writer, node, manager, writePropertyName: false);
+					break;
 				}
-				else
+				foreach (IXmlNode attribute in node.Attributes)
 				{
-					foreach (IXmlNode attribute in node.Attributes)
+					if (attribute.NamespaceURI == "http://www.w3.org/2000/xmlns/")
 					{
-						if (attribute.NamespaceURI == "http://www.w3.org/2000/xmlns/")
-						{
-							string prefix = (!(attribute.LocalName != "xmlns")) ? string.Empty : attribute.LocalName;
-							manager.AddNamespace(prefix, attribute.Value);
-						}
-					}
-					if (writePropertyName)
-					{
-						writer.WritePropertyName(GetPropertyName(node, manager));
-					}
-					if (ValueAttributes(node.Attributes).Count() == 0 && node.ChildNodes.Count == 1 && node.ChildNodes[0].NodeType == XmlNodeType.Text)
-					{
-						writer.WriteValue(node.ChildNodes[0].Value);
-					}
-					else if (node.ChildNodes.Count == 0 && CollectionUtils.IsNullOrEmpty(node.Attributes))
-					{
-						writer.WriteNull();
-					}
-					else
-					{
-						writer.WriteStartObject();
-						for (int i = 0; i < node.Attributes.Count; i++)
-						{
-							SerializeNode(writer, node.Attributes[i], manager, writePropertyName: true);
-						}
-						SerializeGroupedNodes(writer, node, manager, writePropertyName: true);
-						writer.WriteEndObject();
+						string prefix = (!(attribute.LocalName != "xmlns")) ? string.Empty : attribute.LocalName;
+						manager.AddNamespace(prefix, attribute.Value);
 					}
 				}
+				if (writePropertyName)
+				{
+					writer.WritePropertyName(GetPropertyName(node, manager));
+				}
+				if (ValueAttributes(node.Attributes).Count() == 0 && node.ChildNodes.Count == 1 && node.ChildNodes[0].NodeType == XmlNodeType.Text)
+				{
+					writer.WriteValue(node.ChildNodes[0].Value);
+					break;
+				}
+				if (node.ChildNodes.Count == 0 && CollectionUtils.IsNullOrEmpty(node.Attributes))
+				{
+					writer.WriteNull();
+					break;
+				}
+				writer.WriteStartObject();
+				for (int i = 0; i < node.Attributes.Count; i++)
+				{
+					SerializeNode(writer, node.Attributes[i], manager, writePropertyName: true);
+				}
+				SerializeGroupedNodes(writer, node, manager, writePropertyName: true);
+				writer.WriteEndObject();
 				break;
 			case XmlNodeType.Comment:
 				if (writePropertyName)

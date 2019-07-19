@@ -13,33 +13,34 @@ public class UILocalize : MonoBehaviour
 	{
 		set
 		{
-			if (!string.IsNullOrEmpty(value))
+			if (string.IsNullOrEmpty(value))
 			{
-				UIWidget component = GetComponent<UIWidget>();
-				UILabel uILabel = component as UILabel;
-				UISprite uISprite = component as UISprite;
-				if (uILabel != null)
+				return;
+			}
+			UIWidget component = GetComponent<UIWidget>();
+			UILabel uILabel = component as UILabel;
+			UISprite uISprite = component as UISprite;
+			if (uILabel != null)
+			{
+				UIInput uIInput = NGUITools.FindInParents<UIInput>(uILabel.gameObject);
+				if (uIInput != null && uIInput.label == uILabel)
 				{
-					UIInput uIInput = NGUITools.FindInParents<UIInput>(uILabel.gameObject);
-					if (uIInput != null && uIInput.label == uILabel)
-					{
-						uIInput.defaultText = value;
-					}
-					else
-					{
-						uILabel.text = value;
-					}
+					uIInput.defaultText = value;
 				}
-				else if (uISprite != null)
+				else
 				{
-					UIButton uIButton = NGUITools.FindInParents<UIButton>(uISprite.gameObject);
-					if (uIButton != null && uIButton.tweenTarget == uISprite.gameObject)
-					{
-						uIButton.normalSprite = value;
-					}
-					uISprite.spriteName = value;
-					uISprite.MakePixelPerfect();
+					uILabel.text = value;
 				}
+			}
+			else if (uISprite != null)
+			{
+				UIButton uIButton = NGUITools.FindInParents<UIButton>(uISprite.gameObject);
+				if (uIButton != null && uIButton.tweenTarget == uISprite.gameObject)
+				{
+					uIButton.normalSprite = value;
+				}
+				uISprite.spriteName = value;
+				uISprite.MakePixelPerfect();
 			}
 		}
 	}

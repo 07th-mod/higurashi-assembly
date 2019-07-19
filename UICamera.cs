@@ -455,8 +455,12 @@ public class UICamera : MonoBehaviour
 		{
 			mNextSelection = go;
 		}
-		else if (mCurrentSelection != go)
+		else
 		{
+			if (!(mCurrentSelection != go))
+			{
+				return;
+			}
 			mNextSelection = go;
 			mNextScheme = scheme;
 			if (list.size > 0)
@@ -473,31 +477,30 @@ public class UICamera : MonoBehaviour
 	private IEnumerator ChangeSelection()
 	{
 		yield return new WaitForEndOfFrame();
-		if (UICamera.onSelect != null)
+		if (onSelect != null)
 		{
-			UICamera.onSelect(UICamera.mCurrentSelection, false);
+			onSelect(mCurrentSelection, state: false);
 		}
-		UICamera.Notify(UICamera.mCurrentSelection, "OnSelect", false);
-		UICamera.mCurrentSelection = UICamera.mNextSelection;
-		UICamera.mNextSelection = null;
-		if (UICamera.mCurrentSelection != null)
+		Notify(mCurrentSelection, "OnSelect", false);
+		mCurrentSelection = mNextSelection;
+		mNextSelection = null;
+		if (mCurrentSelection != null)
 		{
-			UICamera.current = this;
-			UICamera.currentCamera = this.mCam;
-			UICamera.currentScheme = UICamera.mNextScheme;
-			UICamera.inputHasFocus = (UICamera.mCurrentSelection.GetComponent<UIInput>() != null);
-			if (UICamera.onSelect != null)
+			current = this;
+			currentCamera = mCam;
+			currentScheme = mNextScheme;
+			inputHasFocus = (mCurrentSelection.GetComponent<UIInput>() != null);
+			if (onSelect != null)
 			{
-				UICamera.onSelect(UICamera.mCurrentSelection, true);
+				onSelect(mCurrentSelection, state: true);
 			}
-			UICamera.Notify(UICamera.mCurrentSelection, "OnSelect", true);
-			UICamera.current = null;
+			Notify(mCurrentSelection, "OnSelect", true);
+			current = null;
 		}
 		else
 		{
-			UICamera.inputHasFocus = false;
+			inputHasFocus = false;
 		}
-		yield break;
 	}
 
 	private static int CompareFunc(UICamera a, UICamera b)
@@ -554,203 +557,220 @@ public class UICamera : MonoBehaviour
 		for (int i = 0; i < list.size; i++)
 		{
 			UICamera uICamera = list.buffer[i];
-			if (uICamera.enabled && NGUITools.GetActive(uICamera.gameObject))
+			if (!uICamera.enabled || !NGUITools.GetActive(uICamera.gameObject))
 			{
-				currentCamera = uICamera.cachedCamera;
-				Vector3 vector = currentCamera.ScreenToViewportPoint(inPos);
-				if (!float.IsNaN(vector.x) && !float.IsNaN(vector.y) && !(vector.x < 0f) && !(vector.x > 1f) && !(vector.y < 0f) && !(vector.y > 1f))
+				continue;
+			}
+			currentCamera = uICamera.cachedCamera;
+			Vector3 vector = currentCamera.ScreenToViewportPoint(inPos);
+			if (float.IsNaN(vector.x) || float.IsNaN(vector.y) || vector.x < 0f || vector.x > 1f || vector.y < 0f || vector.y > 1f)
+			{
+				continue;
+			}
+			Ray ray = currentCamera.ScreenPointToRay(inPos);
+			int layerMask = currentCamera.cullingMask & (int)uICamera.eventReceiverMask;
+			float enter = (!(uICamera.rangeDistance > 0f)) ? (currentCamera.farClipPlane - currentCamera.nearClipPlane) : uICamera.rangeDistance;
+			if (uICamera.eventType == EventType.World_3D)
+			{
+				if (!Physics.Raycast(ray, out lastHit, enter, layerMask))
 				{
-					Ray ray = currentCamera.ScreenPointToRay(inPos);
-					int layerMask = currentCamera.cullingMask & (int)uICamera.eventReceiverMask;
-					float enter = (!(uICamera.rangeDistance > 0f)) ? (currentCamera.farClipPlane - currentCamera.nearClipPlane) : uICamera.rangeDistance;
-					if (uICamera.eventType == EventType.World_3D)
+					continue;
+				}
+				lastWorldPosition = lastHit.point;
+				hoveredObject = lastHit.collider.gameObject;
+				if (!uICamera.eventsGoToColliders)
+				{
+					Rigidbody rigidbody = FindRootRigidbody(hoveredObject.transform);
+					if (rigidbody != null)
 					{
-						if (Physics.Raycast(ray, out lastHit, enter, layerMask))
+						hoveredObject = rigidbody.gameObject;
+					}
+				}
+				return true;
+			}
+			if (uICamera.eventType == EventType.UI_3D)
+			{
+				RaycastHit[] array = Physics.RaycastAll(ray, enter, layerMask);
+				if (array.Length > 1)
+				{
+					for (int j = 0; j < array.Length; j++)
+					{
+						GameObject gameObject = array[j].collider.gameObject;
+						UIWidget component = gameObject.GetComponent<UIWidget>();
+						if (component != null)
 						{
-							lastWorldPosition = lastHit.point;
-							hoveredObject = lastHit.collider.gameObject;
-							if (!uICamera.eventsGoToColliders)
+							if (!component.isVisible || (component.hitCheck != null && !component.hitCheck(array[j].point)))
 							{
-								Rigidbody rigidbody = FindRootRigidbody(hoveredObject.transform);
-								if (rigidbody != null)
-								{
-									hoveredObject = rigidbody.gameObject;
-								}
+								continue;
 							}
+						}
+						else
+						{
+							UIRect uIRect = NGUITools.FindInParents<UIRect>(gameObject);
+							if (uIRect != null && uIRect.finalAlpha < 0.001f)
+							{
+								continue;
+							}
+						}
+						mHit.depth = NGUITools.CalculateRaycastDepth(gameObject);
+						if (mHit.depth != int.MaxValue)
+						{
+							mHit.hit = array[j];
+							mHit.point = array[j].point;
+							mHit.go = array[j].collider.gameObject;
+							mHits.Add(mHit);
+						}
+					}
+					mHits.Sort((DepthEntry r1, DepthEntry r2) => r2.depth.CompareTo(r1.depth));
+					for (int k = 0; k < mHits.size; k++)
+					{
+						if (IsVisible(ref mHits.buffer[k]))
+						{
+							DepthEntry depthEntry = mHits[k];
+							lastHit = depthEntry.hit;
+							DepthEntry depthEntry2 = mHits[k];
+							hoveredObject = depthEntry2.go;
+							DepthEntry depthEntry3 = mHits[k];
+							lastWorldPosition = depthEntry3.point;
+							mHits.Clear();
 							return true;
 						}
 					}
-					else if (uICamera.eventType == EventType.UI_3D)
+					mHits.Clear();
+				}
+				else
+				{
+					if (array.Length != 1)
 					{
-						RaycastHit[] array = Physics.RaycastAll(ray, enter, layerMask);
-						if (array.Length > 1)
+						continue;
+					}
+					GameObject gameObject2 = array[0].collider.gameObject;
+					UIWidget component2 = gameObject2.GetComponent<UIWidget>();
+					if (component2 != null)
+					{
+						if (!component2.isVisible || (component2.hitCheck != null && !component2.hitCheck(array[0].point)))
 						{
-							for (int j = 0; j < array.Length; j++)
-							{
-								GameObject gameObject = array[j].collider.gameObject;
-								UIWidget component = gameObject.GetComponent<UIWidget>();
-								if (component != null)
-								{
-									if (!component.isVisible || (component.hitCheck != null && !component.hitCheck(array[j].point)))
-									{
-										continue;
-									}
-								}
-								else
-								{
-									UIRect uIRect = NGUITools.FindInParents<UIRect>(gameObject);
-									if (uIRect != null && uIRect.finalAlpha < 0.001f)
-									{
-										continue;
-									}
-								}
-								mHit.depth = NGUITools.CalculateRaycastDepth(gameObject);
-								if (mHit.depth != 2147483647)
-								{
-									mHit.hit = array[j];
-									mHit.point = array[j].point;
-									mHit.go = array[j].collider.gameObject;
-									mHits.Add(mHit);
-								}
-							}
-							mHits.Sort((DepthEntry r1, DepthEntry r2) => r2.depth.CompareTo(r1.depth));
-							for (int k = 0; k < mHits.size; k++)
-							{
-								if (IsVisible(ref mHits.buffer[k]))
-								{
-									DepthEntry depthEntry = mHits[k];
-									lastHit = depthEntry.hit;
-									DepthEntry depthEntry2 = mHits[k];
-									hoveredObject = depthEntry2.go;
-									DepthEntry depthEntry3 = mHits[k];
-									lastWorldPosition = depthEntry3.point;
-									mHits.Clear();
-									return true;
-								}
-							}
-							mHits.Clear();
-						}
-						else if (array.Length == 1)
-						{
-							GameObject gameObject2 = array[0].collider.gameObject;
-							UIWidget component2 = gameObject2.GetComponent<UIWidget>();
-							if (component2 != null)
-							{
-								if (!component2.isVisible || (component2.hitCheck != null && !component2.hitCheck(array[0].point)))
-								{
-									continue;
-								}
-							}
-							else
-							{
-								UIRect uIRect2 = NGUITools.FindInParents<UIRect>(gameObject2);
-								if (uIRect2 != null && uIRect2.finalAlpha < 0.001f)
-								{
-									continue;
-								}
-							}
-							if (IsVisible(array[0].point, array[0].collider.gameObject))
-							{
-								lastHit = array[0];
-								lastWorldPosition = array[0].point;
-								hoveredObject = lastHit.collider.gameObject;
-								return true;
-							}
+							continue;
 						}
 					}
-					else if (uICamera.eventType == EventType.World_2D)
+					else
 					{
-						if (m2DPlane.Raycast(ray, out enter))
+						UIRect uIRect2 = NGUITools.FindInParents<UIRect>(gameObject2);
+						if (uIRect2 != null && uIRect2.finalAlpha < 0.001f)
 						{
-							Vector3 point = ray.GetPoint(enter);
-							Collider2D collider2D = Physics2D.OverlapPoint(point, layerMask);
-							if ((bool)collider2D)
-							{
-								lastWorldPosition = point;
-								hoveredObject = collider2D.gameObject;
-								if (!uICamera.eventsGoToColliders)
-								{
-									Rigidbody2D rigidbody2D = FindRootRigidbody2D(hoveredObject.transform);
-									if (rigidbody2D != null)
-									{
-										hoveredObject = rigidbody2D.gameObject;
-									}
-								}
-								return true;
-							}
+							continue;
 						}
 					}
-					else if (uICamera.eventType == EventType.UI_2D && m2DPlane.Raycast(ray, out enter))
+					if (IsVisible(array[0].point, array[0].collider.gameObject))
 					{
-						lastWorldPosition = ray.GetPoint(enter);
-						Collider2D[] array2 = Physics2D.OverlapPointAll(lastWorldPosition, layerMask);
-						if (array2.Length > 1)
+						lastHit = array[0];
+						lastWorldPosition = array[0].point;
+						hoveredObject = lastHit.collider.gameObject;
+						return true;
+					}
+				}
+			}
+			else
+			{
+				if (uICamera.eventType == EventType.World_2D)
+				{
+					if (!m2DPlane.Raycast(ray, out enter))
+					{
+						continue;
+					}
+					Vector3 point = ray.GetPoint(enter);
+					Collider2D collider2D = Physics2D.OverlapPoint(point, layerMask);
+					if (!(bool)collider2D)
+					{
+						continue;
+					}
+					lastWorldPosition = point;
+					hoveredObject = collider2D.gameObject;
+					if (!uICamera.eventsGoToColliders)
+					{
+						Rigidbody2D rigidbody2D = FindRootRigidbody2D(hoveredObject.transform);
+						if (rigidbody2D != null)
 						{
-							for (int l = 0; l < array2.Length; l++)
+							hoveredObject = rigidbody2D.gameObject;
+						}
+					}
+					return true;
+				}
+				if (uICamera.eventType != EventType.UI_2D || !m2DPlane.Raycast(ray, out enter))
+				{
+					continue;
+				}
+				lastWorldPosition = ray.GetPoint(enter);
+				Collider2D[] array2 = Physics2D.OverlapPointAll(lastWorldPosition, layerMask);
+				if (array2.Length > 1)
+				{
+					for (int l = 0; l < array2.Length; l++)
+					{
+						GameObject gameObject3 = array2[l].gameObject;
+						UIWidget component3 = gameObject3.GetComponent<UIWidget>();
+						if (component3 != null)
+						{
+							if (!component3.isVisible || (component3.hitCheck != null && !component3.hitCheck(lastWorldPosition)))
 							{
-								GameObject gameObject3 = array2[l].gameObject;
-								UIWidget component3 = gameObject3.GetComponent<UIWidget>();
-								if (component3 != null)
-								{
-									if (!component3.isVisible || (component3.hitCheck != null && !component3.hitCheck(lastWorldPosition)))
-									{
-										continue;
-									}
-								}
-								else
-								{
-									UIRect uIRect3 = NGUITools.FindInParents<UIRect>(gameObject3);
-									if (uIRect3 != null && uIRect3.finalAlpha < 0.001f)
-									{
-										continue;
-									}
-								}
-								mHit.depth = NGUITools.CalculateRaycastDepth(gameObject3);
-								if (mHit.depth != 2147483647)
-								{
-									mHit.go = gameObject3;
-									mHit.point = lastWorldPosition;
-									mHits.Add(mHit);
-								}
+								continue;
 							}
-							mHits.Sort((DepthEntry r1, DepthEntry r2) => r2.depth.CompareTo(r1.depth));
-							for (int m = 0; m < mHits.size; m++)
+						}
+						else
+						{
+							UIRect uIRect3 = NGUITools.FindInParents<UIRect>(gameObject3);
+							if (uIRect3 != null && uIRect3.finalAlpha < 0.001f)
 							{
-								if (IsVisible(ref mHits.buffer[m]))
-								{
-									DepthEntry depthEntry4 = mHits[m];
-									hoveredObject = depthEntry4.go;
-									mHits.Clear();
-									return true;
-								}
+								continue;
 							}
+						}
+						mHit.depth = NGUITools.CalculateRaycastDepth(gameObject3);
+						if (mHit.depth != int.MaxValue)
+						{
+							mHit.go = gameObject3;
+							mHit.point = lastWorldPosition;
+							mHits.Add(mHit);
+						}
+					}
+					mHits.Sort((DepthEntry r1, DepthEntry r2) => r2.depth.CompareTo(r1.depth));
+					for (int m = 0; m < mHits.size; m++)
+					{
+						if (IsVisible(ref mHits.buffer[m]))
+						{
+							DepthEntry depthEntry4 = mHits[m];
+							hoveredObject = depthEntry4.go;
 							mHits.Clear();
+							return true;
 						}
-						else if (array2.Length == 1)
+					}
+					mHits.Clear();
+				}
+				else
+				{
+					if (array2.Length != 1)
+					{
+						continue;
+					}
+					GameObject gameObject4 = array2[0].gameObject;
+					UIWidget component4 = gameObject4.GetComponent<UIWidget>();
+					if (component4 != null)
+					{
+						if (!component4.isVisible || (component4.hitCheck != null && !component4.hitCheck(lastWorldPosition)))
 						{
-							GameObject gameObject4 = array2[0].gameObject;
-							UIWidget component4 = gameObject4.GetComponent<UIWidget>();
-							if (component4 != null)
-							{
-								if (!component4.isVisible || (component4.hitCheck != null && !component4.hitCheck(lastWorldPosition)))
-								{
-									continue;
-								}
-							}
-							else
-							{
-								UIRect uIRect4 = NGUITools.FindInParents<UIRect>(gameObject4);
-								if (uIRect4 != null && uIRect4.finalAlpha < 0.001f)
-								{
-									continue;
-								}
-							}
-							if (IsVisible(lastWorldPosition, gameObject4))
-							{
-								hoveredObject = gameObject4;
-								return true;
-							}
+							continue;
 						}
+					}
+					else
+					{
+						UIRect uIRect4 = NGUITools.FindInParents<UIRect>(gameObject4);
+						if (uIRect4 != null && uIRect4.finalAlpha < 0.001f)
+						{
+							continue;
+						}
+					}
+					if (IsVisible(lastWorldPosition, gameObject4))
+					{
+						hoveredObject = gameObject4;
+						return true;
 					}
 				}
 			}
@@ -862,19 +882,20 @@ public class UICamera : MonoBehaviour
 
 	public static void Notify(GameObject go, string funcName, object obj)
 	{
-		if (!mNotifying)
+		if (mNotifying)
 		{
-			mNotifying = true;
-			if (NGUITools.GetActive(go))
-			{
-				go.SendMessage(funcName, obj, SendMessageOptions.DontRequireReceiver);
-				if (mGenericHandler != null && mGenericHandler != go)
-				{
-					mGenericHandler.SendMessage(funcName, obj, SendMessageOptions.DontRequireReceiver);
-				}
-			}
-			mNotifying = false;
+			return;
 		}
+		mNotifying = true;
+		if (NGUITools.GetActive(go))
+		{
+			go.SendMessage(funcName, obj, SendMessageOptions.DontRequireReceiver);
+			if (mGenericHandler != null && mGenericHandler != go)
+			{
+				mGenericHandler.SendMessage(funcName, obj, SendMessageOptions.DontRequireReceiver);
+			}
+		}
+		mNotifying = false;
 	}
 
 	public static MouseOrTouch GetMouse(int button)
@@ -976,80 +997,82 @@ public class UICamera : MonoBehaviour
 
 	private void Update()
 	{
-		if (handlesEvents)
+		if (!handlesEvents)
 		{
-			current = this;
-			if (useTouch)
-			{
-				ProcessTouches();
-			}
-			else if (useMouse)
-			{
-				ProcessMouse();
-			}
-			if (onCustomInput != null)
-			{
-				onCustomInput();
-			}
-			if (useMouse && mCurrentSelection != null)
-			{
-				if (cancelKey0 != 0 && GetKeyDown(cancelKey0))
-				{
-					currentScheme = ControlScheme.Controller;
-					currentKey = cancelKey0;
-					selectedObject = null;
-				}
-				else if (cancelKey1 != 0 && GetKeyDown(cancelKey1))
-				{
-					currentScheme = ControlScheme.Controller;
-					currentKey = cancelKey1;
-					selectedObject = null;
-				}
-			}
-			if (mCurrentSelection == null)
-			{
-				inputHasFocus = false;
-			}
-			if (mCurrentSelection != null)
-			{
-				ProcessOthers();
-			}
-			if (useMouse && mHover != null)
-			{
-				float num = string.IsNullOrEmpty(scrollAxisName) ? 0f : GetAxis(scrollAxisName);
-				if (num != 0f)
-				{
-					if (onScroll != null)
-					{
-						onScroll(mHover, num);
-					}
-					Notify(mHover, "OnScroll", num);
-				}
-				if (showTooltips && mTooltipTime != 0f && (mTooltipTime < RealTime.time || GetKey(KeyCode.LeftShift) || GetKey(KeyCode.RightShift)))
-				{
-					mTooltip = mHover;
-					ShowTooltip(val: true);
-				}
-			}
-			current = null;
+			return;
 		}
+		current = this;
+		if (useTouch)
+		{
+			ProcessTouches();
+		}
+		else if (useMouse)
+		{
+			ProcessMouse();
+		}
+		if (onCustomInput != null)
+		{
+			onCustomInput();
+		}
+		if (useMouse && mCurrentSelection != null)
+		{
+			if (cancelKey0 != 0 && GetKeyDown(cancelKey0))
+			{
+				currentScheme = ControlScheme.Controller;
+				currentKey = cancelKey0;
+				selectedObject = null;
+			}
+			else if (cancelKey1 != 0 && GetKeyDown(cancelKey1))
+			{
+				currentScheme = ControlScheme.Controller;
+				currentKey = cancelKey1;
+				selectedObject = null;
+			}
+		}
+		if (mCurrentSelection == null)
+		{
+			inputHasFocus = false;
+		}
+		if (mCurrentSelection != null)
+		{
+			ProcessOthers();
+		}
+		if (useMouse && mHover != null)
+		{
+			float num = string.IsNullOrEmpty(scrollAxisName) ? 0f : GetAxis(scrollAxisName);
+			if (num != 0f)
+			{
+				if (onScroll != null)
+				{
+					onScroll(mHover, num);
+				}
+				Notify(mHover, "OnScroll", num);
+			}
+			if (showTooltips && mTooltipTime != 0f && (mTooltipTime < RealTime.time || GetKey(KeyCode.LeftShift) || GetKey(KeyCode.RightShift)))
+			{
+				mTooltip = mHover;
+				ShowTooltip(val: true);
+			}
+		}
+		current = null;
 	}
 
 	private void LateUpdate()
 	{
-		if (handlesEvents)
+		if (!handlesEvents)
 		{
-			int width = Screen.width;
-			int height = Screen.height;
-			if (width != mWidth || height != mHeight)
+			return;
+		}
+		int width = Screen.width;
+		int height = Screen.height;
+		if (width != mWidth || height != mHeight)
+		{
+			mWidth = width;
+			mHeight = height;
+			UIRoot.Broadcast("UpdateAnchors");
+			if (onScreenResize != null)
 			{
-				mWidth = width;
-				mHeight = height;
-				UIRoot.Broadcast("UpdateAnchors");
-				if (onScreenResize != null)
-				{
-					onScreenResize();
-				}
+				onScreenResize();
 			}
 		}
 	}
@@ -1512,91 +1535,92 @@ public class UICamera : MonoBehaviour
 				}
 			}
 		}
-		if (unpressed)
+		if (!unpressed)
 		{
-			currentTouch.pressStarted = false;
-			if (mTooltip != null)
-			{
-				ShowTooltip(val: false);
-			}
-			if (currentTouch.pressed != null)
-			{
-				if (currentTouch.dragStarted)
-				{
-					if (onDragOut != null)
-					{
-						onDragOut(currentTouch.last, currentTouch.dragged);
-					}
-					Notify(currentTouch.last, "OnDragOut", currentTouch.dragged);
-					if (onDragEnd != null)
-					{
-						onDragEnd(currentTouch.dragged);
-					}
-					Notify(currentTouch.dragged, "OnDragEnd", null);
-				}
-				if (onPress != null)
-				{
-					onPress(currentTouch.pressed, state: false);
-				}
-				Notify(currentTouch.pressed, "OnPress", false);
-				if (flag)
-				{
-					if (onHover != null)
-					{
-						onHover(currentTouch.current, state: true);
-					}
-					Notify(currentTouch.current, "OnHover", true);
-				}
-				mHover = currentTouch.current;
-				if (currentTouch.dragged == currentTouch.current || (currentScheme != ControlScheme.Controller && currentTouch.clickNotification != 0 && currentTouch.totalDelta.sqrMagnitude < num))
-				{
-					if (currentTouch.pressed != mCurrentSelection)
-					{
-						mNextSelection = null;
-						mCurrentSelection = currentTouch.pressed;
-						if (onSelect != null)
-						{
-							onSelect(currentTouch.pressed, state: true);
-						}
-						Notify(currentTouch.pressed, "OnSelect", true);
-					}
-					else
-					{
-						mNextSelection = null;
-						mCurrentSelection = currentTouch.pressed;
-					}
-					if (currentTouch.clickNotification != 0 && currentTouch.pressed == currentTouch.current)
-					{
-						float time = RealTime.time;
-						if (onClick != null)
-						{
-							onClick(currentTouch.pressed);
-						}
-						Notify(currentTouch.pressed, "OnClick", null);
-						if (currentTouch.clickTime + 0.35f > time)
-						{
-							if (onDoubleClick != null)
-							{
-								onDoubleClick(currentTouch.pressed);
-							}
-							Notify(currentTouch.pressed, "OnDoubleClick", null);
-						}
-						currentTouch.clickTime = time;
-					}
-				}
-				else if (currentTouch.dragStarted)
-				{
-					if (onDrop != null)
-					{
-						onDrop(currentTouch.current, currentTouch.dragged);
-					}
-					Notify(currentTouch.current, "OnDrop", currentTouch.dragged);
-				}
-			}
-			currentTouch.dragStarted = false;
-			currentTouch.pressed = null;
-			currentTouch.dragged = null;
+			return;
 		}
+		currentTouch.pressStarted = false;
+		if (mTooltip != null)
+		{
+			ShowTooltip(val: false);
+		}
+		if (currentTouch.pressed != null)
+		{
+			if (currentTouch.dragStarted)
+			{
+				if (onDragOut != null)
+				{
+					onDragOut(currentTouch.last, currentTouch.dragged);
+				}
+				Notify(currentTouch.last, "OnDragOut", currentTouch.dragged);
+				if (onDragEnd != null)
+				{
+					onDragEnd(currentTouch.dragged);
+				}
+				Notify(currentTouch.dragged, "OnDragEnd", null);
+			}
+			if (onPress != null)
+			{
+				onPress(currentTouch.pressed, state: false);
+			}
+			Notify(currentTouch.pressed, "OnPress", false);
+			if (flag)
+			{
+				if (onHover != null)
+				{
+					onHover(currentTouch.current, state: true);
+				}
+				Notify(currentTouch.current, "OnHover", true);
+			}
+			mHover = currentTouch.current;
+			if (currentTouch.dragged == currentTouch.current || (currentScheme != ControlScheme.Controller && currentTouch.clickNotification != 0 && currentTouch.totalDelta.sqrMagnitude < num))
+			{
+				if (currentTouch.pressed != mCurrentSelection)
+				{
+					mNextSelection = null;
+					mCurrentSelection = currentTouch.pressed;
+					if (onSelect != null)
+					{
+						onSelect(currentTouch.pressed, state: true);
+					}
+					Notify(currentTouch.pressed, "OnSelect", true);
+				}
+				else
+				{
+					mNextSelection = null;
+					mCurrentSelection = currentTouch.pressed;
+				}
+				if (currentTouch.clickNotification != 0 && currentTouch.pressed == currentTouch.current)
+				{
+					float time = RealTime.time;
+					if (onClick != null)
+					{
+						onClick(currentTouch.pressed);
+					}
+					Notify(currentTouch.pressed, "OnClick", null);
+					if (currentTouch.clickTime + 0.35f > time)
+					{
+						if (onDoubleClick != null)
+						{
+							onDoubleClick(currentTouch.pressed);
+						}
+						Notify(currentTouch.pressed, "OnDoubleClick", null);
+					}
+					currentTouch.clickTime = time;
+				}
+			}
+			else if (currentTouch.dragStarted)
+			{
+				if (onDrop != null)
+				{
+					onDrop(currentTouch.current, currentTouch.dragged);
+				}
+				Notify(currentTouch.current, "OnDrop", currentTouch.dragged);
+			}
+		}
+		currentTouch.dragStarted = false;
+		currentTouch.pressed = null;
+		currentTouch.dragged = null;
 	}
 
 	public void ShowTooltip(bool val)

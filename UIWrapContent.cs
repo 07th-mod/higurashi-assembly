@@ -122,7 +122,7 @@ public class UIWrapContent : MonoBehaviour
 		for (int count = mChildren.Count; i < count; i++)
 		{
 			Transform transform = mChildren[i];
-			transform.localPosition = ((!mHorizontal) ? new Vector3(0f, (float)(-i * itemSize), 0f) : new Vector3((float)(i * itemSize), 0f, 0f));
+			transform.localPosition = ((!mHorizontal) ? new Vector3(0f, -i * itemSize, 0f) : new Vector3(i * itemSize, 0f, 0f));
 		}
 	}
 

@@ -18,23 +18,24 @@ namespace TMPro
 
 		private void OnEnable()
 		{
-			if (Instance == null)
+			if (!(Instance == null))
 			{
-				TMP_Settings tMP_Settings = Resources.Load("TMP Settings") as TMP_Settings;
-				if (!(tMP_Settings == null))
+				return;
+			}
+			TMP_Settings tMP_Settings = Resources.Load("TMP Settings") as TMP_Settings;
+			if (!(tMP_Settings == null))
+			{
+				if (tMP_Settings.styleSheet != null)
 				{
-					if (tMP_Settings.styleSheet != null)
-					{
-						Instance = tMP_Settings.styleSheet;
-					}
-					else
-					{
-						Instance = (Resources.Load("Style Sheets/TMP Default Style Sheet") as TMP_StyleSheet);
-					}
-					if (!m_isDictionaryLoaded)
-					{
-						Instance.LoadStyleDictionary();
-					}
+					Instance = tMP_Settings.styleSheet;
+				}
+				else
+				{
+					Instance = (Resources.Load("Style Sheets/TMP Default Style Sheet") as TMP_StyleSheet);
+				}
+				if (!m_isDictionaryLoaded)
+				{
+					Instance.LoadStyleDictionary();
 				}
 			}
 		}

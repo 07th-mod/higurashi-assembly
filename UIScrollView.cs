@@ -341,111 +341,113 @@ public class UIScrollView : MonoBehaviour
 
 	public virtual void UpdateScrollbars(bool recalculateBounds)
 	{
-		if (!(mPanel == null))
+		if (mPanel == null)
 		{
-			if (horizontalScrollBar != null || verticalScrollBar != null)
-			{
-				if (recalculateBounds)
-				{
-					mCalculatedBounds = false;
-					mShouldMove = shouldMove;
-				}
-				Bounds bounds = this.bounds;
-				Vector2 vector = bounds.min;
-				Vector2 vector2 = bounds.max;
-				if (horizontalScrollBar != null && vector2.x > vector.x)
-				{
-					Vector4 finalClipRegion = mPanel.finalClipRegion;
-					int num = Mathf.RoundToInt(finalClipRegion.z);
-					if ((num & 1) != 0)
-					{
-						num--;
-					}
-					float f = (float)num * 0.5f;
-					f = Mathf.Round(f);
-					if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
-					{
-						float num2 = f;
-						Vector2 clipSoftness = mPanel.clipSoftness;
-						f = num2 - clipSoftness.x;
-					}
-					float contentSize = vector2.x - vector.x;
-					float viewSize = f * 2f;
-					float x = vector.x;
-					float x2 = vector2.x;
-					float num3 = finalClipRegion.x - f;
-					float num4 = finalClipRegion.x + f;
-					x = num3 - x;
-					x2 -= num4;
-					UpdateScrollbars(horizontalScrollBar, x, x2, contentSize, viewSize, inverted: false);
-				}
-				if (verticalScrollBar != null && vector2.y > vector.y)
-				{
-					Vector4 finalClipRegion2 = mPanel.finalClipRegion;
-					int num5 = Mathf.RoundToInt(finalClipRegion2.w);
-					if ((num5 & 1) != 0)
-					{
-						num5--;
-					}
-					float f2 = (float)num5 * 0.5f;
-					f2 = Mathf.Round(f2);
-					if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
-					{
-						float num6 = f2;
-						Vector2 clipSoftness2 = mPanel.clipSoftness;
-						f2 = num6 - clipSoftness2.y;
-					}
-					float contentSize2 = vector2.y - vector.y;
-					float viewSize2 = f2 * 2f;
-					float y = vector.y;
-					float y2 = vector2.y;
-					float num7 = finalClipRegion2.y - f2;
-					float num8 = finalClipRegion2.y + f2;
-					y = num7 - y;
-					y2 -= num8;
-					UpdateScrollbars(verticalScrollBar, y, y2, contentSize2, viewSize2, inverted: true);
-				}
-			}
-			else if (recalculateBounds)
+			return;
+		}
+		if (horizontalScrollBar != null || verticalScrollBar != null)
+		{
+			if (recalculateBounds)
 			{
 				mCalculatedBounds = false;
+				mShouldMove = shouldMove;
 			}
+			Bounds bounds = this.bounds;
+			Vector2 vector = bounds.min;
+			Vector2 vector2 = bounds.max;
+			if (horizontalScrollBar != null && vector2.x > vector.x)
+			{
+				Vector4 finalClipRegion = mPanel.finalClipRegion;
+				int num = Mathf.RoundToInt(finalClipRegion.z);
+				if ((num & 1) != 0)
+				{
+					num--;
+				}
+				float f = (float)num * 0.5f;
+				f = Mathf.Round(f);
+				if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
+				{
+					float num2 = f;
+					Vector2 clipSoftness = mPanel.clipSoftness;
+					f = num2 - clipSoftness.x;
+				}
+				float contentSize = vector2.x - vector.x;
+				float viewSize = f * 2f;
+				float x = vector.x;
+				float x2 = vector2.x;
+				float num3 = finalClipRegion.x - f;
+				float num4 = finalClipRegion.x + f;
+				x = num3 - x;
+				x2 -= num4;
+				UpdateScrollbars(horizontalScrollBar, x, x2, contentSize, viewSize, inverted: false);
+			}
+			if (verticalScrollBar != null && vector2.y > vector.y)
+			{
+				Vector4 finalClipRegion2 = mPanel.finalClipRegion;
+				int num5 = Mathf.RoundToInt(finalClipRegion2.w);
+				if ((num5 & 1) != 0)
+				{
+					num5--;
+				}
+				float f2 = (float)num5 * 0.5f;
+				f2 = Mathf.Round(f2);
+				if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
+				{
+					float num6 = f2;
+					Vector2 clipSoftness2 = mPanel.clipSoftness;
+					f2 = num6 - clipSoftness2.y;
+				}
+				float contentSize2 = vector2.y - vector.y;
+				float viewSize2 = f2 * 2f;
+				float y = vector.y;
+				float y2 = vector2.y;
+				float num7 = finalClipRegion2.y - f2;
+				float num8 = finalClipRegion2.y + f2;
+				y = num7 - y;
+				y2 -= num8;
+				UpdateScrollbars(verticalScrollBar, y, y2, contentSize2, viewSize2, inverted: true);
+			}
+		}
+		else if (recalculateBounds)
+		{
+			mCalculatedBounds = false;
 		}
 	}
 
 	protected void UpdateScrollbars(UIProgressBar slider, float contentMin, float contentMax, float contentSize, float viewSize, bool inverted)
 	{
-		if (!(slider == null))
+		if (slider == null)
 		{
-			mIgnoreCallbacks = true;
-			float num;
-			if (viewSize < contentSize)
+			return;
+		}
+		mIgnoreCallbacks = true;
+		float num;
+		if (viewSize < contentSize)
+		{
+			contentMin = Mathf.Clamp01(contentMin / contentSize);
+			contentMax = Mathf.Clamp01(contentMax / contentSize);
+			num = contentMin + contentMax;
+			slider.value = (inverted ? ((!(num > 0.001f)) ? 0f : (1f - contentMin / num)) : ((!(num > 0.001f)) ? 1f : (contentMin / num)));
+		}
+		else
+		{
+			contentMin = Mathf.Clamp01((0f - contentMin) / contentSize);
+			contentMax = Mathf.Clamp01((0f - contentMax) / contentSize);
+			num = contentMin + contentMax;
+			slider.value = (inverted ? ((!(num > 0.001f)) ? 0f : (1f - contentMin / num)) : ((!(num > 0.001f)) ? 1f : (contentMin / num)));
+			if (contentSize > 0f)
 			{
 				contentMin = Mathf.Clamp01(contentMin / contentSize);
 				contentMax = Mathf.Clamp01(contentMax / contentSize);
 				num = contentMin + contentMax;
-				slider.value = (inverted ? ((!(num > 0.001f)) ? 0f : (1f - contentMin / num)) : ((!(num > 0.001f)) ? 1f : (contentMin / num)));
 			}
-			else
-			{
-				contentMin = Mathf.Clamp01((0f - contentMin) / contentSize);
-				contentMax = Mathf.Clamp01((0f - contentMax) / contentSize);
-				num = contentMin + contentMax;
-				slider.value = (inverted ? ((!(num > 0.001f)) ? 0f : (1f - contentMin / num)) : ((!(num > 0.001f)) ? 1f : (contentMin / num)));
-				if (contentSize > 0f)
-				{
-					contentMin = Mathf.Clamp01(contentMin / contentSize);
-					contentMax = Mathf.Clamp01(contentMax / contentSize);
-					num = contentMin + contentMax;
-				}
-			}
-			UIScrollBar uIScrollBar = slider as UIScrollBar;
-			if (uIScrollBar != null)
-			{
-				uIScrollBar.barSize = 1f - num;
-			}
-			mIgnoreCallbacks = false;
 		}
+		UIScrollBar uIScrollBar = slider as UIScrollBar;
+		if (uIScrollBar != null)
+		{
+			uIScrollBar.barSize = 1f - num;
+		}
+		mIgnoreCallbacks = false;
 	}
 
 	public virtual void SetDragAmount(float x, float y, bool updateScrollbars)
@@ -459,69 +461,71 @@ public class UIScrollView : MonoBehaviour
 		Vector3 min = bounds.min;
 		float x2 = min.x;
 		Vector3 max = bounds.max;
-		if (x2 != max.x)
+		if (x2 == max.x)
 		{
-			Vector3 min2 = bounds.min;
-			float y2 = min2.y;
-			Vector3 max2 = bounds.max;
-			if (y2 != max2.y)
+			return;
+		}
+		Vector3 min2 = bounds.min;
+		float y2 = min2.y;
+		Vector3 max2 = bounds.max;
+		if (y2 == max2.y)
+		{
+			return;
+		}
+		Vector4 finalClipRegion = mPanel.finalClipRegion;
+		float num = finalClipRegion.z * 0.5f;
+		float num2 = finalClipRegion.w * 0.5f;
+		Vector3 min3 = bounds.min;
+		float num3 = min3.x + num;
+		Vector3 max3 = bounds.max;
+		float num4 = max3.x - num;
+		Vector3 min4 = bounds.min;
+		float num5 = min4.y + num2;
+		Vector3 max4 = bounds.max;
+		float num6 = max4.y - num2;
+		if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
+		{
+			float num7 = num3;
+			Vector2 clipSoftness = mPanel.clipSoftness;
+			num3 = num7 - clipSoftness.x;
+			float num8 = num4;
+			Vector2 clipSoftness2 = mPanel.clipSoftness;
+			num4 = num8 + clipSoftness2.x;
+			float num9 = num5;
+			Vector2 clipSoftness3 = mPanel.clipSoftness;
+			num5 = num9 - clipSoftness3.y;
+			float num10 = num6;
+			Vector2 clipSoftness4 = mPanel.clipSoftness;
+			num6 = num10 + clipSoftness4.y;
+		}
+		float num11 = Mathf.Lerp(num3, num4, x);
+		float num12 = Mathf.Lerp(num6, num5, y);
+		if (!updateScrollbars)
+		{
+			Vector3 localPosition = mTrans.localPosition;
+			if (canMoveHorizontally)
 			{
-				Vector4 finalClipRegion = mPanel.finalClipRegion;
-				float num = finalClipRegion.z * 0.5f;
-				float num2 = finalClipRegion.w * 0.5f;
-				Vector3 min3 = bounds.min;
-				float num3 = min3.x + num;
-				Vector3 max3 = bounds.max;
-				float num4 = max3.x - num;
-				Vector3 min4 = bounds.min;
-				float num5 = min4.y + num2;
-				Vector3 max4 = bounds.max;
-				float num6 = max4.y - num2;
-				if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
-				{
-					float num7 = num3;
-					Vector2 clipSoftness = mPanel.clipSoftness;
-					num3 = num7 - clipSoftness.x;
-					float num8 = num4;
-					Vector2 clipSoftness2 = mPanel.clipSoftness;
-					num4 = num8 + clipSoftness2.x;
-					float num9 = num5;
-					Vector2 clipSoftness3 = mPanel.clipSoftness;
-					num5 = num9 - clipSoftness3.y;
-					float num10 = num6;
-					Vector2 clipSoftness4 = mPanel.clipSoftness;
-					num6 = num10 + clipSoftness4.y;
-				}
-				float num11 = Mathf.Lerp(num3, num4, x);
-				float num12 = Mathf.Lerp(num6, num5, y);
-				if (!updateScrollbars)
-				{
-					Vector3 localPosition = mTrans.localPosition;
-					if (canMoveHorizontally)
-					{
-						localPosition.x += finalClipRegion.x - num11;
-					}
-					if (canMoveVertically)
-					{
-						localPosition.y += finalClipRegion.y - num12;
-					}
-					mTrans.localPosition = localPosition;
-				}
-				if (canMoveHorizontally)
-				{
-					finalClipRegion.x = num11;
-				}
-				if (canMoveVertically)
-				{
-					finalClipRegion.y = num12;
-				}
-				Vector4 baseClipRegion = mPanel.baseClipRegion;
-				mPanel.clipOffset = new Vector2(finalClipRegion.x - baseClipRegion.x, finalClipRegion.y - baseClipRegion.y);
-				if (updateScrollbars)
-				{
-					UpdateScrollbars(mDragID == -10);
-				}
+				localPosition.x += finalClipRegion.x - num11;
 			}
+			if (canMoveVertically)
+			{
+				localPosition.y += finalClipRegion.y - num12;
+			}
+			mTrans.localPosition = localPosition;
+		}
+		if (canMoveHorizontally)
+		{
+			finalClipRegion.x = num11;
+		}
+		if (canMoveVertically)
+		{
+			finalClipRegion.y = num12;
+		}
+		Vector4 baseClipRegion = mPanel.baseClipRegion;
+		mPanel.clipOffset = new Vector2(finalClipRegion.x - baseClipRegion.x, finalClipRegion.y - baseClipRegion.y);
+		if (updateScrollbars)
+		{
+			UpdateScrollbars(mDragID == -10);
 		}
 	}
 
@@ -588,143 +592,148 @@ public class UIScrollView : MonoBehaviour
 
 	public void Press(bool pressed)
 	{
-		if (UICamera.currentScheme != UICamera.ControlScheme.Controller)
+		if (UICamera.currentScheme == UICamera.ControlScheme.Controller)
 		{
-			if (smoothDragStart && pressed)
+			return;
+		}
+		if (smoothDragStart && pressed)
+		{
+			mDragStarted = false;
+			mDragStartOffset = Vector2.zero;
+		}
+		if (!base.enabled || !NGUITools.GetActive(base.gameObject))
+		{
+			return;
+		}
+		if (!pressed && mDragID == UICamera.currentTouchID)
+		{
+			mDragID = -10;
+		}
+		mCalculatedBounds = false;
+		mShouldMove = shouldMove;
+		if (!mShouldMove)
+		{
+			return;
+		}
+		mPressed = pressed;
+		if (pressed)
+		{
+			mMomentum = Vector3.zero;
+			mScroll = 0f;
+			DisableSpring();
+			mLastPos = UICamera.lastWorldPosition;
+			mPlane = new Plane(mTrans.rotation * Vector3.back, mLastPos);
+			Vector2 clipOffset = mPanel.clipOffset;
+			clipOffset.x = Mathf.Round(clipOffset.x);
+			clipOffset.y = Mathf.Round(clipOffset.y);
+			mPanel.clipOffset = clipOffset;
+			Vector3 localPosition = mTrans.localPosition;
+			localPosition.x = Mathf.Round(localPosition.x);
+			localPosition.y = Mathf.Round(localPosition.y);
+			mTrans.localPosition = localPosition;
+			if (!smoothDragStart)
 			{
-				mDragStarted = false;
+				mDragStarted = true;
 				mDragStartOffset = Vector2.zero;
+				if (onDragStarted != null)
+				{
+					onDragStarted();
+				}
 			}
-			if (base.enabled && NGUITools.GetActive(base.gameObject))
+		}
+		else
+		{
+			if (restrictWithinPanel && mPanel.clipping != 0)
 			{
-				if (!pressed && mDragID == UICamera.currentTouchID)
-				{
-					mDragID = -10;
-				}
-				mCalculatedBounds = false;
-				mShouldMove = shouldMove;
-				if (mShouldMove)
-				{
-					mPressed = pressed;
-					if (pressed)
-					{
-						mMomentum = Vector3.zero;
-						mScroll = 0f;
-						DisableSpring();
-						mLastPos = UICamera.lastWorldPosition;
-						mPlane = new Plane(mTrans.rotation * Vector3.back, mLastPos);
-						Vector2 clipOffset = mPanel.clipOffset;
-						clipOffset.x = Mathf.Round(clipOffset.x);
-						clipOffset.y = Mathf.Round(clipOffset.y);
-						mPanel.clipOffset = clipOffset;
-						Vector3 localPosition = mTrans.localPosition;
-						localPosition.x = Mathf.Round(localPosition.x);
-						localPosition.y = Mathf.Round(localPosition.y);
-						mTrans.localPosition = localPosition;
-						if (!smoothDragStart)
-						{
-							mDragStarted = true;
-							mDragStartOffset = Vector2.zero;
-							if (onDragStarted != null)
-							{
-								onDragStarted();
-							}
-						}
-					}
-					else
-					{
-						if (restrictWithinPanel && mPanel.clipping != 0)
-						{
-							RestrictWithinBounds(dragEffect == DragEffect.None, canMoveHorizontally, canMoveVertically);
-						}
-						if (mDragStarted && onDragFinished != null)
-						{
-							onDragFinished();
-						}
-						if (!mShouldMove && onStoppedMoving != null)
-						{
-							onStoppedMoving();
-						}
-					}
-				}
+				RestrictWithinBounds(dragEffect == DragEffect.None, canMoveHorizontally, canMoveVertically);
+			}
+			if (mDragStarted && onDragFinished != null)
+			{
+				onDragFinished();
+			}
+			if (!mShouldMove && onStoppedMoving != null)
+			{
+				onStoppedMoving();
 			}
 		}
 	}
 
 	public void Drag()
 	{
-		if (UICamera.currentScheme != UICamera.ControlScheme.Controller && base.enabled && NGUITools.GetActive(base.gameObject) && mShouldMove)
+		if (UICamera.currentScheme == UICamera.ControlScheme.Controller || !base.enabled || !NGUITools.GetActive(base.gameObject) || !mShouldMove)
 		{
-			if (mDragID == -10)
+			return;
+		}
+		if (mDragID == -10)
+		{
+			mDragID = UICamera.currentTouchID;
+		}
+		UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
+		if (smoothDragStart && !mDragStarted)
+		{
+			mDragStarted = true;
+			mDragStartOffset = UICamera.currentTouch.totalDelta;
+			if (onDragStarted != null)
 			{
-				mDragID = UICamera.currentTouchID;
+				onDragStarted();
 			}
-			UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
-			if (smoothDragStart && !mDragStarted)
+		}
+		Ray ray = (!smoothDragStart) ? UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos) : UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos - mDragStartOffset);
+		float enter = 0f;
+		if (!mPlane.Raycast(ray, out enter))
+		{
+			return;
+		}
+		Vector3 point = ray.GetPoint(enter);
+		Vector3 vector = point - mLastPos;
+		mLastPos = point;
+		if (vector.x != 0f || vector.y != 0f || vector.z != 0f)
+		{
+			vector = mTrans.InverseTransformDirection(vector);
+			if (movement == Movement.Horizontal)
 			{
-				mDragStarted = true;
-				mDragStartOffset = UICamera.currentTouch.totalDelta;
-				if (onDragStarted != null)
-				{
-					onDragStarted();
-				}
+				vector.y = 0f;
+				vector.z = 0f;
 			}
-			Ray ray = (!smoothDragStart) ? UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos) : UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos - mDragStartOffset);
-			float enter = 0f;
-			if (mPlane.Raycast(ray, out enter))
+			else if (movement == Movement.Vertical)
 			{
-				Vector3 point = ray.GetPoint(enter);
-				Vector3 vector = point - mLastPos;
-				mLastPos = point;
-				if (vector.x != 0f || vector.y != 0f || vector.z != 0f)
-				{
-					vector = mTrans.InverseTransformDirection(vector);
-					if (movement == Movement.Horizontal)
-					{
-						vector.y = 0f;
-						vector.z = 0f;
-					}
-					else if (movement == Movement.Vertical)
-					{
-						vector.x = 0f;
-						vector.z = 0f;
-					}
-					else if (movement == Movement.Unrestricted)
-					{
-						vector.z = 0f;
-					}
-					else
-					{
-						vector.Scale(customMovement);
-					}
-					vector = mTrans.TransformDirection(vector);
-				}
-				if (dragEffect == DragEffect.None)
-				{
-					mMomentum = Vector3.zero;
-				}
-				else
-				{
-					mMomentum = Vector3.Lerp(mMomentum, mMomentum + vector * (0.01f * momentumAmount), 0.67f);
-				}
-				if (!iOSDragEmulation || dragEffect != DragEffect.MomentumAndSpring)
-				{
-					MoveAbsolute(vector);
-				}
-				else if (mPanel.CalculateConstrainOffset(bounds.min, bounds.max).magnitude > 1f)
-				{
-					MoveAbsolute(vector * 0.5f);
-					mMomentum *= 0.5f;
-				}
-				else
-				{
-					MoveAbsolute(vector);
-				}
-				if (restrictWithinPanel && mPanel.clipping != 0 && dragEffect != DragEffect.MomentumAndSpring)
-				{
-					RestrictWithinBounds(/*instant:*/ true, canMoveHorizontally, canMoveVertically);
-				}
+				vector.x = 0f;
+				vector.z = 0f;
 			}
+			else if (movement == Movement.Unrestricted)
+			{
+				vector.z = 0f;
+			}
+			else
+			{
+				vector.Scale(customMovement);
+			}
+			vector = mTrans.TransformDirection(vector);
+		}
+		if (dragEffect == DragEffect.None)
+		{
+			mMomentum = Vector3.zero;
+		}
+		else
+		{
+			mMomentum = Vector3.Lerp(mMomentum, mMomentum + vector * (0.01f * momentumAmount), 0.67f);
+		}
+		if (!iOSDragEmulation || dragEffect != DragEffect.MomentumAndSpring)
+		{
+			MoveAbsolute(vector);
+		}
+		else if (mPanel.CalculateConstrainOffset(bounds.min, bounds.max).magnitude > 1f)
+		{
+			MoveAbsolute(vector * 0.5f);
+			mMomentum *= 0.5f;
+		}
+		else
+		{
+			MoveAbsolute(vector);
+		}
+		if (restrictWithinPanel && mPanel.clipping != 0 && dragEffect != DragEffect.MomentumAndSpring)
+		{
+			RestrictWithinBounds(/*instant:*/ true, canMoveHorizontally, canMoveVertically);
 		}
 	}
 
@@ -744,109 +753,109 @@ public class UIScrollView : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (Application.isPlaying)
+		if (!Application.isPlaying)
 		{
-			float deltaTime = RealTime.deltaTime;
-			if (showScrollBars != 0 && ((bool)verticalScrollBar || (bool)horizontalScrollBar))
+			return;
+		}
+		float deltaTime = RealTime.deltaTime;
+		if (showScrollBars != 0 && ((bool)verticalScrollBar || (bool)horizontalScrollBar))
+		{
+			bool flag = false;
+			bool flag2 = false;
+			if (showScrollBars != ShowCondition.WhenDragging || mDragID != -10 || mMomentum.magnitude > 0.01f)
 			{
-				bool flag = false;
-				bool flag2 = false;
-				if (showScrollBars != ShowCondition.WhenDragging || mDragID != -10 || mMomentum.magnitude > 0.01f)
+				flag = shouldMoveVertically;
+				flag2 = shouldMoveHorizontally;
+			}
+			if ((bool)verticalScrollBar)
+			{
+				float alpha = verticalScrollBar.alpha;
+				alpha += ((!flag) ? ((0f - deltaTime) * 3f) : (deltaTime * 6f));
+				alpha = Mathf.Clamp01(alpha);
+				if (verticalScrollBar.alpha != alpha)
 				{
-					flag = shouldMoveVertically;
-					flag2 = shouldMoveHorizontally;
-				}
-				if ((bool)verticalScrollBar)
-				{
-					float alpha = verticalScrollBar.alpha;
-					alpha += ((!flag) ? ((0f - deltaTime) * 3f) : (deltaTime * 6f));
-					alpha = Mathf.Clamp01(alpha);
-					if (verticalScrollBar.alpha != alpha)
-					{
-						verticalScrollBar.alpha = alpha;
-					}
-				}
-				if ((bool)horizontalScrollBar)
-				{
-					float alpha2 = horizontalScrollBar.alpha;
-					alpha2 += ((!flag2) ? ((0f - deltaTime) * 3f) : (deltaTime * 6f));
-					alpha2 = Mathf.Clamp01(alpha2);
-					if (horizontalScrollBar.alpha != alpha2)
-					{
-						horizontalScrollBar.alpha = alpha2;
-					}
+					verticalScrollBar.alpha = alpha;
 				}
 			}
-			if (mShouldMove)
+			if ((bool)horizontalScrollBar)
 			{
-				if (!mPressed)
+				float alpha2 = horizontalScrollBar.alpha;
+				alpha2 += ((!flag2) ? ((0f - deltaTime) * 3f) : (deltaTime * 6f));
+				alpha2 = Mathf.Clamp01(alpha2);
+				if (horizontalScrollBar.alpha != alpha2)
 				{
-					if (mMomentum.magnitude > 0.0001f || mScroll != 0f)
+					horizontalScrollBar.alpha = alpha2;
+				}
+			}
+		}
+		if (!mShouldMove)
+		{
+			return;
+		}
+		if (!mPressed)
+		{
+			if (mMomentum.magnitude > 0.0001f || mScroll != 0f)
+			{
+				if (movement == Movement.Horizontal)
+				{
+					mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * 0.05f, 0f, 0f));
+				}
+				else if (movement == Movement.Vertical)
+				{
+					mMomentum -= mTrans.TransformDirection(new Vector3(0f, mScroll * 0.05f, 0f));
+				}
+				else if (movement == Movement.Unrestricted)
+				{
+					mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * 0.05f, mScroll * 0.05f, 0f));
+				}
+				else
+				{
+					mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * customMovement.x * 0.05f, mScroll * customMovement.y * 0.05f, 0f));
+				}
+				mScroll = NGUIMath.SpringLerp(mScroll, 0f, 20f, deltaTime);
+				Vector3 absolute = NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
+				MoveAbsolute(absolute);
+				if (restrictWithinPanel && mPanel.clipping != 0)
+				{
+					if (NGUITools.GetActive(centerOnChild))
 					{
-						if (movement == Movement.Horizontal)
+						if (centerOnChild.nextPageThreshold != 0f)
 						{
-							mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * 0.05f, 0f, 0f));
-						}
-						else if (movement == Movement.Vertical)
-						{
-							mMomentum -= mTrans.TransformDirection(new Vector3(0f, mScroll * 0.05f, 0f));
-						}
-						else if (movement == Movement.Unrestricted)
-						{
-							mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * 0.05f, mScroll * 0.05f, 0f));
+							mMomentum = Vector3.zero;
+							mScroll = 0f;
 						}
 						else
 						{
-							mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * customMovement.x * 0.05f, mScroll * customMovement.y * 0.05f, 0f));
-						}
-						mScroll = NGUIMath.SpringLerp(mScroll, 0f, 20f, deltaTime);
-						Vector3 absolute = NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
-						MoveAbsolute(absolute);
-						if (restrictWithinPanel && mPanel.clipping != 0)
-						{
-							if (NGUITools.GetActive(centerOnChild))
-							{
-								if (centerOnChild.nextPageThreshold != 0f)
-								{
-									mMomentum = Vector3.zero;
-									mScroll = 0f;
-								}
-								else
-								{
-									centerOnChild.Recenter();
-								}
-							}
-							else
-							{
-								RestrictWithinBounds(/*instant:*/ false, canMoveHorizontally, canMoveVertically);
-							}
-						}
-						if (onMomentumMove != null)
-						{
-							onMomentumMove();
+							centerOnChild.Recenter();
 						}
 					}
 					else
 					{
-						mScroll = 0f;
-						mMomentum = Vector3.zero;
-						SpringPanel component = GetComponent<SpringPanel>();
-						if (!(component != null) || !component.enabled)
-						{
-							mShouldMove = false;
-							if (onStoppedMoving != null)
-							{
-								onStoppedMoving();
-							}
-						}
+						RestrictWithinBounds(/*instant:*/ false, canMoveHorizontally, canMoveVertically);
 					}
 				}
-				else
+				if (onMomentumMove != null)
 				{
-					mScroll = 0f;
-					NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
+					onMomentumMove();
+				}
+				return;
+			}
+			mScroll = 0f;
+			mMomentum = Vector3.zero;
+			SpringPanel component = GetComponent<SpringPanel>();
+			if (!(component != null) || !component.enabled)
+			{
+				mShouldMove = false;
+				if (onStoppedMoving != null)
+				{
+					onStoppedMoving();
 				}
 			}
+		}
+		else
+		{
+			mScroll = 0f;
+			NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
 		}
 	}
 }

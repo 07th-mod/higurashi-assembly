@@ -90,14 +90,12 @@ public class NGUIDebug : MonoBehaviour
 			{
 				GUILayout.Label("Last Hit: " + NGUITools.GetHierarchy(UICamera.hoveredObject).Replace("\"", string.Empty));
 			}
+			return;
 		}
-		else
+		int i = 0;
+		for (int count = mLines.Count; i < count; i++)
 		{
-			int i = 0;
-			for (int count = mLines.Count; i < count; i++)
-			{
-				GUILayout.Label(mLines[i]);
-			}
+			GUILayout.Label(mLines[i]);
 		}
 	}
 }

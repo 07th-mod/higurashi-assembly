@@ -46,20 +46,21 @@ public class UIScrollBar : UISlider
 		set
 		{
 			float num = Mathf.Clamp01(value);
-			if (mSize != num)
+			if (mSize == num)
 			{
-				mSize = num;
-				mIsDirty = true;
-				if (NGUITools.GetActive(this))
+				return;
+			}
+			mSize = num;
+			mIsDirty = true;
+			if (NGUITools.GetActive(this))
+			{
+				if (UIProgressBar.current == null && onChange != null)
 				{
-					if (UIProgressBar.current == null && onChange != null)
-					{
-						UIProgressBar.current = this;
-						EventDelegate.Execute(onChange);
-						UIProgressBar.current = null;
-					}
-					ForceUpdate();
+					UIProgressBar.current = this;
+					EventDelegate.Execute(onChange);
+					UIProgressBar.current = null;
 				}
+				ForceUpdate();
 			}
 		}
 	}

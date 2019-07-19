@@ -119,67 +119,69 @@ public abstract class UITweener : MonoBehaviour
 			mStarted = true;
 			mStartTime = num2 + delay;
 		}
-		if (!(num2 < mStartTime))
+		if (num2 < mStartTime)
 		{
-			mFactor += amountPerDelta * num;
-			if (style == Style.Loop)
+			return;
+		}
+		mFactor += amountPerDelta * num;
+		if (style == Style.Loop)
+		{
+			if (mFactor > 1f)
 			{
-				if (mFactor > 1f)
-				{
-					mFactor -= Mathf.Floor(mFactor);
-				}
+				mFactor -= Mathf.Floor(mFactor);
 			}
-			else if (style == Style.PingPong)
+		}
+		else if (style == Style.PingPong)
+		{
+			if (mFactor > 1f)
 			{
-				if (mFactor > 1f)
-				{
-					mFactor = 1f - (mFactor - Mathf.Floor(mFactor));
-					mAmountPerDelta = 0f - mAmountPerDelta;
-				}
-				else if (mFactor < 0f)
-				{
-					mFactor = 0f - mFactor;
-					mFactor -= Mathf.Floor(mFactor);
-					mAmountPerDelta = 0f - mAmountPerDelta;
-				}
+				mFactor = 1f - (mFactor - Mathf.Floor(mFactor));
+				mAmountPerDelta = 0f - mAmountPerDelta;
 			}
-			if (style == Style.Once && (duration == 0f || mFactor > 1f || mFactor < 0f))
+			else if (mFactor < 0f)
 			{
-				mFactor = Mathf.Clamp01(mFactor);
-				Sample(mFactor, isFinished: true);
-				if (duration == 0f || (mFactor == 1f && mAmountPerDelta > 0f) || (mFactor == 0f && mAmountPerDelta < 0f))
+				mFactor = 0f - mFactor;
+				mFactor -= Mathf.Floor(mFactor);
+				mAmountPerDelta = 0f - mAmountPerDelta;
+			}
+		}
+		if (style == Style.Once && (duration == 0f || mFactor > 1f || mFactor < 0f))
+		{
+			mFactor = Mathf.Clamp01(mFactor);
+			Sample(mFactor, isFinished: true);
+			if (duration == 0f || (mFactor == 1f && mAmountPerDelta > 0f) || (mFactor == 0f && mAmountPerDelta < 0f))
+			{
+				base.enabled = false;
+			}
+			if (!(current == null))
+			{
+				return;
+			}
+			current = this;
+			if (onFinished != null)
+			{
+				mTemp = onFinished;
+				onFinished = new List<EventDelegate>();
+				EventDelegate.Execute(mTemp);
+				for (int i = 0; i < mTemp.Count; i++)
 				{
-					base.enabled = false;
-				}
-				if (current == null)
-				{
-					current = this;
-					if (onFinished != null)
+					EventDelegate eventDelegate = mTemp[i];
+					if (eventDelegate != null && !eventDelegate.oneShot)
 					{
-						mTemp = onFinished;
-						onFinished = new List<EventDelegate>();
-						EventDelegate.Execute(mTemp);
-						for (int i = 0; i < mTemp.Count; i++)
-						{
-							EventDelegate eventDelegate = mTemp[i];
-							if (eventDelegate != null && !eventDelegate.oneShot)
-							{
-								EventDelegate.Add(onFinished, eventDelegate, eventDelegate.oneShot);
-							}
-						}
-						mTemp = null;
+						EventDelegate.Add(onFinished, eventDelegate, eventDelegate.oneShot);
 					}
-					if (eventReceiver != null && !string.IsNullOrEmpty(callWhenFinished))
-					{
-						eventReceiver.SendMessage(callWhenFinished, this, SendMessageOptions.DontRequireReceiver);
-					}
-					current = null;
 				}
+				mTemp = null;
 			}
-			else
+			if (eventReceiver != null && !string.IsNullOrEmpty(callWhenFinished))
 			{
-				Sample(mFactor, isFinished: false);
+				eventReceiver.SendMessage(callWhenFinished, this, SendMessageOptions.DontRequireReceiver);
 			}
+			current = null;
+		}
+		else
+		{
+			Sample(mFactor, isFinished: false);
 		}
 	}
 
@@ -225,7 +227,7 @@ public abstract class UITweener : MonoBehaviour
 		float num = Mathf.Clamp01(factor);
 		if (method == Method.EaseIn)
 		{
-			num = 1f - Mathf.Sin(1.57079637f * (1f - num));
+			num = 1f - Mathf.Sin((float)Math.PI / 2f * (1f - num));
 			if (steeperCurves)
 			{
 				num *= num;
@@ -233,7 +235,7 @@ public abstract class UITweener : MonoBehaviour
 		}
 		else if (method == Method.EaseOut)
 		{
-			num = Mathf.Sin(1.57079637f * num);
+			num = Mathf.Sin((float)Math.PI / 2f * num);
 			if (steeperCurves)
 			{
 				num = 1f - num;
@@ -242,7 +244,7 @@ public abstract class UITweener : MonoBehaviour
 		}
 		else if (method == Method.EaseInOut)
 		{
-			num -= Mathf.Sin(num * 6.28318548f) / 6.28318548f;
+			num -= Mathf.Sin(num * ((float)Math.PI * 2f)) / ((float)Math.PI * 2f);
 			if (steeperCurves)
 			{
 				num = num * 2f - 1f;
@@ -265,7 +267,7 @@ public abstract class UITweener : MonoBehaviour
 
 	private float BounceLogic(float val)
 	{
-		val = ((val < 0.363636f) ? (7.5685f * val * val) : ((val < 0.727272f) ? (7.5625f * (val -= 0.545454f) * val + 0.75f) : ((!(val < 0.90909f)) ? (7.5625f * (val -= 0.9545454f) * val + 0.984375f) : (7.5625f * (val -= 0.818181f) * val + 0.9375f))));
+		val = ((val < 0.363636f) ? (7.5685f * val * val) : ((val < 0.727272f) ? (7.5625f * (val -= 0.545454f) * val + 0.75f) : ((!(val < 0.90909f)) ? (7.5625f * (val -= 0.9545454f) * val + 63f / 64f) : (7.5625f * (val -= 0.818181f) * val + 0.9375f))));
 		return val;
 	}
 

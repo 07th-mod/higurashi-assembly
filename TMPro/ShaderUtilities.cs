@@ -231,7 +231,7 @@ namespace TMPro
 			int num = enableExtraPadding ? 4 : 0;
 			if (!material.HasProperty(ID_GradientScale))
 			{
-				return (float)num;
+				return num;
 			}
 			Vector4 a = Vector4.zero;
 			Vector4 zero = Vector4.zero;
@@ -292,10 +292,10 @@ namespace TMPro
 			a.y = Mathf.Max(a.y, num10);
 			a.z = Mathf.Max(a.z, num10);
 			a.w = Mathf.Max(a.w, num10);
-			a.x += (float)num;
-			a.y += (float)num;
-			a.z += (float)num;
-			a.w += (float)num;
+			a.x += num;
+			a.y += num;
+			a.z += num;
+			a.w += num;
 			a.x = Mathf.Min(a.x, 1f);
 			a.y = Mathf.Min(a.y, 1f);
 			a.z = Mathf.Min(a.z, 1f);
@@ -325,7 +325,7 @@ namespace TMPro
 			int num = enableExtraPadding ? 4 : 0;
 			if (!materials[0].HasProperty(ID_GradientScale))
 			{
-				return (float)num;
+				return num;
 			}
 			Vector4 a = Vector4.zero;
 			Vector4 zero = Vector4.zero;
@@ -388,10 +388,10 @@ namespace TMPro
 				a.y = Mathf.Max(a.y, num10);
 				a.z = Mathf.Max(a.z, num10);
 				a.w = Mathf.Max(a.w, num10);
-				a.x += (float)num;
-				a.y += (float)num;
-				a.z += (float)num;
-				a.w += (float)num;
+				a.x += num;
+				a.y += num;
+				a.z += num;
+				a.w += num;
 				a.x = Mathf.Min(a.x, 1f);
 				a.y = Mathf.Min(a.y, 1f);
 				a.z = Mathf.Min(a.z, 1f);

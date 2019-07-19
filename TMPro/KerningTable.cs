@@ -19,14 +19,12 @@ namespace TMPro
 			if (kerningPairs.Count == 0)
 			{
 				kerningPairs.Add(new KerningPair(0, 0, 0f));
+				return;
 			}
-			else
-			{
-				int ascII_Left = kerningPairs.Last().AscII_Left;
-				int ascII_Right = kerningPairs.Last().AscII_Right;
-				float xadvanceOffset = kerningPairs.Last().XadvanceOffset;
-				kerningPairs.Add(new KerningPair(ascII_Left, ascII_Right, xadvanceOffset));
-			}
+			int ascII_Left = kerningPairs.Last().AscII_Left;
+			int ascII_Right = kerningPairs.Last().AscII_Right;
+			float xadvanceOffset = kerningPairs.Last().XadvanceOffset;
+			kerningPairs.Add(new KerningPair(ascII_Left, ascII_Right, xadvanceOffset));
 		}
 
 		public int AddKerningPair(int left, int right, float offset)

@@ -267,19 +267,18 @@ namespace Newtonsoft.Json.Linq
 
 		public IEnumerable<JToken> Descendants()
 		{
-			foreach (JToken o in this.ChildrenTokens)
+			foreach (JToken o in ChildrenTokens)
 			{
 				yield return o;
 				JContainer c = o as JContainer;
 				if (c != null)
 				{
-					foreach (JToken d in c.Descendants())
+					foreach (JToken item in c.Descendants())
 					{
-						yield return d;
+						yield return item;
 					}
 				}
 			}
-			yield break;
 		}
 
 		internal bool IsMultiContent(object content)

@@ -35,7 +35,7 @@ public class UIDragDropItem : MonoBehaviour
 
 	protected UITable mTable;
 
-	protected int mTouchID = -2147483648;
+	protected int mTouchID = int.MinValue;
 
 	protected float mDragStartTime;
 
@@ -77,61 +77,63 @@ public class UIDragDropItem : MonoBehaviour
 
 	protected void OnDragStart()
 	{
-		if (base.enabled && mTouchID == -2147483648)
+		if (!base.enabled || mTouchID != int.MinValue)
 		{
-			if (restriction != 0)
+			return;
+		}
+		if (restriction != 0)
+		{
+			if (restriction == Restriction.Horizontal)
 			{
-				if (restriction == Restriction.Horizontal)
-				{
-					Vector2 totalDelta = UICamera.currentTouch.totalDelta;
-					if (Mathf.Abs(totalDelta.x) < Mathf.Abs(totalDelta.y))
-					{
-						return;
-					}
-				}
-				else if (restriction == Restriction.Vertical)
-				{
-					Vector2 totalDelta2 = UICamera.currentTouch.totalDelta;
-					if (Mathf.Abs(totalDelta2.x) > Mathf.Abs(totalDelta2.y))
-					{
-						return;
-					}
-				}
-				else if (restriction == Restriction.PressAndHold)
+				Vector2 totalDelta = UICamera.currentTouch.totalDelta;
+				if (Mathf.Abs(totalDelta.x) < Mathf.Abs(totalDelta.y))
 				{
 					return;
 				}
 			}
-			StartDragging();
+			else if (restriction == Restriction.Vertical)
+			{
+				Vector2 totalDelta2 = UICamera.currentTouch.totalDelta;
+				if (Mathf.Abs(totalDelta2.x) > Mathf.Abs(totalDelta2.y))
+				{
+					return;
+				}
+			}
+			else if (restriction == Restriction.PressAndHold)
+			{
+				return;
+			}
 		}
+		StartDragging();
 	}
 
 	protected virtual void StartDragging()
 	{
-		if (!mDragging)
+		if (mDragging)
 		{
-			if (cloneOnDrag)
+			return;
+		}
+		if (cloneOnDrag)
+		{
+			GameObject gameObject = NGUITools.AddChild(base.transform.parent.gameObject, base.gameObject);
+			gameObject.transform.localPosition = base.transform.localPosition;
+			gameObject.transform.localRotation = base.transform.localRotation;
+			gameObject.transform.localScale = base.transform.localScale;
+			UIButtonColor component = gameObject.GetComponent<UIButtonColor>();
+			if (component != null)
 			{
-				GameObject gameObject = NGUITools.AddChild(base.transform.parent.gameObject, base.gameObject);
-				gameObject.transform.localPosition = base.transform.localPosition;
-				gameObject.transform.localRotation = base.transform.localRotation;
-				gameObject.transform.localScale = base.transform.localScale;
-				UIButtonColor component = gameObject.GetComponent<UIButtonColor>();
-				if (component != null)
-				{
-					component.defaultColor = GetComponent<UIButtonColor>().defaultColor;
-				}
-				UICamera.currentTouch.dragged = gameObject;
-				UIDragDropItem component2 = gameObject.GetComponent<UIDragDropItem>();
-				component2.mDragging = true;
-				component2.Start();
-				component2.OnDragDropStart();
+				component.defaultColor = GetComponent<UIButtonColor>().defaultColor;
 			}
-			else
-			{
-				mDragging = true;
-				OnDragDropStart();
-			}
+			UICamera.currentTouch.dragged = gameObject;
+			UIDragDropItem component2 = gameObject.GetComponent<UIDragDropItem>();
+			component2.mDragging = true;
+			component2.Start();
+			component2.OnDragDropStart();
+		}
+		else
+		{
+			mDragging = true;
+			OnDragDropStart();
 		}
 	}
 
@@ -220,7 +222,7 @@ public class UIDragDropItem : MonoBehaviour
 	{
 		if (!cloneOnDrag)
 		{
-			mTouchID = -2147483648;
+			mTouchID = int.MinValue;
 			if (mButton != null)
 			{
 				mButton.isEnabled = true;
@@ -276,10 +278,9 @@ public class UIDragDropItem : MonoBehaviour
 	protected IEnumerator EnableDragScrollView()
 	{
 		yield return new WaitForEndOfFrame();
-		if (this.mDragScrollView != null)
+		if (mDragScrollView != null)
 		{
-			this.mDragScrollView.enabled = true;
+			mDragScrollView.enabled = true;
 		}
-		yield break;
 	}
 }

@@ -56,12 +56,10 @@ public class UITextList : MonoBehaviour
 				if (scrollBar != null)
 				{
 					scrollBar.value = value;
+					return;
 				}
-				else
-				{
-					mScroll = value;
-					UpdateVisibleText();
-				}
+				mScroll = value;
+				UpdateVisibleText();
 			}
 		}
 	}
@@ -170,83 +168,83 @@ public class UITextList : MonoBehaviour
 
 	protected void Rebuild()
 	{
-		if (isValid)
+		if (!isValid)
 		{
-			textLabel.UpdateNGUIText();
-			NGUIText.rectHeight = 1000000;
-			mTotalLines = 0;
-			for (int i = 0; i < mParagraphs.size; i++)
-			{
-				Paragraph paragraph = mParagraphs.buffer[i];
-				NGUIText.WrapText(paragraph.text, out string finalText);
-				paragraph.lines = finalText.Split('\n');
-				mTotalLines += paragraph.lines.Length;
-			}
-			mTotalLines = 0;
-			int j = 0;
-			for (int size = mParagraphs.size; j < size; j++)
-			{
-				mTotalLines += mParagraphs.buffer[j].lines.Length;
-			}
-			if (scrollBar != null)
-			{
-				UIScrollBar uIScrollBar = scrollBar as UIScrollBar;
-				if (uIScrollBar != null)
-				{
-					uIScrollBar.barSize = ((mTotalLines != 0) ? (1f - (float)scrollHeight / (float)mTotalLines) : 1f);
-				}
-			}
-			UpdateVisibleText();
+			return;
 		}
+		textLabel.UpdateNGUIText();
+		NGUIText.rectHeight = 1000000;
+		mTotalLines = 0;
+		for (int i = 0; i < mParagraphs.size; i++)
+		{
+			Paragraph paragraph = mParagraphs.buffer[i];
+			NGUIText.WrapText(paragraph.text, out string finalText);
+			paragraph.lines = finalText.Split('\n');
+			mTotalLines += paragraph.lines.Length;
+		}
+		mTotalLines = 0;
+		int j = 0;
+		for (int size = mParagraphs.size; j < size; j++)
+		{
+			mTotalLines += mParagraphs.buffer[j].lines.Length;
+		}
+		if (scrollBar != null)
+		{
+			UIScrollBar uIScrollBar = scrollBar as UIScrollBar;
+			if (uIScrollBar != null)
+			{
+				uIScrollBar.barSize = ((mTotalLines != 0) ? (1f - (float)scrollHeight / (float)mTotalLines) : 1f);
+			}
+		}
+		UpdateVisibleText();
 	}
 
 	protected void UpdateVisibleText()
 	{
-		if (isValid)
+		if (!isValid)
 		{
-			if (mTotalLines == 0)
-			{
-				textLabel.text = string.Empty;
-			}
-			else
-			{
-				int num = Mathf.FloorToInt((float)textLabel.height / lineHeight);
-				int num2 = Mathf.Max(0, mTotalLines - num);
-				int num3 = Mathf.RoundToInt(mScroll * (float)num2);
-				if (num3 < 0)
-				{
-					num3 = 0;
-				}
-				StringBuilder stringBuilder = new StringBuilder();
-				int num4 = 0;
-				int size = mParagraphs.size;
-				while (num > 0 && num4 < size)
-				{
-					Paragraph paragraph = mParagraphs.buffer[num4];
-					int num5 = 0;
-					int num6 = paragraph.lines.Length;
-					while (num > 0 && num5 < num6)
-					{
-						string value = paragraph.lines[num5];
-						if (num3 > 0)
-						{
-							num3--;
-						}
-						else
-						{
-							if (stringBuilder.Length > 0)
-							{
-								stringBuilder.Append("\n");
-							}
-							stringBuilder.Append(value);
-							num--;
-						}
-						num5++;
-					}
-					num4++;
-				}
-				textLabel.text = stringBuilder.ToString();
-			}
+			return;
 		}
+		if (mTotalLines == 0)
+		{
+			textLabel.text = string.Empty;
+			return;
+		}
+		int num = Mathf.FloorToInt((float)textLabel.height / lineHeight);
+		int num2 = Mathf.Max(0, mTotalLines - num);
+		int num3 = Mathf.RoundToInt(mScroll * (float)num2);
+		if (num3 < 0)
+		{
+			num3 = 0;
+		}
+		StringBuilder stringBuilder = new StringBuilder();
+		int num4 = 0;
+		int size = mParagraphs.size;
+		while (num > 0 && num4 < size)
+		{
+			Paragraph paragraph = mParagraphs.buffer[num4];
+			int num5 = 0;
+			int num6 = paragraph.lines.Length;
+			while (num > 0 && num5 < num6)
+			{
+				string value = paragraph.lines[num5];
+				if (num3 > 0)
+				{
+					num3--;
+				}
+				else
+				{
+					if (stringBuilder.Length > 0)
+					{
+						stringBuilder.Append("\n");
+					}
+					stringBuilder.Append(value);
+					num--;
+				}
+				num5++;
+			}
+			num4++;
+		}
+		textLabel.text = stringBuilder.ToString();
 	}
 }

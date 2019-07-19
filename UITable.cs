@@ -247,32 +247,31 @@ public class UITable : UIWidgetContainer
 				num2 = num20 + (size2.y + padding.y * 2f);
 			}
 		}
-		if (pivot != 0)
+		if (pivot == UIWidget.Pivot.TopLeft)
 		{
-			pivotOffset = NGUIMath.GetPivotOffset(pivot);
-			Bounds bounds5 = NGUIMath.CalculateRelativeWidgetBounds(base.transform);
-			Vector3 size3 = bounds5.size;
-			float num21 = Mathf.Lerp(0f, size3.x, pivotOffset.x);
-			Vector3 size4 = bounds5.size;
-			float num22 = Mathf.Lerp(0f - size4.y, 0f, pivotOffset.y);
-			Transform transform3 = base.transform;
-			for (int k = 0; k < transform3.childCount; k++)
+			return;
+		}
+		pivotOffset = NGUIMath.GetPivotOffset(pivot);
+		Bounds bounds5 = NGUIMath.CalculateRelativeWidgetBounds(base.transform);
+		Vector3 size3 = bounds5.size;
+		float num21 = Mathf.Lerp(0f, size3.x, pivotOffset.x);
+		Vector3 size4 = bounds5.size;
+		float num22 = Mathf.Lerp(0f - size4.y, 0f, pivotOffset.y);
+		Transform transform3 = base.transform;
+		for (int k = 0; k < transform3.childCount; k++)
+		{
+			Transform child = transform3.GetChild(k);
+			SpringPosition component = child.GetComponent<SpringPosition>();
+			if (component != null)
 			{
-				Transform child = transform3.GetChild(k);
-				SpringPosition component = child.GetComponent<SpringPosition>();
-				if (component != null)
-				{
-					component.target.x -= num21;
-					component.target.y -= num22;
-				}
-				else
-				{
-					Vector3 localPosition2 = child.localPosition;
-					localPosition2.x -= num21;
-					localPosition2.y -= num22;
-					child.localPosition = localPosition2;
-				}
+				component.target.x -= num21;
+				component.target.y -= num22;
+				continue;
 			}
+			Vector3 localPosition2 = child.localPosition;
+			localPosition2.x -= num21;
+			localPosition2.y -= num22;
+			child.localPosition = localPosition2;
 		}
 	}
 

@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.Tips;
 using Steamworks;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ namespace Assets.Scripts.Core.SteamWorks
 		private Callback<UserStatsReceived_t> userStatsReceived;
 
 		private CGameID gameID;
+
+		private List<string> achievementList;
 
 		private bool requestedStats;
 
@@ -39,7 +42,11 @@ namespace Assets.Scripts.Core.SteamWorks
 						return;
 					}
 				}
-				AddAchievement("HIGURASHI_STORY_EP06_TIPS");
+				Achievement_t achievement_t = Achievements.achievements.FirstOrDefault((Achievement_t a) => a.m_eAchievementID.Contains("_TIPS"));
+				if (achievement_t != null)
+				{
+					AddAchievement(achievement_t.m_eAchievementID);
+				}
 			}
 		}
 
@@ -47,6 +54,10 @@ namespace Assets.Scripts.Core.SteamWorks
 		{
 			if (!(steamManager == null) && SteamManager.Initialized && hasStats)
 			{
+				if (Achievements.achievements == null)
+				{
+					Achievements.Load();
+				}
 				Achievement_t achievement_t = Achievements.achievements.SingleOrDefault((Achievement_t a) => a.m_eAchievementID.ToString() == id);
 				if (achievement_t == null)
 				{
@@ -63,38 +74,43 @@ namespace Assets.Scripts.Core.SteamWorks
 
 		private void OnUserStatsReceived(UserStatsReceived_t pCallback)
 		{
-			if (!(steamManager == null) && SteamManager.Initialized)
+			if (steamManager == null || !SteamManager.Initialized)
 			{
-				Debug.Log("Steamworks UserStats Received");
-				if ((ulong)gameID == pCallback.m_nGameID)
+				return;
+			}
+			Debug.Log("Steamworks UserStats Received");
+			if ((ulong)gameID == pCallback.m_nGameID)
+			{
+				if (pCallback.m_eResult == EResult.k_EResultOK)
 				{
-					if (pCallback.m_eResult == EResult.k_EResultOK)
+					hasStats = true;
+					if (Achievements.achievements == null)
 					{
-						hasStats = true;
-						Achievement_t[] achievements = Achievements.achievements;
-						foreach (Achievement_t achievement_t in achievements)
-						{
-							if (SteamUserStats.GetAchievement(achievement_t.m_eAchievementID.ToString(), out achievement_t.m_bAchieved))
-							{
-								achievement_t.m_strName = SteamUserStats.GetAchievementDisplayAttribute(achievement_t.m_eAchievementID.ToString(), "name");
-								achievement_t.m_strDescription = SteamUserStats.GetAchievementDisplayAttribute(achievement_t.m_eAchievementID.ToString(), "desc");
-								Debug.Log(achievement_t.m_strName + " : " + achievement_t.m_bAchieved);
-							}
-							else
-							{
-								Debug.LogWarning("SteamUserStats.GetAchievement failed for Achievement " + achievement_t.m_eAchievementID + "\nIs it registered in the Steam Partner site?");
-							}
-						}
+						Achievements.Load();
 					}
-					else
+					Achievement_t[] achievements = Achievements.achievements;
+					foreach (Achievement_t achievement_t in achievements)
 					{
-						Debug.LogWarning("Steamworks UserStats failed to retrieve: " + pCallback.m_eResult);
+						if (SteamUserStats.GetAchievement(achievement_t.m_eAchievementID.ToString(), out achievement_t.m_bAchieved))
+						{
+							achievement_t.m_strName = SteamUserStats.GetAchievementDisplayAttribute(achievement_t.m_eAchievementID.ToString(), "name").Trim();
+							achievement_t.m_strDescription = SteamUserStats.GetAchievementDisplayAttribute(achievement_t.m_eAchievementID.ToString(), "desc").Trim();
+							Debug.Log(achievement_t.m_strName + " : " + achievement_t.m_bAchieved);
+						}
+						else
+						{
+							Debug.LogWarning("SteamUserStats.GetAchievement failed for Achievement " + achievement_t.m_eAchievementID + "\nIs it registered in the Steam Partner site?");
+						}
 					}
 				}
 				else
 				{
-					Debug.Log("Received stats for incorrect gameID: " + pCallback.m_nGameID);
+					Debug.LogWarning("Steamworks UserStats failed to retrieve: " + pCallback.m_eResult);
 				}
+			}
+			else
+			{
+				Debug.Log("Received stats for incorrect gameID: " + pCallback.m_nGameID);
 			}
 		}
 	}

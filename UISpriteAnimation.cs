@@ -83,26 +83,28 @@ public class UISpriteAnimation : MonoBehaviour
 
 	protected virtual void Update()
 	{
-		if (mActive && mSpriteNames.Count > 1 && Application.isPlaying && mFPS > 0)
+		if (!mActive || mSpriteNames.Count <= 1 || !Application.isPlaying || mFPS <= 0)
 		{
-			mDelta += RealTime.deltaTime;
-			float num = 1f / (float)mFPS;
-			if (num < mDelta)
+			return;
+		}
+		mDelta += RealTime.deltaTime;
+		float num = 1f / (float)mFPS;
+		if (!(num < mDelta))
+		{
+			return;
+		}
+		mDelta = ((!(num > 0f)) ? 0f : (mDelta - num));
+		if (++mIndex >= mSpriteNames.Count)
+		{
+			mIndex = 0;
+			mActive = mLoop;
+		}
+		if (mActive)
+		{
+			mSprite.spriteName = mSpriteNames[mIndex];
+			if (mSnap)
 			{
-				mDelta = ((!(num > 0f)) ? 0f : (mDelta - num));
-				if (++mIndex >= mSpriteNames.Count)
-				{
-					mIndex = 0;
-					mActive = mLoop;
-				}
-				if (mActive)
-				{
-					mSprite.spriteName = mSpriteNames[mIndex];
-					if (mSnap)
-					{
-						mSprite.MakePixelPerfect();
-					}
-				}
+				mSprite.MakePixelPerfect();
 			}
 		}
 	}
@@ -114,20 +116,21 @@ public class UISpriteAnimation : MonoBehaviour
 			mSprite = GetComponent<UISprite>();
 		}
 		mSpriteNames.Clear();
-		if (mSprite != null && mSprite.atlas != null)
+		if (!(mSprite != null) || !(mSprite.atlas != null))
 		{
-			List<UISpriteData> spriteList = mSprite.atlas.spriteList;
-			int i = 0;
-			for (int count = spriteList.Count; i < count; i++)
-			{
-				UISpriteData uISpriteData = spriteList[i];
-				if (string.IsNullOrEmpty(mPrefix) || uISpriteData.name.StartsWith(mPrefix))
-				{
-					mSpriteNames.Add(uISpriteData.name);
-				}
-			}
-			mSpriteNames.Sort();
+			return;
 		}
+		List<UISpriteData> spriteList = mSprite.atlas.spriteList;
+		int i = 0;
+		for (int count = spriteList.Count; i < count; i++)
+		{
+			UISpriteData uISpriteData = spriteList[i];
+			if (string.IsNullOrEmpty(mPrefix) || uISpriteData.name.StartsWith(mPrefix))
+			{
+				mSpriteNames.Add(uISpriteData.name);
+			}
+		}
+		mSpriteNames.Sort();
 	}
 
 	public void Play()

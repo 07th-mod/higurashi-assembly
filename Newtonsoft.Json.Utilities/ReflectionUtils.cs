@@ -789,24 +789,25 @@ namespace Newtonsoft.Json.Utilities
 
 		private static void GetChildPrivateProperties(IList<PropertyInfo> initialProperties, Type targetType, BindingFlags bindingAttr)
 		{
-			if ((bindingAttr & BindingFlags.NonPublic) != 0)
+			if ((bindingAttr & BindingFlags.NonPublic) == BindingFlags.Default)
 			{
-				BindingFlags bindingAttr2 = bindingAttr.RemoveFlag(BindingFlags.Public);
-				while ((targetType = targetType.BaseType) != null)
+				return;
+			}
+			BindingFlags bindingAttr2 = bindingAttr.RemoveFlag(BindingFlags.Public);
+			while ((targetType = targetType.BaseType) != null)
+			{
+				PropertyInfo[] properties = targetType.GetProperties(bindingAttr2);
+				foreach (PropertyInfo propertyInfo in properties)
 				{
-					PropertyInfo[] properties = targetType.GetProperties(bindingAttr2);
-					foreach (PropertyInfo propertyInfo in properties)
+					PropertyInfo nonPublicProperty = propertyInfo;
+					int num = initialProperties.IndexOf((PropertyInfo p) => p.Name == nonPublicProperty.Name);
+					if (num == -1)
 					{
-						PropertyInfo nonPublicProperty = propertyInfo;
-						int num = initialProperties.IndexOf((PropertyInfo p) => p.Name == nonPublicProperty.Name);
-						if (num == -1)
-						{
-							initialProperties.Add(nonPublicProperty);
-						}
-						else
-						{
-							initialProperties[num] = nonPublicProperty;
-						}
+						initialProperties.Add(nonPublicProperty);
+					}
+					else
+					{
+						initialProperties[num] = nonPublicProperty;
 					}
 				}
 			}

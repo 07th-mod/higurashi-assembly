@@ -22,9 +22,9 @@ internal class Elastic : Ease
 		}
 		else
 		{
-			num3 = num2 / 6.2831853071795862 * Math.Asin(c / num);
+			num3 = num2 / (Math.PI * 2.0) * Math.Asin(c / num);
 		}
-		return 0.0 - num * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num3) * 6.2831853071795862 / num2) + b;
+		return 0.0 - num * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num3) * (Math.PI * 2.0) / num2) + b;
 	}
 
 	public static double EaseOut(double t, double b, double c, double d)
@@ -47,9 +47,9 @@ internal class Elastic : Ease
 		}
 		else
 		{
-			num3 = num2 / 6.2831853071795862 * Math.Asin(c / num);
+			num3 = num2 / (Math.PI * 2.0) * Math.Asin(c / num);
 		}
-		return num * Math.Pow(2.0, -10.0 * t) * Math.Sin((t * d - num3) * 6.2831853071795862 / num2) + c + b;
+		return num * Math.Pow(2.0, -10.0 * t) * Math.Sin((t * d - num3) * (Math.PI * 2.0) / num2) + c + b;
 	}
 
 	public static double EaseInOut(double t, double b, double c, double d)
@@ -72,13 +72,13 @@ internal class Elastic : Ease
 		}
 		else
 		{
-			num3 = num2 / 6.2831853071795862 * Math.Asin(c / num);
+			num3 = num2 / (Math.PI * 2.0) * Math.Asin(c / num);
 		}
 		if (t < 1.0)
 		{
-			return -0.5 * (num * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num3) * 6.2831853071795862 / num2)) + b;
+			return -0.5 * (num * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num3) * (Math.PI * 2.0) / num2)) + b;
 		}
-		return num * Math.Pow(2.0, -10.0 * (t -= 1.0)) * Math.Sin((t * d - num3) * 6.2831853071795862 / num2) * 0.5 + c + b;
+		return num * Math.Pow(2.0, -10.0 * (t -= 1.0)) * Math.Sin((t * d - num3) * (Math.PI * 2.0) / num2) * 0.5 + c + b;
 	}
 
 	public static double EaseIn(double t, double b, double c, double d, double a, double p)
@@ -103,9 +103,9 @@ internal class Elastic : Ease
 		}
 		else
 		{
-			num = p / 6.2831853071795862 * Math.Asin(c / a);
+			num = p / (Math.PI * 2.0) * Math.Asin(c / a);
 		}
-		return 0.0 - a * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num) * 6.2831853071795862 / p) + b;
+		return 0.0 - a * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num) * (Math.PI * 2.0) / p) + b;
 	}
 
 	public static double EaseOut(double t, double b, double c, double d, double a, double p)
@@ -130,9 +130,9 @@ internal class Elastic : Ease
 		}
 		else
 		{
-			num = p / 6.2831853071795862 * Math.Asin(c / a);
+			num = p / (Math.PI * 2.0) * Math.Asin(c / a);
 		}
-		return a * Math.Pow(2.0, -10.0 * t) * Math.Sin((t * d - num) * 6.2831853071795862 / p) + c + b;
+		return a * Math.Pow(2.0, -10.0 * t) * Math.Sin((t * d - num) * (Math.PI * 2.0) / p) + c + b;
 	}
 
 	public static double EaseInOut(double t, double b, double c, double d, double a, double p)
@@ -157,12 +157,12 @@ internal class Elastic : Ease
 		}
 		else
 		{
-			num = p / 6.2831853071795862 * Math.Asin(c / a);
+			num = p / (Math.PI * 2.0) * Math.Asin(c / a);
 		}
 		if (t < 1.0)
 		{
-			return -0.5 * (a * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num) * 6.2831853071795862 / p)) + b;
+			return -0.5 * (a * Math.Pow(2.0, 10.0 * (t -= 1.0)) * Math.Sin((t * d - num) * (Math.PI * 2.0) / p)) + b;
 		}
-		return a * Math.Pow(2.0, -10.0 * (t -= 1.0)) * Math.Sin((t * d - num) * 6.2831853071795862 / p) * 0.5 + c + b;
+		return a * Math.Pow(2.0, -10.0 * (t -= 1.0)) * Math.Sin((t * d - num) * (Math.PI * 2.0) / p) * 0.5 + c + b;
 	}
 }

@@ -165,35 +165,36 @@ public class UIPlayTween : MonoBehaviour
 
 	private void Update()
 	{
-		if (disableWhenFinished != 0 && mTweens != null)
+		if (disableWhenFinished == DisableCondition.DoNotDisable || mTweens == null)
 		{
-			bool flag = true;
-			bool flag2 = true;
-			int i = 0;
-			for (int num = mTweens.Length; i < num; i++)
+			return;
+		}
+		bool flag = true;
+		bool flag2 = true;
+		int i = 0;
+		for (int num = mTweens.Length; i < num; i++)
+		{
+			UITweener uITweener = mTweens[i];
+			if (uITweener.tweenGroup == tweenGroup)
 			{
-				UITweener uITweener = mTweens[i];
-				if (uITweener.tweenGroup == tweenGroup)
+				if (uITweener.enabled)
 				{
-					if (uITweener.enabled)
-					{
-						flag = false;
-						break;
-					}
-					if (uITweener.direction != (Direction)disableWhenFinished)
-					{
-						flag2 = false;
-					}
+					flag = false;
+					break;
+				}
+				if (uITweener.direction != (Direction)disableWhenFinished)
+				{
+					flag2 = false;
 				}
 			}
-			if (flag)
+		}
+		if (flag)
+		{
+			if (flag2)
 			{
-				if (flag2)
-				{
-					NGUITools.SetActive(tweenTarget, state: false);
-				}
-				mTweens = null;
+				NGUITools.SetActive(tweenTarget, state: false);
 			}
+			mTweens = null;
 		}
 	}
 
@@ -216,43 +217,40 @@ public class UIPlayTween : MonoBehaviour
 			{
 				NGUITools.SetActive(tweenTarget, state: false);
 			}
+			return;
 		}
-		else
+		bool flag = false;
+		if (playDirection == Direction.Reverse)
 		{
-			bool flag = false;
-			if (playDirection == Direction.Reverse)
+			forward = !forward;
+		}
+		int i = 0;
+		for (int num = mTweens.Length; i < num; i++)
+		{
+			UITweener uITweener = mTweens[i];
+			if (uITweener.tweenGroup != tweenGroup)
 			{
-				forward = !forward;
+				continue;
 			}
-			int i = 0;
-			for (int num = mTweens.Length; i < num; i++)
+			if (!flag && !NGUITools.GetActive(gameObject))
 			{
-				UITweener uITweener = mTweens[i];
-				if (uITweener.tweenGroup == tweenGroup)
-				{
-					if (!flag && !NGUITools.GetActive(gameObject))
-					{
-						flag = true;
-						NGUITools.SetActive(gameObject, state: true);
-					}
-					mActive++;
-					if (playDirection == Direction.Toggle)
-					{
-						EventDelegate.Add(uITweener.onFinished, OnFinished, oneShot: true);
-						uITweener.Toggle();
-					}
-					else
-					{
-						if (resetOnPlay || (resetIfDisabled && !uITweener.enabled))
-						{
-							uITweener.Play(forward);
-							uITweener.ResetToBeginning();
-						}
-						EventDelegate.Add(uITweener.onFinished, OnFinished, oneShot: true);
-						uITweener.Play(forward);
-					}
-				}
+				flag = true;
+				NGUITools.SetActive(gameObject, state: true);
 			}
+			mActive++;
+			if (playDirection == Direction.Toggle)
+			{
+				EventDelegate.Add(uITweener.onFinished, OnFinished, oneShot: true);
+				uITweener.Toggle();
+				continue;
+			}
+			if (resetOnPlay || (resetIfDisabled && !uITweener.enabled))
+			{
+				uITweener.Play(forward);
+				uITweener.ResetToBeginning();
+			}
+			EventDelegate.Add(uITweener.onFinished, OnFinished, oneShot: true);
+			uITweener.Play(forward);
 		}
 	}
 

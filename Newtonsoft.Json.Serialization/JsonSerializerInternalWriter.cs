@@ -155,22 +155,23 @@ namespace Newtonsoft.Json.Serialization
 		{
 			string propertyName = property.PropertyName;
 			object defaultValue = property.DefaultValue;
-			if ((property.NullValueHandling.GetValueOrDefault(base.Serializer.NullValueHandling) != NullValueHandling.Ignore || memberValue != null) && (!HasFlag(property.DefaultValueHandling.GetValueOrDefault(base.Serializer.DefaultValueHandling), DefaultValueHandling.Ignore) || !MiscellaneousUtils.ValueEquals(memberValue, defaultValue)))
+			if ((property.NullValueHandling.GetValueOrDefault(base.Serializer.NullValueHandling) == NullValueHandling.Ignore && memberValue == null) || (HasFlag(property.DefaultValueHandling.GetValueOrDefault(base.Serializer.DefaultValueHandling), DefaultValueHandling.Ignore) && MiscellaneousUtils.ValueEquals(memberValue, defaultValue)))
 			{
-				if (ShouldWriteReference(memberValue, property, contract))
+				return;
+			}
+			if (ShouldWriteReference(memberValue, property, contract))
+			{
+				writer.WritePropertyName(propertyName);
+				WriteReference(writer, memberValue);
+			}
+			else if (CheckForCircularReference(memberValue, property.ReferenceLoopHandling, contract))
+			{
+				if (memberValue == null && property.Required == Required.Always)
 				{
-					writer.WritePropertyName(propertyName);
-					WriteReference(writer, memberValue);
+					throw new JsonSerializationException("Cannot write a null value for property '{0}'. Property requires a value.".FormatWith(CultureInfo.InvariantCulture, property.PropertyName));
 				}
-				else if (CheckForCircularReference(memberValue, property.ReferenceLoopHandling, contract))
-				{
-					if (memberValue == null && property.Required == Required.Always)
-					{
-						throw new JsonSerializationException("Cannot write a null value for property '{0}'. Property requires a value.".FormatWith(CultureInfo.InvariantCulture, property.PropertyName));
-					}
-					writer.WritePropertyName(propertyName);
-					SerializeValue(writer, memberValue, contract, property, null);
-				}
+				writer.WritePropertyName(propertyName);
+				SerializeValue(writer, memberValue, contract, property, null);
 			}
 		}
 

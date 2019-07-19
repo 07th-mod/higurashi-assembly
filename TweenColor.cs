@@ -87,25 +87,25 @@ public class TweenColor : UITweener
 	{
 		mCached = true;
 		mWidget = GetComponent<UIWidget>();
-		if (!(mWidget != null))
+		if (mWidget != null)
 		{
-			mSr = GetComponent<SpriteRenderer>();
-			if (!(mSr != null))
-			{
-				Renderer component = GetComponent<Renderer>();
-				if (component != null)
-				{
-					mMat = component.material;
-				}
-				else
-				{
-					mLight = GetComponent<Light>();
-					if (mLight == null)
-					{
-						mWidget = GetComponentInChildren<UIWidget>();
-					}
-				}
-			}
+			return;
+		}
+		mSr = GetComponent<SpriteRenderer>();
+		if (mSr != null)
+		{
+			return;
+		}
+		Renderer component = GetComponent<Renderer>();
+		if (component != null)
+		{
+			mMat = component.material;
+			return;
+		}
+		mLight = GetComponent<Light>();
+		if (mLight == null)
+		{
+			mWidget = GetComponentInChildren<UIWidget>();
 		}
 	}
 

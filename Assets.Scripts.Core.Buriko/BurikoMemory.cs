@@ -42,11 +42,13 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("TipsMode", 1);
 			variableReference.Add("SelectResult", 2);
 			variableReference.Add("s_jump", 3);
+			variableReference.Add("kakera_01", 4);
 			variableReference.Add("ChapterNumber", 10);
 			variableReference.Add("LOnikakushiDay", 30);
 			variableReference.Add("LWatanagashiDay", 32);
 			variableReference.Add("LTatarigoroshiDay", 33);
-			variableReference.Add("LHimatsubushiDay", 33);
+			variableReference.Add("LHimatsubushiDay", 34);
+			variableReference.Add("LMinagoroshiDay", 35);
 			variableReference.Add("LTextFade", 31);
 			variableReference.Add("LTextColor", 40);
 			variableReference.Add("NewTipsStart", 50);
@@ -63,6 +65,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("bluebox", 8);
 			variableReference.Add("GTotalTips", 9);
 			variableReference.Add("GHighestChapter", 28);
+			variableReference.Add("GMinagoroshiDay", 29);
 			variableReference.Add("GMessageSpeed", 10);
 			variableReference.Add("GAutoSpeed", 11);
 			variableReference.Add("GAutoAdvSpeed", 12);

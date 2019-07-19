@@ -211,10 +211,10 @@ public static class NGUIMath
 		Rect result = rect;
 		if (round)
 		{
-			result.xMin = (float)Mathf.RoundToInt(rect.xMin * (float)width);
-			result.xMax = (float)Mathf.RoundToInt(rect.xMax * (float)width);
-			result.yMin = (float)Mathf.RoundToInt((1f - rect.yMax) * (float)height);
-			result.yMax = (float)Mathf.RoundToInt((1f - rect.yMin) * (float)height);
+			result.xMin = Mathf.RoundToInt(rect.xMin * (float)width);
+			result.xMax = Mathf.RoundToInt(rect.xMax * (float)width);
+			result.yMin = Mathf.RoundToInt((1f - rect.yMax) * (float)height);
+			result.yMax = Mathf.RoundToInt((1f - rect.yMin) * (float)height);
 		}
 		else
 		{
@@ -228,20 +228,20 @@ public static class NGUIMath
 
 	public static Rect MakePixelPerfect(Rect rect)
 	{
-		rect.xMin = (float)Mathf.RoundToInt(rect.xMin);
-		rect.yMin = (float)Mathf.RoundToInt(rect.yMin);
-		rect.xMax = (float)Mathf.RoundToInt(rect.xMax);
-		rect.yMax = (float)Mathf.RoundToInt(rect.yMax);
+		rect.xMin = Mathf.RoundToInt(rect.xMin);
+		rect.yMin = Mathf.RoundToInt(rect.yMin);
+		rect.xMax = Mathf.RoundToInt(rect.xMax);
+		rect.yMax = Mathf.RoundToInt(rect.yMax);
 		return rect;
 	}
 
 	public static Rect MakePixelPerfect(Rect rect, int width, int height)
 	{
 		rect = ConvertToPixels(rect, width, height, round: true);
-		rect.xMin = (float)Mathf.RoundToInt(rect.xMin);
-		rect.yMin = (float)Mathf.RoundToInt(rect.yMin);
-		rect.xMax = (float)Mathf.RoundToInt(rect.xMax);
-		rect.yMax = (float)Mathf.RoundToInt(rect.yMax);
+		rect.xMin = Mathf.RoundToInt(rect.xMin);
+		rect.yMin = Mathf.RoundToInt(rect.yMin);
+		rect.xMax = Mathf.RoundToInt(rect.xMax);
+		rect.yMax = Mathf.RoundToInt(rect.yMax);
 		return ConvertToTexCoords(rect, width, height);
 	}
 
@@ -292,42 +292,43 @@ public static class NGUIMath
 			{
 				return new Bounds(trans.position, Vector3.zero);
 			}
-			Vector3 center = new Vector3(3.40282347E+38f, 3.40282347E+38f, 3.40282347E+38f);
-			Vector3 point = new Vector3(-3.40282347E+38f, -3.40282347E+38f, -3.40282347E+38f);
+			Vector3 center = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+			Vector3 point = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 			int i = 0;
 			for (int num = componentsInChildren.Length; i < num; i++)
 			{
 				UIWidget uIWidget = componentsInChildren[i];
-				if (uIWidget.enabled)
+				if (!uIWidget.enabled)
 				{
-					Vector3[] worldCorners = uIWidget.worldCorners;
-					for (int j = 0; j < 4; j++)
+					continue;
+				}
+				Vector3[] worldCorners = uIWidget.worldCorners;
+				for (int j = 0; j < 4; j++)
+				{
+					Vector3 vector = worldCorners[j];
+					if (vector.x > point.x)
 					{
-						Vector3 vector = worldCorners[j];
-						if (vector.x > point.x)
-						{
-							point.x = vector.x;
-						}
-						if (vector.y > point.y)
-						{
-							point.y = vector.y;
-						}
-						if (vector.z > point.z)
-						{
-							point.z = vector.z;
-						}
-						if (vector.x < center.x)
-						{
-							center.x = vector.x;
-						}
-						if (vector.y < center.y)
-						{
-							center.y = vector.y;
-						}
-						if (vector.z < center.z)
-						{
-							center.z = vector.z;
-						}
+						point.x = vector.x;
+					}
+					if (vector.y > point.y)
+					{
+						point.y = vector.y;
+					}
+					if (vector.z > point.z)
+					{
+						point.z = vector.z;
+					}
+					if (vector.x < center.x)
+					{
+						center.x = vector.x;
+					}
+					if (vector.y < center.y)
+					{
+						center.y = vector.y;
+					}
+					if (vector.z < center.z)
+					{
+						center.z = vector.z;
 					}
 				}
 			}
@@ -359,8 +360,8 @@ public static class NGUIMath
 		{
 			bool isSet = false;
 			Matrix4x4 toLocal = relativeTo.worldToLocalMatrix;
-			Vector3 vMin = new Vector3(3.40282347E+38f, 3.40282347E+38f, 3.40282347E+38f);
-			Vector3 vMax = new Vector3(-3.40282347E+38f, -3.40282347E+38f, -3.40282347E+38f);
+			Vector3 vMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+			Vector3 vMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 			CalculateRelativeWidgetBounds(content, considerInactive, /*isRoot:*/ true, ref toLocal, ref vMin, ref vMax, ref isSet);
 			if (isSet)
 			{
@@ -376,87 +377,87 @@ public static class NGUIMath
 	[DebuggerStepThrough]
 	private static void CalculateRelativeWidgetBounds(Transform content, bool considerInactive, bool isRoot, ref Matrix4x4 toLocal, ref Vector3 vMin, ref Vector3 vMax, ref bool isSet)
 	{
-		if (!(content == null) && (considerInactive || NGUITools.GetActive(content.gameObject)))
+		if (content == null || (!considerInactive && !NGUITools.GetActive(content.gameObject)))
 		{
-			UIPanel uIPanel = (!isRoot) ? content.GetComponent<UIPanel>() : null;
-			if (!(uIPanel != null) || uIPanel.enabled)
+			return;
+		}
+		UIPanel uIPanel = (!isRoot) ? content.GetComponent<UIPanel>() : null;
+		if (uIPanel != null && !uIPanel.enabled)
+		{
+			return;
+		}
+		if (uIPanel != null && uIPanel.clipping != 0)
+		{
+			Vector3[] worldCorners = uIPanel.worldCorners;
+			for (int i = 0; i < 4; i++)
 			{
-				if (uIPanel != null && uIPanel.clipping != 0)
+				Vector3 vector = toLocal.MultiplyPoint3x4(worldCorners[i]);
+				if (vector.x > vMax.x)
 				{
-					Vector3[] worldCorners = uIPanel.worldCorners;
-					for (int i = 0; i < 4; i++)
-					{
-						Vector3 vector = toLocal.MultiplyPoint3x4(worldCorners[i]);
-						if (vector.x > vMax.x)
-						{
-							vMax.x = vector.x;
-						}
-						if (vector.y > vMax.y)
-						{
-							vMax.y = vector.y;
-						}
-						if (vector.z > vMax.z)
-						{
-							vMax.z = vector.z;
-						}
-						if (vector.x < vMin.x)
-						{
-							vMin.x = vector.x;
-						}
-						if (vector.y < vMin.y)
-						{
-							vMin.y = vector.y;
-						}
-						if (vector.z < vMin.z)
-						{
-							vMin.z = vector.z;
-						}
-						isSet = true;
-					}
+					vMax.x = vector.x;
 				}
-				else
+				if (vector.y > vMax.y)
 				{
-					UIWidget component = content.GetComponent<UIWidget>();
-					if (component != null && component.enabled)
-					{
-						Vector3[] worldCorners2 = component.worldCorners;
-						for (int j = 0; j < 4; j++)
-						{
-							Vector3 vector2 = toLocal.MultiplyPoint3x4(worldCorners2[j]);
-							if (vector2.x > vMax.x)
-							{
-								vMax.x = vector2.x;
-							}
-							if (vector2.y > vMax.y)
-							{
-								vMax.y = vector2.y;
-							}
-							if (vector2.z > vMax.z)
-							{
-								vMax.z = vector2.z;
-							}
-							if (vector2.x < vMin.x)
-							{
-								vMin.x = vector2.x;
-							}
-							if (vector2.y < vMin.y)
-							{
-								vMin.y = vector2.y;
-							}
-							if (vector2.z < vMin.z)
-							{
-								vMin.z = vector2.z;
-							}
-							isSet = true;
-						}
-					}
-					int k = 0;
-					for (int childCount = content.childCount; k < childCount; k++)
-					{
-						CalculateRelativeWidgetBounds(content.GetChild(k), considerInactive, /*isRoot:*/ false, ref toLocal, ref vMin, ref vMax, ref isSet);
-					}
+					vMax.y = vector.y;
 				}
+				if (vector.z > vMax.z)
+				{
+					vMax.z = vector.z;
+				}
+				if (vector.x < vMin.x)
+				{
+					vMin.x = vector.x;
+				}
+				if (vector.y < vMin.y)
+				{
+					vMin.y = vector.y;
+				}
+				if (vector.z < vMin.z)
+				{
+					vMin.z = vector.z;
+				}
+				isSet = true;
 			}
+			return;
+		}
+		UIWidget component = content.GetComponent<UIWidget>();
+		if (component != null && component.enabled)
+		{
+			Vector3[] worldCorners2 = component.worldCorners;
+			for (int j = 0; j < 4; j++)
+			{
+				Vector3 vector2 = toLocal.MultiplyPoint3x4(worldCorners2[j]);
+				if (vector2.x > vMax.x)
+				{
+					vMax.x = vector2.x;
+				}
+				if (vector2.y > vMax.y)
+				{
+					vMax.y = vector2.y;
+				}
+				if (vector2.z > vMax.z)
+				{
+					vMax.z = vector2.z;
+				}
+				if (vector2.x < vMin.x)
+				{
+					vMin.x = vector2.x;
+				}
+				if (vector2.y < vMin.y)
+				{
+					vMin.y = vector2.y;
+				}
+				if (vector2.z < vMin.z)
+				{
+					vMin.z = vector2.z;
+				}
+				isSet = true;
+			}
+		}
+		int k = 0;
+		for (int childCount = content.childCount; k < childCount; k++)
+		{
+			CalculateRelativeWidgetBounds(content.GetChild(k), considerInactive, /*isRoot:*/ false, ref toLocal, ref vMin, ref vMax, ref isSet);
 		}
 	}
 
@@ -468,7 +469,7 @@ public static class NGUIMath
 		}
 		float f = 1f - strength * 0.001f;
 		int num = Mathf.RoundToInt(deltaTime * 1000f);
-		float num2 = Mathf.Pow(f, (float)num);
+		float num2 = Mathf.Pow(f, num);
 		Vector3 a = velocity * ((num2 - 1f) / Mathf.Log(f));
 		velocity *= num2;
 		return a * 0.06f;
@@ -482,7 +483,7 @@ public static class NGUIMath
 		}
 		float f = 1f - strength * 0.001f;
 		int num = Mathf.RoundToInt(deltaTime * 1000f);
-		float num2 = Mathf.Pow(f, (float)num);
+		float num2 = Mathf.Pow(f, num);
 		Vector2 a = velocity * ((num2 - 1f) / Mathf.Log(f));
 		velocity *= num2;
 		return a * 0.06f;
@@ -691,7 +692,7 @@ public static class NGUIMath
 		int num = Mathf.FloorToInt(x + 0.5f);
 		int num2 = Mathf.FloorToInt(y + 0.5f);
 		Transform cachedTransform = rect.cachedTransform;
-		cachedTransform.localPosition += new Vector3((float)num, (float)num2);
+		cachedTransform.localPosition += new Vector3(num, num2);
 		int num3 = 0;
 		if ((bool)rect.leftAnchor.target)
 		{
@@ -736,42 +737,40 @@ public static class NGUIMath
 			{
 				num >>= 1;
 				num2 >>= 1;
-				AdjustWidget(w, (float)(-num), (float)(-num2), (float)num, (float)num2, minWidth, minHeight);
+				AdjustWidget(w, -num, -num2, num, num2, minWidth, minHeight);
 			}
+			return;
 		}
-		else
+		Vector3 point = new Vector3(x, y);
+		point = Quaternion.Inverse(w.cachedTransform.localRotation) * point;
+		switch (pivot)
 		{
-			Vector3 point = new Vector3(x, y);
-			point = Quaternion.Inverse(w.cachedTransform.localRotation) * point;
-			switch (pivot)
-			{
-			case UIWidget.Pivot.Center:
-				break;
-			case UIWidget.Pivot.BottomLeft:
-				AdjustWidget(w, point.x, point.y, 0f, 0f, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.Left:
-				AdjustWidget(w, point.x, 0f, 0f, 0f, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.TopLeft:
-				AdjustWidget(w, point.x, 0f, 0f, point.y, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.Top:
-				AdjustWidget(w, 0f, 0f, 0f, point.y, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.TopRight:
-				AdjustWidget(w, 0f, 0f, point.x, point.y, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.Right:
-				AdjustWidget(w, 0f, 0f, point.x, 0f, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.BottomRight:
-				AdjustWidget(w, 0f, point.y, point.x, 0f, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			case UIWidget.Pivot.Bottom:
-				AdjustWidget(w, 0f, point.y, 0f, 0f, minWidth, minHeight, maxWidth, maxHeight);
-				break;
-			}
+		case UIWidget.Pivot.Center:
+			break;
+		case UIWidget.Pivot.BottomLeft:
+			AdjustWidget(w, point.x, point.y, 0f, 0f, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.Left:
+			AdjustWidget(w, point.x, 0f, 0f, 0f, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.TopLeft:
+			AdjustWidget(w, point.x, 0f, 0f, point.y, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.Top:
+			AdjustWidget(w, 0f, 0f, 0f, point.y, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.TopRight:
+			AdjustWidget(w, 0f, 0f, point.x, point.y, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.Right:
+			AdjustWidget(w, 0f, 0f, point.x, 0f, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.BottomRight:
+			AdjustWidget(w, 0f, point.y, point.x, 0f, minWidth, minHeight, maxWidth, maxHeight);
+			break;
+		case UIWidget.Pivot.Bottom:
+			AdjustWidget(w, 0f, point.y, 0f, 0f, minWidth, minHeight, maxWidth, maxHeight);
+			break;
 		}
 	}
 
@@ -804,14 +803,14 @@ public static class NGUIMath
 			num2 = num2 >> 1 << 1;
 			num4 = num4 >> 1 << 1;
 		}
-		Vector3 vector = localRotation * new Vector3((float)num, (float)num4);
-		Vector3 vector2 = localRotation * new Vector3((float)num3, (float)num4);
-		Vector3 vector3 = localRotation * new Vector3((float)num, (float)num2);
-		Vector3 vector4 = localRotation * new Vector3((float)num3, (float)num2);
-		Vector3 vector5 = localRotation * new Vector3((float)num, 0f);
-		Vector3 vector6 = localRotation * new Vector3((float)num3, 0f);
-		Vector3 vector7 = localRotation * new Vector3(0f, (float)num4);
-		Vector3 vector8 = localRotation * new Vector3(0f, (float)num2);
+		Vector3 vector = localRotation * new Vector3(num, num4);
+		Vector3 vector2 = localRotation * new Vector3(num3, num4);
+		Vector3 vector3 = localRotation * new Vector3(num, num2);
+		Vector3 vector4 = localRotation * new Vector3(num3, num2);
+		Vector3 vector5 = localRotation * new Vector3(num, 0f);
+		Vector3 vector6 = localRotation * new Vector3(num3, 0f);
+		Vector3 vector7 = localRotation * new Vector3(0f, num4);
+		Vector3 vector8 = localRotation * new Vector3(0f, num2);
 		Vector3 zero = Vector3.zero;
 		if (pivotOffset.x == 0f && pivotOffset.y == 1f)
 		{
@@ -876,11 +875,11 @@ public static class NGUIMath
 		{
 			if (num != 0)
 			{
-				zero2.x -= Mathf.Lerp((float)(num7 - num5), 0f, pivotOffset.x);
+				zero2.x -= Mathf.Lerp(num7 - num5, 0f, pivotOffset.x);
 			}
 			else
 			{
-				zero2.x += Mathf.Lerp(0f, (float)(num7 - num5), pivotOffset.x);
+				zero2.x += Mathf.Lerp(0f, num7 - num5, pivotOffset.x);
 			}
 			num5 = num7;
 		}
@@ -897,11 +896,11 @@ public static class NGUIMath
 		{
 			if (num2 != 0)
 			{
-				zero2.y -= Mathf.Lerp((float)(num8 - num6), 0f, pivotOffset.y);
+				zero2.y -= Mathf.Lerp(num8 - num6, 0f, pivotOffset.y);
 			}
 			else
 			{
-				zero2.y += Mathf.Lerp(0f, (float)(num8 - num6), pivotOffset.y);
+				zero2.y += Mathf.Lerp(0f, num8 - num6, pivotOffset.y);
 			}
 			num6 = num8;
 		}

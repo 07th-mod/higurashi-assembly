@@ -114,105 +114,105 @@ namespace Newtonsoft.Json.Linq
 			{
 				return 1;
 			}
-			if (objA != null || objB == null)
+			if (objA == null && objB != null)
 			{
-				switch (valueType)
-				{
-				case JTokenType.Integer:
-					if (objA is ulong || objB is ulong || objA is decimal || objB is decimal)
-					{
-						return Convert.ToDecimal(objA, CultureInfo.InvariantCulture).CompareTo(Convert.ToDecimal(objB, CultureInfo.InvariantCulture));
-					}
-					if (objA is float || objB is float || objA is double || objB is double)
-					{
-						return CompareFloat(objA, objB);
-					}
-					return Convert.ToInt64(objA, CultureInfo.InvariantCulture).CompareTo(Convert.ToInt64(objB, CultureInfo.InvariantCulture));
-				case JTokenType.Float:
-					return CompareFloat(objA, objB);
-				case JTokenType.Comment:
-				case JTokenType.String:
-				case JTokenType.Raw:
-				{
-					string text = Convert.ToString(objA, CultureInfo.InvariantCulture);
-					string strB = Convert.ToString(objB, CultureInfo.InvariantCulture);
-					return text.CompareTo(strB);
-				}
-				case JTokenType.Boolean:
-				{
-					bool flag = Convert.ToBoolean(objA, CultureInfo.InvariantCulture);
-					bool value3 = Convert.ToBoolean(objB, CultureInfo.InvariantCulture);
-					return flag.CompareTo(value3);
-				}
-				case JTokenType.Date:
-				{
-					if (objA is DateTime)
-					{
-						DateTime dateTime = Convert.ToDateTime(objA, CultureInfo.InvariantCulture);
-						DateTime value2 = Convert.ToDateTime(objB, CultureInfo.InvariantCulture);
-						return dateTime.CompareTo(value2);
-					}
-					if (!(objB is DateTimeOffset))
-					{
-						throw new ArgumentException("Object must be of type DateTimeOffset.");
-					}
-					DateTimeOffset dateTimeOffset = (DateTimeOffset)objA;
-					DateTimeOffset other = (DateTimeOffset)objB;
-					return dateTimeOffset.CompareTo(other);
-				}
-				case JTokenType.Bytes:
-				{
-					if (!(objB is byte[]))
-					{
-						throw new ArgumentException("Object must be of type byte[].");
-					}
-					byte[] array = objA as byte[];
-					byte[] array2 = objB as byte[];
-					if (array == null)
-					{
-						return -1;
-					}
-					if (array2 == null)
-					{
-						return 1;
-					}
-					return MiscellaneousUtils.ByteArrayCompare(array, array2);
-				}
-				case JTokenType.Guid:
-				{
-					if (!(objB is Guid))
-					{
-						throw new ArgumentException("Object must be of type Guid.");
-					}
-					Guid guid = (Guid)objA;
-					Guid value4 = (Guid)objB;
-					return guid.CompareTo(value4);
-				}
-				case JTokenType.Uri:
-				{
-					if (!(objB is Uri))
-					{
-						throw new ArgumentException("Object must be of type Uri.");
-					}
-					Uri uri = (Uri)objA;
-					Uri uri2 = (Uri)objB;
-					return Comparer<string>.Default.Compare(uri.ToString(), uri2.ToString());
-				}
-				case JTokenType.TimeSpan:
-				{
-					if (!(objB is TimeSpan))
-					{
-						throw new ArgumentException("Object must be of type TimeSpan.");
-					}
-					TimeSpan timeSpan = (TimeSpan)objA;
-					TimeSpan value = (TimeSpan)objB;
-					return timeSpan.CompareTo(value);
-				}
-				default:
-					throw MiscellaneousUtils.CreateArgumentOutOfRangeException("valueType", valueType, "Unexpected value type: {0}".FormatWith(CultureInfo.InvariantCulture, valueType));
-				}
+				return -1;
 			}
-			return -1;
+			switch (valueType)
+			{
+			case JTokenType.Integer:
+				if (objA is ulong || objB is ulong || objA is decimal || objB is decimal)
+				{
+					return Convert.ToDecimal(objA, CultureInfo.InvariantCulture).CompareTo(Convert.ToDecimal(objB, CultureInfo.InvariantCulture));
+				}
+				if (objA is float || objB is float || objA is double || objB is double)
+				{
+					return CompareFloat(objA, objB);
+				}
+				return Convert.ToInt64(objA, CultureInfo.InvariantCulture).CompareTo(Convert.ToInt64(objB, CultureInfo.InvariantCulture));
+			case JTokenType.Float:
+				return CompareFloat(objA, objB);
+			case JTokenType.Comment:
+			case JTokenType.String:
+			case JTokenType.Raw:
+			{
+				string text = Convert.ToString(objA, CultureInfo.InvariantCulture);
+				string strB = Convert.ToString(objB, CultureInfo.InvariantCulture);
+				return text.CompareTo(strB);
+			}
+			case JTokenType.Boolean:
+			{
+				bool flag = Convert.ToBoolean(objA, CultureInfo.InvariantCulture);
+				bool value3 = Convert.ToBoolean(objB, CultureInfo.InvariantCulture);
+				return flag.CompareTo(value3);
+			}
+			case JTokenType.Date:
+			{
+				if (objA is DateTime)
+				{
+					DateTime dateTime = Convert.ToDateTime(objA, CultureInfo.InvariantCulture);
+					DateTime value2 = Convert.ToDateTime(objB, CultureInfo.InvariantCulture);
+					return dateTime.CompareTo(value2);
+				}
+				if (!(objB is DateTimeOffset))
+				{
+					throw new ArgumentException("Object must be of type DateTimeOffset.");
+				}
+				DateTimeOffset dateTimeOffset = (DateTimeOffset)objA;
+				DateTimeOffset other = (DateTimeOffset)objB;
+				return dateTimeOffset.CompareTo(other);
+			}
+			case JTokenType.Bytes:
+			{
+				if (!(objB is byte[]))
+				{
+					throw new ArgumentException("Object must be of type byte[].");
+				}
+				byte[] array = objA as byte[];
+				byte[] array2 = objB as byte[];
+				if (array == null)
+				{
+					return -1;
+				}
+				if (array2 == null)
+				{
+					return 1;
+				}
+				return MiscellaneousUtils.ByteArrayCompare(array, array2);
+			}
+			case JTokenType.Guid:
+			{
+				if (!(objB is Guid))
+				{
+					throw new ArgumentException("Object must be of type Guid.");
+				}
+				Guid guid = (Guid)objA;
+				Guid value4 = (Guid)objB;
+				return guid.CompareTo(value4);
+			}
+			case JTokenType.Uri:
+			{
+				if (!(objB is Uri))
+				{
+					throw new ArgumentException("Object must be of type Uri.");
+				}
+				Uri uri = (Uri)objA;
+				Uri uri2 = (Uri)objB;
+				return Comparer<string>.Default.Compare(uri.ToString(), uri2.ToString());
+			}
+			case JTokenType.TimeSpan:
+			{
+				if (!(objB is TimeSpan))
+				{
+					throw new ArgumentException("Object must be of type TimeSpan.");
+				}
+				TimeSpan timeSpan = (TimeSpan)objA;
+				TimeSpan value = (TimeSpan)objB;
+				return timeSpan.CompareTo(value);
+			}
+			default:
+				throw MiscellaneousUtils.CreateArgumentOutOfRangeException("valueType", valueType, "Unexpected value type: {0}".FormatWith(CultureInfo.InvariantCulture, valueType));
+			}
 		}
 
 		private static int CompareFloat(object objA, object objB)
@@ -300,19 +300,19 @@ namespace Newtonsoft.Json.Linq
 
 		private static JTokenType GetStringValueType(JTokenType? current)
 		{
-			if (current.HasValue)
+			if (!current.HasValue)
 			{
-				switch (current.Value)
-				{
-				case JTokenType.Comment:
-				case JTokenType.String:
-				case JTokenType.Raw:
-					return current.Value;
-				default:
-					return JTokenType.String;
-				}
+				return JTokenType.String;
 			}
-			return JTokenType.String;
+			switch (current.Value)
+			{
+			case JTokenType.Comment:
+			case JTokenType.String:
+			case JTokenType.Raw:
+				return current.Value;
+			default:
+				return JTokenType.String;
+			}
 		}
 
 		public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
@@ -321,63 +321,57 @@ namespace Newtonsoft.Json.Linq
 			{
 			case JTokenType.Comment:
 				writer.WriteComment(_value.ToString());
-				break;
+				return;
 			case JTokenType.Raw:
 				writer.WriteRawValue((_value == null) ? null : _value.ToString());
-				break;
+				return;
 			case JTokenType.Null:
 				writer.WriteNull();
-				break;
+				return;
 			case JTokenType.Undefined:
 				writer.WriteUndefined();
-				break;
-			default:
+				return;
+			}
+			JsonConverter matchingConverter;
+			if (_value != null && (matchingConverter = JsonSerializer.GetMatchingConverter(converters, _value.GetType())) != null)
 			{
-				JsonConverter matchingConverter;
-				if (_value == null || (matchingConverter = JsonSerializer.GetMatchingConverter(converters, _value.GetType())) == null)
+				matchingConverter.WriteJson(writer, _value, new JsonSerializer());
+				return;
+			}
+			switch (_valueType)
+			{
+			case JTokenType.Integer:
+				writer.WriteValue(Convert.ToInt64(_value, CultureInfo.InvariantCulture));
+				break;
+			case JTokenType.Float:
+				writer.WriteValue(Convert.ToDouble(_value, CultureInfo.InvariantCulture));
+				break;
+			case JTokenType.String:
+				writer.WriteValue((_value == null) ? null : _value.ToString());
+				break;
+			case JTokenType.Boolean:
+				writer.WriteValue(Convert.ToBoolean(_value, CultureInfo.InvariantCulture));
+				break;
+			case JTokenType.Date:
+				if (_value is DateTimeOffset)
 				{
-					switch (_valueType)
-					{
-					case JTokenType.Integer:
-						writer.WriteValue(Convert.ToInt64(_value, CultureInfo.InvariantCulture));
-						break;
-					case JTokenType.Float:
-						writer.WriteValue(Convert.ToDouble(_value, CultureInfo.InvariantCulture));
-						break;
-					case JTokenType.String:
-						writer.WriteValue((_value == null) ? null : _value.ToString());
-						break;
-					case JTokenType.Boolean:
-						writer.WriteValue(Convert.ToBoolean(_value, CultureInfo.InvariantCulture));
-						break;
-					case JTokenType.Date:
-						if (_value is DateTimeOffset)
-						{
-							writer.WriteValue((DateTimeOffset)_value);
-						}
-						else
-						{
-							writer.WriteValue(Convert.ToDateTime(_value, CultureInfo.InvariantCulture));
-						}
-						break;
-					case JTokenType.Bytes:
-						writer.WriteValue((byte[])_value);
-						break;
-					case JTokenType.Guid:
-					case JTokenType.Uri:
-					case JTokenType.TimeSpan:
-						writer.WriteValue((_value == null) ? null : _value.ToString());
-						break;
-					default:
-						throw MiscellaneousUtils.CreateArgumentOutOfRangeException("TokenType", _valueType, "Unexpected token type.");
-					}
+					writer.WriteValue((DateTimeOffset)_value);
 				}
 				else
 				{
-					matchingConverter.WriteJson(writer, _value, new JsonSerializer());
+					writer.WriteValue(Convert.ToDateTime(_value, CultureInfo.InvariantCulture));
 				}
 				break;
-			}
+			case JTokenType.Bytes:
+				writer.WriteValue((byte[])_value);
+				break;
+			case JTokenType.Guid:
+			case JTokenType.Uri:
+			case JTokenType.TimeSpan:
+				writer.WriteValue((_value == null) ? null : _value.ToString());
+				break;
+			default:
+				throw MiscellaneousUtils.CreateArgumentOutOfRangeException("TokenType", _valueType, "Unexpected token type.");
 			}
 		}
 

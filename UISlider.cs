@@ -141,56 +141,57 @@ public class UISlider : UIProgressBar
 
 	protected void OnKey(KeyCode key)
 	{
-		if (base.enabled)
+		if (!base.enabled)
 		{
-			float num = (!((float)numberOfSteps > 1f)) ? 0.125f : (1f / (float)(numberOfSteps - 1));
-			switch (mFill)
+			return;
+		}
+		float num = (!((float)numberOfSteps > 1f)) ? 0.125f : (1f / (float)(numberOfSteps - 1));
+		switch (mFill)
+		{
+		case FillDirection.LeftToRight:
+			switch (key)
 			{
-			case FillDirection.LeftToRight:
-				switch (key)
-				{
-				case KeyCode.LeftArrow:
-					base.value = mValue - num;
-					break;
-				case KeyCode.RightArrow:
-					base.value = mValue + num;
-					break;
-				}
+			case KeyCode.LeftArrow:
+				base.value = mValue - num;
 				break;
-			case FillDirection.RightToLeft:
-				switch (key)
-				{
-				case KeyCode.LeftArrow:
-					base.value = mValue + num;
-					break;
-				case KeyCode.RightArrow:
-					base.value = mValue - num;
-					break;
-				}
-				break;
-			case FillDirection.BottomToTop:
-				switch (key)
-				{
-				case KeyCode.DownArrow:
-					base.value = mValue - num;
-					break;
-				case KeyCode.UpArrow:
-					base.value = mValue + num;
-					break;
-				}
-				break;
-			case FillDirection.TopToBottom:
-				switch (key)
-				{
-				case KeyCode.DownArrow:
-					base.value = mValue + num;
-					break;
-				case KeyCode.UpArrow:
-					base.value = mValue - num;
-					break;
-				}
+			case KeyCode.RightArrow:
+				base.value = mValue + num;
 				break;
 			}
+			break;
+		case FillDirection.RightToLeft:
+			switch (key)
+			{
+			case KeyCode.LeftArrow:
+				base.value = mValue + num;
+				break;
+			case KeyCode.RightArrow:
+				base.value = mValue - num;
+				break;
+			}
+			break;
+		case FillDirection.BottomToTop:
+			switch (key)
+			{
+			case KeyCode.DownArrow:
+				base.value = mValue - num;
+				break;
+			case KeyCode.UpArrow:
+				base.value = mValue + num;
+				break;
+			}
+			break;
+		case FillDirection.TopToBottom:
+			switch (key)
+			{
+			case KeyCode.DownArrow:
+				base.value = mValue + num;
+				break;
+			case KeyCode.UpArrow:
+				base.value = mValue - num;
+				break;
+			}
+			break;
 		}
 	}
 }

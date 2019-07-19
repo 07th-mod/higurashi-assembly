@@ -72,19 +72,18 @@ public class UIAtlas : MonoBehaviour
 			if (mReplacement != null)
 			{
 				mReplacement.spriteMaterial = value;
+				return;
 			}
-			else if (material == null)
+			if (material == null)
 			{
 				mPMA = 0;
 				material = value;
+				return;
 			}
-			else
-			{
-				MarkAsChanged();
-				mPMA = -1;
-				material = value;
-				MarkAsChanged();
-			}
+			MarkAsChanged();
+			mPMA = -1;
+			material = value;
+			MarkAsChanged();
 		}
 	}
 
@@ -145,15 +144,13 @@ public class UIAtlas : MonoBehaviour
 			if (mReplacement != null)
 			{
 				mReplacement.pixelSize = value;
+				return;
 			}
-			else
+			float num = Mathf.Clamp(value, 0.25f, 4f);
+			if (mPixelSize != num)
 			{
-				float num = Mathf.Clamp(value, 0.25f, 4f);
-				if (mPixelSize != num)
-				{
-					mPixelSize = num;
-					MarkAsChanged();
-				}
+				mPixelSize = num;
+				MarkAsChanged();
 			}
 		}
 	}
@@ -309,21 +306,22 @@ public class UIAtlas : MonoBehaviour
 		for (int count2 = mSprites.Count; k < count2; k++)
 		{
 			UISpriteData uISpriteData2 = mSprites[k];
-			if (uISpriteData2 != null && !string.IsNullOrEmpty(uISpriteData2.name))
+			if (uISpriteData2 == null || string.IsNullOrEmpty(uISpriteData2.name))
 			{
-				string text = uISpriteData2.name.ToLower();
-				int num = 0;
-				for (int l = 0; l < array.Length; l++)
+				continue;
+			}
+			string text = uISpriteData2.name.ToLower();
+			int num = 0;
+			for (int l = 0; l < array.Length; l++)
+			{
+				if (text.Contains(array[l]))
 				{
-					if (text.Contains(array[l]))
-					{
-						num++;
-					}
+					num++;
 				}
-				if (num == array.Length)
-				{
-					betterList.Add(uISpriteData2.name);
-				}
+			}
+			if (num == array.Length)
+			{
+				betterList.Add(uISpriteData2.name);
 			}
 		}
 		return betterList;

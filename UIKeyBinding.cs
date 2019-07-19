@@ -77,48 +77,50 @@ public class UIKeyBinding : MonoBehaviour
 
 	private void Update()
 	{
-		if (keyCode != 0 && IsModifierActive())
+		if (keyCode == KeyCode.None || !IsModifierActive())
 		{
-			if (action == Action.PressAndClick || action == Action.All)
+			return;
+		}
+		if (action == Action.PressAndClick || action == Action.All)
+		{
+			if (UICamera.inputHasFocus)
 			{
-				if (UICamera.inputHasFocus)
-				{
-					return;
-				}
-				UICamera.currentTouch = UICamera.controller;
-				UICamera.currentScheme = UICamera.ControlScheme.Mouse;
-				UICamera.currentTouch.current = base.gameObject;
-				if (Input.GetKeyDown(keyCode))
-				{
-					mPress = true;
-					UICamera.Notify(base.gameObject, "OnPress", true);
-				}
-				if (Input.GetKeyUp(keyCode))
-				{
-					UICamera.Notify(base.gameObject, "OnPress", false);
-					if (mPress)
-					{
-						UICamera.Notify(base.gameObject, "OnClick", null);
-						mPress = false;
-					}
-				}
-				UICamera.currentTouch.current = null;
+				return;
 			}
-			if ((action == Action.Select || action == Action.All) && Input.GetKeyUp(keyCode))
+			UICamera.currentTouch = UICamera.controller;
+			UICamera.currentScheme = UICamera.ControlScheme.Mouse;
+			UICamera.currentTouch.current = base.gameObject;
+			if (Input.GetKeyDown(keyCode))
 			{
-				if (mIsInput)
+				mPress = true;
+				UICamera.Notify(base.gameObject, "OnPress", true);
+			}
+			if (Input.GetKeyUp(keyCode))
+			{
+				UICamera.Notify(base.gameObject, "OnPress", false);
+				if (mPress)
 				{
-					if (!mIgnoreUp && !UICamera.inputHasFocus)
-					{
-						UICamera.selectedObject = base.gameObject;
-					}
-					mIgnoreUp = false;
-				}
-				else
-				{
-					UICamera.selectedObject = base.gameObject;
+					UICamera.Notify(base.gameObject, "OnClick", null);
+					mPress = false;
 				}
 			}
+			UICamera.currentTouch.current = null;
+		}
+		if ((action != Action.Select && action != Action.All) || !Input.GetKeyUp(keyCode))
+		{
+			return;
+		}
+		if (mIsInput)
+		{
+			if (!mIgnoreUp && !UICamera.inputHasFocus)
+			{
+				UICamera.selectedObject = base.gameObject;
+			}
+			mIgnoreUp = false;
+		}
+		else
+		{
+			UICamera.selectedObject = base.gameObject;
 		}
 	}
 }

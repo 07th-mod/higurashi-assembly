@@ -15,9 +15,9 @@ public class UIButtonColor : UIWidgetContainer
 
 	public GameObject tweenTarget;
 
-	public Color hover = new Color(0.882352948f, 0.784313738f, 0.5882353f, 1f);
+	public Color hover = new Color(0.882352948f, 40f / 51f, 0.5882353f, 1f);
 
-	public Color pressed = new Color(0.7176471f, 0.6392157f, 0.482352942f, 1f);
+	public Color pressed = new Color(61f / 85f, 163f / 255f, 41f / 85f, 1f);
 
 	public Color disabledColor = Color.grey;
 
@@ -118,29 +118,25 @@ public class UIButtonColor : UIWidgetContainer
 		{
 			mDefaultColor = mWidget.color;
 			mStartingColor = mDefaultColor;
+			return;
+		}
+		Renderer component = tweenTarget.GetComponent<Renderer>();
+		if (component != null)
+		{
+			mDefaultColor = ((!Application.isPlaying) ? component.sharedMaterial.color : component.material.color);
+			mStartingColor = mDefaultColor;
+			return;
+		}
+		Light component2 = tweenTarget.GetComponent<Light>();
+		if (component2 != null)
+		{
+			mDefaultColor = component2.color;
+			mStartingColor = mDefaultColor;
 		}
 		else
 		{
-			Renderer component = tweenTarget.GetComponent<Renderer>();
-			if (component != null)
-			{
-				mDefaultColor = ((!Application.isPlaying) ? component.sharedMaterial.color : component.material.color);
-				mStartingColor = mDefaultColor;
-			}
-			else
-			{
-				Light component2 = tweenTarget.GetComponent<Light>();
-				if (component2 != null)
-				{
-					mDefaultColor = component2.color;
-					mStartingColor = mDefaultColor;
-				}
-				else
-				{
-					tweenTarget = null;
-					mInitDone = false;
-				}
-			}
+			tweenTarget = null;
+			mInitDone = false;
 		}
 	}
 
@@ -194,38 +190,40 @@ public class UIButtonColor : UIWidgetContainer
 
 	protected virtual void OnPress(bool isPressed)
 	{
-		if (isEnabled && UICamera.currentTouch != null)
+		if (!isEnabled || UICamera.currentTouch == null)
 		{
-			if (!mInitDone)
+			return;
+		}
+		if (!mInitDone)
+		{
+			OnInit();
+		}
+		if (!(tweenTarget != null))
+		{
+			return;
+		}
+		if (isPressed)
+		{
+			SetState(State.Pressed, instant: false);
+		}
+		else if (UICamera.currentTouch.current == base.gameObject)
+		{
+			if (UICamera.currentScheme == UICamera.ControlScheme.Controller)
 			{
-				OnInit();
+				SetState(State.Hover, instant: false);
 			}
-			if (tweenTarget != null)
+			else if (UICamera.currentScheme == UICamera.ControlScheme.Mouse && UICamera.hoveredObject == base.gameObject)
 			{
-				if (isPressed)
-				{
-					SetState(State.Pressed, instant: false);
-				}
-				else if (UICamera.currentTouch.current == base.gameObject)
-				{
-					if (UICamera.currentScheme == UICamera.ControlScheme.Controller)
-					{
-						SetState(State.Hover, instant: false);
-					}
-					else if (UICamera.currentScheme == UICamera.ControlScheme.Mouse && UICamera.hoveredObject == base.gameObject)
-					{
-						SetState(State.Hover, instant: false);
-					}
-					else
-					{
-						SetState(State.Normal, instant: false);
-					}
-				}
-				else
-				{
-					SetState(State.Normal, instant: false);
-				}
+				SetState(State.Hover, instant: false);
 			}
+			else
+			{
+				SetState(State.Normal, instant: false);
+			}
+		}
+		else
+		{
+			SetState(State.Normal, instant: false);
 		}
 	}
 

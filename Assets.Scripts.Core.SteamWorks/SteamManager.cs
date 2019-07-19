@@ -1,5 +1,6 @@
 using Steamworks;
 using System;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -42,7 +43,16 @@ namespace Assets.Scripts.Core.SteamWorks
 				}
 				try
 				{
-					if (SteamAPI.RestartAppIfNecessary(new AppId_t(668350u)))
+					string path = Path.Combine(Application.streamingAssetsPath, "Data\\steamId.txt");
+					if (!File.Exists(path))
+					{
+						Debug.Log("App id file missing, disabling steam integration.");
+						UnityEngine.Object.Destroy(base.gameObject);
+						return;
+					}
+					string s = File.ReadAllText(path);
+					uint value = uint.Parse(s);
+					if (SteamAPI.RestartAppIfNecessary(new AppId_t(value)))
 					{
 						GameSystem.Instance.CanExit = true;
 						Application.Quit();

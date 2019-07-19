@@ -176,43 +176,43 @@ public class UIWidget : UIRect
 			{
 				value = minWidth;
 			}
-			if (mWidth != value && keepAspectRatio != AspectRatioSource.BasedOnHeight)
+			if (mWidth == value || keepAspectRatio == AspectRatioSource.BasedOnHeight)
 			{
-				if (isAnchoredHorizontally)
+				return;
+			}
+			if (isAnchoredHorizontally)
+			{
+				if (leftAnchor.target != null && rightAnchor.target != null)
 				{
-					if (leftAnchor.target != null && rightAnchor.target != null)
+					if (mPivot == Pivot.BottomLeft || mPivot == Pivot.Left || mPivot == Pivot.TopLeft)
 					{
-						if (mPivot == Pivot.BottomLeft || mPivot == Pivot.Left || mPivot == Pivot.TopLeft)
-						{
-							NGUIMath.AdjustWidget(this, 0f, 0f, (float)(value - mWidth), 0f);
-						}
-						else if (mPivot == Pivot.BottomRight || mPivot == Pivot.Right || mPivot == Pivot.TopRight)
-						{
-							NGUIMath.AdjustWidget(this, (float)(mWidth - value), 0f, 0f, 0f);
-						}
-						else
-						{
-							int num = value - mWidth;
-							num -= (num & 1);
-							if (num != 0)
-							{
-								NGUIMath.AdjustWidget(this, (float)(-num) * 0.5f, 0f, (float)num * 0.5f, 0f);
-							}
-						}
+						NGUIMath.AdjustWidget(this, 0f, 0f, value - mWidth, 0f);
+						return;
 					}
-					else if (leftAnchor.target != null)
+					if (mPivot == Pivot.BottomRight || mPivot == Pivot.Right || mPivot == Pivot.TopRight)
 					{
-						NGUIMath.AdjustWidget(this, 0f, 0f, (float)(value - mWidth), 0f);
+						NGUIMath.AdjustWidget(this, mWidth - value, 0f, 0f, 0f);
+						return;
 					}
-					else
+					int num = value - mWidth;
+					num -= (num & 1);
+					if (num != 0)
 					{
-						NGUIMath.AdjustWidget(this, (float)(mWidth - value), 0f, 0f, 0f);
+						NGUIMath.AdjustWidget(this, (float)(-num) * 0.5f, 0f, (float)num * 0.5f, 0f);
 					}
+				}
+				else if (leftAnchor.target != null)
+				{
+					NGUIMath.AdjustWidget(this, 0f, 0f, value - mWidth, 0f);
 				}
 				else
 				{
-					SetDimensions(value, mHeight);
+					NGUIMath.AdjustWidget(this, mWidth - value, 0f, 0f, 0f);
 				}
+			}
+			else
+			{
+				SetDimensions(value, mHeight);
 			}
 		}
 	}
@@ -230,43 +230,43 @@ public class UIWidget : UIRect
 			{
 				value = minHeight;
 			}
-			if (mHeight != value && keepAspectRatio != AspectRatioSource.BasedOnWidth)
+			if (mHeight == value || keepAspectRatio == AspectRatioSource.BasedOnWidth)
 			{
-				if (isAnchoredVertically)
+				return;
+			}
+			if (isAnchoredVertically)
+			{
+				if (bottomAnchor.target != null && topAnchor.target != null)
 				{
-					if (bottomAnchor.target != null && topAnchor.target != null)
+					if (mPivot == Pivot.BottomLeft || mPivot == Pivot.Bottom || mPivot == Pivot.BottomRight)
 					{
-						if (mPivot == Pivot.BottomLeft || mPivot == Pivot.Bottom || mPivot == Pivot.BottomRight)
-						{
-							NGUIMath.AdjustWidget(this, 0f, 0f, 0f, (float)(value - mHeight));
-						}
-						else if (mPivot == Pivot.TopLeft || mPivot == Pivot.Top || mPivot == Pivot.TopRight)
-						{
-							NGUIMath.AdjustWidget(this, 0f, (float)(mHeight - value), 0f, 0f);
-						}
-						else
-						{
-							int num = value - mHeight;
-							num -= (num & 1);
-							if (num != 0)
-							{
-								NGUIMath.AdjustWidget(this, 0f, (float)(-num) * 0.5f, 0f, (float)num * 0.5f);
-							}
-						}
+						NGUIMath.AdjustWidget(this, 0f, 0f, 0f, value - mHeight);
+						return;
 					}
-					else if (bottomAnchor.target != null)
+					if (mPivot == Pivot.TopLeft || mPivot == Pivot.Top || mPivot == Pivot.TopRight)
 					{
-						NGUIMath.AdjustWidget(this, 0f, 0f, 0f, (float)(value - mHeight));
+						NGUIMath.AdjustWidget(this, 0f, mHeight - value, 0f, 0f);
+						return;
 					}
-					else
+					int num = value - mHeight;
+					num -= (num & 1);
+					if (num != 0)
 					{
-						NGUIMath.AdjustWidget(this, 0f, (float)(mHeight - value), 0f, 0f);
+						NGUIMath.AdjustWidget(this, 0f, (float)(-num) * 0.5f, 0f, (float)num * 0.5f);
 					}
+				}
+				else if (bottomAnchor.target != null)
+				{
+					NGUIMath.AdjustWidget(this, 0f, 0f, 0f, value - mHeight);
 				}
 				else
 				{
-					SetDimensions(mWidth, value);
+					NGUIMath.AdjustWidget(this, 0f, mHeight - value, 0f, 0f);
 				}
+			}
+			else
+			{
+				SetDimensions(mWidth, value);
 			}
 		}
 	}
@@ -366,21 +366,22 @@ public class UIWidget : UIRect
 		}
 		set
 		{
-			if (mDepth != value)
+			if (mDepth == value)
 			{
-				if (panel != null)
+				return;
+			}
+			if (panel != null)
+			{
+				panel.RemoveWidget(this);
+			}
+			mDepth = value;
+			if (panel != null)
+			{
+				panel.AddWidget(this);
+				if (!Application.isPlaying)
 				{
-					panel.RemoveWidget(this);
-				}
-				mDepth = value;
-				if (panel != null)
-				{
-					panel.AddWidget(this);
-					if (!Application.isPlaying)
-					{
-						panel.SortWidgets();
-						panel.RebuildAllDrawCalls();
-					}
+					panel.SortWidgets();
+					panel.RebuildAllDrawCalls();
 				}
 			}
 		}
@@ -607,12 +608,10 @@ public class UIWidget : UIRect
 		if (!mIsVisibleByAlpha || !mIsInFront)
 		{
 			finalAlpha = 0f;
+			return;
 		}
-		else
-		{
-			UIRect parent = base.parent;
-			finalAlpha = ((!(base.parent != null)) ? mColor.a : (parent.CalculateFinalAlpha(frameID) * mColor.a));
-		}
+		UIRect parent = base.parent;
+		finalAlpha = ((!(base.parent != null)) ? mColor.a : (parent.CalculateFinalAlpha(frameID) * mColor.a));
 	}
 
 	public override void Invalidate(bool includeChildren)

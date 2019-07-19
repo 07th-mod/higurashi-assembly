@@ -1,6 +1,8 @@
+using System;
+
 internal abstract class Ease
 {
-	protected const double TWO_PI = 6.2831853071795862;
+	protected const double TWO_PI = Math.PI * 2.0;
 
-	protected const double HALF_PI = 1.5707963267948966;
+	protected const double HALF_PI = Math.PI / 2.0;
 }

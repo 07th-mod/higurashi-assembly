@@ -55,19 +55,20 @@ public class TweenHeight : UITweener
 	protected override void OnUpdate(float factor, bool isFinished)
 	{
 		value = Mathf.RoundToInt((float)from * (1f - factor) + (float)to * factor);
-		if (updateTable)
+		if (!updateTable)
 		{
+			return;
+		}
+		if (mTable == null)
+		{
+			mTable = NGUITools.FindInParents<UITable>(base.gameObject);
 			if (mTable == null)
 			{
-				mTable = NGUITools.FindInParents<UITable>(base.gameObject);
-				if (mTable == null)
-				{
-					updateTable = false;
-					return;
-				}
+				updateTable = false;
+				return;
 			}
-			mTable.repositionNow = true;
 		}
+		mTable.repositionNow = true;
 	}
 
 	public static TweenHeight Begin(UIWidget widget, float duration, int height)

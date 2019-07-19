@@ -188,33 +188,29 @@ namespace Newtonsoft.Json.Linq
 
 		public IEnumerable<JToken> Ancestors()
 		{
-			for (JToken parent = this.Parent; parent != null; parent = parent.Parent)
+			for (JToken parent = Parent; parent != null; parent = parent.Parent)
 			{
 				yield return parent;
 			}
-			yield break;
 		}
 
 		public IEnumerable<JToken> AfterSelf()
 		{
-			if (this.Parent == null)
+			if (Parent != null)
 			{
-				yield break;
+				for (JToken o = Next; o != null; o = o.Next)
+				{
+					yield return o;
+				}
 			}
-			for (JToken o = this.Next; o != null; o = o.Next)
-			{
-				yield return o;
-			}
-			yield break;
 		}
 
 		public IEnumerable<JToken> BeforeSelf()
 		{
-			for (JToken o = this.Parent.First; o != this; o = o.Next)
+			for (JToken o = Parent.First; o != this; o = o.Next)
 			{
 				yield return o;
 			}
-			yield break;
 		}
 
 		public virtual T Value<T>(object key)
@@ -751,7 +747,7 @@ namespace Newtonsoft.Json.Linq
 
 		public static implicit operator JToken(float value)
 		{
-			return new JValue((double)value);
+			return new JValue(value);
 		}
 
 		public static implicit operator JToken(string value)

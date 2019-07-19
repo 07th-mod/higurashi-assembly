@@ -297,38 +297,37 @@ public class UIGrid : UIWidgetContainer
 				num2++;
 			}
 		}
-		if (pivot != 0)
+		if (pivot == UIWidget.Pivot.TopLeft)
 		{
-			Vector2 pivotOffset = NGUIMath.GetPivotOffset(pivot);
-			float num5;
-			float num6;
-			if (arrangement == Arrangement.Horizontal)
+			return;
+		}
+		Vector2 pivotOffset = NGUIMath.GetPivotOffset(pivot);
+		float num5;
+		float num6;
+		if (arrangement == Arrangement.Horizontal)
+		{
+			num5 = Mathf.Lerp(0f, (float)num3 * cellWidth, pivotOffset.x);
+			num6 = Mathf.Lerp((float)(-num4) * cellHeight, 0f, pivotOffset.y);
+		}
+		else
+		{
+			num5 = Mathf.Lerp(0f, (float)num4 * cellWidth, pivotOffset.x);
+			num6 = Mathf.Lerp((float)(-num3) * cellHeight, 0f, pivotOffset.y);
+		}
+		for (int j = 0; j < transform.childCount; j++)
+		{
+			Transform child = transform.GetChild(j);
+			SpringPosition component = child.GetComponent<SpringPosition>();
+			if (component != null)
 			{
-				num5 = Mathf.Lerp(0f, (float)num3 * cellWidth, pivotOffset.x);
-				num6 = Mathf.Lerp((float)(-num4) * cellHeight, 0f, pivotOffset.y);
+				component.target.x -= num5;
+				component.target.y -= num6;
+				continue;
 			}
-			else
-			{
-				num5 = Mathf.Lerp(0f, (float)num4 * cellWidth, pivotOffset.x);
-				num6 = Mathf.Lerp((float)(-num3) * cellHeight, 0f, pivotOffset.y);
-			}
-			for (int j = 0; j < transform.childCount; j++)
-			{
-				Transform child = transform.GetChild(j);
-				SpringPosition component = child.GetComponent<SpringPosition>();
-				if (component != null)
-				{
-					component.target.x -= num5;
-					component.target.y -= num6;
-				}
-				else
-				{
-					Vector3 localPosition = child.localPosition;
-					localPosition.x -= num5;
-					localPosition.y -= num6;
-					child.localPosition = localPosition;
-				}
-			}
+			Vector3 localPosition = child.localPosition;
+			localPosition.x -= num5;
+			localPosition.y -= num6;
+			child.localPosition = localPosition;
 		}
 	}
 }

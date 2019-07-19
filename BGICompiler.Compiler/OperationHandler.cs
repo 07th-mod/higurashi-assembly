@@ -161,6 +161,11 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetNameFormat", new OpType(BurikoOperations.SetNameFormat, "s"));
 			paramLookup.Add("SetScreenAspect", new OpType(BurikoOperations.SetScreenAspect, "s"));
 			paramLookup.Add("SetGUIPosition", new OpType(BurikoOperations.SetGuiPosition, "ii"));
+			paramLookup.Add("DrawFragment", new OpType(BurikoOperations.DrawFragment, "ssi"));
+			paramLookup.Add("StopFragment", new OpType(BurikoOperations.StopFragment, "i"));
+			paramLookup.Add("DrawSpriteFixedSize", new OpType(BurikoOperations.DrawSpriteFixedSize, "issiiiiiiiibbiiiib"));
+			paramLookup.Add("DrawSpriteWithFilteringFixedSize", new OpType(BurikoOperations.DrawSpriteWithFilteringFixedSize, "issiiiiibbiiiib"));
+			paramLookup.Add("Update", new OpType(BurikoOperations.Update, string.Empty));
 			paramLookup.Add("Break", new OpType(BurikoOperations.Break, string.Empty));
 		}
 
@@ -199,12 +204,10 @@ namespace BGICompiler.Compiler
 			if (paramLookup.ContainsKey(name))
 			{
 				OutputCmd(name, param);
+				return;
 			}
-			else
-			{
-				Debug.LogError("Unhandled Operation " + name);
-				CmdOpNull();
-			}
+			Debug.LogError("Unhandled Operation " + name);
+			CmdOpNull();
 		}
 	}
 }

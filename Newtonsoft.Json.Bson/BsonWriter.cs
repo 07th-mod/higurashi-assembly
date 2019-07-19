@@ -124,16 +124,14 @@ namespace Newtonsoft.Json.Bson
 				{
 					((BsonArray)_parent).Add(token);
 				}
+				return;
 			}
-			else
+			if (token.Type != BsonType.Object && token.Type != BsonType.Array)
 			{
-				if (token.Type != BsonType.Object && token.Type != BsonType.Array)
-				{
-					throw new JsonWriterException("Error writing {0} value. BSON must start with an Object or Array.".FormatWith(CultureInfo.InvariantCulture, token.Type));
-				}
-				_parent = token;
-				_root = token;
+				throw new JsonWriterException("Error writing {0} value. BSON must start with an Object or Array.".FormatWith(CultureInfo.InvariantCulture, token.Type));
 			}
+			_parent = token;
+			_root = token;
 		}
 
 		public override void WriteNull()
@@ -169,7 +167,7 @@ namespace Newtonsoft.Json.Bson
 
 		public override void WriteValue(uint value)
 		{
-			if (value > 2147483647)
+			if (value > int.MaxValue)
 			{
 				throw new JsonWriterException("Value is too large to fit in a signed 32 bit integer. BSON does not support unsigned values.");
 			}
@@ -185,7 +183,7 @@ namespace Newtonsoft.Json.Bson
 
 		public override void WriteValue(ulong value)
 		{
-			if (value > 9223372036854775807L)
+			if (value > long.MaxValue)
 			{
 				throw new JsonWriterException("Value is too large to fit in a signed 64 bit integer. BSON does not support unsigned values.");
 			}

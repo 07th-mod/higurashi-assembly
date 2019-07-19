@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 
@@ -78,6 +79,10 @@ namespace Assets.Scripts.Core
 		public GameObject TipsPrefab;
 
 		public GameObject ChapterPreviewPrefab;
+
+		public GameObject LoadingBox;
+
+		public TextMeshPro LoadingText;
 
 		public TextMeshPro HistoryTextMesh;
 
@@ -175,6 +180,8 @@ namespace Assets.Scripts.Core
 
 		public float AspectRatio;
 
+		private Thread CompileThread;
+
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
 		public GameState GameState
@@ -198,28 +205,7 @@ namespace Assets.Scripts.Core
 			AudioController = new AudioController();
 			TextController = new TextController();
 			TextHistory = new TextHistory();
-			try
-			{
-				AssetManager.CompileIfNeeded();
-				Logger.Log("GameSystem: Starting ScriptInterpreter");
-				Type type = Type.GetType(ScriptInterpreterName);
-				if (type == null)
-				{
-					throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
-				}
-				ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
-				if (ScriptSystem == null)
-				{
-					throw new Exception("Failed to instantiate ScriptSystem!");
-				}
-				ScriptSystem.Initialize(this);
-			}
-			catch (Exception arg)
-			{
-				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
-				throw;
-			}
-			IsRunning = true;
+			IsRunning = false;
 			GameState = GameState.Normal;
 			curStateObj = new StateNormal();
 			IGameState obj = curStateObj;
@@ -245,6 +231,47 @@ namespace Assets.Scripts.Core
 			{
 				Screen.SetResolution(640, 480, fullscreen: false);
 			}
+			Debug.Log("Starting compile thread...");
+			CompileThread = new Thread(CompileScripts)
+			{
+				IsBackground = true
+			};
+			CompileThread.Start();
+			if (Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				KeyHook = new KeyHook();
+			}
+		}
+
+		public void CompileScripts()
+		{
+			try
+			{
+				Debug.Log("Compiling!");
+				AssetManager.CompileIfNeeded();
+				Logger.Log("GameSystem: Starting ScriptInterpreter");
+				Type type = Type.GetType(ScriptInterpreterName);
+				if (type == null)
+				{
+					throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
+				}
+				ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
+				if (ScriptSystem == null)
+				{
+					throw new Exception("Failed to instantiate ScriptSystem!");
+				}
+				ScriptSystem.Initialize(this);
+			}
+			catch (Exception arg)
+			{
+				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
+				throw;
+			}
+		}
+
+		public void PostLoading()
+		{
+			LoadingBox.SetActive(value: false);
 		}
 
 		public void UpdateAspectRatio(float newratio)
@@ -289,20 +316,20 @@ namespace Assets.Scripts.Core
 			else
 			{
 				if (curStateObj != null)
-				{
-					Debug.Log("PopStateStack - Calling OnLeaveState");
-					curStateObj.OnLeaveState();
-					curStateObj = null;
-				}
-				StateEntry stateEntry = stateStack.Pop();
-				inputHandler = stateEntry.InputHandler;
-				GameState = stateEntry.State;
-				curStateObj = stateEntry.StateObject;
-				if (curStateObj != null)
-				{
-					curStateObj.OnRestoreState();
-				}
-				Debug.Log("StateStack now has " + stateStack.Count + " entries.");
+			{
+				Debug.Log("PopStateStack - Calling OnLeaveState");
+				curStateObj.OnLeaveState();
+				curStateObj = null;
+			}
+			StateEntry stateEntry = stateStack.Pop();
+			inputHandler = stateEntry.InputHandler;
+			GameState = stateEntry.State;
+			curStateObj = stateEntry.StateObject;
+			if (curStateObj != null)
+			{
+				curStateObj.OnRestoreState();
+			}
+			Debug.Log("StateStack now has " + stateStack.Count + " entries.");
 			}
 		}
 
@@ -737,14 +764,14 @@ namespace Assets.Scripts.Core
 			else
 			{
 				WaitList.ForEach(delegate(Wait a)
-				{
-					a.Finish();
-				});
-				WaitList.RemoveAll((Wait a) => a.IsActive);
-				if (StopVoiceOnClick)
-				{
-					AudioController.StopAllVoice();
-				}
+			{
+				a.Finish();
+			});
+			WaitList.RemoveAll((Wait a) => a.IsActive);
+			if (StopVoiceOnClick)
+			{
+				AudioController.StopAllVoice();
+			}
 			}
 		}
 
@@ -814,80 +841,101 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		private bool CheckInitialization()
+		{
+			if (!IsInitialized)
+			{
+				Initialize();
+				return false;
+			}
+			if (!IsRunning)
+			{
+				if (CompileThread == null || CompileThread.IsAlive)
+				{
+					if (AssetManager.MaxLoading > 0)
+					{
+						LoadingText.text = "Preparing scripts (" + AssetManager.CurrentLoading + " of " + AssetManager.MaxLoading + ")...";
+					}
+					return false;
+				}
+				IsRunning = true;
+				PostLoading();
+			}
+			if (SystemInit > 0)
+			{
+				return false;
+			}
+			return true;
+		}
+
 		private void Update()
 		{
-			if (SystemInit <= 0)
+			if (!CheckInitialization())
 			{
-				Logger.Update();
-				if (!IsInitialized)
+				return;
+			}
+			Logger.Update();
+			if (blockInputTime <= 0f)
+			{
+				if ((CanInput || GameState != GameState.Normal) && (inputHandler == null || !inputHandler()))
 				{
-					Initialize();
+					return;
+				}
+			}
+			else
+			{
+				blockInputTime -= Time.deltaTime;
+			}
+			if (IsRunning && CanAdvance && !WaitOnDelayedAction)
+			{
+				UpdateWaits();
+				if (delayedActions != null)
+				{
+					if (!HasExistingWaits())
+					{
+						ExecuteDelayedActions();
+					}
 				}
 				else
 				{
-					if (blockInputTime <= 0f)
+					UpdateCarret();
+					try
 					{
-						if ((CanInput || GameState != GameState.Normal) && (inputHandler == null || !inputHandler()))
+						if (GameState == GameState.Normal)
 						{
-							return;
-						}
-					}
-					else
-					{
-						blockInputTime -= Time.deltaTime;
-					}
-					if (IsRunning && CanAdvance && !WaitOnDelayedAction)
-					{
-						UpdateWaits();
-						if (delayedActions != null)
-						{
+							TextController.Update();
+							if (!IsSkipping)
+							{
+								goto IL_0127;
+							}
+							skipWait -= Time.deltaTime;
+							if (!(skipWait <= 0f))
+							{
+								goto IL_0127;
+							}
 							if (!HasExistingWaits())
 							{
-								ExecuteDelayedActions();
+								if (SkipModeDelay)
+								{
+									skipWait = 0.1f;
+								}
+								goto IL_0127;
 							}
+							ClearAllWaits();
 						}
-						else
+						goto end_IL_00b7;
+						IL_0127:
+						float num = Time.time + 0.01f;
+						while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction)
 						{
-							UpdateCarret();
-							try
-							{
-								if (GameState == GameState.Normal)
-								{
-									TextController.Update();
-									if (!IsSkipping)
-									{
-										goto IL_013a;
-									}
-									skipWait -= Time.deltaTime;
-									if (!(skipWait <= 0f))
-									{
-										goto IL_013a;
-									}
-									if (!HasExistingWaits())
-									{
-										if (SkipModeDelay)
-										{
-											skipWait = 0.1f;
-										}
-										goto IL_013a;
-									}
-									ClearAllWaits();
-								}
-								goto end_IL_00ca;
-								IL_013a:
-								float num = Time.time + 0.01f;
-								while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction)
-								{
-									ScriptSystem.Advance();
-								}
-								end_IL_00ca:;
-							}
-							catch (Exception)
-							{
-								IsRunning = false;
-								throw;
-							}
+							ScriptSystem.Advance();
 						}
+						end_IL_00b7:;
+					}
+					catch (Exception)
+					{
+						IsRunning = false;
+						throw;
 					}
 				}
 			}
@@ -895,10 +943,18 @@ namespace Assets.Scripts.Core
 
 		private void OnDestroy()
 		{
+			if (Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				KeyHook.Unhook();
+			}
 		}
 
 		private void OnApplicationQuit()
 		{
+			if (!IsRunning)
+			{
+				return;
+			}
 			BurikoMemory.Instance.SaveGlobals();
 			if (GameState != GameState.DialogPrompt && !CanExit)
 			{

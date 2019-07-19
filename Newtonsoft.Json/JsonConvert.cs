@@ -179,7 +179,7 @@ namespace Newtonsoft.Json
 
 		public static string ToString(float value)
 		{
-			return EnsureDecimalPlace((double)value, value.ToString("R", CultureInfo.InvariantCulture));
+			return EnsureDecimalPlace(value, value.ToString("R", CultureInfo.InvariantCulture));
 		}
 
 		public static string ToString(double value)

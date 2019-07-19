@@ -163,8 +163,12 @@ public class UIToggle : UIWidgetContainer
 				activeSprite.alpha = ((!state) ? 0f : 1f);
 			}
 		}
-		else if (mIsActive != state)
+		else
 		{
+			if (mIsActive == state)
+			{
+				return;
+			}
 			if (group != 0 && state)
 			{
 				int num = 0;

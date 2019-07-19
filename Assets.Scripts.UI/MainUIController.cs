@@ -108,7 +108,7 @@ namespace Assets.Scripts.UI
 				bgLayer.SetPriority(62);
 				bgLayer.name = "Window Background";
 				bgLayer.IsStatic = true;
-				bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+				bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 			}
 		}
 

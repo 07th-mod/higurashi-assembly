@@ -111,7 +111,7 @@ public class UISprite : UIBasicSprite
 			{
 				return base.border;
 			}
-			return new Vector4((float)atlasSprite.borderLeft, (float)atlasSprite.borderBottom, (float)atlasSprite.borderRight, (float)atlasSprite.borderTop);
+			return new Vector4(atlasSprite.borderLeft, atlasSprite.borderBottom, atlasSprite.borderRight, atlasSprite.borderTop);
 		}
 	}
 
@@ -275,32 +275,35 @@ public class UISprite : UIBasicSprite
 
 	public override void MakePixelPerfect()
 	{
-		if (isValid)
+		if (!isValid)
 		{
-			base.MakePixelPerfect();
-			if (mType != Type.Tiled)
+			return;
+		}
+		base.MakePixelPerfect();
+		if (mType == Type.Tiled)
+		{
+			return;
+		}
+		UISpriteData atlasSprite = GetAtlasSprite();
+		if (atlasSprite == null)
+		{
+			return;
+		}
+		Texture mainTexture = this.mainTexture;
+		if (!(mainTexture == null) && (mType == Type.Simple || mType == Type.Filled || !atlasSprite.hasBorder) && mainTexture != null)
+		{
+			int num = Mathf.RoundToInt(pixelSize * (float)(atlasSprite.width + atlasSprite.paddingLeft + atlasSprite.paddingRight));
+			int num2 = Mathf.RoundToInt(pixelSize * (float)(atlasSprite.height + atlasSprite.paddingTop + atlasSprite.paddingBottom));
+			if ((num & 1) == 1)
 			{
-				UISpriteData atlasSprite = GetAtlasSprite();
-				if (atlasSprite != null)
-				{
-					Texture mainTexture = this.mainTexture;
-					if (!(mainTexture == null) && (mType == Type.Simple || mType == Type.Filled || !atlasSprite.hasBorder) && mainTexture != null)
-					{
-						int num = Mathf.RoundToInt(pixelSize * (float)(atlasSprite.width + atlasSprite.paddingLeft + atlasSprite.paddingRight));
-						int num2 = Mathf.RoundToInt(pixelSize * (float)(atlasSprite.height + atlasSprite.paddingTop + atlasSprite.paddingBottom));
-						if ((num & 1) == 1)
-						{
-							num++;
-						}
-						if ((num2 & 1) == 1)
-						{
-							num2++;
-						}
-						base.width = num;
-						base.height = num2;
-					}
-				}
+				num++;
 			}
+			if ((num2 & 1) == 1)
+			{
+				num2++;
+			}
+			base.width = num;
+			base.height = num2;
 		}
 	}
 
@@ -328,24 +331,25 @@ public class UISprite : UIBasicSprite
 	public override void OnFill(BetterList<Vector3> verts, BetterList<Vector2> uvs, BetterList<Color32> cols)
 	{
 		Texture mainTexture = this.mainTexture;
-		if (!(mainTexture == null))
+		if (mainTexture == null)
 		{
-			if (mSprite == null)
+			return;
+		}
+		if (mSprite == null)
+		{
+			mSprite = atlas.GetSprite(spriteName);
+		}
+		if (mSprite != null)
+		{
+			Rect rect = new Rect(mSprite.x, mSprite.y, mSprite.width, mSprite.height);
+			Rect rect2 = new Rect(mSprite.x + mSprite.borderLeft, mSprite.y + mSprite.borderTop, mSprite.width - mSprite.borderLeft - mSprite.borderRight, mSprite.height - mSprite.borderBottom - mSprite.borderTop);
+			rect = NGUIMath.ConvertToTexCoords(rect, mainTexture.width, mainTexture.height);
+			rect2 = NGUIMath.ConvertToTexCoords(rect2, mainTexture.width, mainTexture.height);
+			int size = verts.size;
+			Fill(verts, uvs, cols, rect, rect2);
+			if (onPostFill != null)
 			{
-				mSprite = atlas.GetSprite(spriteName);
-			}
-			if (mSprite != null)
-			{
-				Rect rect = new Rect((float)mSprite.x, (float)mSprite.y, (float)mSprite.width, (float)mSprite.height);
-				Rect rect2 = new Rect((float)(mSprite.x + mSprite.borderLeft), (float)(mSprite.y + mSprite.borderTop), (float)(mSprite.width - mSprite.borderLeft - mSprite.borderRight), (float)(mSprite.height - mSprite.borderBottom - mSprite.borderTop));
-				rect = NGUIMath.ConvertToTexCoords(rect, mainTexture.width, mainTexture.height);
-				rect2 = NGUIMath.ConvertToTexCoords(rect2, mainTexture.width, mainTexture.height);
-				int size = verts.size;
-				Fill(verts, uvs, cols, rect, rect2);
-				if (onPostFill != null)
-				{
-					onPostFill(this, size, verts, uvs, cols);
-				}
+				onPostFill(this, size, verts, uvs, cols);
 			}
 		}
 	}

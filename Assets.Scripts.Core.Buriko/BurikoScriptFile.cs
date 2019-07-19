@@ -461,14 +461,6 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationDisplayWindow()
 		{
 			SetOperationType("DisplayWindow");
-			if (gameSystem.IsSkipping)
-			{
-				gameSystem.MainUIController.ShowMessageBox();
-			}
-			else
-			{
-				gameSystem.MainUIController.FadeIn(0.5f);
-			}
 			gameSystem.ExecuteActions();
 			return BurikoVariable.Null;
 		}
@@ -1039,7 +1031,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				wait = 0f;
 			}
-			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, 0, oldx, oldy, oldz, move, priority, 0, wait, flag);
+			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag);
 			if (flag)
 			{
 				gameSystem.ExecuteActions();
@@ -1144,7 +1136,45 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				wait = 0f;
 			}
-			gameSystem.SceneController.DrawSprite(num, text, text2, x, y, z, originx, originy, angle, style, alpha, priority, wait, flag);
+			gameSystem.SceneController.DrawSprite(num, text, text2, x, y, z, originx, originy, 0, 0, angle, style, alpha, priority, wait, flag);
+			if (text2 != string.Empty)
+			{
+				gameSystem.SceneController.SetLayerToDepthMasked(num);
+			}
+			if (flag)
+			{
+				gameSystem.ExecuteActions();
+			}
+			BurikoMemory.Instance.SetCGFlag(text);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationDrawSpriteFixedSize()
+		{
+			SetOperationType("DrawSpriteFixedSize");
+			int num = ReadVariable().IntValue();
+			string text = ReadVariable().StringValue();
+			string text2 = ReadVariable().StringValue();
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			int z = ReadVariable().IntValue();
+			int originx = ReadVariable().IntValue();
+			int originy = ReadVariable().IntValue();
+			int overridew = ReadVariable().IntValue();
+			int overrideh = ReadVariable().IntValue();
+			int angle = ReadVariable().IntValue();
+			ReadVariable().BoolValue();
+			ReadVariable().BoolValue();
+			int style = ReadVariable().IntValue();
+			float alpha = (float)ReadVariable().IntValue() / 256f;
+			int priority = ReadVariable().IntValue();
+			float wait = (float)ReadVariable().IntValue() / 1000f;
+			bool flag = ReadVariable().BoolValue();
+			if (gameSystem.IsSkipping)
+			{
+				wait = 0f;
+			}
+			gameSystem.SceneController.DrawSprite(num, text, text2, x, y, z, originx, originy, overridew, overrideh, angle, style, alpha, priority, wait, flag);
 			if (text2 != string.Empty)
 			{
 				gameSystem.SceneController.SetLayerToDepthMasked(num);
@@ -1177,7 +1207,38 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				wait = 0f;
 			}
-			gameSystem.SceneController.DrawSpriteWithFiltering(layer, text, mask, x, y, style, priority, wait, flag);
+			gameSystem.SceneController.DrawSpriteWithFiltering(layer, text, mask, x, y, 0, 0, style, priority, wait, flag);
+			if (flag)
+			{
+				gameSystem.ExecuteActions();
+			}
+			BurikoMemory.Instance.SetCGFlag(text);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationDrawSpriteWithFilteringFixedSize()
+		{
+			SetOperationType("DrawSpriteWithFiltering");
+			int layer = ReadVariable().IntValue();
+			string text = ReadVariable().StringValue();
+			string mask = ReadVariable().StringValue();
+			int style = ReadVariable().IntValue();
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			int overridew = ReadVariable().IntValue();
+			int overrideh = ReadVariable().IntValue();
+			ReadVariable().BoolValue();
+			ReadVariable().BoolValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			int priority = ReadVariable().IntValue();
+			float wait = (float)ReadVariable().IntValue() / 1000f;
+			bool flag = ReadVariable().BoolValue();
+			if (gameSystem.IsSkipping)
+			{
+				wait = 0f;
+			}
+			gameSystem.SceneController.DrawSpriteWithFiltering(layer, text, mask, x, y, overridew, overrideh, style, priority, wait, flag);
 			if (flag)
 			{
 				gameSystem.ExecuteActions();
@@ -1523,7 +1584,7 @@ namespace Assets.Scripts.Core.Buriko
 			array[2].Route[0] = new Vector3(213f, 131f, 0f);
 			array[2].Time = 200;
 			array[2].Transparancy = 256;
-			gameSystem.SceneController.DrawSprite(50, texture, null, 213, 131, 0, 0, 0, 0, 0, 1f, 50, 10f, isblocking: false);
+			gameSystem.SceneController.DrawSprite(50, texture, null, 213, 131, 0, 0, 0, 0, 0, 0, 0, 1f, 50, 10f, isblocking: false);
 			gameSystem.SceneController.ControlMotionOfSprite(50, array, 0);
 			return BurikoVariable.Null;
 		}
@@ -1735,6 +1796,30 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("SetDrawingPointOfMessage");
 			gameSystem.TextController.SetTextPoint(ReadVariable().IntValue(), ReadVariable().IntValue());
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationDrawFragment()
+		{
+			SetOperationType("DrawFragment");
+			string cname = ReadVariable().StringValue();
+			string pname = ReadVariable().StringValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			gameSystem.SceneController.FragmentController.CreateFragment(cname, pname, time);
+			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationStopFragment()
+		{
+			SetOperationType("StopFragment");
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			FragmentController fragmentController = gameSystem.SceneController.FragmentController;
+			if (!fragmentController.IsActive)
+			{
+				return BurikoVariable.Null;
+			}
+			fragmentController.StopFragment(time);
 			return BurikoVariable.Null;
 		}
 
@@ -2003,6 +2088,13 @@ namespace Assets.Scripts.Core.Buriko
 			int num3 = ReadVariable().IntValue();
 			Color32 color = new Color32((byte)num, (byte)num2, (byte)num3, byte.MaxValue);
 			BurikoMemory.Instance.SetFlag("LTextColor", color.ToInt());
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationUpdate()
+		{
+			SetOperationType("Update");
+			gameSystem.ExecuteActions();
 			return BurikoVariable.Null;
 		}
 
@@ -2279,6 +2371,16 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationGetRandomNumber();
 			case BurikoOperations.SetColorOfMessage:
 				return OperationSetColorOfMessage();
+			case BurikoOperations.DrawFragment:
+				return OperationDrawFragment();
+			case BurikoOperations.StopFragment:
+				return OperationStopFragment();
+			case BurikoOperations.DrawSpriteFixedSize:
+				return OperationDrawSpriteFixedSize();
+			case BurikoOperations.DrawSpriteWithFilteringFixedSize:
+				return OperationDrawSpriteWithFilteringFixedSize();
+			case BurikoOperations.Update:
+				return OperationUpdate();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;

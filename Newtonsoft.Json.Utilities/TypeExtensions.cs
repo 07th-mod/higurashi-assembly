@@ -42,15 +42,15 @@ namespace Newtonsoft.Json.Utilities
 
 		public static IEnumerable<Type> AllInterfaces(this Type target)
 		{
-			foreach (Type IF in target.GetInterfaces())
+			Type[] interfaces = target.GetInterfaces();
+			foreach (Type IF in interfaces)
 			{
 				yield return IF;
-				foreach (Type childIF in IF.AllInterfaces())
+				foreach (Type item in IF.AllInterfaces())
 				{
-					yield return childIF;
+					yield return item;
 				}
 			}
-			yield break;
 		}
 
 		public static IEnumerable<MethodInfo> AllMethods(this Type target)

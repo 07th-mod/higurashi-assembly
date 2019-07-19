@@ -118,77 +118,80 @@ public class UIDragObject : MonoBehaviour
 
 	private void OnPress(bool pressed)
 	{
-		if (base.enabled && NGUITools.GetActive(base.gameObject) && target != null)
+		if (!base.enabled || !NGUITools.GetActive(base.gameObject) || !(target != null))
 		{
-			if (pressed)
+			return;
+		}
+		if (pressed)
+		{
+			if (!mPressed)
 			{
-				if (!mPressed)
+				mTouchID = UICamera.currentTouchID;
+				mPressed = true;
+				mStarted = false;
+				CancelMovement();
+				if (restrictWithinPanel && panelRegion == null)
 				{
-					mTouchID = UICamera.currentTouchID;
-					mPressed = true;
-					mStarted = false;
-					CancelMovement();
-					if (restrictWithinPanel && panelRegion == null)
-					{
-						FindPanel();
-					}
-					if (restrictWithinPanel)
-					{
-						UpdateBounds();
-					}
-					CancelSpring();
-					Transform transform = UICamera.currentCamera.transform;
-					mPlane = new Plane(((!(panelRegion != null)) ? transform.rotation : panelRegion.cachedTransform.rotation) * Vector3.back, UICamera.lastWorldPosition);
+					FindPanel();
 				}
+				if (restrictWithinPanel)
+				{
+					UpdateBounds();
+				}
+				CancelSpring();
+				Transform transform = UICamera.currentCamera.transform;
+				mPlane = new Plane(((!(panelRegion != null)) ? transform.rotation : panelRegion.cachedTransform.rotation) * Vector3.back, UICamera.lastWorldPosition);
 			}
-			else if (mPressed && mTouchID == UICamera.currentTouchID)
+		}
+		else if (mPressed && mTouchID == UICamera.currentTouchID)
+		{
+			mPressed = false;
+			if (restrictWithinPanel && dragEffect == DragEffect.MomentumAndSpring && panelRegion.ConstrainTargetToBounds(target, ref mBounds, immediate: false))
 			{
-				mPressed = false;
-				if (restrictWithinPanel && dragEffect == DragEffect.MomentumAndSpring && panelRegion.ConstrainTargetToBounds(target, ref mBounds, immediate: false))
-				{
-					CancelMovement();
-				}
+				CancelMovement();
 			}
 		}
 	}
 
 	private void OnDrag(Vector2 delta)
 	{
-		if (mPressed && mTouchID == UICamera.currentTouchID && base.enabled && NGUITools.GetActive(base.gameObject) && target != null)
+		if (!mPressed || mTouchID != UICamera.currentTouchID || !base.enabled || !NGUITools.GetActive(base.gameObject) || !(target != null))
 		{
-			UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
-			Ray ray = UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos);
-			float enter = 0f;
-			if (mPlane.Raycast(ray, out enter))
+			return;
+		}
+		UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
+		Ray ray = UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos);
+		float enter = 0f;
+		if (!mPlane.Raycast(ray, out enter))
+		{
+			return;
+		}
+		Vector3 point = ray.GetPoint(enter);
+		Vector3 vector = point - mLastPos;
+		mLastPos = point;
+		if (!mStarted)
+		{
+			mStarted = true;
+			vector = Vector3.zero;
+		}
+		if (vector.x != 0f || vector.y != 0f)
+		{
+			vector = target.InverseTransformDirection(vector);
+			vector.Scale(scale);
+			vector = target.TransformDirection(vector);
+		}
+		if (dragEffect != 0)
+		{
+			mMomentum = Vector3.Lerp(mMomentum, mMomentum + vector * (0.01f * momentumAmount), 0.67f);
+		}
+		Vector3 localPosition = target.localPosition;
+		Move(vector);
+		if (restrictWithinPanel)
+		{
+			mBounds.center += target.localPosition - localPosition;
+			if (dragEffect != DragEffect.MomentumAndSpring && panelRegion.ConstrainTargetToBounds(target, ref mBounds, immediate: true))
 			{
-				Vector3 point = ray.GetPoint(enter);
-				Vector3 vector = point - mLastPos;
-				mLastPos = point;
-				if (!mStarted)
-				{
-					mStarted = true;
-					vector = Vector3.zero;
-				}
-				if (vector.x != 0f || vector.y != 0f)
-				{
-					vector = target.InverseTransformDirection(vector);
-					vector.Scale(scale);
-					vector = target.TransformDirection(vector);
-				}
-				if (dragEffect != 0)
-				{
-					mMomentum = Vector3.Lerp(mMomentum, mMomentum + vector * (0.01f * momentumAmount), 0.67f);
-				}
-				Vector3 localPosition = target.localPosition;
-				Move(vector);
-				if (restrictWithinPanel)
-				{
-					mBounds.center += target.localPosition - localPosition;
-					if (dragEffect != DragEffect.MomentumAndSpring && panelRegion.ConstrainTargetToBounds(target, ref mBounds, immediate: true))
-					{
-						CancelMovement();
-					}
-				}
+				CancelMovement();
 			}
 		}
 	}
@@ -217,43 +220,45 @@ public class UIDragObject : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (!(target == null))
+		if (target == null)
 		{
-			float deltaTime = RealTime.deltaTime;
-			mMomentum -= mScroll;
-			mScroll = NGUIMath.SpringLerp(mScroll, Vector3.zero, 20f, deltaTime);
-			if (!(mMomentum.magnitude < 0.0001f))
+			return;
+		}
+		float deltaTime = RealTime.deltaTime;
+		mMomentum -= mScroll;
+		mScroll = NGUIMath.SpringLerp(mScroll, Vector3.zero, 20f, deltaTime);
+		if (mMomentum.magnitude < 0.0001f)
+		{
+			return;
+		}
+		if (!mPressed)
+		{
+			if (panelRegion == null)
 			{
-				if (!mPressed)
+				FindPanel();
+			}
+			Move(NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime));
+			if (restrictWithinPanel && panelRegion != null)
+			{
+				UpdateBounds();
+				if (panelRegion.ConstrainTargetToBounds(target, ref mBounds, dragEffect == DragEffect.None))
 				{
-					if (panelRegion == null)
-					{
-						FindPanel();
-					}
-					Move(NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime));
-					if (restrictWithinPanel && panelRegion != null)
-					{
-						UpdateBounds();
-						if (panelRegion.ConstrainTargetToBounds(target, ref mBounds, dragEffect == DragEffect.None))
-						{
-							CancelMovement();
-						}
-						else
-						{
-							CancelSpring();
-						}
-					}
-					NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
-					if (mMomentum.magnitude < 0.0001f)
-					{
-						CancelMovement();
-					}
+					CancelMovement();
 				}
 				else
 				{
-					NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
+					CancelSpring();
 				}
 			}
+			NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
+			if (mMomentum.magnitude < 0.0001f)
+			{
+				CancelMovement();
+			}
+		}
+		else
+		{
+			NGUIMath.SpringDampen(ref mMomentum, 9f, deltaTime);
 		}
 	}
 
@@ -262,9 +267,9 @@ public class UIDragObject : MonoBehaviour
 		if (target != null)
 		{
 			Vector3 localPosition = target.localPosition;
-			localPosition.x = (float)Mathf.RoundToInt(localPosition.x);
-			localPosition.y = (float)Mathf.RoundToInt(localPosition.y);
-			localPosition.z = (float)Mathf.RoundToInt(localPosition.z);
+			localPosition.x = Mathf.RoundToInt(localPosition.x);
+			localPosition.y = Mathf.RoundToInt(localPosition.y);
+			localPosition.z = Mathf.RoundToInt(localPosition.z);
 			target.localPosition = localPosition;
 		}
 		mTargetPos = ((!(target != null)) ? Vector3.zero : target.position);

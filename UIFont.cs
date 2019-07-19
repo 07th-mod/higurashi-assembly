@@ -122,8 +122,12 @@ public class UIFont : MonoBehaviour
 			{
 				mReplacement.atlas = value;
 			}
-			else if (mAtlas != value)
+			else
 			{
+				if (!(mAtlas != value))
+				{
+					return;
+				}
 				if (value == null)
 				{
 					if (mAtlas != null)
@@ -470,7 +474,7 @@ public class UIFont : MonoBehaviour
 		if (texture != null && mSprite != null)
 		{
 			Rect rect = NGUIMath.ConvertToPixels(mUVRect, this.texture.width, this.texture.height, round: true);
-			Rect rect2 = new Rect((float)mSprite.x, (float)mSprite.y, (float)mSprite.width, (float)mSprite.height);
+			Rect rect2 = new Rect(mSprite.x, mSprite.y, mSprite.width, mSprite.height);
 			int xMin = Mathf.RoundToInt(rect2.xMin - rect.xMin);
 			int yMin = Mathf.RoundToInt(rect2.yMin - rect.yMin);
 			int xMax = Mathf.RoundToInt(rect2.xMax - rect.xMin);
@@ -533,17 +537,18 @@ public class UIFont : MonoBehaviour
 
 	public void UpdateUVRect()
 	{
-		if (!(mAtlas == null))
+		if (mAtlas == null)
 		{
-			Texture texture = mAtlas.texture;
-			if (texture != null)
+			return;
+		}
+		Texture texture = mAtlas.texture;
+		if (texture != null)
+		{
+			mUVRect = new Rect(mSprite.x - mSprite.paddingLeft, mSprite.y - mSprite.paddingTop, mSprite.width + mSprite.paddingLeft + mSprite.paddingRight, mSprite.height + mSprite.paddingTop + mSprite.paddingBottom);
+			mUVRect = NGUIMath.ConvertToTexCoords(mUVRect, texture.width, texture.height);
+			if (mSprite.hasPadding)
 			{
-				mUVRect = new Rect((float)(mSprite.x - mSprite.paddingLeft), (float)(mSprite.y - mSprite.paddingTop), (float)(mSprite.width + mSprite.paddingLeft + mSprite.paddingRight), (float)(mSprite.height + mSprite.paddingTop + mSprite.paddingBottom));
-				mUVRect = NGUIMath.ConvertToTexCoords(mUVRect, texture.width, texture.height);
-				if (mSprite.hasPadding)
-				{
-					Trim();
-				}
+				Trim();
 			}
 		}
 	}
@@ -581,21 +586,22 @@ public class UIFont : MonoBehaviour
 		{
 			BMSymbol bMSymbol = mSymbols[i];
 			int length = bMSymbol.length;
-			if (length != 0 && textLength >= length)
+			if (length == 0 || textLength < length)
 			{
-				bool flag = true;
-				for (int j = 0; j < length; j++)
+				continue;
+			}
+			bool flag = true;
+			for (int j = 0; j < length; j++)
+			{
+				if (text[offset + j] != bMSymbol.sequence[j])
 				{
-					if (text[offset + j] != bMSymbol.sequence[j])
-					{
-						flag = false;
-						break;
-					}
+					flag = false;
+					break;
 				}
-				if (flag && bMSymbol.Validate(atlas))
-				{
-					return bMSymbol;
-				}
+			}
+			if (flag && bMSymbol.Validate(atlas))
+			{
+				return bMSymbol;
 			}
 		}
 		return null;
@@ -603,7 +609,7 @@ public class UIFont : MonoBehaviour
 
 	public void AddSymbol(string sequence, string spriteName)
 	{
-		BMSymbol symbol = GetSymbol(sequence, /*createIfMissing:*/ true);
+		BMSymbol symbol = GetSymbol(sequence, createIfMissing: true);
 		symbol.spriteName = spriteName;
 		MarkAsChanged();
 	}

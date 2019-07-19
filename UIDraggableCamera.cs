@@ -106,24 +106,25 @@ public class UIDraggableCamera : MonoBehaviour
 		{
 			mDragStarted = false;
 		}
-		if (rootForBounds != null)
+		if (!(rootForBounds != null))
 		{
-			mPressed = isPressed;
-			if (isPressed)
+			return;
+		}
+		mPressed = isPressed;
+		if (isPressed)
+		{
+			mBounds = NGUIMath.CalculateAbsoluteWidgetBounds(rootForBounds);
+			mMomentum = Vector2.zero;
+			mScroll = 0f;
+			SpringPosition component = GetComponent<SpringPosition>();
+			if (component != null)
 			{
-				mBounds = NGUIMath.CalculateAbsoluteWidgetBounds(rootForBounds);
-				mMomentum = Vector2.zero;
-				mScroll = 0f;
-				SpringPosition component = GetComponent<SpringPosition>();
-				if (component != null)
-				{
-					component.enabled = false;
-				}
+				component.enabled = false;
 			}
-			else if (dragEffect == UIDragObject.DragEffect.MomentumAndSpring)
-			{
-				ConstrainToBounds(immediate: false);
-			}
+		}
+		else if (dragEffect == UIDragObject.DragEffect.MomentumAndSpring)
+		{
+			ConstrainToBounds(immediate: false);
 		}
 	}
 
@@ -132,22 +133,20 @@ public class UIDraggableCamera : MonoBehaviour
 		if (smoothDragStart && !mDragStarted)
 		{
 			mDragStarted = true;
+			return;
 		}
-		else
+		UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
+		if (mRoot != null)
 		{
-			UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
-			if (mRoot != null)
-			{
-				delta *= mRoot.pixelSizeAdjustment;
-			}
-			Vector2 vector = Vector2.Scale(delta, -scale);
-			mTrans.localPosition += (Vector3)vector;
-			mMomentum = Vector2.Lerp(mMomentum, mMomentum + vector * (0.01f * momentumAmount), 0.67f);
-			if (dragEffect != UIDragObject.DragEffect.MomentumAndSpring && ConstrainToBounds(immediate: true))
-			{
-				mMomentum = Vector2.zero;
-				mScroll = 0f;
-			}
+			delta *= mRoot.pixelSizeAdjustment;
+		}
+		Vector2 vector = Vector2.Scale(delta, -scale);
+		mTrans.localPosition += (Vector3)vector;
+		mMomentum = Vector2.Lerp(mMomentum, mMomentum + vector * (0.01f * momentumAmount), 0.67f);
+		if (dragEffect != UIDragObject.DragEffect.MomentumAndSpring && ConstrainToBounds(immediate: true))
+		{
+			mMomentum = Vector2.zero;
+			mScroll = 0f;
 		}
 	}
 

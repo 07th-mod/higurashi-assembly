@@ -65,12 +65,13 @@ public class ByteReader
 			int num4;
 			do
 			{
-				if (num2 >= num)
+				if (num2 < num)
 				{
-					num2++;
-					break;
+					num4 = mBuffer[num2++];
+					continue;
 				}
-				num4 = mBuffer[num2++];
+				num2++;
+				break;
 			}
 			while (num4 != 10 && num4 != 13);
 			string result = ReadLine(mBuffer, mOffset, num2 - mOffset - 1);

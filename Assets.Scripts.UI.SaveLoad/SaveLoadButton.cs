@@ -4,7 +4,6 @@ using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -40,110 +39,104 @@ namespace Assets.Scripts.UI.SaveLoad
 			string name = base.name;
 			switch (name)
 			{
-				case "Save":
-				case "0-Save":
-					manager.Save(slot);
-					goto IL_02e0;
-				case "Load":
-				case "1-Load":
-					goto IL_0158;
-				case "2-Edit":
-					goto IL_01cb;
-				case "3-Delete":
-					goto IL_025a;
-				case "Return":
-					goto IL_02c0;
-				default:
-					goto IL_02d1;
-			}
-			IL_0158:
-			SaveEntry d5 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
-			if (d5 == null)
+			case "Save":
+			case "0-Save":
+				manager.Save(slot);
+				break;
+			case "Load":
+			case "1-Load":
 			{
-				return;
-			}
-			StateDialogPrompt state3 = new StateDialogPrompt(PromptType.DialogLoad, delegate
-			{
-				state.Leave(delegate
+				SaveEntry d = BurikoScriptSystem.Instance.GetSaveInfo(slot);
+				if (d == null)
 				{
-					StateTitle stateTitle = gameSystem.GetStateObject() as StateTitle;
-					if (!manager.CanSave())
+					return;
+				}
+				StateDialogPrompt state2 = new StateDialogPrompt(PromptType.DialogLoad, delegate
+				{
+					state.Leave(delegate
 					{
-						stateTitle?.RequestLeaveImmediate();
+						StateTitle stateTitle = gameSystem.GetStateObject() as StateTitle;
+						if (!manager.CanSave())
+						{
+							stateTitle?.RequestLeaveImmediate();
+						}
+						(gameSystem.GetStateObject() as StateChapterScreen)?.RequestLeaveImmediate();
+						GameSystem.Instance.ScriptSystem.LoadGame(slot);
+					});
+				}, null);
+				gameSystem.PushStateObject(state2);
+				gameSystem.RegisterAction(delegate
+				{
+					PromptController promptController = state2.GetPromptController();
+					if (!(promptController == null))
+					{
+						string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d.Path);
+						Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
+						promptController.SetScreenshotDetails(image, d.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d.Text, d.TextJp);
 					}
-					(gameSystem.GetStateObject() as StateChapterScreen)?.RequestLeaveImmediate();
-					GameSystem.Instance.ScriptSystem.LoadGame(slot);
 				});
-			}, null);
-			gameSystem.PushStateObject(state3);
-			gameSystem.RegisterAction(delegate
-			{
-				PromptController promptController3 = state3.GetPromptController();
-				if (!(promptController3 == null))
-				{
-					string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d5.Path);
-					Texture2D image3 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension3 + ".png");
-					promptController3.SetScreenshotDetails(image3, d5.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d5.Text, d5.TextJp);
-				}
-			});
-			gameSystem.ExecuteActions();
-			goto IL_02e0;
-			IL_025a:
-			SaveEntry d4 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
-			if (d4 == null)
-			{
-				return;
+				gameSystem.ExecuteActions();
+				break;
 			}
-			StateDialogPrompt prompt = new StateDialogPrompt(PromptType.DialogDelete, delegate
+			case "2-Edit":
 			{
-				BurikoScriptSystem.Instance.DeleteSave(slot);
-				manager.RefreshList();
-			}, null);
-			GameSystem.Instance.PushStateObject(prompt);
-			GameSystem.Instance.RegisterAction(delegate
-			{
-				PromptController promptController2 = prompt.GetPromptController();
-				if (!(promptController2 == null))
+				SaveEntry d2 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
+				if (d2 == null)
 				{
-					string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d4.Path);
-					Texture2D image2 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension2 + ".png");
-					promptController2.SetScreenshotDetails(image2, d4.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d4.Text, d4.TextJp);
+					return;
 				}
-			});
-			goto IL_02e0;
-			IL_02e0:
+				SaveLoadManager.EditSlot = slot;
+				StateDialogPrompt state3 = new StateDialogPrompt(PromptType.DialogEdit, delegate
+				{
+				}, null);
+				gameSystem.PushStateObject(state3);
+				gameSystem.RegisterAction(delegate
+				{
+					PromptController promptController2 = state3.GetPromptController();
+					if (!(promptController2 == null))
+					{
+						string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d2.Path);
+						Texture2D image2 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension2 + ".png");
+						promptController2.SetScreenshotDetails(image2, d2.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d2.Text, d2.TextJp);
+					}
+				});
+				gameSystem.ExecuteActions();
+				break;
+			}
+			case "3-Delete":
+			{
+				SaveEntry d3 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
+				if (d3 == null)
+				{
+					return;
+				}
+				StateDialogPrompt prompt = new StateDialogPrompt(PromptType.DialogDelete, delegate
+				{
+					BurikoScriptSystem.Instance.DeleteSave(slot);
+					manager.RefreshList();
+				}, null);
+				GameSystem.Instance.PushStateObject(prompt);
+				GameSystem.Instance.RegisterAction(delegate
+				{
+					PromptController promptController3 = prompt.GetPromptController();
+					if (!(promptController3 == null))
+					{
+						string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d3.Path);
+						Texture2D image3 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension3 + ".png");
+						promptController3.SetScreenshotDetails(image3, d3.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d3.Text, d3.TextJp);
+					}
+				});
+				break;
+			}
+			case "Return":
+				state.Leave(null);
+				break;
+			default:
+				Debug.LogWarning("Unhandled button action!");
+				break;
+			}
 			AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
 			time = 0.45f;
-			return;
-			IL_01cb:
-			SaveEntry d3 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
-			if (d3 == null)
-			{
-				return;
-			}
-			SaveLoadManager.EditSlot = slot;
-			StateDialogPrompt state2 = new StateDialogPrompt(PromptType.DialogEdit, delegate
-			{
-			}, null);
-			gameSystem.PushStateObject(state2);
-			gameSystem.RegisterAction(delegate
-			{
-				PromptController promptController = state2.GetPromptController();
-				if (!(promptController == null))
-				{
-					string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d3.Path);
-					Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
-					promptController.SetScreenshotDetails(image, d3.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d3.Text, d3.TextJp);
-				}
-			});
-			gameSystem.ExecuteActions();
-			goto IL_02e0;
-			IL_02d1:
-			Debug.LogWarning("Unhandled button action!");
-			goto IL_02e0;
-			IL_02c0:
-			state.Leave(null);
-			goto IL_02e0;
 		}
 
 		private void OnHover(bool hover)

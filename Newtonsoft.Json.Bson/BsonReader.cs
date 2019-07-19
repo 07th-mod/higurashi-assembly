@@ -539,15 +539,13 @@ namespace Newtonsoft.Json.Bson
 				{
 					num2 = num5 - lastFullCharStop - 1;
 					Array.Copy(_byteBuffer, lastFullCharStop + 1, _byteBuffer, 0, num2);
+					continue;
 				}
-				else
+				if (num3 < 128)
 				{
-					if (num3 < 128)
-					{
-						break;
-					}
-					num2 = 0;
+					break;
 				}
+				num2 = 0;
 			}
 			MovePosition(num + 1);
 			return stringBuilder.ToString();
@@ -612,23 +610,19 @@ namespace Newtonsoft.Json.Bson
 		{
 			int num = start;
 			int num2 = 0;
-			while (num >= 0)
+			for (; num >= 0; num--)
 			{
 				num2 = BytesInSequence(_byteBuffer[num]);
 				switch (num2)
 				{
 				case 0:
-					break;
+					continue;
 				default:
 					num--;
-					goto end_IL_003c;
+					break;
 				case 1:
-					goto end_IL_003c;
+					break;
 				}
-				num--;
-				continue;
-				continue;
-				end_IL_003c:
 				break;
 			}
 			if (num2 == start - num)

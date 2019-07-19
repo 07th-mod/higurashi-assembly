@@ -34,7 +34,7 @@ public class Rotator : MonoBehaviour
 		if (Time.time - starttime <= Duration)
 		{
 			float num = 0f;
-			num = (EaseType ? ((float)Quad.EaseOut((double)(Time.time - starttime), 0.0, 1.0, (double)Duration) * (EndPos - StartPos) + StartPos) : ((float)Quad.EaseInOut((double)(Time.time - starttime), 0.0, 1.0, (double)Duration) * (EndPos - StartPos) + StartPos));
+			num = (EaseType ? ((float)Quad.EaseOut(Time.time - starttime, 0.0, 1.0, Duration) * (EndPos - StartPos) + StartPos) : ((float)Quad.EaseInOut(Time.time - starttime, 0.0, 1.0, Duration) * (EndPos - StartPos) + StartPos));
 			base.transform.localEulerAngles = new Vector3(0f, 0f, num);
 		}
 		else

@@ -237,39 +237,40 @@ public class UI2DSprite : UIBasicSprite
 			nextSprite = null;
 		}
 		base.OnUpdate();
-		if (mFixedAspect)
+		if (!mFixedAspect)
 		{
-			Texture mainTexture = this.mainTexture;
-			if (mainTexture != null)
+			return;
+		}
+		Texture mainTexture = this.mainTexture;
+		if (mainTexture != null)
+		{
+			int num = Mathf.RoundToInt(mSprite.rect.width);
+			int num2 = Mathf.RoundToInt(mSprite.rect.height);
+			Vector2 textureRectOffset = mSprite.textureRectOffset;
+			int num3 = Mathf.RoundToInt(textureRectOffset.x);
+			Vector2 textureRectOffset2 = mSprite.textureRectOffset;
+			int num4 = Mathf.RoundToInt(textureRectOffset2.y);
+			float num5 = mSprite.rect.width - mSprite.textureRect.width;
+			Vector2 textureRectOffset3 = mSprite.textureRectOffset;
+			int num6 = Mathf.RoundToInt(num5 - textureRectOffset3.x);
+			float num7 = mSprite.rect.height - mSprite.textureRect.height;
+			Vector2 textureRectOffset4 = mSprite.textureRectOffset;
+			int num8 = Mathf.RoundToInt(num7 - textureRectOffset4.y);
+			num += num3 + num6;
+			num2 += num8 + num4;
+			float num9 = mWidth;
+			float num10 = mHeight;
+			float num11 = num9 / num10;
+			float num12 = (float)num / (float)num2;
+			if (num12 < num11)
 			{
-				int num = Mathf.RoundToInt(mSprite.rect.width);
-				int num2 = Mathf.RoundToInt(mSprite.rect.height);
-				Vector2 textureRectOffset = mSprite.textureRectOffset;
-				int num3 = Mathf.RoundToInt(textureRectOffset.x);
-				Vector2 textureRectOffset2 = mSprite.textureRectOffset;
-				int num4 = Mathf.RoundToInt(textureRectOffset2.y);
-				float num5 = mSprite.rect.width - mSprite.textureRect.width;
-				Vector2 textureRectOffset3 = mSprite.textureRectOffset;
-				int num6 = Mathf.RoundToInt(num5 - textureRectOffset3.x);
-				float num7 = mSprite.rect.height - mSprite.textureRect.height;
-				Vector2 textureRectOffset4 = mSprite.textureRectOffset;
-				int num8 = Mathf.RoundToInt(num7 - textureRectOffset4.y);
-				num += num3 + num6;
-				num2 += num8 + num4;
-				float num9 = (float)mWidth;
-				float num10 = (float)mHeight;
-				float num11 = num9 / num10;
-				float num12 = (float)num / (float)num2;
-				if (num12 < num11)
-				{
-					float num13 = (num9 - num10 * num12) / num9 * 0.5f;
-					base.drawRegion = new Vector4(num13, 0f, 1f - num13, 1f);
-				}
-				else
-				{
-					float num14 = (num10 - num9 / num12) / num10 * 0.5f;
-					base.drawRegion = new Vector4(0f, num14, 1f, 1f - num14);
-				}
+				float num13 = (num9 - num10 * num12) / num9 * 0.5f;
+				base.drawRegion = new Vector4(num13, 0f, 1f - num13, 1f);
+			}
+			else
+			{
+				float num14 = (num10 - num9 / num12) / num10 * 0.5f;
+				base.drawRegion = new Vector4(0f, num14, 1f, 1f - num14);
 			}
 		}
 	}
@@ -277,25 +278,26 @@ public class UI2DSprite : UIBasicSprite
 	public override void MakePixelPerfect()
 	{
 		base.MakePixelPerfect();
-		if (mType != Type.Tiled)
+		if (mType == Type.Tiled)
 		{
-			Texture mainTexture = this.mainTexture;
-			if (!(mainTexture == null) && (mType == Type.Simple || mType == Type.Filled || !base.hasBorder) && mainTexture != null)
+			return;
+		}
+		Texture mainTexture = this.mainTexture;
+		if (!(mainTexture == null) && (mType == Type.Simple || mType == Type.Filled || !base.hasBorder) && mainTexture != null)
+		{
+			Rect rect = mSprite.rect;
+			int num = Mathf.RoundToInt(rect.width);
+			int num2 = Mathf.RoundToInt(rect.height);
+			if ((num & 1) == 1)
 			{
-				Rect rect = mSprite.rect;
-				int num = Mathf.RoundToInt(rect.width);
-				int num2 = Mathf.RoundToInt(rect.height);
-				if ((num & 1) == 1)
-				{
-					num++;
-				}
-				if ((num2 & 1) == 1)
-				{
-					num2++;
-				}
-				base.width = num;
-				base.height = num2;
+				num++;
 			}
+			if ((num2 & 1) == 1)
+			{
+				num2++;
+			}
+			base.width = num;
+			base.height = num2;
 		}
 	}
 
@@ -304,7 +306,7 @@ public class UI2DSprite : UIBasicSprite
 		Texture mainTexture = this.mainTexture;
 		if (!(mainTexture == null))
 		{
-			Rect rect = (!(mSprite != null)) ? new Rect(0f, 0f, (float)mainTexture.width, (float)mainTexture.height) : mSprite.textureRect;
+			Rect rect = (!(mSprite != null)) ? new Rect(0f, 0f, mainTexture.width, mainTexture.height) : mSprite.textureRect;
 			Rect inner = rect;
 			Vector4 border = this.border;
 			inner.xMin += border.x;

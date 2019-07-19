@@ -96,95 +96,97 @@ namespace Newtonsoft.Json.Schema
 		{
 			switch (propertyName)
 			{
-				case "type":
-					this.CurrentSchema.Type = this.ProcessType();
-					return;
-				case "id":
-					this.CurrentSchema.Id = (string)this._reader.Value;
-					return;
-				case "title":
-					this.CurrentSchema.Title = (string)this._reader.Value;
-					return;
-				case "description":
-					this.CurrentSchema.Description = (string)this._reader.Value;
-					return;
-				case "properties":
-					this.ProcessProperties();
-					return;
-				case "items":
-					this.ProcessItems();
-					return;
-				case "additionalProperties":
-					this.ProcessAdditionalProperties();
-					return;
-				case "patternProperties":
-					this.ProcessPatternProperties();
-					return;
-				case "required":
-					this.CurrentSchema.Required = new bool?((bool)this._reader.Value);
-					return;
-				case "requires":
-					this.CurrentSchema.Requires = (string)this._reader.Value;
-					return;
-				case "identity":
-					this.ProcessIdentity();
-					return;
-				case "minimum":
-					this.CurrentSchema.Minimum = new double?(Convert.ToDouble(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "maximum":
-					this.CurrentSchema.Maximum = new double?(Convert.ToDouble(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "exclusiveMinimum":
-					this.CurrentSchema.ExclusiveMinimum = new bool?((bool)this._reader.Value);
-					return;
-				case "exclusiveMaximum":
-					this.CurrentSchema.ExclusiveMaximum = new bool?((bool)this._reader.Value);
-					return;
-				case "maxLength":
-					this.CurrentSchema.MaximumLength = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "minLength":
-					this.CurrentSchema.MinimumLength = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "maxItems":
-					this.CurrentSchema.MaximumItems = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "minItems":
-					this.CurrentSchema.MinimumItems = new int?(Convert.ToInt32(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "divisibleBy":
-					this.CurrentSchema.DivisibleBy = new double?(Convert.ToDouble(this._reader.Value, CultureInfo.InvariantCulture));
-					return;
-				case "disallow":
-					this.CurrentSchema.Disallow = this.ProcessType();
-					return;
-				case "default":
-					this.ProcessDefault();
-					return;
-				case "hidden":
-					this.CurrentSchema.Hidden = new bool?((bool)this._reader.Value);
-					return;
-				case "readonly":
-					this.CurrentSchema.ReadOnly = new bool?((bool)this._reader.Value);
-					return;
-				case "format":
-					this.CurrentSchema.Format = (string)this._reader.Value;
-					return;
-				case "pattern":
-					this.CurrentSchema.Pattern = (string)this._reader.Value;
-					return;
-				case "options":
-					this.ProcessOptions();
-					return;
-				case "enum":
-					this.ProcessEnum();
-					return;
-				case "extends":
-					this.ProcessExtends();
-					return;
+			case "type":
+				CurrentSchema.Type = ProcessType();
+				break;
+			case "id":
+				CurrentSchema.Id = (string)_reader.Value;
+				break;
+			case "title":
+				CurrentSchema.Title = (string)_reader.Value;
+				break;
+			case "description":
+				CurrentSchema.Description = (string)_reader.Value;
+				break;
+			case "properties":
+				ProcessProperties();
+				break;
+			case "items":
+				ProcessItems();
+				break;
+			case "additionalProperties":
+				ProcessAdditionalProperties();
+				break;
+			case "patternProperties":
+				ProcessPatternProperties();
+				break;
+			case "required":
+				CurrentSchema.Required = (bool)_reader.Value;
+				break;
+			case "requires":
+				CurrentSchema.Requires = (string)_reader.Value;
+				break;
+			case "identity":
+				ProcessIdentity();
+				break;
+			case "minimum":
+				CurrentSchema.Minimum = Convert.ToDouble(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "maximum":
+				CurrentSchema.Maximum = Convert.ToDouble(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "exclusiveMinimum":
+				CurrentSchema.ExclusiveMinimum = (bool)_reader.Value;
+				break;
+			case "exclusiveMaximum":
+				CurrentSchema.ExclusiveMaximum = (bool)_reader.Value;
+				break;
+			case "maxLength":
+				CurrentSchema.MaximumLength = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "minLength":
+				CurrentSchema.MinimumLength = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "maxItems":
+				CurrentSchema.MaximumItems = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "minItems":
+				CurrentSchema.MinimumItems = Convert.ToInt32(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "divisibleBy":
+				CurrentSchema.DivisibleBy = Convert.ToDouble(_reader.Value, CultureInfo.InvariantCulture);
+				break;
+			case "disallow":
+				CurrentSchema.Disallow = ProcessType();
+				break;
+			case "default":
+				ProcessDefault();
+				break;
+			case "hidden":
+				CurrentSchema.Hidden = (bool)_reader.Value;
+				break;
+			case "readonly":
+				CurrentSchema.ReadOnly = (bool)_reader.Value;
+				break;
+			case "format":
+				CurrentSchema.Format = (string)_reader.Value;
+				break;
+			case "pattern":
+				CurrentSchema.Pattern = (string)_reader.Value;
+				break;
+			case "options":
+				ProcessOptions();
+				break;
+			case "enum":
+				ProcessEnum();
+				break;
+			case "extends":
+				ProcessExtends();
+				break;
+			default:
+				_reader.Skip();
+				break;
 			}
-			this._reader.Skip();
 		}
 
 		private void ProcessExtends()
@@ -272,15 +274,16 @@ namespace Newtonsoft.Json.Schema
 			case JsonToken.StartArray:
 				while (true)
 				{
-					if (!_reader.Read() || _reader.TokenType == JsonToken.EndArray)
+					if (_reader.Read() && _reader.TokenType != JsonToken.EndArray)
 					{
-						return;
+						if (_reader.TokenType != JsonToken.String)
+						{
+							break;
+						}
+						CurrentSchema.Identity.Add(_reader.Value.ToString());
+						continue;
 					}
-					if (_reader.TokenType != JsonToken.String)
-					{
-						break;
-					}
-					CurrentSchema.Identity.Add(_reader.Value.ToString());
+					return;
 				}
 				throw new Exception("Exception JSON property name string token, got {0}.".FormatWith(CultureInfo.InvariantCulture, _reader.TokenType));
 			default:

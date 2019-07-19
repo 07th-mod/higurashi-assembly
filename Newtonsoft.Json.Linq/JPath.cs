@@ -83,17 +83,18 @@ namespace Newtonsoft.Json.Linq
 			while (_currentIndex < _expression.Length)
 			{
 				char c2 = _expression[_currentIndex];
-				if (!char.IsDigit(c2))
+				if (char.IsDigit(c2))
 				{
-					if (c2 == c)
-					{
-						flag = true;
-						break;
-					}
-					throw new Exception("Unexpected character while parsing path indexer: " + c2);
+					num++;
+					_currentIndex++;
+					continue;
 				}
-				num++;
-				_currentIndex++;
+				if (c2 == c)
+				{
+					flag = true;
+					break;
+				}
+				throw new Exception("Unexpected character while parsing path indexer: " + c2);
 			}
 			if (!flag)
 			{

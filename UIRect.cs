@@ -71,16 +71,14 @@ public abstract class UIRect : MonoBehaviour
 				Vector3[] sides = rect.GetSides(parent);
 				float num = Mathf.Lerp(sides[0].x, sides[2].x, relative);
 				absolute = Mathf.FloorToInt(localPos - num + 0.5f);
+				return;
 			}
-			else
+			Vector3 position = target.position;
+			if (parent != null)
 			{
-				Vector3 position = target.position;
-				if (parent != null)
-				{
-					position = parent.InverseTransformPoint(position);
-				}
-				absolute = Mathf.FloorToInt(localPos - position.x + 0.5f);
+				position = parent.InverseTransformPoint(position);
 			}
+			absolute = Mathf.FloorToInt(localPos - position.x + 0.5f);
 		}
 
 		public void SetVertical(Transform parent, float localPos)
@@ -90,16 +88,14 @@ public abstract class UIRect : MonoBehaviour
 				Vector3[] sides = rect.GetSides(parent);
 				float num = Mathf.Lerp(sides[3].y, sides[1].y, relative);
 				absolute = Mathf.FloorToInt(localPos - num + 0.5f);
+				return;
 			}
-			else
+			Vector3 position = target.position;
+			if (parent != null)
 			{
-				Vector3 position = target.position;
-				if (parent != null)
-				{
-					position = parent.InverseTransformPoint(position);
-				}
-				absolute = Mathf.FloorToInt(localPos - position.y + 0.5f);
+				position = parent.InverseTransformPoint(position);
 			}
+			absolute = Mathf.FloorToInt(localPos - position.y + 0.5f);
 		}
 
 		public Vector3[] GetSides(Transform relativeTo)
@@ -388,52 +384,53 @@ public abstract class UIRect : MonoBehaviour
 			ResetAnchors();
 		}
 		int frameCount = Time.frameCount;
-		if (mUpdateFrame != frameCount)
+		if (mUpdateFrame == frameCount)
 		{
-			if (updateAnchors == AnchorUpdate.OnUpdate || mUpdateAnchors)
+			return;
+		}
+		if (updateAnchors == AnchorUpdate.OnUpdate || mUpdateAnchors)
+		{
+			mUpdateFrame = frameCount;
+			mUpdateAnchors = false;
+			bool flag = false;
+			if ((bool)leftAnchor.target)
 			{
-				mUpdateFrame = frameCount;
-				mUpdateAnchors = false;
-				bool flag = false;
-				if ((bool)leftAnchor.target)
+				flag = true;
+				if (leftAnchor.rect != null && leftAnchor.rect.mUpdateFrame != frameCount)
 				{
-					flag = true;
-					if (leftAnchor.rect != null && leftAnchor.rect.mUpdateFrame != frameCount)
-					{
-						leftAnchor.rect.Update();
-					}
-				}
-				if ((bool)bottomAnchor.target)
-				{
-					flag = true;
-					if (bottomAnchor.rect != null && bottomAnchor.rect.mUpdateFrame != frameCount)
-					{
-						bottomAnchor.rect.Update();
-					}
-				}
-				if ((bool)rightAnchor.target)
-				{
-					flag = true;
-					if (rightAnchor.rect != null && rightAnchor.rect.mUpdateFrame != frameCount)
-					{
-						rightAnchor.rect.Update();
-					}
-				}
-				if ((bool)topAnchor.target)
-				{
-					flag = true;
-					if (topAnchor.rect != null && topAnchor.rect.mUpdateFrame != frameCount)
-					{
-						topAnchor.rect.Update();
-					}
-				}
-				if (flag)
-				{
-					OnAnchor();
+					leftAnchor.rect.Update();
 				}
 			}
-			OnUpdate();
+			if ((bool)bottomAnchor.target)
+			{
+				flag = true;
+				if (bottomAnchor.rect != null && bottomAnchor.rect.mUpdateFrame != frameCount)
+				{
+					bottomAnchor.rect.Update();
+				}
+			}
+			if ((bool)rightAnchor.target)
+			{
+				flag = true;
+				if (rightAnchor.rect != null && rightAnchor.rect.mUpdateFrame != frameCount)
+				{
+					rightAnchor.rect.Update();
+				}
+			}
+			if ((bool)topAnchor.target)
+			{
+				flag = true;
+				if (topAnchor.rect != null && topAnchor.rect.mUpdateFrame != frameCount)
+				{
+					topAnchor.rect.Update();
+				}
+			}
+			if (flag)
+			{
+				OnAnchor();
+			}
 		}
+		OnUpdate();
 	}
 
 	public void UpdateAnchors()

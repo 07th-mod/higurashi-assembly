@@ -54,20 +54,21 @@ namespace Assets.Scripts.Core.Scene
 			int num = 0;
 			while (true)
 			{
-				if (num >= PoolSize)
+				if (num < PoolSize)
 				{
-					return;
+					GameObject gameObject = UnityEngine.Object.Instantiate(original);
+					if (gameObject == null)
+					{
+						break;
+					}
+					gameObject.transform.parent = base.transform;
+					gameObject.SetActive(value: false);
+					layerList.Push(gameObject);
+					layerObjList.Add(gameObject);
+					num++;
+					continue;
 				}
-				GameObject gameObject = UnityEngine.Object.Instantiate(original);
-				if (gameObject == null)
-				{
-					break;
-				}
-				gameObject.transform.parent = base.transform;
-				gameObject.SetActive(value: false);
-				layerList.Push(gameObject);
-				layerObjList.Add(gameObject);
-				num++;
+				return;
 			}
 			throw new Exception("Failed to instantiate Layer prefab!");
 		}

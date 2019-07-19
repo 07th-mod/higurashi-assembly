@@ -43,22 +43,22 @@ public class TweenAlpha : UITweener
 			{
 				return mRect.alpha;
 			}
-			if (!(mSr != null))
+			if (mSr != null)
 			{
-				float result;
-				if (mMat != null)
-				{
-					Color color = mMat.color;
-					result = color.a;
-				}
-				else
-				{
-					result = 1f;
-				}
-				return result;
+				Color color = mSr.color;
+				return color.a;
 			}
-			Color color2 = mSr.color;
-			return color2.a;
+			float result;
+			if (mMat != null)
+			{
+				Color color2 = mMat.color;
+				result = color2.a;
+			}
+			else
+			{
+				result = 1f;
+			}
+			return result;
 		}
 		set
 		{

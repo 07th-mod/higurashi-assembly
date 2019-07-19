@@ -299,61 +299,59 @@ public class EventDelegate
 	private void Cache()
 	{
 		mCached = true;
-		if (!mRawDelegate && (mCachedCallback == null || mCachedCallback.Target as MonoBehaviour != mTarget || GetMethodName(mCachedCallback) != mMethodName) && mTarget != null && !string.IsNullOrEmpty(mMethodName))
+		if (mRawDelegate || (mCachedCallback != null && !(mCachedCallback.Target as MonoBehaviour != mTarget) && !(GetMethodName(mCachedCallback) != mMethodName)) || !(mTarget != null) || string.IsNullOrEmpty(mMethodName))
 		{
-			Type type = mTarget.GetType();
-			mMethod = null;
-			while (type != null)
+			return;
+		}
+		Type type = mTarget.GetType();
+		mMethod = null;
+		while (type != null)
+		{
+			try
 			{
-				try
+				mMethod = type.GetMethod(mMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+				if (mMethod != null)
 				{
-					mMethod = type.GetMethod(mMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-					if (mMethod != null)
-					{
-						break;
-					}
-				}
-				catch (Exception)
-				{
-				}
-				type = type.BaseType;
-			}
-			if (mMethod == null)
-			{
-				Debug.LogError("Could not find method '" + mMethodName + "' on " + mTarget.GetType(), mTarget);
-			}
-			else if (mMethod.ReturnType != typeof(void))
-			{
-				Debug.LogError(mTarget.GetType() + "." + mMethodName + " must have a 'void' return type.", mTarget);
-			}
-			else
-			{
-				ParameterInfo[] parameters = mMethod.GetParameters();
-				if (parameters.Length == 0)
-				{
-					mCachedCallback = (Callback)Delegate.CreateDelegate(typeof(Callback), mTarget, mMethodName);
-					mArgs = null;
-					mParameters = null;
-				}
-				else
-				{
-					mCachedCallback = null;
-					if (mParameters == null || mParameters.Length != parameters.Length)
-					{
-						mParameters = new Parameter[parameters.Length];
-						int i = 0;
-						for (int num = mParameters.Length; i < num; i++)
-						{
-							mParameters[i] = new Parameter();
-						}
-					}
-					int j = 0;
-					for (int num2 = mParameters.Length; j < num2; j++)
-					{
-						mParameters[j].expectedType = parameters[j].ParameterType;
-					}
+					break;
 				}
 			}
+			catch (Exception)
+			{
+			}
+			type = type.BaseType;
+		}
+		if (mMethod == null)
+		{
+			Debug.LogError("Could not find method '" + mMethodName + "' on " + mTarget.GetType(), mTarget);
+			return;
+		}
+		if (mMethod.ReturnType != typeof(void))
+		{
+			Debug.LogError(mTarget.GetType() + "." + mMethodName + " must have a 'void' return type.", mTarget);
+			return;
+		}
+		ParameterInfo[] parameters = mMethod.GetParameters();
+		if (parameters.Length == 0)
+		{
+			mCachedCallback = (Callback)Delegate.CreateDelegate(typeof(Callback), mTarget, mMethodName);
+			mArgs = null;
+			mParameters = null;
+			return;
+		}
+		mCachedCallback = null;
+		if (mParameters == null || mParameters.Length != parameters.Length)
+		{
+			mParameters = new Parameter[parameters.Length];
+			int i = 0;
+			for (int num = mParameters.Length; i < num; i++)
+			{
+				mParameters[i] = new Parameter();
+			}
+		}
+		int j = 0;
+		for (int num2 = mParameters.Length; j < num2; j++)
+		{
+			mParameters[j].expectedType = parameters[j].ParameterType;
 		}
 	}
 
@@ -476,45 +474,46 @@ public class EventDelegate
 
 	public static void Execute(List<EventDelegate> list)
 	{
-		if (list != null)
+		if (list == null)
 		{
-			int num = 0;
-			while (num < list.Count)
+			return;
+		}
+		int num = 0;
+		while (num < list.Count)
+		{
+			EventDelegate eventDelegate = list[num];
+			if (eventDelegate != null)
 			{
-				EventDelegate eventDelegate = list[num];
-				if (eventDelegate != null)
+				try
 				{
-					try
+					eventDelegate.Execute();
+				}
+				catch (Exception ex)
+				{
+					if (ex.InnerException != null)
 					{
-						eventDelegate.Execute();
+						Debug.LogError(ex.InnerException.Message);
 					}
-					catch (Exception ex)
+					else
 					{
-						if (ex.InnerException != null)
-						{
-							Debug.LogError(ex.InnerException.Message);
-						}
-						else
-						{
-							Debug.LogError(ex.Message);
-						}
-					}
-					if (num >= list.Count)
-					{
-						break;
-					}
-					if (list[num] != eventDelegate)
-					{
-						continue;
-					}
-					if (eventDelegate.oneShot)
-					{
-						list.RemoveAt(num);
-						continue;
+						Debug.LogError(ex.Message);
 					}
 				}
-				num++;
+				if (num >= list.Count)
+				{
+					break;
+				}
+				if (list[num] != eventDelegate)
+				{
+					continue;
+				}
+				if (eventDelegate.oneShot)
+				{
+					list.RemoveAt(num);
+					continue;
+				}
 			}
+			num++;
 		}
 	}
 

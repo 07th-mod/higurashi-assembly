@@ -2,7 +2,7 @@ namespace Assets.Scripts.Core.SteamWorks
 {
 	public class Achievement_t
 	{
-		public Achievement m_eAchievementID;
+		public string m_eAchievementID;
 
 		public string m_strName;
 
@@ -10,7 +10,7 @@ namespace Assets.Scripts.Core.SteamWorks
 
 		public bool m_bAchieved;
 
-		public Achievement_t(Achievement achievementID, string name, string desc)
+		public Achievement_t(string achievementID, string name, string desc)
 		{
 			m_eAchievementID = achievementID;
 			m_strName = name;

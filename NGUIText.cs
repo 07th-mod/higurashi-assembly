@@ -128,22 +128,23 @@ public static class NGUIText
 		finalSpacingX = spacingX * fontScale;
 		finalLineHeight = ((float)fontSize + spacingY) * fontScale;
 		useSymbols = (bitmapFont != null && bitmapFont.hasSymbols && encoding && symbolStyle != SymbolStyle.None);
-		if (dynamicFont != null && request)
+		if (!(dynamicFont != null) || !request)
 		{
-			dynamicFont.RequestCharactersInTexture(")_-", finalSize, fontStyle);
-			if (!dynamicFont.GetCharacterInfo(')', out mTempChar, finalSize, fontStyle) || mTempChar.vert.height == 0f)
-			{
-				dynamicFont.RequestCharactersInTexture("A", finalSize, fontStyle);
-				if (!dynamicFont.GetCharacterInfo('A', out mTempChar, finalSize, fontStyle))
-				{
-					baseline = 0f;
-					return;
-				}
-			}
-			float yMax = mTempChar.vert.yMax;
-			float yMin = mTempChar.vert.yMin;
-			baseline = Mathf.Round(yMax + ((float)finalSize - yMax + yMin) * 0.5f);
+			return;
 		}
+		dynamicFont.RequestCharactersInTexture(")_-", finalSize, fontStyle);
+		if (!dynamicFont.GetCharacterInfo(')', out mTempChar, finalSize, fontStyle) || mTempChar.vert.height == 0f)
+		{
+			dynamicFont.RequestCharactersInTexture("A", finalSize, fontStyle);
+			if (!dynamicFont.GetCharacterInfo('A', out mTempChar, finalSize, fontStyle))
+			{
+				baseline = 0f;
+				return;
+			}
+		}
+		float yMax = mTempChar.vert.yMax;
+		float yMin = mTempChar.vert.yMin;
+		baseline = Mathf.Round(yMax + ((float)finalSize - yMax + yMin) * 0.5f);
 	}
 
 	public static void Prepare(string text)
@@ -201,20 +202,20 @@ public static class NGUIText
 			if (bMGlyph != null)
 			{
 				int num = (prev != 0) ? bMGlyph.GetKerning(prev) : 0;
-				glyph.v0.x = (float)((prev == 0) ? bMGlyph.offsetX : (bMGlyph.offsetX + num));
-				glyph.v1.y = (float)(-bMGlyph.offsetY);
+				glyph.v0.x = ((prev == 0) ? bMGlyph.offsetX : (bMGlyph.offsetX + num));
+				glyph.v1.y = -bMGlyph.offsetY;
 				glyph.v1.x = glyph.v0.x + (float)bMGlyph.width;
 				glyph.v0.y = glyph.v1.y - (float)bMGlyph.height;
-				glyph.u0.x = (float)bMGlyph.x;
-				glyph.u0.y = (float)(bMGlyph.y + bMGlyph.height);
-				glyph.u1.x = (float)(bMGlyph.x + bMGlyph.width);
-				glyph.u1.y = (float)bMGlyph.y;
+				glyph.u0.x = bMGlyph.x;
+				glyph.u0.y = bMGlyph.y + bMGlyph.height;
+				glyph.u1.x = bMGlyph.x + bMGlyph.width;
+				glyph.u1.y = bMGlyph.y;
 				int num2 = bMGlyph.advance;
 				if (flag)
 				{
 					num2 >>= 1;
 				}
-				glyph.advance = (float)(num2 + num);
+				glyph.advance = num2 + num;
 				glyph.channel = bMGlyph.channel;
 				glyph.rotatedUVs = false;
 				if (fontScale != 1f)
@@ -575,7 +576,7 @@ public static class NGUIText
 			if (!(num14 < 0f))
 			{
 				int num15 = Mathf.RoundToInt((float)rectWidth - printedWidth);
-				int num16 = Mathf.RoundToInt((float)rectWidth);
+				int num16 = Mathf.RoundToInt(rectWidth);
 				bool flag = (num15 & 1) == 1;
 				bool flag2 = (num16 & 1) == 1;
 				if ((flag && !flag2) || (!flag && flag2))
@@ -590,42 +591,46 @@ public static class NGUIText
 			break;
 		}
 		case Alignment.Justified:
-			if (!(printedWidth < (float)rectWidth * 0.65f))
+		{
+			if (printedWidth < (float)rectWidth * 0.65f)
 			{
-				float num = ((float)rectWidth - printedWidth) * 0.5f;
-				if (!(num < 1f))
+				break;
+			}
+			float num = ((float)rectWidth - printedWidth) * 0.5f;
+			if (num < 1f)
+			{
+				break;
+			}
+			int num2 = (verts.size - indexOffset) / 4;
+			if (num2 >= 1)
+			{
+				float num3 = 1f / (float)(num2 - 1);
+				float num4 = (float)rectWidth / printedWidth;
+				int num5 = indexOffset + 4;
+				int num6 = 1;
+				while (num5 < verts.size)
 				{
-					int num2 = (verts.size - indexOffset) / 4;
-					if (num2 >= 1)
-					{
-						float num3 = 1f / (float)(num2 - 1);
-						float num4 = (float)rectWidth / printedWidth;
-						int num5 = indexOffset + 4;
-						int num6 = 1;
-						while (num5 < verts.size)
-						{
-							float x = verts.buffer[num5].x;
-							float x2 = verts.buffer[num5 + 2].x;
-							float num7 = x2 - x;
-							float num8 = x * num4;
-							float a = num8 + num7;
-							float num9 = x2 * num4;
-							float b = num9 - num7;
-							float t = (float)num6 * num3;
-							x = Mathf.Lerp(num8, b, t);
-							x2 = Mathf.Lerp(a, num9, t);
-							x = Mathf.Round(x);
-							x2 = Mathf.Round(x2);
-							verts.buffer[num5++].x = x;
-							verts.buffer[num5++].x = x;
-							verts.buffer[num5++].x = x2;
-							verts.buffer[num5++].x = x2;
-							num6++;
-						}
-					}
+					float x = verts.buffer[num5].x;
+					float x2 = verts.buffer[num5 + 2].x;
+					float num7 = x2 - x;
+					float num8 = x * num4;
+					float a = num8 + num7;
+					float num9 = x2 * num4;
+					float b = num9 - num7;
+					float t = (float)num6 * num3;
+					x = Mathf.Lerp(num8, b, t);
+					x2 = Mathf.Lerp(a, num9, t);
+					x = Mathf.Round(x);
+					x2 = Mathf.Round(x2);
+					verts.buffer[num5++].x = x;
+					verts.buffer[num5++].x = x;
+					verts.buffer[num5++].x = x2;
+					verts.buffer[num5++].x = x2;
+					num6++;
 				}
 			}
 			break;
+		}
 		}
 	}
 
@@ -637,23 +642,25 @@ public static class NGUIText
 			int i2 = num + 1;
 			Vector3 vector = verts[num];
 			float x = vector.x;
-			if (!(pos.x < x))
+			if (pos.x < x)
 			{
-				Vector3 vector2 = verts[i2];
-				float x2 = vector2.x;
-				if (!(pos.x > x2))
+				continue;
+			}
+			Vector3 vector2 = verts[i2];
+			float x2 = vector2.x;
+			if (pos.x > x2)
+			{
+				continue;
+			}
+			Vector3 vector3 = verts[num];
+			float y = vector3.y;
+			if (!(pos.y < y))
+			{
+				Vector3 vector4 = verts[i2];
+				float y2 = vector4.y;
+				if (!(pos.y > y2))
 				{
-					Vector3 vector3 = verts[num];
-					float y = vector3.y;
-					if (!(pos.y < y))
-					{
-						Vector3 vector4 = verts[i2];
-						float y2 = vector4.y;
-						if (!(pos.y > y2))
-						{
-							return indices[i];
-						}
-					}
+					return indices[i];
 				}
 			}
 		}
@@ -662,8 +669,8 @@ public static class NGUIText
 
 	public static int GetApproximateCharacterIndex(BetterList<Vector3> verts, BetterList<int> indices, Vector2 pos)
 	{
-		float num = 3.40282347E+38f;
-		float num2 = 3.40282347E+38f;
+		float num = float.MaxValue;
+		float num2 = float.MaxValue;
 		int i = 0;
 		for (int j = 0; j < verts.size; j++)
 		{
@@ -752,50 +759,53 @@ public static class NGUIText
 					num = 0f;
 					num2 += finalLineHeight;
 				}
-				else if (num4 >= 32)
+				else
 				{
+					if (num4 < 32)
+					{
+						continue;
+					}
 					BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
 					if (bMSymbol == null)
 					{
 						float glyphWidth = GetGlyphWidth(num4, prev);
-						if (glyphWidth != 0f)
+						if (glyphWidth == 0f)
 						{
-							glyphWidth += finalSpacingX;
-							if (Mathf.RoundToInt(num + glyphWidth) > regionWidth)
-							{
-								if (num > num3)
-								{
-									num3 = num - finalSpacingX;
-								}
-								num = glyphWidth;
-								num2 += finalLineHeight;
-							}
-							else
-							{
-								num += glyphWidth;
-							}
-							prev = num4;
+							continue;
 						}
-					}
-					else
-					{
-						float num5 = finalSpacingX + (float)bMSymbol.advance * fontScale;
-						if (Mathf.RoundToInt(num + num5) > regionWidth)
+						glyphWidth += finalSpacingX;
+						if (Mathf.RoundToInt(num + glyphWidth) > regionWidth)
 						{
 							if (num > num3)
 							{
 								num3 = num - finalSpacingX;
 							}
-							num = num5;
+							num = glyphWidth;
 							num2 += finalLineHeight;
 						}
 						else
 						{
-							num += num5;
+							num += glyphWidth;
 						}
-						i += bMSymbol.sequence.Length - 1;
-						prev = 0;
+						prev = num4;
+						continue;
 					}
+					float num5 = finalSpacingX + (float)bMSymbol.advance * fontScale;
+					if (Mathf.RoundToInt(num + num5) > regionWidth)
+					{
+						if (num > num3)
+						{
+							num3 = num - finalSpacingX;
+						}
+						num = num5;
+						num2 += finalLineHeight;
+					}
+					else
+					{
+						num += num5;
+					}
+					i += bMSymbol.sequence.Length - 1;
+					prev = 0;
 				}
 			}
 			zero.x = ((!(num > num3)) ? num3 : (num - finalSpacingX));
@@ -827,20 +837,18 @@ public static class NGUIText
 					mSizes.Add(finalSpacingX + glyphWidth);
 				}
 				prev = num;
+				continue;
 			}
-			else
+			mSizes.Add(finalSpacingX + (float)bMSymbol.advance * fontScale);
+			int j = 0;
+			for (int num2 = bMSymbol.sequence.Length - 1; j < num2; j++)
 			{
-				mSizes.Add(finalSpacingX + (float)bMSymbol.advance * fontScale);
-				int j = 0;
-				for (int num2 = bMSymbol.sequence.Length - 1; j < num2; j++)
-				{
-					mSizes.Add(0f);
-				}
-				i += bMSymbol.sequence.Length - 1;
-				prev = 0;
+				mSizes.Add(0f);
 			}
+			i += bMSymbol.sequence.Length - 1;
+			prev = 0;
 		}
-		float num3 = (float)regionWidth;
+		float num3 = regionWidth;
 		int num4 = mSizes.size;
 		while (num4 > 0 && num3 > 0f)
 		{
@@ -873,9 +881,9 @@ public static class NGUIText
 			finalText = string.Empty;
 			return false;
 		}
-		float num = (maxLines <= 0) ? ((float)regionHeight) : Mathf.Min((float)regionHeight, finalLineHeight * (float)maxLines);
+		float num = (maxLines <= 0) ? ((float)regionHeight) : Mathf.Min(regionHeight, finalLineHeight * (float)maxLines);
 		int num2 = (maxLines <= 0) ? 1000000 : maxLines;
-		num2 = Mathf.FloorToInt(Mathf.Min((float)num2, num / finalLineHeight) + 0.01f);
+		num2 = Mathf.FloorToInt(Mathf.Min(num2, num / finalLineHeight) + 0.01f);
 		if (num2 == 0)
 		{
 			finalText = string.Empty;
@@ -888,7 +896,7 @@ public static class NGUIText
 		Prepare(text);
 		StringBuilder s = new StringBuilder();
 		int length = text.Length;
-		float num3 = (float)regionWidth;
+		float num3 = regionWidth;
 		int num4 = 0;
 		int i = 0;
 		int num5 = 1;
@@ -909,7 +917,7 @@ public static class NGUIText
 				{
 					break;
 				}
-				num3 = (float)regionWidth;
+				num3 = regionWidth;
 				if (num4 < i)
 				{
 					s.Append(text.Substring(num4, i - num4 + 1));
@@ -922,76 +930,55 @@ public static class NGUIText
 				num5++;
 				num4 = i + 1;
 				prev = 0;
+				continue;
 			}
-			else if (encoding && ParseSymbol(text, ref i))
+			if (encoding && ParseSymbol(text, ref i))
 			{
 				i--;
+				continue;
+			}
+			BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
+			float num6;
+			if (bMSymbol == null)
+			{
+				float glyphWidth = GetGlyphWidth(c, prev);
+				if (glyphWidth == 0f)
+				{
+					continue;
+				}
+				num6 = finalSpacingX + glyphWidth;
 			}
 			else
 			{
-				BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
-				float num6;
-				if (bMSymbol == null)
+				num6 = finalSpacingX + (float)bMSymbol.advance * fontScale;
+			}
+			num3 -= num6;
+			if (IsSpace(c) && !flag3 && num4 < i)
+			{
+				int num7 = i - num4 + 1;
+				if (num5 == num2 && num3 <= 0f && i < length)
 				{
-					float glyphWidth = GetGlyphWidth(c, prev);
-					if (glyphWidth == 0f)
+					char c2 = text[i];
+					if (c2 < ' ' || IsSpace(c2))
 					{
-						continue;
+						num7--;
 					}
-					num6 = finalSpacingX + glyphWidth;
 				}
-				else
+				s.Append(text.Substring(num4, num7));
+				flag = false;
+				num4 = i + 1;
+				prev = c;
+			}
+			if (Mathf.RoundToInt(num3) < 0)
+			{
+				if (!flag && num5 != num2)
 				{
-					num6 = finalSpacingX + (float)bMSymbol.advance * fontScale;
-				}
-				num3 -= num6;
-				if (IsSpace(c) && !flag3 && num4 < i)
-				{
-					int num7 = i - num4 + 1;
-					if (num5 == num2 && num3 <= 0f && i < length)
-					{
-						char c2 = text[i];
-						if (c2 < ' ' || IsSpace(c2))
-						{
-							num7--;
-						}
-					}
-					s.Append(text.Substring(num4, num7));
-					flag = false;
-					num4 = i + 1;
-					prev = c;
-				}
-				if (Mathf.RoundToInt(num3) < 0)
-				{
-					if (!flag && num5 != num2)
-					{
-						flag = true;
-						num3 = (float)regionWidth;
-						i = num4 - 1;
-						prev = 0;
-						if (num5++ == num2)
-						{
-							break;
-						}
-						if (keepCharCount)
-						{
-							ReplaceSpaceWithNewline(ref s);
-						}
-						else
-						{
-							EndLine(ref s);
-						}
-						continue;
-					}
-					s.Append(text.Substring(num4, Mathf.Max(0, i - num4)));
-					bool flag4 = IsSpace(c);
-					if (!flag4 && !flag3)
-					{
-						flag2 = false;
-					}
+					flag = true;
+					num3 = regionWidth;
+					i = num4 - 1;
+					prev = 0;
 					if (num5++ == num2)
 					{
-						num4 = i;
 						break;
 					}
 					if (keepCharCount)
@@ -1002,28 +989,48 @@ public static class NGUIText
 					{
 						EndLine(ref s);
 					}
-					flag = true;
-					if (flag4)
-					{
-						num4 = i + 1;
-						num3 = (float)regionWidth;
-					}
-					else
-					{
-						num4 = i;
-						num3 = (float)regionWidth - num6;
-					}
-					prev = 0;
+					continue;
+				}
+				s.Append(text.Substring(num4, Mathf.Max(0, i - num4)));
+				bool flag4 = IsSpace(c);
+				if (!flag4 && !flag3)
+				{
+					flag2 = false;
+				}
+				if (num5++ == num2)
+				{
+					num4 = i;
+					break;
+				}
+				if (keepCharCount)
+				{
+					ReplaceSpaceWithNewline(ref s);
 				}
 				else
 				{
-					prev = c;
+					EndLine(ref s);
 				}
-				if (bMSymbol != null)
+				flag = true;
+				if (flag4)
 				{
-					i += bMSymbol.length - 1;
-					prev = 0;
+					num4 = i + 1;
+					num3 = regionWidth;
 				}
+				else
+				{
+					num4 = i;
+					num3 = (float)regionWidth - num6;
+				}
+				prev = 0;
+			}
+			else
+			{
+				prev = c;
+			}
+			if (bMSymbol != null)
+			{
+				i += bMSymbol.length - 1;
+				prev = 0;
 			}
 		}
 		if (num4 < i)
@@ -1036,431 +1043,437 @@ public static class NGUIText
 
 	public static void Print(string text, BetterList<Vector3> verts, BetterList<Vector2> uvs, BetterList<Color32> cols)
 	{
-		if (!string.IsNullOrEmpty(text))
+		if (string.IsNullOrEmpty(text))
 		{
-			int size = verts.size;
-			Prepare(text);
-			mColors.Add(Color.white);
-			mAlpha = 1f;
-			int num = 0;
-			int prev = 0;
-			float num2 = 0f;
-			float num3 = 0f;
-			float num4 = 0f;
-			float num5 = (float)finalSize;
-			Color a = tint * gradientBottom;
-			Color b = tint * gradientTop;
-			Color32 color = tint;
-			int length = text.Length;
-			Rect rect = default(Rect);
-			float num6 = 0f;
-			float num7 = 0f;
-			float num8 = num5 * pixelDensity;
-			bool flag = false;
-			int sub = 0;
-			bool bold = false;
-			bool italic = false;
-			bool underline = false;
-			bool strike = false;
-			bool ignoreColor = false;
-			float num9 = 0f;
-			if (bitmapFont != null)
+			return;
+		}
+		int size = verts.size;
+		Prepare(text);
+		mColors.Add(Color.white);
+		mAlpha = 1f;
+		int num = 0;
+		int prev = 0;
+		float num2 = 0f;
+		float num3 = 0f;
+		float num4 = 0f;
+		float num5 = finalSize;
+		Color a = tint * gradientBottom;
+		Color b = tint * gradientTop;
+		Color32 color = tint;
+		int length = text.Length;
+		Rect rect = default(Rect);
+		float num6 = 0f;
+		float num7 = 0f;
+		float num8 = num5 * pixelDensity;
+		bool flag = false;
+		int sub = 0;
+		bool bold = false;
+		bool italic = false;
+		bool underline = false;
+		bool strike = false;
+		bool ignoreColor = false;
+		float num9 = 0f;
+		if (bitmapFont != null)
+		{
+			rect = bitmapFont.uvRect;
+			num6 = rect.width / (float)bitmapFont.texWidth;
+			num7 = rect.height / (float)bitmapFont.texHeight;
+		}
+		for (int i = 0; i < length; i++)
+		{
+			num = text[i];
+			num9 = num2;
+			if (num == 10)
 			{
-				rect = bitmapFont.uvRect;
-				num6 = rect.width / (float)bitmapFont.texWidth;
-				num7 = rect.height / (float)bitmapFont.texHeight;
-			}
-			for (int i = 0; i < length; i++)
-			{
-				num = text[i];
-				num9 = num2;
-				if (num == 10)
+				if (num2 > num4)
 				{
-					if (num2 > num4)
+					num4 = num2;
+				}
+				if (alignment != Alignment.Left)
+				{
+					Align(verts, size, num2 - finalSpacingX);
+					size = verts.size;
+				}
+				num2 = 0f;
+				num3 += finalLineHeight;
+				prev = 0;
+				continue;
+			}
+			if (num < 32)
+			{
+				prev = num;
+				continue;
+			}
+			if (encoding && ParseSymbol(text, ref i, mColors, premultiply, ref sub, ref bold, ref italic, ref underline, ref strike, ref ignoreColor))
+			{
+				Color color2;
+				if (ignoreColor)
+				{
+					color2 = mColors[mColors.size - 1];
+					color2.a *= mAlpha * tint.a;
+				}
+				else
+				{
+					color2 = tint * mColors[mColors.size - 1];
+					color2.a *= mAlpha;
+				}
+				color = color2;
+				int j = 0;
+				for (int num10 = mColors.size - 2; j < num10; j++)
+				{
+					float a2 = color2.a;
+					Color color3 = mColors[j];
+					color2.a = a2 * color3.a;
+				}
+				if (gradient)
+				{
+					a = gradientBottom * color2;
+					b = gradientTop * color2;
+				}
+				i--;
+				continue;
+			}
+			BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
+			float num11;
+			float num12;
+			float num14;
+			float num13;
+			if (bMSymbol != null)
+			{
+				num11 = num2 + (float)bMSymbol.offsetX * fontScale;
+				num12 = num11 + (float)bMSymbol.width * fontScale;
+				num13 = 0f - (num3 + (float)bMSymbol.offsetY * fontScale);
+				num14 = num13 - (float)bMSymbol.height * fontScale;
+				if (Mathf.RoundToInt(num2 + (float)bMSymbol.advance * fontScale) > regionWidth)
+				{
+					if (num2 == 0f)
 					{
-						num4 = num2;
+						return;
 					}
-					if (alignment != Alignment.Left)
+					if (alignment != Alignment.Left && size < verts.size)
 					{
 						Align(verts, size, num2 - finalSpacingX);
 						size = verts.size;
 					}
+					num11 -= num2;
+					num12 -= num2;
+					num14 -= finalLineHeight;
+					num13 -= finalLineHeight;
 					num2 = 0f;
 					num3 += finalLineHeight;
-					prev = 0;
+					num9 = 0f;
 				}
-				else if (num < 32)
+				verts.Add(new Vector3(num11, num14));
+				verts.Add(new Vector3(num11, num13));
+				verts.Add(new Vector3(num12, num13));
+				verts.Add(new Vector3(num12, num14));
+				num2 += finalSpacingX + (float)bMSymbol.advance * fontScale;
+				i += bMSymbol.length - 1;
+				prev = 0;
+				if (uvs != null)
 				{
-					prev = num;
+					Rect uvRect = bMSymbol.uvRect;
+					float xMin = uvRect.xMin;
+					float yMin = uvRect.yMin;
+					float xMax = uvRect.xMax;
+					float yMax = uvRect.yMax;
+					uvs.Add(new Vector2(xMin, yMin));
+					uvs.Add(new Vector2(xMin, yMax));
+					uvs.Add(new Vector2(xMax, yMax));
+					uvs.Add(new Vector2(xMax, yMin));
 				}
-				else if (encoding && ParseSymbol(text, ref i, mColors, premultiply, ref sub, ref bold, ref italic, ref underline, ref strike, ref ignoreColor))
+				if (cols == null)
 				{
-					Color color2;
-					if (ignoreColor)
+					continue;
+				}
+				if (symbolStyle == SymbolStyle.Colored)
+				{
+					for (int k = 0; k < 4; k++)
 					{
-						color2 = mColors[mColors.size - 1];
-						color2.a *= mAlpha * tint.a;
+						cols.Add(color);
 					}
-					else
-					{
-						color2 = tint * mColors[mColors.size - 1];
-						color2.a *= mAlpha;
-					}
-					color = color2;
-					int j = 0;
-					for (int num10 = mColors.size - 2; j < num10; j++)
-					{
-						float a2 = color2.a;
-						Color color3 = mColors[j];
-						color2.a = a2 * color3.a;
-					}
-					if (gradient)
-					{
-						a = gradientBottom * color2;
-						b = gradientTop * color2;
-					}
-					i--;
+					continue;
+				}
+				Color32 item = Color.white;
+				item.a = color.a;
+				for (int l = 0; l < 4; l++)
+				{
+					cols.Add(item);
+				}
+				continue;
+			}
+			GlyphInfo glyphInfo = GetGlyph(num, prev);
+			if (glyphInfo == null)
+			{
+				continue;
+			}
+			prev = num;
+			if (sub != 0)
+			{
+				glyphInfo.v0.x *= 0.75f;
+				glyphInfo.v0.y *= 0.75f;
+				glyphInfo.v1.x *= 0.75f;
+				glyphInfo.v1.y *= 0.75f;
+				if (sub == 1)
+				{
+					glyphInfo.v0.y -= fontScale * (float)fontSize * 0.4f;
+					glyphInfo.v1.y -= fontScale * (float)fontSize * 0.4f;
 				}
 				else
 				{
-					BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
-					if (bMSymbol != null)
+					glyphInfo.v0.y += fontScale * (float)fontSize * 0.05f;
+					glyphInfo.v1.y += fontScale * (float)fontSize * 0.05f;
+				}
+			}
+			num11 = glyphInfo.v0.x + num2;
+			num14 = glyphInfo.v0.y - num3;
+			num12 = glyphInfo.v1.x + num2;
+			num13 = glyphInfo.v1.y - num3;
+			float num15 = glyphInfo.advance;
+			if (finalSpacingX < 0f)
+			{
+				num15 += finalSpacingX;
+			}
+			if (Mathf.RoundToInt(num2 + num15) > regionWidth)
+			{
+				if (num2 == 0f)
+				{
+					return;
+				}
+				if (alignment != Alignment.Left && size < verts.size)
+				{
+					Align(verts, size, num2 - finalSpacingX);
+					size = verts.size;
+				}
+				num11 -= num2;
+				num12 -= num2;
+				num14 -= finalLineHeight;
+				num13 -= finalLineHeight;
+				num2 = 0f;
+				num3 += finalLineHeight;
+				num9 = 0f;
+			}
+			if (IsSpace(num))
+			{
+				if (underline)
+				{
+					num = 95;
+				}
+				else if (strike)
+				{
+					num = 45;
+				}
+			}
+			num2 += ((sub != 0) ? ((finalSpacingX + glyphInfo.advance) * 0.75f) : (finalSpacingX + glyphInfo.advance));
+			if (IsSpace(num))
+			{
+				continue;
+			}
+			if (uvs != null)
+			{
+				if (bitmapFont != null)
+				{
+					glyphInfo.u0.x = rect.xMin + num6 * glyphInfo.u0.x;
+					glyphInfo.u1.x = rect.xMin + num6 * glyphInfo.u1.x;
+					glyphInfo.u0.y = rect.yMax - num7 * glyphInfo.u0.y;
+					glyphInfo.u1.y = rect.yMax - num7 * glyphInfo.u1.y;
+				}
+				int m = 0;
+				for (int num16 = (!bold) ? 1 : 4; m < num16; m++)
+				{
+					if (glyphInfo.rotatedUVs)
 					{
-						float num11 = num2 + (float)bMSymbol.offsetX * fontScale;
-						float num12 = num11 + (float)bMSymbol.width * fontScale;
-						float num13 = 0f - (num3 + (float)bMSymbol.offsetY * fontScale);
-						float num14 = num13 - (float)bMSymbol.height * fontScale;
-						if (Mathf.RoundToInt(num2 + (float)bMSymbol.advance * fontScale) > regionWidth)
+						uvs.Add(glyphInfo.u0);
+						uvs.Add(new Vector2(glyphInfo.u1.x, glyphInfo.u0.y));
+						uvs.Add(glyphInfo.u1);
+						uvs.Add(new Vector2(glyphInfo.u0.x, glyphInfo.u1.y));
+					}
+					else
+					{
+						uvs.Add(glyphInfo.u0);
+						uvs.Add(new Vector2(glyphInfo.u0.x, glyphInfo.u1.y));
+						uvs.Add(glyphInfo.u1);
+						uvs.Add(new Vector2(glyphInfo.u1.x, glyphInfo.u0.y));
+					}
+				}
+			}
+			if (cols != null)
+			{
+				if (glyphInfo.channel == 0 || glyphInfo.channel == 15)
+				{
+					if (gradient)
+					{
+						float num17 = num8 + glyphInfo.v0.y / fontScale;
+						float num18 = num8 + glyphInfo.v1.y / fontScale;
+						num17 /= num8;
+						num18 /= num8;
+						s_c0 = Color.Lerp(a, b, num17);
+						s_c1 = Color.Lerp(a, b, num18);
+						int n = 0;
+						for (int num19 = (!bold) ? 1 : 4; n < num19; n++)
 						{
-							if (num2 == 0f)
-							{
-								return;
-							}
-							if (alignment != Alignment.Left && size < verts.size)
-							{
-								Align(verts, size, num2 - finalSpacingX);
-								size = verts.size;
-							}
-							num11 -= num2;
-							num12 -= num2;
-							num14 -= finalLineHeight;
-							num13 -= finalLineHeight;
-							num2 = 0f;
-							num3 += finalLineHeight;
-							num9 = 0f;
-						}
-						verts.Add(new Vector3(num11, num14));
-						verts.Add(new Vector3(num11, num13));
-						verts.Add(new Vector3(num12, num13));
-						verts.Add(new Vector3(num12, num14));
-						num2 += finalSpacingX + (float)bMSymbol.advance * fontScale;
-						i += bMSymbol.length - 1;
-						prev = 0;
-						if (uvs != null)
-						{
-							Rect uvRect = bMSymbol.uvRect;
-							float xMin = uvRect.xMin;
-							float yMin = uvRect.yMin;
-							float xMax = uvRect.xMax;
-							float yMax = uvRect.yMax;
-							uvs.Add(new Vector2(xMin, yMin));
-							uvs.Add(new Vector2(xMin, yMax));
-							uvs.Add(new Vector2(xMax, yMax));
-							uvs.Add(new Vector2(xMax, yMin));
-						}
-						if (cols != null)
-						{
-							if (symbolStyle == SymbolStyle.Colored)
-							{
-								for (int k = 0; k < 4; k++)
-								{
-									cols.Add(color);
-								}
-							}
-							else
-							{
-								Color32 item = Color.white;
-								item.a = color.a;
-								for (int l = 0; l < 4; l++)
-								{
-									cols.Add(item);
-								}
-							}
+							cols.Add(s_c0);
+							cols.Add(s_c1);
+							cols.Add(s_c1);
+							cols.Add(s_c0);
 						}
 					}
 					else
 					{
-						GlyphInfo glyphInfo = GetGlyph(num, prev);
-						if (glyphInfo != null)
+						int num20 = 0;
+						for (int num21 = (!bold) ? 4 : 16; num20 < num21; num20++)
 						{
-							prev = num;
-							if (sub != 0)
-							{
-								glyphInfo.v0.x *= 0.75f;
-								glyphInfo.v0.y *= 0.75f;
-								glyphInfo.v1.x *= 0.75f;
-								glyphInfo.v1.y *= 0.75f;
-								if (sub == 1)
-								{
-									glyphInfo.v0.y -= fontScale * (float)fontSize * 0.4f;
-									glyphInfo.v1.y -= fontScale * (float)fontSize * 0.4f;
-								}
-								else
-								{
-									glyphInfo.v0.y += fontScale * (float)fontSize * 0.05f;
-									glyphInfo.v1.y += fontScale * (float)fontSize * 0.05f;
-								}
-							}
-							float num11 = glyphInfo.v0.x + num2;
-							float num14 = glyphInfo.v0.y - num3;
-							float num12 = glyphInfo.v1.x + num2;
-							float num13 = glyphInfo.v1.y - num3;
-							float num15 = glyphInfo.advance;
-							if (finalSpacingX < 0f)
-							{
-								num15 += finalSpacingX;
-							}
-							if (Mathf.RoundToInt(num2 + num15) > regionWidth)
-							{
-								if (num2 == 0f)
-								{
-									return;
-								}
-								if (alignment != Alignment.Left && size < verts.size)
-								{
-									Align(verts, size, num2 - finalSpacingX);
-									size = verts.size;
-								}
-								num11 -= num2;
-								num12 -= num2;
-								num14 -= finalLineHeight;
-								num13 -= finalLineHeight;
-								num2 = 0f;
-								num3 += finalLineHeight;
-								num9 = 0f;
-							}
-							if (IsSpace(num))
-							{
-								if (underline)
-								{
-									num = 95;
-								}
-								else if (strike)
-								{
-									num = 45;
-								}
-							}
-							num2 += ((sub != 0) ? ((finalSpacingX + glyphInfo.advance) * 0.75f) : (finalSpacingX + glyphInfo.advance));
-							if (!IsSpace(num))
-							{
-								if (uvs != null)
-								{
-									if (bitmapFont != null)
-									{
-										glyphInfo.u0.x = rect.xMin + num6 * glyphInfo.u0.x;
-										glyphInfo.u1.x = rect.xMin + num6 * glyphInfo.u1.x;
-										glyphInfo.u0.y = rect.yMax - num7 * glyphInfo.u0.y;
-										glyphInfo.u1.y = rect.yMax - num7 * glyphInfo.u1.y;
-									}
-									int m = 0;
-									for (int num16 = (!bold) ? 1 : 4; m < num16; m++)
-									{
-										if (glyphInfo.rotatedUVs)
-										{
-											uvs.Add(glyphInfo.u0);
-											uvs.Add(new Vector2(glyphInfo.u1.x, glyphInfo.u0.y));
-											uvs.Add(glyphInfo.u1);
-											uvs.Add(new Vector2(glyphInfo.u0.x, glyphInfo.u1.y));
-										}
-										else
-										{
-											uvs.Add(glyphInfo.u0);
-											uvs.Add(new Vector2(glyphInfo.u0.x, glyphInfo.u1.y));
-											uvs.Add(glyphInfo.u1);
-											uvs.Add(new Vector2(glyphInfo.u1.x, glyphInfo.u0.y));
-										}
-									}
-								}
-								if (cols != null)
-								{
-									if (glyphInfo.channel == 0 || glyphInfo.channel == 15)
-									{
-										if (gradient)
-										{
-											float num17 = num8 + glyphInfo.v0.y / fontScale;
-											float num18 = num8 + glyphInfo.v1.y / fontScale;
-											num17 /= num8;
-											num18 /= num8;
-											s_c0 = Color.Lerp(a, b, num17);
-											s_c1 = Color.Lerp(a, b, num18);
-											int n = 0;
-											for (int num19 = (!bold) ? 1 : 4; n < num19; n++)
-											{
-												cols.Add(s_c0);
-												cols.Add(s_c1);
-												cols.Add(s_c1);
-												cols.Add(s_c0);
-											}
-										}
-										else
-										{
-											int num20 = 0;
-											for (int num21 = (!bold) ? 4 : 16; num20 < num21; num20++)
-											{
-												cols.Add(color);
-											}
-										}
-									}
-									else
-									{
-										Color color4 = color;
-										color4 *= 0.49f;
-										switch (glyphInfo.channel)
-										{
-										case 1:
-											color4.b += 0.51f;
-											break;
-										case 2:
-											color4.g += 0.51f;
-											break;
-										case 4:
-											color4.r += 0.51f;
-											break;
-										case 8:
-											color4.a += 0.51f;
-											break;
-										}
-										Color32 item2 = color4;
-										int num22 = 0;
-										for (int num23 = (!bold) ? 4 : 16; num22 < num23; num22++)
-										{
-											cols.Add(item2);
-										}
-									}
-								}
-								if (!bold)
-								{
-									if (!italic)
-									{
-										verts.Add(new Vector3(num11, num14));
-										verts.Add(new Vector3(num11, num13));
-										verts.Add(new Vector3(num12, num13));
-										verts.Add(new Vector3(num12, num14));
-									}
-									else
-									{
-										float num24 = (float)fontSize * 0.1f * ((num13 - num14) / (float)fontSize);
-										verts.Add(new Vector3(num11 - num24, num14));
-										verts.Add(new Vector3(num11 + num24, num13));
-										verts.Add(new Vector3(num12 + num24, num13));
-										verts.Add(new Vector3(num12 - num24, num14));
-									}
-								}
-								else
-								{
-									for (int num25 = 0; num25 < 4; num25++)
-									{
-										float num26 = mBoldOffset[num25 * 2];
-										float num27 = mBoldOffset[num25 * 2 + 1];
-										float num28 = (!italic) ? 0f : ((float)fontSize * 0.1f * ((num13 - num14) / (float)fontSize));
-										verts.Add(new Vector3(num11 + num26 - num28, num14 + num27));
-										verts.Add(new Vector3(num11 + num26 + num28, num13 + num27));
-										verts.Add(new Vector3(num12 + num26 + num28, num13 + num27));
-										verts.Add(new Vector3(num12 + num26 - num28, num14 + num27));
-									}
-								}
-								if (underline || strike)
-								{
-									GlyphInfo glyphInfo2 = GetGlyph((!strike) ? 95 : 45, prev);
-									if (glyphInfo2 != null)
-									{
-										if (uvs != null)
-										{
-											if (bitmapFont != null)
-											{
-												glyphInfo2.u0.x = rect.xMin + num6 * glyphInfo2.u0.x;
-												glyphInfo2.u1.x = rect.xMin + num6 * glyphInfo2.u1.x;
-												glyphInfo2.u0.y = rect.yMax - num7 * glyphInfo2.u0.y;
-												glyphInfo2.u1.y = rect.yMax - num7 * glyphInfo2.u1.y;
-											}
-											float x = (glyphInfo2.u0.x + glyphInfo2.u1.x) * 0.5f;
-											int num29 = 0;
-											for (int num30 = (!bold) ? 1 : 4; num29 < num30; num29++)
-											{
-												uvs.Add(new Vector2(x, glyphInfo2.u0.y));
-												uvs.Add(new Vector2(x, glyphInfo2.u1.y));
-												uvs.Add(new Vector2(x, glyphInfo2.u1.y));
-												uvs.Add(new Vector2(x, glyphInfo2.u0.y));
-											}
-										}
-										if (flag && strike)
-										{
-											num14 = (0f - num3 + glyphInfo2.v0.y) * 0.75f;
-											num13 = (0f - num3 + glyphInfo2.v1.y) * 0.75f;
-										}
-										else
-										{
-											num14 = 0f - num3 + glyphInfo2.v0.y;
-											num13 = 0f - num3 + glyphInfo2.v1.y;
-										}
-										if (bold)
-										{
-											for (int num31 = 0; num31 < 4; num31++)
-											{
-												float num32 = mBoldOffset[num31 * 2];
-												float num33 = mBoldOffset[num31 * 2 + 1];
-												verts.Add(new Vector3(num9 + num32, num14 + num33));
-												verts.Add(new Vector3(num9 + num32, num13 + num33));
-												verts.Add(new Vector3(num2 + num32, num13 + num33));
-												verts.Add(new Vector3(num2 + num32, num14 + num33));
-											}
-										}
-										else
-										{
-											verts.Add(new Vector3(num9, num14));
-											verts.Add(new Vector3(num9, num13));
-											verts.Add(new Vector3(num2, num13));
-											verts.Add(new Vector3(num2, num14));
-										}
-										if (gradient)
-										{
-											float num34 = num8 + glyphInfo2.v0.y / fontScale;
-											float num35 = num8 + glyphInfo2.v1.y / fontScale;
-											num34 /= num8;
-											num35 /= num8;
-											s_c0 = Color.Lerp(a, b, num34);
-											s_c1 = Color.Lerp(a, b, num35);
-											int num36 = 0;
-											for (int num37 = (!bold) ? 1 : 4; num36 < num37; num36++)
-											{
-												cols.Add(s_c0);
-												cols.Add(s_c1);
-												cols.Add(s_c1);
-												cols.Add(s_c0);
-											}
-										}
-										else
-										{
-											int num38 = 0;
-											for (int num39 = (!bold) ? 4 : 16; num38 < num39; num38++)
-											{
-												cols.Add(color);
-											}
-										}
-									}
-								}
-							}
+							cols.Add(color);
 						}
 					}
 				}
+				else
+				{
+					Color color4 = color;
+					color4 *= 0.49f;
+					switch (glyphInfo.channel)
+					{
+					case 1:
+						color4.b += 0.51f;
+						break;
+					case 2:
+						color4.g += 0.51f;
+						break;
+					case 4:
+						color4.r += 0.51f;
+						break;
+					case 8:
+						color4.a += 0.51f;
+						break;
+					}
+					Color32 item2 = color4;
+					int num22 = 0;
+					for (int num23 = (!bold) ? 4 : 16; num22 < num23; num22++)
+					{
+						cols.Add(item2);
+					}
+				}
 			}
-			if (alignment != Alignment.Left && size < verts.size)
+			if (!bold)
 			{
-				Align(verts, size, num2 - finalSpacingX);
-				size = verts.size;
+				if (!italic)
+				{
+					verts.Add(new Vector3(num11, num14));
+					verts.Add(new Vector3(num11, num13));
+					verts.Add(new Vector3(num12, num13));
+					verts.Add(new Vector3(num12, num14));
+				}
+				else
+				{
+					float num24 = (float)fontSize * 0.1f * ((num13 - num14) / (float)fontSize);
+					verts.Add(new Vector3(num11 - num24, num14));
+					verts.Add(new Vector3(num11 + num24, num13));
+					verts.Add(new Vector3(num12 + num24, num13));
+					verts.Add(new Vector3(num12 - num24, num14));
+				}
 			}
-			mColors.Clear();
+			else
+			{
+				for (int num25 = 0; num25 < 4; num25++)
+				{
+					float num26 = mBoldOffset[num25 * 2];
+					float num27 = mBoldOffset[num25 * 2 + 1];
+					float num28 = (!italic) ? 0f : ((float)fontSize * 0.1f * ((num13 - num14) / (float)fontSize));
+					verts.Add(new Vector3(num11 + num26 - num28, num14 + num27));
+					verts.Add(new Vector3(num11 + num26 + num28, num13 + num27));
+					verts.Add(new Vector3(num12 + num26 + num28, num13 + num27));
+					verts.Add(new Vector3(num12 + num26 - num28, num14 + num27));
+				}
+			}
+			if (!underline && !strike)
+			{
+				continue;
+			}
+			GlyphInfo glyphInfo2 = GetGlyph((!strike) ? 95 : 45, prev);
+			if (glyphInfo2 == null)
+			{
+				continue;
+			}
+			if (uvs != null)
+			{
+				if (bitmapFont != null)
+				{
+					glyphInfo2.u0.x = rect.xMin + num6 * glyphInfo2.u0.x;
+					glyphInfo2.u1.x = rect.xMin + num6 * glyphInfo2.u1.x;
+					glyphInfo2.u0.y = rect.yMax - num7 * glyphInfo2.u0.y;
+					glyphInfo2.u1.y = rect.yMax - num7 * glyphInfo2.u1.y;
+				}
+				float x = (glyphInfo2.u0.x + glyphInfo2.u1.x) * 0.5f;
+				int num29 = 0;
+				for (int num30 = (!bold) ? 1 : 4; num29 < num30; num29++)
+				{
+					uvs.Add(new Vector2(x, glyphInfo2.u0.y));
+					uvs.Add(new Vector2(x, glyphInfo2.u1.y));
+					uvs.Add(new Vector2(x, glyphInfo2.u1.y));
+					uvs.Add(new Vector2(x, glyphInfo2.u0.y));
+				}
+			}
+			if (flag && strike)
+			{
+				num14 = (0f - num3 + glyphInfo2.v0.y) * 0.75f;
+				num13 = (0f - num3 + glyphInfo2.v1.y) * 0.75f;
+			}
+			else
+			{
+				num14 = 0f - num3 + glyphInfo2.v0.y;
+				num13 = 0f - num3 + glyphInfo2.v1.y;
+			}
+			if (bold)
+			{
+				for (int num31 = 0; num31 < 4; num31++)
+				{
+					float num32 = mBoldOffset[num31 * 2];
+					float num33 = mBoldOffset[num31 * 2 + 1];
+					verts.Add(new Vector3(num9 + num32, num14 + num33));
+					verts.Add(new Vector3(num9 + num32, num13 + num33));
+					verts.Add(new Vector3(num2 + num32, num13 + num33));
+					verts.Add(new Vector3(num2 + num32, num14 + num33));
+				}
+			}
+			else
+			{
+				verts.Add(new Vector3(num9, num14));
+				verts.Add(new Vector3(num9, num13));
+				verts.Add(new Vector3(num2, num13));
+				verts.Add(new Vector3(num2, num14));
+			}
+			if (gradient)
+			{
+				float num34 = num8 + glyphInfo2.v0.y / fontScale;
+				float num35 = num8 + glyphInfo2.v1.y / fontScale;
+				num34 /= num8;
+				num35 /= num8;
+				s_c0 = Color.Lerp(a, b, num34);
+				s_c1 = Color.Lerp(a, b, num35);
+				int num36 = 0;
+				for (int num37 = (!bold) ? 1 : 4; num36 < num37; num36++)
+				{
+					cols.Add(s_c0);
+					cols.Add(s_c1);
+					cols.Add(s_c1);
+					cols.Add(s_c0);
+				}
+			}
+			else
+			{
+				int num38 = 0;
+				for (int num39 = (!bold) ? 4 : 16; num38 < num39; num38++)
+				{
+					cols.Add(color);
+				}
+			}
 		}
+		if (alignment != Alignment.Left && size < verts.size)
+		{
+			Align(verts, size, num2 - finalSpacingX);
+			size = verts.size;
+		}
+		mColors.Clear();
 	}
 
 	public static void PrintApproximateCharacterPositions(string text, BetterList<Vector3> verts, BetterList<int> indices)
@@ -1497,74 +1510,73 @@ public static class NGUIText
 				num = 0f;
 				num2 += finalLineHeight;
 				prev = 0;
+				continue;
 			}
-			else if (num5 < 32)
+			if (num5 < 32)
 			{
 				prev = 0;
+				continue;
 			}
-			else if (encoding && ParseSymbol(text, ref i))
+			if (encoding && ParseSymbol(text, ref i))
 			{
 				i--;
+				continue;
 			}
-			else
+			BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
+			if (bMSymbol == null)
 			{
-				BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
-				if (bMSymbol == null)
+				float glyphWidth = GetGlyphWidth(num5, prev);
+				if (glyphWidth == 0f)
 				{
-					float glyphWidth = GetGlyphWidth(num5, prev);
-					if (glyphWidth != 0f)
+					continue;
+				}
+				glyphWidth += finalSpacingX;
+				if (Mathf.RoundToInt(num + glyphWidth) > regionWidth)
+				{
+					if (num == 0f)
 					{
-						glyphWidth += finalSpacingX;
-						if (Mathf.RoundToInt(num + glyphWidth) > regionWidth)
-						{
-							if (num == 0f)
-							{
-								return;
-							}
-							if (alignment != Alignment.Left && size < verts.size)
-							{
-								Align(verts, size, num - finalSpacingX);
-								size = verts.size;
-							}
-							num = glyphWidth;
-							num2 += finalLineHeight;
-						}
-						else
-						{
-							num += glyphWidth;
-						}
-						verts.Add(new Vector3(num, 0f - num2 - num4));
-						indices.Add(i + 1);
-						prev = num5;
+						return;
 					}
+					if (alignment != Alignment.Left && size < verts.size)
+					{
+						Align(verts, size, num - finalSpacingX);
+						size = verts.size;
+					}
+					num = glyphWidth;
+					num2 += finalLineHeight;
 				}
 				else
 				{
-					float num6 = (float)bMSymbol.advance * fontScale + finalSpacingX;
-					if (Mathf.RoundToInt(num + num6) > regionWidth)
-					{
-						if (num == 0f)
-						{
-							return;
-						}
-						if (alignment != Alignment.Left && size < verts.size)
-						{
-							Align(verts, size, num - finalSpacingX);
-							size = verts.size;
-						}
-						num = num6;
-						num2 += finalLineHeight;
-					}
-					else
-					{
-						num += num6;
-					}
-					verts.Add(new Vector3(num, 0f - num2 - num4));
-					indices.Add(i + 1);
-					i += bMSymbol.sequence.Length - 1;
-					prev = 0;
+					num += glyphWidth;
 				}
+				verts.Add(new Vector3(num, 0f - num2 - num4));
+				indices.Add(i + 1);
+				prev = num5;
+				continue;
 			}
+			float num6 = (float)bMSymbol.advance * fontScale + finalSpacingX;
+			if (Mathf.RoundToInt(num + num6) > regionWidth)
+			{
+				if (num == 0f)
+				{
+					return;
+				}
+				if (alignment != Alignment.Left && size < verts.size)
+				{
+					Align(verts, size, num - finalSpacingX);
+					size = verts.size;
+				}
+				num = num6;
+				num2 += finalLineHeight;
+			}
+			else
+			{
+				num += num6;
+			}
+			verts.Add(new Vector3(num, 0f - num2 - num4));
+			indices.Add(i + 1);
+			i += bMSymbol.sequence.Length - 1;
+			prev = 0;
 		}
 		if (alignment != Alignment.Left && size < verts.size)
 		{
@@ -1604,79 +1616,78 @@ public static class NGUIText
 				num2 = 0f;
 				num3 += finalLineHeight;
 				prev = 0;
+				continue;
 			}
-			else if (num5 < 32)
+			if (num5 < 32)
 			{
 				prev = 0;
+				continue;
 			}
-			else if (encoding && ParseSymbol(text, ref i))
+			if (encoding && ParseSymbol(text, ref i))
 			{
+				i--;
+				continue;
+			}
+			BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
+			if (bMSymbol == null)
+			{
+				float glyphWidth = GetGlyphWidth(num5, prev);
+				if (glyphWidth == 0f)
+				{
+					continue;
+				}
+				float num6 = glyphWidth + finalSpacingX;
+				if (Mathf.RoundToInt(num2 + num6) > regionWidth)
+				{
+					if (num2 == 0f)
+					{
+						return;
+					}
+					if (alignment != Alignment.Left && size < verts.size)
+					{
+						Align(verts, size, num2 - finalSpacingX);
+						size = verts.size;
+					}
+					num2 = 0f;
+					num3 += finalLineHeight;
+					prev = 0;
+					i--;
+				}
+				else
+				{
+					indices.Add(i);
+					verts.Add(new Vector3(num2, 0f - num3 - num));
+					verts.Add(new Vector3(num2 + num6, 0f - num3));
+					prev = num5;
+					num2 += num6;
+				}
+				continue;
+			}
+			float num7 = (float)bMSymbol.advance * fontScale + finalSpacingX;
+			if (Mathf.RoundToInt(num2 + num7) > regionWidth)
+			{
+				if (num2 == 0f)
+				{
+					return;
+				}
+				if (alignment != Alignment.Left && size < verts.size)
+				{
+					Align(verts, size, num2 - finalSpacingX);
+					size = verts.size;
+				}
+				num2 = 0f;
+				num3 += finalLineHeight;
+				prev = 0;
 				i--;
 			}
 			else
 			{
-				BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
-				if (bMSymbol == null)
-				{
-					float glyphWidth = GetGlyphWidth(num5, prev);
-					if (glyphWidth != 0f)
-					{
-						float num6 = glyphWidth + finalSpacingX;
-						if (Mathf.RoundToInt(num2 + num6) > regionWidth)
-						{
-							if (num2 == 0f)
-							{
-								return;
-							}
-							if (alignment != Alignment.Left && size < verts.size)
-							{
-								Align(verts, size, num2 - finalSpacingX);
-								size = verts.size;
-							}
-							num2 = 0f;
-							num3 += finalLineHeight;
-							prev = 0;
-							i--;
-						}
-						else
-						{
-							indices.Add(i);
-							verts.Add(new Vector3(num2, 0f - num3 - num));
-							verts.Add(new Vector3(num2 + num6, 0f - num3));
-							prev = num5;
-							num2 += num6;
-						}
-					}
-				}
-				else
-				{
-					float num7 = (float)bMSymbol.advance * fontScale + finalSpacingX;
-					if (Mathf.RoundToInt(num2 + num7) > regionWidth)
-					{
-						if (num2 == 0f)
-						{
-							return;
-						}
-						if (alignment != Alignment.Left && size < verts.size)
-						{
-							Align(verts, size, num2 - finalSpacingX);
-							size = verts.size;
-						}
-						num2 = 0f;
-						num3 += finalLineHeight;
-						prev = 0;
-						i--;
-					}
-					else
-					{
-						indices.Add(i);
-						verts.Add(new Vector3(num2, 0f - num3 - num));
-						verts.Add(new Vector3(num2 + num7, 0f - num3));
-						i += bMSymbol.sequence.Length - 1;
-						num2 += num7;
-						prev = 0;
-					}
-				}
+				indices.Add(i);
+				verts.Add(new Vector3(num2, 0f - num3 - num));
+				verts.Add(new Vector3(num2 + num7, 0f - num3));
+				i += bMSymbol.sequence.Length - 1;
+				num2 += num7;
+				prev = 0;
 			}
 		}
 		if (alignment != Alignment.Left && size < verts.size)
@@ -1761,95 +1772,96 @@ public static class NGUIText
 				num2 = 0f;
 				num3 += finalLineHeight;
 				prev = 0;
+				continue;
 			}
-			else if (num7 < 32)
+			if (num7 < 32)
 			{
 				prev = 0;
+				continue;
 			}
-			else if (encoding && ParseSymbol(text, ref i))
+			if (encoding && ParseSymbol(text, ref i))
 			{
 				i--;
+				continue;
 			}
-			else
+			BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
+			float num8 = (bMSymbol == null) ? GetGlyphWidth(num7, prev) : ((float)bMSymbol.advance * fontScale);
+			if (num8 == 0f)
 			{
-				BMSymbol bMSymbol = (!useSymbols) ? null : GetSymbol(text, i, length);
-				float num8 = (bMSymbol == null) ? GetGlyphWidth(num7, prev) : ((float)bMSymbol.advance * fontScale);
-				if (num8 != 0f)
+				continue;
+			}
+			float num9 = num2;
+			float num10 = num2 + num8;
+			float num11 = 0f - num3 - num5;
+			float num12 = 0f - num3;
+			if (Mathf.RoundToInt(num10 + finalSpacingX) > regionWidth)
+			{
+				if (num2 == 0f)
 				{
-					float num9 = num2;
-					float num10 = num2 + num8;
-					float num11 = 0f - num3 - num5;
-					float num12 = 0f - num3;
-					if (Mathf.RoundToInt(num10 + finalSpacingX) > regionWidth)
+					return;
+				}
+				if (num2 > num4)
+				{
+					num4 = num2;
+				}
+				if (caret != null && flag2)
+				{
+					if (alignment != Alignment.Left)
 					{
-						if (num2 == 0f)
-						{
-							return;
-						}
-						if (num2 > num4)
-						{
-							num4 = num2;
-						}
-						if (caret != null && flag2)
-						{
-							if (alignment != Alignment.Left)
-							{
-								Align(caret, indexOffset, num2 - finalSpacingX);
-							}
-							caret = null;
-						}
-						if (highlight != null)
-						{
-							if (flag)
-							{
-								flag = false;
-								highlight.Add(v2);
-								highlight.Add(v);
-							}
-							else if (start <= i && end > i)
-							{
-								highlight.Add(new Vector3(num2, 0f - num3 - num5));
-								highlight.Add(new Vector3(num2, 0f - num3));
-								highlight.Add(new Vector3(num2 + 2f, 0f - num3));
-								highlight.Add(new Vector3(num2 + 2f, 0f - num3 - num5));
-							}
-							if (alignment != Alignment.Left && num6 < highlight.size)
-							{
-								Align(highlight, num6, num2 - finalSpacingX);
-								num6 = highlight.size;
-							}
-						}
-						num9 -= num2;
-						num10 -= num2;
-						num11 -= finalLineHeight;
-						num12 -= finalLineHeight;
-						num2 = 0f;
-						num3 += finalLineHeight;
+						Align(caret, indexOffset, num2 - finalSpacingX);
 					}
-					num2 += num8 + finalSpacingX;
-					if (highlight != null)
+					caret = null;
+				}
+				if (highlight != null)
+				{
+					if (flag)
 					{
-						if (start > i || end <= i)
-						{
-							if (flag)
-							{
-								flag = false;
-								highlight.Add(v2);
-								highlight.Add(v);
-							}
-						}
-						else if (!flag)
-						{
-							flag = true;
-							highlight.Add(new Vector3(num9, num11));
-							highlight.Add(new Vector3(num9, num12));
-						}
+						flag = false;
+						highlight.Add(v2);
+						highlight.Add(v);
 					}
-					v = new Vector2(num10, num11);
-					v2 = new Vector2(num10, num12);
-					prev = num7;
+					else if (start <= i && end > i)
+					{
+						highlight.Add(new Vector3(num2, 0f - num3 - num5));
+						highlight.Add(new Vector3(num2, 0f - num3));
+						highlight.Add(new Vector3(num2 + 2f, 0f - num3));
+						highlight.Add(new Vector3(num2 + 2f, 0f - num3 - num5));
+					}
+					if (alignment != Alignment.Left && num6 < highlight.size)
+					{
+						Align(highlight, num6, num2 - finalSpacingX);
+						num6 = highlight.size;
+					}
+				}
+				num9 -= num2;
+				num10 -= num2;
+				num11 -= finalLineHeight;
+				num12 -= finalLineHeight;
+				num2 = 0f;
+				num3 += finalLineHeight;
+			}
+			num2 += num8 + finalSpacingX;
+			if (highlight != null)
+			{
+				if (start > i || end <= i)
+				{
+					if (flag)
+					{
+						flag = false;
+						highlight.Add(v2);
+						highlight.Add(v);
+					}
+				}
+				else if (!flag)
+				{
+					flag = true;
+					highlight.Add(new Vector3(num9, num11));
+					highlight.Add(new Vector3(num9, num12));
 				}
 			}
+			v = new Vector2(num10, num11);
+			v2 = new Vector2(num10, num12);
+			prev = num7;
 		}
 		if (caret != null)
 		{

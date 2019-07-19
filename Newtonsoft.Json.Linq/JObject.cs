@@ -32,13 +32,11 @@ namespace Newtonsoft.Json.Linq
 				if (Dictionary == null)
 				{
 					base.InsertItem(index, item);
+					return;
 				}
-				else
-				{
-					string keyForItem = GetKeyForItem(item);
-					Dictionary[keyForItem] = item;
-					base.Items.Insert(index, item);
-				}
+				string keyForItem = GetKeyForItem(item);
+				Dictionary[keyForItem] = item;
+				base.Items.Insert(index, item);
 			}
 		}
 
@@ -109,13 +107,11 @@ namespace Newtonsoft.Json.Linq
 				if (jProperty != null)
 				{
 					jProperty.Value = value;
+					return;
 				}
-				else
-				{
-					OnPropertyChanging(propertyName);
-					Add(new JProperty(propertyName, value));
-					OnPropertyChanged(propertyName);
-				}
+				OnPropertyChanging(propertyName);
+				Add(new JProperty(propertyName, value));
+				OnPropertyChanged(propertyName);
 			}
 		}
 
@@ -367,12 +363,10 @@ namespace Newtonsoft.Json.Linq
 
 		public IEnumerator<KeyValuePair<string, JToken>> GetEnumerator()
 		{
-			foreach (JToken jtoken in this.ChildrenTokens)
+			foreach (JProperty property in ChildrenTokens)
 			{
-				JProperty property = (JProperty)jtoken;
 				yield return new KeyValuePair<string, JToken>(property.Name, property.Value);
 			}
-			yield break;
 		}
 
 		protected virtual void OnPropertyChanged(string propertyName)

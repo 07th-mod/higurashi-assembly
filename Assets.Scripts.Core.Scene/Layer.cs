@@ -69,6 +69,10 @@ namespace Assets.Scripts.Core.Scene
 
 		public Vector3 targetScale = new Vector3(1f, 1f, 1f);
 
+		public Vector2? Origin;
+
+		public Vector2? ForceSize;
+
 		public float targetAngle;
 
 		public int activeScene;
@@ -93,20 +97,20 @@ namespace Assets.Scripts.Core.Scene
 
 		private IEnumerator ControlledMotion()
 		{
-			foreach (MtnCtrlElement mt in this.motion)
+			MtnCtrlElement[] array = motion;
+			foreach (MtnCtrlElement mt in array)
 			{
 				float time = (float)mt.Time / 1000f;
-				this.MoveLayerEx(mt.Route, mt.Points, 1f - (float)mt.Transparancy / 256f, time);
+				MoveLayerEx(mt.Route, mt.Points, 1f - (float)mt.Transparancy / 256f, time);
 				yield return new WaitForSeconds(time);
-				this.startRange = 1f - (float)mt.Transparancy / 256f;
+				startRange = 1f - (float)mt.Transparancy / 256f;
 			}
-			this.FinishAll();
-			if (this.motion[this.motion.Length - 1].Transparancy == 256)
+			FinishAll();
+			if (motion[motion.Length - 1].Transparancy == 256)
 			{
-				this.HideLayer();
+				HideLayer();
 			}
-			this.isInMotion = false;
-			yield break;
+			isInMotion = false;
 		}
 
 		public void ControlLayerMotion(MtnCtrlElement[] motions)
@@ -171,8 +175,8 @@ namespace Assets.Scripts.Core.Scene
 			{
 				num = 1f + (float)z / -400f;
 			}
-			float x2 = (float)x;
-			float y2 = (float)(-y);
+			float x2 = x;
+			float y2 = -y;
 			Vector3 localPosition = base.transform.localPosition;
 			targetPosition = new Vector3(x2, y2, localPosition.z);
 			targetScale = new Vector3(num, num, 1f);
@@ -277,7 +281,7 @@ namespace Assets.Scripts.Core.Scene
 		public IEnumerator WaitThenFinish(float time)
 		{
 			yield return new WaitForSeconds(time);
-			this.FinishAll();
+			FinishAll();
 			yield break;
 		}
 
@@ -309,7 +313,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
+		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
 		{
 			Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
 			Texture2D maskTexture = AssetManager.Instance.LoadTexture(maskName);
@@ -330,17 +334,38 @@ namespace Assets.Scripts.Core.Scene
 				{
 					alignment = LayerAlignment.AlignTopleft;
 				}
-				if (origin.HasValue)
+				if (!forceSize.HasValue)
 				{
-					CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
+					if (origin.HasValue)
+					{
+						CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
+					}
+					else
+					{
+						CreateMesh(texture2D.width, texture2D.height, alignment);
+					}
 				}
 				else
 				{
-					CreateMesh(texture2D.width, texture2D.height, alignment);
+					ForceSize = forceSize;
+					if (origin.HasValue)
+					{
+						Vector2 value = forceSize.Value;
+						int width = Mathf.RoundToInt(value.x);
+						Vector2 value2 = forceSize.Value;
+						CreateMeshNoResize(width, Mathf.RoundToInt(value2.y), origin.GetValueOrDefault());
+					}
+					else
+					{
+						Vector2 value3 = forceSize.Value;
+						int width2 = Mathf.RoundToInt(value3.x);
+						Vector2 value4 = forceSize.Value;
+						CreateMeshNoResize(width2, Mathf.RoundToInt(value4.y), alignment);
+					}
 				}
 			}
 			SetRange(startRange);
-			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
+			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
 			GameSystem.Instance.RegisterAction(delegate
 			{
 				meshRenderer.enabled = true;
@@ -375,99 +400,120 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, Vector2? forceSize, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
 		{
 			FinishAll();
 			if (textureName == string.Empty)
 			{
 				HideLayer();
+				return;
 			}
-			else
+			Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
+			if (texture2D == null)
 			{
-				Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
-				if (texture2D == null)
+				Logger.LogError("Failed to load texture " + textureName);
+				return;
+			}
+			startRange = 0f;
+			targetRange = alpha;
+			targetAlpha = alpha;
+			meshRenderer.enabled = true;
+			shaderType = type;
+			PrimaryName = textureName;
+			float num = 1f;
+			if (z > 0)
+			{
+				num = 1f - (float)z / 400f;
+			}
+			if (z < 0)
+			{
+				num = 1f + (float)z / -400f;
+			}
+			if (origin.HasValue)
+			{
+				Origin = origin;
+			}
+			if (mesh == null)
+			{
+				alignment = LayerAlignment.AlignCenter;
+				if ((x != 0 || y != 0) && !isBustshot)
 				{
-					Logger.LogError("Failed to load texture " + textureName);
+					alignment = LayerAlignment.AlignTopleft;
 				}
-				else
+				if (!forceSize.HasValue)
 				{
-					startRange = 0f;
-					targetRange = alpha;
-					targetAlpha = alpha;
-					meshRenderer.enabled = true;
-					shaderType = type;
-					PrimaryName = textureName;
-					float num = 1f;
-					if (z > 0)
+					if (origin.HasValue)
 					{
-						num = 1f - (float)z / 400f;
-					}
-					if (z < 0)
-					{
-						num = 1f + (float)z / -400f;
-					}
-					if (mesh == null)
-					{
-						alignment = LayerAlignment.AlignCenter;
-						if ((x != 0 || y != 0) && !isBustshot)
-						{
-							alignment = LayerAlignment.AlignTopleft;
-						}
-						if (origin.HasValue)
-						{
-							CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
-						}
-						else
-						{
-							CreateMesh(texture2D.width, texture2D.height, alignment);
-						}
-					}
-					if (primary != null)
-					{
-						material.shader = shaderCrossfade;
-						SetSecondaryTexture(primary);
-						SetPrimaryTexture(texture2D);
-						startRange = 1f;
-						targetRange = 0f;
-						targetAlpha = 1f;
+						CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
 					}
 					else
 					{
-						material.shader = shaderDefault;
-						if (type == 3)
-						{
-							material.shader = shaderMultiply;
-						}
-						SetPrimaryTexture(texture2D);
+						CreateMesh(texture2D.width, texture2D.height, alignment);
 					}
-					SetRange(startRange);
-					base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
-					base.transform.localScale = new Vector3(num, num, 1f);
-					targetPosition = base.transform.localPosition;
-					targetScale = base.transform.localScale;
+				}
+				else
+				{
+					ForceSize = forceSize;
+					if (origin.HasValue)
+					{
+						Vector2 value = forceSize.Value;
+						int width = Mathf.RoundToInt(value.x);
+						Vector2 value2 = forceSize.Value;
+						CreateMeshNoResize(width, Mathf.RoundToInt(value2.y), origin.GetValueOrDefault());
+					}
+					else
+					{
+						Vector2 value3 = forceSize.Value;
+						int width2 = Mathf.RoundToInt(value3.x);
+						Vector2 value4 = forceSize.Value;
+						CreateMeshNoResize(width2, Mathf.RoundToInt(value4.y), alignment);
+					}
+				}
+			}
+			if (primary != null)
+			{
+				material.shader = shaderCrossfade;
+				SetSecondaryTexture(primary);
+				SetPrimaryTexture(texture2D);
+				startRange = 1f;
+				targetRange = 0f;
+				targetAlpha = 1f;
+			}
+			else
+			{
+				material.shader = shaderDefault;
+				if (type == 3)
+				{
+					material.shader = shaderMultiply;
+				}
+				SetPrimaryTexture(texture2D);
+			}
+			SetRange(startRange);
+			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
+			base.transform.localScale = new Vector3(num, num, 1f);
+			targetPosition = base.transform.localPosition;
+			targetScale = base.transform.localScale;
+			if (Mathf.Approximately(wait, 0f))
+			{
+				FinishFade();
+			}
+			else
+			{
+				GameSystem.Instance.RegisterAction(delegate
+				{
 					if (Mathf.Approximately(wait, 0f))
 					{
 						FinishFade();
 					}
 					else
 					{
-						GameSystem.Instance.RegisterAction(delegate
+						FadeInLayer(wait);
+						if (isBlocking)
 						{
-							if (Mathf.Approximately(wait, 0f))
-							{
-								FinishFade();
-							}
-							else
-							{
-								FadeInLayer(wait);
-								if (isBlocking)
-								{
-									GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
-								}
-							}
-						});
+							GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
+						}
 					}
-				}
+				});
 			}
 		}
 
@@ -695,6 +741,18 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
+		private void CreateMeshNoResize(int width, int height, Vector2 origin)
+		{
+			mesh = MGHelper.CreateMeshWithOrigin(width, height, origin);
+			meshFilter.mesh = mesh;
+		}
+
+		private void CreateMeshNoResize(int width, int height, LayerAlignment alignment)
+		{
+			mesh = MGHelper.CreateMesh(width, height, alignment);
+			meshFilter.mesh = mesh;
+		}
+
 		private void CreateMesh(int width, int height, Vector2 origin)
 		{
 			int num = height;
@@ -748,16 +806,20 @@ namespace Assets.Scripts.Core.Scene
 			meshRenderer.material = material;
 			meshRenderer.enabled = false;
 			targetAngle = 0f;
+			Origin = null;
+			ForceSize = null;
 			IsInitialized = true;
 		}
 
 		public void Serialize(BinaryWriter br)
 		{
-			MGHelper.WriteVector3(br, targetPosition);
-			MGHelper.WriteVector3(br, targetScale);
+			br.Write(targetPosition);
+			br.Write(targetScale);
 			br.Write(PrimaryName);
 			br.Write(targetAlpha);
 			br.Write((int)alignment);
+			br.Write(Origin);
+			br.Write(ForceSize);
 			br.Write(shaderType);
 		}
 

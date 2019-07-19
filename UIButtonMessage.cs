@@ -78,26 +78,27 @@ public class UIButtonMessage : MonoBehaviour
 
 	private void Send()
 	{
-		if (!string.IsNullOrEmpty(functionName))
+		if (string.IsNullOrEmpty(functionName))
 		{
-			if (target == null)
+			return;
+		}
+		if (target == null)
+		{
+			target = base.gameObject;
+		}
+		if (includeChildren)
+		{
+			Transform[] componentsInChildren = target.GetComponentsInChildren<Transform>();
+			int i = 0;
+			for (int num = componentsInChildren.Length; i < num; i++)
 			{
-				target = base.gameObject;
+				Transform transform = componentsInChildren[i];
+				transform.gameObject.SendMessage(functionName, base.gameObject, SendMessageOptions.DontRequireReceiver);
 			}
-			if (includeChildren)
-			{
-				Transform[] componentsInChildren = target.GetComponentsInChildren<Transform>();
-				int i = 0;
-				for (int num = componentsInChildren.Length; i < num; i++)
-				{
-					Transform transform = componentsInChildren[i];
-					transform.gameObject.SendMessage(functionName, base.gameObject, SendMessageOptions.DontRequireReceiver);
-				}
-			}
-			else
-			{
-				target.SendMessage(functionName, base.gameObject, SendMessageOptions.DontRequireReceiver);
-			}
+		}
+		else
+		{
+			target.SendMessage(functionName, base.gameObject, SendMessageOptions.DontRequireReceiver);
 		}
 	}
 }

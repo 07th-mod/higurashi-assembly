@@ -178,91 +178,93 @@ public class ActiveAnimation : MonoBehaviour
 	private void Update()
 	{
 		float deltaTime = RealTime.deltaTime;
-		if (deltaTime != 0f)
+		if (deltaTime == 0f)
 		{
-			if (mAnimator != null)
+			return;
+		}
+		if (mAnimator != null)
+		{
+			mAnimator.Update((mLastDirection != Direction.Reverse) ? deltaTime : (0f - deltaTime));
+			if (isPlaying)
 			{
-				mAnimator.Update((mLastDirection != Direction.Reverse) ? deltaTime : (0f - deltaTime));
-				if (isPlaying)
-				{
-					return;
-				}
-				mAnimator.enabled = false;
-				base.enabled = false;
+				return;
 			}
-			else
+			mAnimator.enabled = false;
+			base.enabled = false;
+		}
+		else
+		{
+			if (!(mAnim != null))
 			{
-				if (!(mAnim != null))
+				base.enabled = false;
+				return;
+			}
+			bool flag = false;
+			IEnumerator enumerator = mAnim.GetEnumerator();
+			try
+			{
+				while (enumerator.MoveNext())
 				{
-					base.enabled = false;
-					return;
-				}
-				bool flag = false;
-				IEnumerator enumerator = mAnim.GetEnumerator();
-				try
-				{
-					while (enumerator.MoveNext())
+					AnimationState animationState = (AnimationState)enumerator.Current;
+					if (mAnim.IsPlaying(animationState.name))
 					{
-						AnimationState animationState = (AnimationState)enumerator.Current;
-						if (mAnim.IsPlaying(animationState.name))
+						float num = animationState.speed * deltaTime;
+						animationState.time += num;
+						if (num < 0f)
 						{
-							float num = animationState.speed * deltaTime;
-							animationState.time += num;
-							if (num < 0f)
-							{
-								if (animationState.time > 0f)
-								{
-									flag = true;
-								}
-								else
-								{
-									animationState.time = 0f;
-								}
-							}
-							else if (animationState.time < animationState.length)
+							if (animationState.time > 0f)
 							{
 								flag = true;
 							}
 							else
 							{
-								animationState.time = animationState.length;
+								animationState.time = 0f;
 							}
+						}
+						else if (animationState.time < animationState.length)
+						{
+							flag = true;
+						}
+						else
+						{
+							animationState.time = animationState.length;
 						}
 					}
 				}
-				finally
-				{
-					IDisposable disposable;
-					if ((disposable = (enumerator as IDisposable)) != null)
-					{
-						disposable.Dispose();
-					}
-				}
-				mAnim.Sample();
-				if (flag)
-				{
-					return;
-				}
-				base.enabled = false;
 			}
-			if (mNotify)
+			finally
 			{
-				mNotify = false;
-				if (current == null)
+				IDisposable disposable;
+				if ((disposable = (enumerator as IDisposable)) != null)
 				{
-					current = this;
-					EventDelegate.Execute(onFinished);
-					if (eventReceiver != null && !string.IsNullOrEmpty(callWhenFinished))
-					{
-						eventReceiver.SendMessage(callWhenFinished, SendMessageOptions.DontRequireReceiver);
-					}
-					current = null;
-				}
-				if (mDisableDirection != 0 && mLastDirection == mDisableDirection)
-				{
-					NGUITools.SetActive(base.gameObject, state: false);
+					disposable.Dispose();
 				}
 			}
+			mAnim.Sample();
+			if (flag)
+			{
+				return;
+			}
+			base.enabled = false;
+		}
+		if (!mNotify)
+		{
+			return;
+		}
+		mNotify = false;
+		if (current == null)
+		{
+			current = this;
+			EventDelegate.Execute(onFinished);
+			if (eventReceiver != null && !string.IsNullOrEmpty(callWhenFinished))
+			{
+				eventReceiver.SendMessage(callWhenFinished, SendMessageOptions.DontRequireReceiver);
+			}
+			current = null;
+		}
+		if (mDisableDirection != 0 && mLastDirection == mDisableDirection)
+		{
+			NGUITools.SetActive(base.gameObject, state: false);
 		}
 	}
 
@@ -325,15 +327,13 @@ public class ActiveAnimation : MonoBehaviour
 			if (base.enabled && isPlaying && mClip == clipName)
 			{
 				mLastDirection = playDirection;
+				return;
 			}
-			else
-			{
-				base.enabled = true;
-				mNotify = true;
-				mLastDirection = playDirection;
-				mClip = clipName;
-				mAnimator.Play(mClip, 0, (playDirection != Direction.Forward) ? 1f : 0f);
-			}
+			base.enabled = true;
+			mNotify = true;
+			mLastDirection = playDirection;
+			mClip = clipName;
+			mAnimator.Play(mClip, 0, (playDirection != Direction.Forward) ? 1f : 0f);
 		}
 	}
 

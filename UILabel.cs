@@ -301,27 +301,28 @@ public class UILabel : UIWidget
 		}
 		set
 		{
-			if (!(mText == value))
+			if (mText == value)
 			{
-				if (string.IsNullOrEmpty(value))
+				return;
+			}
+			if (string.IsNullOrEmpty(value))
+			{
+				if (!string.IsNullOrEmpty(mText))
 				{
-					if (!string.IsNullOrEmpty(mText))
-					{
-						mText = string.Empty;
-						MarkAsChanged();
-						ProcessAndRequest();
-					}
-				}
-				else if (mText != value)
-				{
-					mText = value;
+					mText = string.Empty;
 					MarkAsChanged();
 					ProcessAndRequest();
 				}
-				if (autoResizeBoxCollider)
-				{
-					ResizeCollider();
-				}
+			}
+			else if (mText != value)
+			{
+				mText = value;
+				MarkAsChanged();
+				ProcessAndRequest();
+			}
+			if (autoResizeBoxCollider)
+			{
+				ResizeCollider();
 			}
 		}
 	}
@@ -751,38 +752,39 @@ public class UILabel : UIWidget
 
 	protected void SetActiveFont(Font fnt)
 	{
-		if (mActiveTTF != fnt)
+		if (!(mActiveTTF != fnt))
 		{
-			if (mActiveTTF != null)
+			return;
+		}
+		if (mActiveTTF != null)
+		{
+			if (mFontUsage.TryGetValue(mActiveTTF, out int value))
 			{
-				if (mFontUsage.TryGetValue(mActiveTTF, out int value))
+				value = Mathf.Max(0, --value);
+				if (value == 0)
 				{
-					value = Mathf.Max(0, --value);
-					if (value == 0)
-					{
-						mActiveTTF.textureRebuildCallback = null;
-						mFontUsage.Remove(mActiveTTF);
-					}
-					else
-					{
-						mFontUsage[mActiveTTF] = value;
-					}
+					mActiveTTF.textureRebuildCallback = null;
+					mFontUsage.Remove(mActiveTTF);
 				}
 				else
 				{
-					mActiveTTF.textureRebuildCallback = null;
+					mFontUsage[mActiveTTF] = value;
 				}
 			}
-			mActiveTTF = fnt;
-			if (mActiveTTF != null)
+			else
 			{
-				int value2 = 0;
-				if (!mFontUsage.TryGetValue(mActiveTTF, out value2))
-				{
-					mActiveTTF.textureRebuildCallback = OnFontTextureChanged;
-				}
-				value2 = (mFontUsage[mActiveTTF] = value2 + 1);
+				mActiveTTF.textureRebuildCallback = null;
 			}
+		}
+		mActiveTTF = fnt;
+		if (mActiveTTF != null)
+		{
+			int value2 = 0;
+			if (!mFontUsage.TryGetValue(mActiveTTF, out value2))
+			{
+				mActiveTTF.textureRebuildCallback = OnFontTextureChanged;
+			}
+			value2 = (mFontUsage[mActiveTTF] = value2 + 1);
 		}
 	}
 
@@ -914,146 +916,147 @@ public class UILabel : UIWidget
 
 	private void ProcessText(bool legacyMode, bool full)
 	{
-		if (isValid)
+		if (!isValid)
 		{
-			mChanged = true;
-			shouldBeProcessed = false;
-			float num = mDrawRegion.z - mDrawRegion.x;
-			float num2 = mDrawRegion.w - mDrawRegion.y;
-			NGUIText.rectWidth = ((!legacyMode) ? base.width : ((mMaxLineWidth == 0) ? 1000000 : mMaxLineWidth));
-			NGUIText.rectHeight = ((!legacyMode) ? base.height : ((mMaxLineHeight == 0) ? 1000000 : mMaxLineHeight));
-			NGUIText.regionWidth = ((num == 1f) ? NGUIText.rectWidth : Mathf.RoundToInt((float)NGUIText.rectWidth * num));
-			NGUIText.regionHeight = ((num2 == 1f) ? NGUIText.rectHeight : Mathf.RoundToInt((float)NGUIText.rectHeight * num2));
-			int value;
-			if (legacyMode)
+			return;
+		}
+		mChanged = true;
+		shouldBeProcessed = false;
+		float num = mDrawRegion.z - mDrawRegion.x;
+		float num2 = mDrawRegion.w - mDrawRegion.y;
+		NGUIText.rectWidth = ((!legacyMode) ? base.width : ((mMaxLineWidth == 0) ? 1000000 : mMaxLineWidth));
+		NGUIText.rectHeight = ((!legacyMode) ? base.height : ((mMaxLineHeight == 0) ? 1000000 : mMaxLineHeight));
+		NGUIText.regionWidth = ((num == 1f) ? NGUIText.rectWidth : Mathf.RoundToInt((float)NGUIText.rectWidth * num));
+		NGUIText.regionHeight = ((num2 == 1f) ? NGUIText.rectHeight : Mathf.RoundToInt((float)NGUIText.rectHeight * num2));
+		int value;
+		if (legacyMode)
+		{
+			Vector3 localScale = base.cachedTransform.localScale;
+			value = Mathf.RoundToInt(localScale.x);
+		}
+		else
+		{
+			value = defaultFontSize;
+		}
+		mPrintedSize = Mathf.Abs(value);
+		mScale = 1f;
+		if (NGUIText.regionWidth < 1 || NGUIText.regionHeight < 0)
+		{
+			mProcessedText = string.Empty;
+			return;
+		}
+		bool flag = trueTypeFont != null;
+		if (flag && this.keepCrisp)
+		{
+			UIRoot root = base.root;
+			if (root != null)
 			{
-				Vector3 localScale = base.cachedTransform.localScale;
-				value = Mathf.RoundToInt(localScale.x);
+				mDensity = ((!(root != null)) ? 1f : root.pixelSizeAdjustment);
 			}
-			else
+		}
+		else
+		{
+			mDensity = 1f;
+		}
+		if (full)
+		{
+			UpdateNGUIText();
+		}
+		if (mOverflow == Overflow.ResizeFreely)
+		{
+			NGUIText.rectWidth = 1000000;
+			NGUIText.regionWidth = 1000000;
+		}
+		if (mOverflow == Overflow.ResizeFreely || mOverflow == Overflow.ResizeHeight)
+		{
+			NGUIText.rectHeight = 1000000;
+			NGUIText.regionHeight = 1000000;
+		}
+		if (mPrintedSize > 0)
+		{
+			bool keepCrisp = this.keepCrisp;
+			int num3 = mPrintedSize;
+			while (num3 > 0)
 			{
-				value = defaultFontSize;
-			}
-			mPrintedSize = Mathf.Abs(value);
-			mScale = 1f;
-			if (NGUIText.regionWidth < 1 || NGUIText.regionHeight < 0)
-			{
-				mProcessedText = string.Empty;
-			}
-			else
-			{
-				bool flag = trueTypeFont != null;
-				if (flag && this.keepCrisp)
+				if (keepCrisp)
 				{
-					UIRoot root = base.root;
-					if (root != null)
-					{
-						mDensity = ((!(root != null)) ? 1f : root.pixelSizeAdjustment);
-					}
+					mPrintedSize = num3;
+					NGUIText.fontSize = mPrintedSize;
 				}
 				else
 				{
-					mDensity = 1f;
+					mScale = (float)num3 / (float)mPrintedSize;
+					NGUIText.fontScale = ((!flag) ? ((float)mFontSize / (float)mFont.defaultSize * mScale) : mScale);
 				}
-				if (full)
+				NGUIText.Update(request: false);
+				bool flag2 = NGUIText.WrapText(mText, out mProcessedText, keepCharCount: true);
+				if (mOverflow == Overflow.ShrinkContent && !flag2)
 				{
-					UpdateNGUIText();
+					if (--num3 <= 1)
+					{
+						break;
+					}
+					num3--;
+					continue;
 				}
 				if (mOverflow == Overflow.ResizeFreely)
 				{
-					NGUIText.rectWidth = 1000000;
-					NGUIText.regionWidth = 1000000;
-				}
-				if (mOverflow == Overflow.ResizeFreely || mOverflow == Overflow.ResizeHeight)
-				{
-					NGUIText.rectHeight = 1000000;
-					NGUIText.regionHeight = 1000000;
-				}
-				if (mPrintedSize > 0)
-				{
-					bool keepCrisp = this.keepCrisp;
-					int num3;
-					for (num3 = mPrintedSize; num3 > 0; num3--)
+					mCalculatedSize = NGUIText.CalculatePrintedSize(mProcessedText);
+					mWidth = Mathf.Max(minWidth, Mathf.RoundToInt(mCalculatedSize.x));
+					if (num != 1f)
 					{
-						if (keepCrisp)
-						{
-							mPrintedSize = num3;
-							NGUIText.fontSize = mPrintedSize;
-						}
-						else
-						{
-							mScale = (float)num3 / (float)mPrintedSize;
-							NGUIText.fontScale = ((!flag) ? ((float)mFontSize / (float)mFont.defaultSize * mScale) : mScale);
-						}
-						NGUIText.Update(request: false);
-						bool flag2 = NGUIText.WrapText(mText, out mProcessedText, keepCharCount: true);
-						if (mOverflow != 0 || flag2)
-						{
-							if (mOverflow == Overflow.ResizeFreely)
-							{
-								mCalculatedSize = NGUIText.CalculatePrintedSize(mProcessedText);
-								mWidth = Mathf.Max(minWidth, Mathf.RoundToInt(mCalculatedSize.x));
-								if (num != 1f)
-								{
-									mWidth = Mathf.RoundToInt((float)mWidth / num);
-								}
-								mHeight = Mathf.Max(minHeight, Mathf.RoundToInt(mCalculatedSize.y));
-								if (num2 != 1f)
-								{
-									mHeight = Mathf.RoundToInt((float)mHeight / num2);
-								}
-								if ((mWidth & 1) == 1)
-								{
-									mWidth++;
-								}
-								if ((mHeight & 1) == 1)
-								{
-									mHeight++;
-								}
-							}
-							else if (mOverflow == Overflow.ResizeHeight)
-							{
-								mCalculatedSize = NGUIText.CalculatePrintedSize(mProcessedText);
-								mHeight = Mathf.Max(minHeight, Mathf.RoundToInt(mCalculatedSize.y));
-								if (num2 != 1f)
-								{
-									mHeight = Mathf.RoundToInt((float)mHeight / num2);
-								}
-								if ((mHeight & 1) == 1)
-								{
-									mHeight++;
-								}
-							}
-							else
-							{
-								mCalculatedSize = NGUIText.CalculatePrintedSize(mProcessedText);
-							}
-							if (legacyMode)
-							{
-								base.width = Mathf.RoundToInt(mCalculatedSize.x);
-								base.height = Mathf.RoundToInt(mCalculatedSize.y);
-								base.cachedTransform.localScale = Vector3.one;
-							}
-							break;
-						}
-						if (--num3 <= 1)
-						{
-							break;
-						}
+						mWidth = Mathf.RoundToInt((float)mWidth / num);
+					}
+					mHeight = Mathf.Max(minHeight, Mathf.RoundToInt(mCalculatedSize.y));
+					if (num2 != 1f)
+					{
+						mHeight = Mathf.RoundToInt((float)mHeight / num2);
+					}
+					if ((mWidth & 1) == 1)
+					{
+						mWidth++;
+					}
+					if ((mHeight & 1) == 1)
+					{
+						mHeight++;
+					}
+				}
+				else if (mOverflow == Overflow.ResizeHeight)
+				{
+					mCalculatedSize = NGUIText.CalculatePrintedSize(mProcessedText);
+					mHeight = Mathf.Max(minHeight, Mathf.RoundToInt(mCalculatedSize.y));
+					if (num2 != 1f)
+					{
+						mHeight = Mathf.RoundToInt((float)mHeight / num2);
+					}
+					if ((mHeight & 1) == 1)
+					{
+						mHeight++;
 					}
 				}
 				else
 				{
-					base.cachedTransform.localScale = Vector3.one;
-					mProcessedText = string.Empty;
-					mScale = 1f;
+					mCalculatedSize = NGUIText.CalculatePrintedSize(mProcessedText);
 				}
-				if (full)
+				if (legacyMode)
 				{
-					NGUIText.bitmapFont = null;
-					NGUIText.dynamicFont = null;
+					base.width = Mathf.RoundToInt(mCalculatedSize.x);
+					base.height = Mathf.RoundToInt(mCalculatedSize.y);
+					base.cachedTransform.localScale = Vector3.one;
 				}
+				break;
 			}
+		}
+		else
+		{
+			base.cachedTransform.localScale = Vector3.one;
+			mProcessedText = string.Empty;
+			mScale = 1f;
+		}
+		if (full)
+		{
+			NGUIText.bitmapFont = null;
+			NGUIText.dynamicFont = null;
 		}
 	}
 
@@ -1062,36 +1065,34 @@ public class UILabel : UIWidget
 		if (ambigiousFont != null)
 		{
 			Vector3 localPosition = base.cachedTransform.localPosition;
-			localPosition.x = (float)Mathf.RoundToInt(localPosition.x);
-			localPosition.y = (float)Mathf.RoundToInt(localPosition.y);
-			localPosition.z = (float)Mathf.RoundToInt(localPosition.z);
+			localPosition.x = Mathf.RoundToInt(localPosition.x);
+			localPosition.y = Mathf.RoundToInt(localPosition.y);
+			localPosition.z = Mathf.RoundToInt(localPosition.z);
 			base.cachedTransform.localPosition = localPosition;
 			base.cachedTransform.localScale = Vector3.one;
 			if (mOverflow == Overflow.ResizeFreely)
 			{
 				AssumeNaturalSize();
+				return;
 			}
-			else
+			int width = base.width;
+			int height = base.height;
+			Overflow overflow = mOverflow;
+			if (overflow != Overflow.ResizeHeight)
 			{
-				int width = base.width;
-				int height = base.height;
-				Overflow overflow = mOverflow;
-				if (overflow != Overflow.ResizeHeight)
-				{
-					mWidth = 100000;
-				}
-				mHeight = 100000;
-				mOverflow = Overflow.ShrinkContent;
-				ProcessText(legacyMode: false, full: true);
-				mOverflow = overflow;
-				int a = Mathf.RoundToInt(mCalculatedSize.x);
-				int a2 = Mathf.RoundToInt(mCalculatedSize.y);
-				a = Mathf.Max(a, base.minWidth);
-				a2 = Mathf.Max(a2, base.minHeight);
-				mWidth = Mathf.Max(width, a);
-				mHeight = Mathf.Max(height, a2);
-				MarkAsChanged();
+				mWidth = 100000;
 			}
+			mHeight = 100000;
+			mOverflow = Overflow.ShrinkContent;
+			ProcessText(legacyMode: false, full: true);
+			mOverflow = overflow;
+			int a = Mathf.RoundToInt(mCalculatedSize.x);
+			int a2 = Mathf.RoundToInt(mCalculatedSize.y);
+			a = Mathf.Max(a, base.minWidth);
+			a2 = Mathf.Max(a2, base.minHeight);
+			mWidth = Mathf.Max(width, a);
+			mHeight = Mathf.Max(height, a2);
+			MarkAsChanged();
 		}
 		else
 		{
@@ -1274,10 +1275,10 @@ public class UILabel : UIWidget
 						switch (key)
 						{
 						case KeyCode.UpArrow:
-							pos.y += (float)(defaultFontSize + spacingY);
+							pos.y += defaultFontSize + spacingY;
 							break;
 						case KeyCode.DownArrow:
-							pos.y -= (float)(defaultFontSize + spacingY);
+							pos.y -= defaultFontSize + spacingY;
 							break;
 						case KeyCode.Home:
 							pos.x -= 1000f;
@@ -1318,103 +1319,106 @@ public class UILabel : UIWidget
 	{
 		caret?.Clear();
 		highlight?.Clear();
-		if (isValid)
+		if (!isValid)
 		{
-			string processedText = this.processedText;
-			UpdateNGUIText();
-			int size = caret.verts.size;
-			Vector2 item = new Vector2(0.5f, 0.5f);
-			float finalAlpha = base.finalAlpha;
-			if (highlight != null && start != end)
+			return;
+		}
+		string processedText = this.processedText;
+		UpdateNGUIText();
+		int size = caret.verts.size;
+		Vector2 item = new Vector2(0.5f, 0.5f);
+		float finalAlpha = base.finalAlpha;
+		if (highlight != null && start != end)
+		{
+			int size2 = highlight.verts.size;
+			NGUIText.PrintCaretAndSelection(processedText, start, end, caret.verts, highlight.verts);
+			if (highlight.verts.size > size2)
 			{
-				int size2 = highlight.verts.size;
-				NGUIText.PrintCaretAndSelection(processedText, start, end, caret.verts, highlight.verts);
-				if (highlight.verts.size > size2)
+				ApplyOffset(highlight.verts, size2);
+				Color32 item2 = new Color(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a * finalAlpha);
+				for (int i = size2; i < highlight.verts.size; i++)
 				{
-					ApplyOffset(highlight.verts, size2);
-					Color32 item2 = new Color(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a * finalAlpha);
-					for (int i = size2; i < highlight.verts.size; i++)
-					{
-						highlight.uvs.Add(item);
-						highlight.cols.Add(item2);
-					}
+					highlight.uvs.Add(item);
+					highlight.cols.Add(item2);
 				}
 			}
-			else
-			{
-				NGUIText.PrintCaretAndSelection(processedText, start, end, caret.verts, null);
-			}
-			ApplyOffset(caret.verts, size);
-			Color32 item3 = new Color(caretColor.r, caretColor.g, caretColor.b, caretColor.a * finalAlpha);
-			for (int j = size; j < caret.verts.size; j++)
-			{
-				caret.uvs.Add(item);
-				caret.cols.Add(item3);
-			}
-			NGUIText.bitmapFont = null;
-			NGUIText.dynamicFont = null;
 		}
+		else
+		{
+			NGUIText.PrintCaretAndSelection(processedText, start, end, caret.verts, null);
+		}
+		ApplyOffset(caret.verts, size);
+		Color32 item3 = new Color(caretColor.r, caretColor.g, caretColor.b, caretColor.a * finalAlpha);
+		for (int j = size; j < caret.verts.size; j++)
+		{
+			caret.uvs.Add(item);
+			caret.cols.Add(item3);
+		}
+		NGUIText.bitmapFont = null;
+		NGUIText.dynamicFont = null;
 	}
 
 	public override void OnFill(BetterList<Vector3> verts, BetterList<Vector2> uvs, BetterList<Color32> cols)
 	{
-		if (isValid)
+		if (!isValid)
 		{
-			int num = verts.size;
-			Color color = base.color;
-			color.a = finalAlpha;
-			if (mFont != null && mFont.premultipliedAlphaShader)
+			return;
+		}
+		int num = verts.size;
+		Color color = base.color;
+		color.a = finalAlpha;
+		if (mFont != null && mFont.premultipliedAlphaShader)
+		{
+			color = NGUITools.ApplyPMA(color);
+		}
+		if (QualitySettings.activeColorSpace == ColorSpace.Linear)
+		{
+			color.r = Mathf.Pow(color.r, 2.2f);
+			color.g = Mathf.Pow(color.g, 2.2f);
+			color.b = Mathf.Pow(color.b, 2.2f);
+		}
+		string processedText = this.processedText;
+		int size = verts.size;
+		UpdateNGUIText();
+		NGUIText.tint = color;
+		NGUIText.Print(processedText, verts, uvs, cols);
+		NGUIText.bitmapFont = null;
+		NGUIText.dynamicFont = null;
+		Vector2 vector = ApplyOffset(verts, size);
+		if (mFont != null && mFont.packedFontShader)
+		{
+			return;
+		}
+		if (effectStyle != 0)
+		{
+			int size2 = verts.size;
+			vector.x = mEffectDistance.x;
+			vector.y = mEffectDistance.y;
+			ApplyShadow(verts, uvs, cols, num, size2, vector.x, 0f - vector.y);
+			if (effectStyle == Effect.Outline)
 			{
-				color = NGUITools.ApplyPMA(color);
+				num = size2;
+				size2 = verts.size;
+				ApplyShadow(verts, uvs, cols, num, size2, 0f - vector.x, vector.y);
+				num = size2;
+				size2 = verts.size;
+				ApplyShadow(verts, uvs, cols, num, size2, vector.x, vector.y);
+				num = size2;
+				size2 = verts.size;
+				ApplyShadow(verts, uvs, cols, num, size2, 0f - vector.x, 0f - vector.y);
 			}
-			if (QualitySettings.activeColorSpace == ColorSpace.Linear)
-			{
-				color.r = Mathf.Pow(color.r, 2.2f);
-				color.g = Mathf.Pow(color.g, 2.2f);
-				color.b = Mathf.Pow(color.b, 2.2f);
-			}
-			string processedText = this.processedText;
-			int size = verts.size;
-			UpdateNGUIText();
-			NGUIText.tint = color;
-			NGUIText.Print(processedText, verts, uvs, cols);
-			NGUIText.bitmapFont = null;
-			NGUIText.dynamicFont = null;
-			Vector2 vector = ApplyOffset(verts, size);
-			if (!(mFont != null) || !mFont.packedFontShader)
-			{
-				if (effectStyle != 0)
-				{
-					int size2 = verts.size;
-					vector.x = mEffectDistance.x;
-					vector.y = mEffectDistance.y;
-					ApplyShadow(verts, uvs, cols, num, size2, vector.x, 0f - vector.y);
-					if (effectStyle == Effect.Outline)
-					{
-						num = size2;
-						size2 = verts.size;
-						ApplyShadow(verts, uvs, cols, num, size2, 0f - vector.x, vector.y);
-						num = size2;
-						size2 = verts.size;
-						ApplyShadow(verts, uvs, cols, num, size2, vector.x, vector.y);
-						num = size2;
-						size2 = verts.size;
-						ApplyShadow(verts, uvs, cols, num, size2, 0f - vector.x, 0f - vector.y);
-					}
-				}
-				if (onPostFill != null)
-				{
-					onPostFill(this, num, verts, uvs, cols);
-				}
-			}
+		}
+		if (onPostFill != null)
+		{
+			onPostFill(this, num, verts, uvs, cols);
 		}
 	}
 
 	public Vector2 ApplyOffset(BetterList<Vector3> verts, int start)
 	{
 		Vector2 pivotOffset = base.pivotOffset;
-		float f = Mathf.Lerp(0f, (float)(-mWidth), pivotOffset.x);
-		float f2 = Mathf.Lerp((float)mHeight, 0f, pivotOffset.y) + Mathf.Lerp(mCalculatedSize.y - (float)mHeight, 0f, pivotOffset.y);
+		float f = Mathf.Lerp(0f, -mWidth, pivotOffset.x);
+		float f2 = Mathf.Lerp(mHeight, 0f, pivotOffset.y) + Mathf.Lerp(mCalculatedSize.y - (float)mHeight, 0f, pivotOffset.y);
 		f = Mathf.Round(f);
 		f2 = Mathf.Round(f2);
 		for (int i = start; i < verts.size; i++)
@@ -1440,16 +1444,14 @@ public class UILabel : UIWidget
 			vector.y += y;
 			verts.buffer[i] = vector;
 			Color32 color3 = cols.buffer[i];
-			if (color3.a == 255)
+			if (color3.a == byte.MaxValue)
 			{
 				cols.buffer[i] = color2;
+				continue;
 			}
-			else
-			{
-				Color color4 = color;
-				color4.a = (float)(int)color3.a / 255f * color.a;
-				cols.buffer[i] = ((!(bitmapFont != null) || !bitmapFont.premultipliedAlphaShader) ? color4 : NGUITools.ApplyPMA(color4));
-			}
+			Color color4 = color;
+			color4.a = (float)(int)color3.a / 255f * color.a;
+			cols.buffer[i] = ((!(bitmapFont != null) || !bitmapFont.premultipliedAlphaShader) ? color4 : NGUITools.ApplyPMA(color4));
 		}
 	}
 
@@ -1521,8 +1523,8 @@ public class UILabel : UIWidget
 		NGUIText.premultiply = mPremultiply;
 		NGUIText.symbolStyle = mSymbols;
 		NGUIText.maxLines = mMaxLineCount;
-		NGUIText.spacingX = (float)mSpacingX;
-		NGUIText.spacingY = (float)mSpacingY;
+		NGUIText.spacingX = mSpacingX;
+		NGUIText.spacingY = mSpacingY;
 		NGUIText.fontScale = ((!flag) ? ((float)mFontSize / (float)mFont.defaultSize * mScale) : mScale);
 		if (mFont != null)
 		{

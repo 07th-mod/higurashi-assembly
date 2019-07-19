@@ -77,7 +77,7 @@ public class BMSymbol
 				}
 				else
 				{
-					mUV = new Rect((float)mSprite.x, (float)mSprite.y, (float)mSprite.width, (float)mSprite.height);
+					mUV = new Rect(mSprite.x, mSprite.y, mSprite.width, mSprite.height);
 					mUV = NGUIMath.ConvertToTexCoords(mUV, texture.width, texture.height);
 					mOffsetX = mSprite.paddingLeft;
 					mOffsetY = mSprite.paddingTop;

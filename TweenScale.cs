@@ -54,19 +54,20 @@ public class TweenScale : UITweener
 	protected override void OnUpdate(float factor, bool isFinished)
 	{
 		value = from * (1f - factor) + to * factor;
-		if (updateTable)
+		if (!updateTable)
 		{
+			return;
+		}
+		if (mTable == null)
+		{
+			mTable = NGUITools.FindInParents<UITable>(base.gameObject);
 			if (mTable == null)
 			{
-				mTable = NGUITools.FindInParents<UITable>(base.gameObject);
-				if (mTable == null)
-				{
-					updateTable = false;
-					return;
-				}
+				updateTable = false;
+				return;
 			}
-			mTable.repositionNow = true;
 		}
+		mTable.repositionNow = true;
 	}
 
 	public static TweenScale Begin(GameObject go, float duration, Vector3 scale)

@@ -140,7 +140,7 @@ namespace Assets.Scripts.Core.Audio
 			WWW audioLoader = new WWW("file:///" + path);
 			yield return audioLoader;
 			this.loadedName = filename;
-			this.audioClip = audioLoader.GetAudioClip(false);
+			this.audioClip = audioLoader.GetAudioClip(threeD: false);
 			this.isLoading = false;
 			this.isLoaded = true;
 			this.loadCoroutine = null;
@@ -193,7 +193,7 @@ namespace Assets.Scripts.Core.Audio
 			audioSource.loop = isLoop;
 			audioSource.priority = audioController.GetPriorityByType(audioType);
 			volume = audioController.GetVolumeByType(audioType) * subVolume;
-			audioSource.Play();
+			audioSource.PlayDelayed(0.0001f);
 			isReady = true;
 			if (onFinishLoad != null)
 			{

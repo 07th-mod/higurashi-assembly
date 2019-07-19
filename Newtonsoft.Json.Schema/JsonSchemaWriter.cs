@@ -145,16 +145,14 @@ namespace Newtonsoft.Json.Schema
 				if (schema.Items.Count == 1)
 				{
 					ReferenceOrWriteSchema(schema.Items[0]);
+					return;
 				}
-				else
+				_writer.WriteStartArray();
+				foreach (JsonSchema item in schema.Items)
 				{
-					_writer.WriteStartArray();
-					foreach (JsonSchema item in schema.Items)
-					{
-						ReferenceOrWriteSchema(item);
-					}
-					_writer.WriteEndArray();
+					ReferenceOrWriteSchema(item);
 				}
+				_writer.WriteEndArray();
 			}
 		}
 
@@ -179,16 +177,14 @@ namespace Newtonsoft.Json.Schema
 				if (list2.Count == 1)
 				{
 					writer.WriteValue(JsonSchemaBuilder.MapType(list2[0]));
+					return;
 				}
-				else
+				writer.WriteStartArray();
+				foreach (JsonSchemaType item in list2)
 				{
-					writer.WriteStartArray();
-					foreach (JsonSchemaType item in list2)
-					{
-						writer.WriteValue(JsonSchemaBuilder.MapType(item));
-					}
-					writer.WriteEndArray();
+					writer.WriteValue(JsonSchemaBuilder.MapType(item));
 				}
+				writer.WriteEndArray();
 			}
 		}
 

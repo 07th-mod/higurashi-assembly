@@ -23,12 +23,10 @@ public class TextRefresher : MonoBehaviour
 		if (textMesh != null)
 		{
 			textMesh.text = ((!language) ? Japanese : English);
+			return;
 		}
-		else
-		{
-			label.text = ((!language) ? Japanese : English);
-			label.UpdateNGUIText();
-		}
+		label.text = ((!language) ? Japanese : English);
+		label.UpdateNGUIText();
 	}
 
 	private void Start()

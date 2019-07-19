@@ -233,47 +233,58 @@ namespace BGICompiler.Compiler
 			foreach (string text2 in lines)
 			{
 				text += "\r\n";
-				if (!(text2 == string.Empty) && !text2.StartsWith("//") && (num != 0 || !text2.StartsWith("#")))
+				if (text2 == string.Empty || text2.StartsWith("//") || (num == 0 && text2.StartsWith("#")))
 				{
-					num += text2.Count((char f) => f == '{');
-					num -= text2.Count((char f) => f == '}');
-					if (num > 0 && text2.Length > 0 && !text2.StartsWith("\t") && !text2.StartsWith("{") && !text2.StartsWith("}"))
+					continue;
+				}
+				num += text2.Count((char f) => f == '{');
+				num -= text2.Count((char f) => f == '}');
+				if (num > 0 && text2.Length > 0 && !text2.StartsWith("\t") && !text2.StartsWith("{") && !text2.StartsWith("}") && !text2.StartsWith("//") && !text2.StartsWith(" "))
+				{
+					string text3 = text2.Replace("\"", "\\\"");
+					text3 = text3.Replace(", )", " )");
+					if (text3.StartsWith(".."))
 					{
-						string text3 = text2.Replace("\"", "\\\"");
-						text3 = text3.Replace(", )", " )");
-						if (text3.StartsWith(".."))
-						{
-							text3 = text3.Substring(2);
-						}
-						BurikoTextModes burikoTextModes = BurikoTextModes.Normal;
-						if (text3.EndsWith(">"))
-						{
-							burikoTextModes = BurikoTextModes.Continue;
-							text3 = text3.Substring(0, text3.Length - 1);
-						}
-						if (text3.EndsWith("<"))
-						{
-							burikoTextModes = BurikoTextModes.WaitThenContinue;
-							text3 = text3.Substring(0, text3.Length - 1);
-						}
-						if (text3.EndsWith("@") || text3.EndsWith("&"))
-						{
-							burikoTextModes = BurikoTextModes.WaitForInput;
-							text3 = text3.Substring(0, text3.Length - 1);
-						}
-						text += string.Format("\tOutputLine(NULL, \"{0}\", NULL, \"{0}\", {1});", text3, (int)burikoTextModes);
+						text3 = text3.Substring(2);
 					}
-					else
+					BurikoTextModes burikoTextModes = BurikoTextModes.Normal;
+					if (text3.EndsWith(">"))
 					{
-						string text4 = text2.Replace(", )", " )");
-						text4 = text4.Replace(",)", " )");
-						text4 = text4.Replace("Line_Normal", "0");
-						text4 = text4.Replace("Line_ContinueAfterTyping", "3");
-						text4 = text4.Replace("Line_WaitForInput", "2");
-						text4 = text4.Replace("Line_Continue", "1");
-						text += text4;
+						burikoTextModes = BurikoTextModes.Continue;
+						text3 = text3.Substring(0, text3.Length - 1);
+					}
+					if (text3.EndsWith("<"))
+					{
+						burikoTextModes = BurikoTextModes.WaitThenContinue;
+						text3 = text3.Substring(0, text3.Length - 1);
+					}
+					if (text3.EndsWith("@") || text3.EndsWith("&"))
+					{
+						burikoTextModes = BurikoTextModes.WaitForInput;
+						text3 = text3.Substring(0, text3.Length - 1);
+					}
+					bool flag = true;
+					if (text3.Contains("\t"))
+					{
+						string[] array = text3.Split('\t');
+						if (string.IsNullOrEmpty(array[0].Trim()))
+						{
+							flag = false;
+						}
+					}
+					if (flag)
+					{
+						text += string.Format("\tOutputLine(NULL, \"{0}\", NULL, \"{0}\", {1});", text3, (int)burikoTextModes);
+						continue;
 					}
 				}
+				string text4 = text2.Replace(", )", " )");
+				text4 = text4.Replace(",)", " )");
+				text4 = text4.Replace("Line_Normal", "0");
+				text4 = text4.Replace("Line_ContinueAfterTyping", "3");
+				text4 = text4.Replace("Line_WaitForInput", "2");
+				text4 = text4.Replace("Line_Continue", "1");
+				text += text4;
 			}
 			return text;
 		}

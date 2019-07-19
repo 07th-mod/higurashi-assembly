@@ -34,21 +34,20 @@ public class UISavedOption : MonoBehaviour
 			{
 				mList.value = @string;
 			}
+			return;
 		}
-		else if (mCheck != null)
+		if (mCheck != null)
 		{
 			mCheck.value = (PlayerPrefs.GetInt(key, mCheck.startsActive ? 1 : 0) != 0);
+			return;
 		}
-		else
+		string string2 = PlayerPrefs.GetString(key);
+		UIToggle[] componentsInChildren = GetComponentsInChildren<UIToggle>(includeInactive: true);
+		int i = 0;
+		for (int num = componentsInChildren.Length; i < num; i++)
 		{
-			string string2 = PlayerPrefs.GetString(key);
-			UIToggle[] componentsInChildren = GetComponentsInChildren<UIToggle>(includeInactive: true);
-			int i = 0;
-			for (int num = componentsInChildren.Length; i < num; i++)
-			{
-				UIToggle uIToggle = componentsInChildren[i];
-				uIToggle.value = (uIToggle.name == string2);
-			}
+			UIToggle uIToggle = componentsInChildren[i];
+			uIToggle.value = (uIToggle.name == string2);
 		}
 	}
 
@@ -62,27 +61,29 @@ public class UISavedOption : MonoBehaviour
 		{
 			EventDelegate.Remove(mList.onChange, SaveSelection);
 		}
-		if (mCheck == null && mList == null)
+		if (!(mCheck == null) || !(mList == null))
 		{
-			UIToggle[] componentsInChildren = GetComponentsInChildren<UIToggle>(includeInactive: true);
-			int num = 0;
-			int num2 = componentsInChildren.Length;
-			UIToggle uIToggle;
-			while (true)
+			return;
+		}
+		UIToggle[] componentsInChildren = GetComponentsInChildren<UIToggle>(includeInactive: true);
+		int num = 0;
+		int num2 = componentsInChildren.Length;
+		UIToggle uIToggle;
+		while (true)
+		{
+			if (num < num2)
 			{
-				if (num >= num2)
-				{
-					return;
-				}
 				uIToggle = componentsInChildren[num];
 				if (uIToggle.value)
 				{
 					break;
 				}
 				num++;
+				continue;
 			}
-			PlayerPrefs.SetString(key, uIToggle.name);
+			return;
 		}
+		PlayerPrefs.SetString(key, uIToggle.name);
 	}
 
 	public void SaveSelection()

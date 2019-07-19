@@ -14,7 +14,7 @@ internal class Bounce : Ease
 		{
 			return c * (7.5625 * (t -= 0.81818181818181823) * t + 0.9375) + b;
 		}
-		return c * (7.5625 * (t -= 0.95454545454545459) * t + 0.984375) + b;
+		return c * (7.5625 * (t -= 21.0 / 22.0) * t + 63.0 / 64.0) + b;
 	}
 
 	public static double EaseIn(double t, double b, double c, double d)

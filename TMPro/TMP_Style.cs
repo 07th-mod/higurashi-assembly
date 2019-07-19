@@ -75,7 +75,7 @@ namespace TMPro
 			{
 				m_ClosingTagArray[j] = m_ClosingDefinition[j];
 			}
-			TMPro_EventManager.ON_TEXT_STYLE_PROPERTY_CHANGED(/*isChanged:*/ true);
+			TMPro_EventManager.ON_TEXT_STYLE_PROPERTY_CHANGED(isChanged: true);
 		}
 	}
 }

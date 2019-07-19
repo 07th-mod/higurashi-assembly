@@ -99,36 +99,38 @@ public class UIKeyNavigation : MonoBehaviour
 		Transform transform = base.transform;
 		myDir = transform.TransformDirection(myDir);
 		Vector3 center = GetCenter(base.gameObject);
-		float num = 3.40282347E+38f;
+		float num = float.MaxValue;
 		GameObject result = null;
 		for (int i = 0; i < list.size; i++)
 		{
 			UIKeyNavigation uIKeyNavigation = list[i];
-			if (!(uIKeyNavigation == this))
+			if (uIKeyNavigation == this)
 			{
-				UIButton component = uIKeyNavigation.GetComponent<UIButton>();
-				if (!(component != null) || component.isEnabled)
+				continue;
+			}
+			UIButton component = uIKeyNavigation.GetComponent<UIButton>();
+			if (component != null && !component.isEnabled)
+			{
+				continue;
+			}
+			Vector3 direction = GetCenter(uIKeyNavigation.gameObject) - center;
+			float num2 = Vector3.Dot(myDir, direction.normalized);
+			if (!(num2 < 0.707f))
+			{
+				direction = transform.InverseTransformDirection(direction);
+				if (horizontal)
 				{
-					Vector3 direction = GetCenter(uIKeyNavigation.gameObject) - center;
-					float num2 = Vector3.Dot(myDir, direction.normalized);
-					if (!(num2 < 0.707f))
-					{
-						direction = transform.InverseTransformDirection(direction);
-						if (horizontal)
-						{
-							direction.y *= 2f;
-						}
-						else
-						{
-							direction.x *= 2f;
-						}
-						float sqrMagnitude = direction.sqrMagnitude;
-						if (!(sqrMagnitude > num))
-						{
-							result = uIKeyNavigation.gameObject;
-							num = sqrMagnitude;
-						}
-					}
+					direction.y *= 2f;
+				}
+				else
+				{
+					direction.x *= 2f;
+				}
+				float sqrMagnitude = direction.sqrMagnitude;
+				if (!(sqrMagnitude > num))
+				{
+					result = uIKeyNavigation.gameObject;
+					num = sqrMagnitude;
 				}
 			}
 		}
@@ -148,62 +150,63 @@ public class UIKeyNavigation : MonoBehaviour
 
 	protected virtual void OnKey(KeyCode key)
 	{
-		if (NGUITools.GetActive(this))
+		if (!NGUITools.GetActive(this))
 		{
-			GameObject gameObject = null;
-			switch (key)
+			return;
+		}
+		GameObject gameObject = null;
+		switch (key)
+		{
+		case KeyCode.LeftArrow:
+			gameObject = GetLeft();
+			break;
+		case KeyCode.RightArrow:
+			gameObject = GetRight();
+			break;
+		case KeyCode.UpArrow:
+			gameObject = GetUp();
+			break;
+		case KeyCode.DownArrow:
+			gameObject = GetDown();
+			break;
+		case KeyCode.Tab:
+			if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 			{
-			case KeyCode.LeftArrow:
 				gameObject = GetLeft();
-				break;
-			case KeyCode.RightArrow:
-				gameObject = GetRight();
-				break;
-			case KeyCode.UpArrow:
-				gameObject = GetUp();
-				break;
-			case KeyCode.DownArrow:
-				gameObject = GetDown();
-				break;
-			case KeyCode.Tab:
-				if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+				if (gameObject == null)
 				{
-					gameObject = GetLeft();
-					if (gameObject == null)
-					{
-						gameObject = GetUp();
-					}
-					if (gameObject == null)
-					{
-						gameObject = GetDown();
-					}
-					if (gameObject == null)
-					{
-						gameObject = GetRight();
-					}
+					gameObject = GetUp();
 				}
-				else
+				if (gameObject == null)
+				{
+					gameObject = GetDown();
+				}
+				if (gameObject == null)
 				{
 					gameObject = GetRight();
-					if (gameObject == null)
-					{
-						gameObject = GetDown();
-					}
-					if (gameObject == null)
-					{
-						gameObject = GetUp();
-					}
-					if (gameObject == null)
-					{
-						gameObject = GetLeft();
-					}
 				}
-				break;
 			}
-			if (gameObject != null)
+			else
 			{
-				UICamera.selectedObject = gameObject;
+				gameObject = GetRight();
+				if (gameObject == null)
+				{
+					gameObject = GetDown();
+				}
+				if (gameObject == null)
+				{
+					gameObject = GetUp();
+				}
+				if (gameObject == null)
+				{
+					gameObject = GetLeft();
+				}
 			}
+			break;
+		}
+		if (gameObject != null)
+		{
+			UICamera.selectedObject = gameObject;
 		}
 	}
 

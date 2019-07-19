@@ -55,27 +55,26 @@ public class UIButton : UIButtonColor
 		}
 		set
 		{
-			if (isEnabled != value)
+			if (isEnabled == value)
 			{
-				Collider component = GetComponent<Collider>();
-				if (component != null)
-				{
-					component.enabled = value;
-					SetState((!value) ? State.Disabled : State.Normal, immediate: false);
-				}
-				else
-				{
-					Collider2D component2 = GetComponent<Collider2D>();
-					if (component2 != null)
-					{
-						component2.enabled = value;
-						SetState((!value) ? State.Disabled : State.Normal, immediate: false);
-					}
-					else
-					{
-						base.enabled = value;
-					}
-				}
+				return;
+			}
+			Collider component = GetComponent<Collider>();
+			if (component != null)
+			{
+				component.enabled = value;
+				SetState((!value) ? State.Disabled : State.Normal, immediate: false);
+				return;
+			}
+			Collider2D component2 = GetComponent<Collider2D>();
+			if (component2 != null)
+			{
+				component2.enabled = value;
+				SetState((!value) ? State.Disabled : State.Normal, immediate: false);
+			}
+			else
+			{
+				base.enabled = value;
 			}
 		}
 	}
@@ -97,14 +96,12 @@ public class UIButton : UIButtonColor
 				mNormalSprite = value;
 				SetSprite(value);
 				NGUITools.SetDirty(mSprite);
+				return;
 			}
-			else
+			mNormalSprite = value;
+			if (mState == State.Normal)
 			{
-				mNormalSprite = value;
-				if (mState == State.Normal)
-				{
-					SetSprite(value);
-				}
+				SetSprite(value);
 			}
 		}
 	}
@@ -126,14 +123,12 @@ public class UIButton : UIButtonColor
 				mNormalSprite2D = value;
 				SetSprite(value);
 				NGUITools.SetDirty(mSprite);
+				return;
 			}
-			else
+			mNormalSprite2D = value;
+			if (mState == State.Normal)
 			{
-				mNormalSprite2D = value;
-				if (mState == State.Normal)
-				{
-					SetSprite(value);
-				}
+				SetSprite(value);
 			}
 		}
 	}

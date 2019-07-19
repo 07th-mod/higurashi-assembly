@@ -139,19 +139,19 @@ namespace Newtonsoft.Json.Schema
 			{
 				return jsonContainerAttribute.Id;
 			}
-			if (!explicitOnly)
+			if (explicitOnly)
 			{
-				switch (UndefinedSchemaIdHandling)
-				{
-				case UndefinedSchemaIdHandling.UseTypeName:
-					return type.FullName;
-				case UndefinedSchemaIdHandling.UseAssemblyQualifiedName:
-					return type.AssemblyQualifiedName;
-				default:
-					return null;
-				}
+				return null;
 			}
-			return null;
+			switch (UndefinedSchemaIdHandling)
+			{
+			case UndefinedSchemaIdHandling.UseTypeName:
+				return type.FullName;
+			case UndefinedSchemaIdHandling.UseAssemblyQualifiedName:
+				return type.AssemblyQualifiedName;
+			default:
+				return null;
+			}
 		}
 
 		private JsonSchema GenerateInternal(Type type, Required valueRequired, bool required)

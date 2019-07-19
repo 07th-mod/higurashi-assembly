@@ -35,19 +35,20 @@ public class UI2DSpriteAnimation : MonoBehaviour
 
 	public void Play()
 	{
-		if (frames != null && frames.Length > 0)
+		if (frames == null || frames.Length <= 0)
 		{
-			if (!base.enabled && !loop)
-			{
-				int num = (framerate <= 0) ? (mIndex - 1) : (mIndex + 1);
-				if (num < 0 || num >= frames.Length)
-				{
-					mIndex = ((framerate < 0) ? (frames.Length - 1) : 0);
-				}
-			}
-			base.enabled = true;
-			UpdateSprite();
+			return;
 		}
+		if (!base.enabled && !loop)
+		{
+			int num = (framerate <= 0) ? (mIndex - 1) : (mIndex + 1);
+			if (num < 0 || num >= frames.Length)
+			{
+				mIndex = ((framerate < 0) ? (frames.Length - 1) : 0);
+			}
+		}
+		base.enabled = true;
+		UpdateSprite();
 	}
 
 	public void Pause()
@@ -72,8 +73,12 @@ public class UI2DSpriteAnimation : MonoBehaviour
 		{
 			base.enabled = false;
 		}
-		else if (framerate != 0)
+		else
 		{
+			if (framerate == 0)
+			{
+				return;
+			}
 			float num = (!ignoreTimeScale) ? Time.time : RealTime.time;
 			if (mUpdate < num)
 			{
@@ -82,12 +87,10 @@ public class UI2DSpriteAnimation : MonoBehaviour
 				if (!loop && (num2 < 0 || num2 >= frames.Length))
 				{
 					base.enabled = false;
+					return;
 				}
-				else
-				{
-					mIndex = NGUIMath.RepeatIndex(num2, frames.Length);
-					UpdateSprite();
-				}
+				mIndex = NGUIMath.RepeatIndex(num2, frames.Length);
+				UpdateSprite();
 			}
 		}
 	}

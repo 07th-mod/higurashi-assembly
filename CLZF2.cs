@@ -168,32 +168,30 @@ public static class CLZF2
 					output[num4++] = input[num3++];
 				}
 				while (--num6 != 0);
+				continue;
 			}
-			else
+			uint num9 = num6 >> 5;
+			int num10 = (int)(num4 - ((num6 & 0x1F) << 8) - 1);
+			if (num9 == 7)
 			{
-				uint num9 = num6 >> 5;
-				int num10 = (int)(num4 - ((num6 & 0x1F) << 8) - 1);
-				if (num9 == 7)
-				{
-					num9 += input[num3++];
-				}
-				num10 -= input[num3++];
-				if (num4 + num9 + 2 > num2)
-				{
-					return 0;
-				}
-				if (num10 < 0)
-				{
-					return 0;
-				}
-				output[num4++] = output[num10++];
-				output[num4++] = output[num10++];
-				do
-				{
-					output[num4++] = output[num10++];
-				}
-				while (--num9 != 0);
+				num9 += input[num3++];
 			}
+			num10 -= input[num3++];
+			if (num4 + num9 + 2 > num2)
+			{
+				return 0;
+			}
+			if (num10 < 0)
+			{
+				return 0;
+			}
+			output[num4++] = output[num10++];
+			output[num4++] = output[num10++];
+			do
+			{
+				output[num4++] = output[num10++];
+			}
+			while (--num9 != 0);
 		}
 		while (num3 < num);
 		return (int)num4;

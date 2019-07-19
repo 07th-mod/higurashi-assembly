@@ -101,6 +101,7 @@
     <Compile Include="Assets.Scripts.Core.Interfaces\IScriptInterpreter.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\BlackBars.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\FilmEffector.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\FragmentController.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\Layer.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\LayerOld.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\LayerPool.cs" />
@@ -121,7 +122,6 @@
     <Compile Include="Assets.Scripts.Core.State\StateSaveLoad.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateTitle.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateViewTips.cs" />
-    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievement.cs" />
     <Compile Include="Assets.Scripts.Core.SteamWorks\Achievements.cs" />
     <Compile Include="Assets.Scripts.Core.SteamWorks\Achievement_t.cs" />
     <Compile Include="Assets.Scripts.Core.SteamWorks\SteamController.cs" />
@@ -163,6 +163,7 @@
     <Compile Include="Assets.Scripts.UI.Config\SwitchButtonObj.cs" />
     <Compile Include="Assets.Scripts.UI.Extra\ExtraButton.cs" />
     <Compile Include="Assets.Scripts.UI.Extra\ExtraManager.cs" />
+    <Compile Include="Assets.Scripts.UI.Fragments\FragmentSpinner.cs" />
     <Compile Include="Assets.Scripts.UI.Menu\MenuUIButton.cs" />
     <Compile Include="Assets.Scripts.UI.Prompt\DialogCallback.cs" />
     <Compile Include="Assets.Scripts.UI.Prompt\PromptButton.cs" />
@@ -201,6 +202,7 @@
     <Compile Include="CLZF2.cs" />
     <Compile Include="ConfigButton.cs" />
     <Compile Include="Cubic.cs" />
+    <Compile Include="DemoTimeOfDay.cs" />
     <Compile Include="DestroySelf.cs" />
     <Compile Include="Ease.cs" />
     <Compile Include="EaseDelegate.cs" />
@@ -391,6 +393,7 @@
     <Compile Include="NGUIMath.cs" />
     <Compile Include="NGUIText.cs" />
     <Compile Include="NGUITools.cs" />
+    <Compile Include="Orbit.cs" />
     <Compile Include="Polygon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyBinding.cs" />

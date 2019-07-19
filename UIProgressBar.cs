@@ -134,19 +134,20 @@ public class UIProgressBar : UIWidgetContainer
 		set
 		{
 			float num = Mathf.Clamp01(value);
-			if (mValue != num)
+			if (mValue == num)
 			{
-				float value2 = this.value;
-				mValue = num;
-				if (value2 != this.value)
+				return;
+			}
+			float value2 = this.value;
+			mValue = num;
+			if (value2 != this.value)
+			{
+				ForceUpdate();
+				if (current == null && NGUITools.GetActive(this) && EventDelegate.IsValid(onChange))
 				{
-					ForceUpdate();
-					if (current == null && NGUITools.GetActive(this) && EventDelegate.IsValid(onChange))
-					{
-						current = this;
-						EventDelegate.Execute(onChange);
-						current = null;
-					}
+					current = this;
+					EventDelegate.Execute(onChange);
+					current = null;
 				}
 			}
 		}
@@ -192,20 +193,21 @@ public class UIProgressBar : UIWidgetContainer
 					mBG.GetComponent<Collider2D>().enabled = (mBG.alpha > 0.001f);
 				}
 			}
-			if (thumb != null)
+			if (!(thumb != null))
 			{
-				UIWidget component = thumb.GetComponent<UIWidget>();
-				if (component != null)
+				return;
+			}
+			UIWidget component = thumb.GetComponent<UIWidget>();
+			if (component != null)
+			{
+				component.alpha = value;
+				if (component.GetComponent<Collider>() != null)
 				{
-					component.alpha = value;
-					if (component.GetComponent<Collider>() != null)
-					{
-						component.GetComponent<Collider>().enabled = (component.alpha > 0.001f);
-					}
-					else if (component.GetComponent<Collider2D>() != null)
-					{
-						component.GetComponent<Collider2D>().enabled = (component.alpha > 0.001f);
-					}
+					component.GetComponent<Collider>().enabled = (component.alpha > 0.001f);
+				}
+				else if (component.GetComponent<Collider2D>() != null)
+				{
+					component.GetComponent<Collider2D>().enabled = (component.alpha > 0.001f);
 				}
 			}
 		}
