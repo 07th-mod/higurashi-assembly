@@ -1,7 +1,9 @@
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.Tips;
 using Steamworks;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -22,6 +24,50 @@ namespace Assets.Scripts.Core.SteamWorks
 		private bool hasStats;
 
 		private bool needPushStats;
+
+		private void Awake()
+		{
+			if (Environment.GetCommandLineArgs().Contains("nosteam"))
+			{
+				Debug.Log("-nosteam switch set, skipping steamworks initialization.");
+				return;
+			}
+			string path = Path.Combine(Application.streamingAssetsPath, "Data\\steamId.txt");
+			string path2 = Path.Combine(Application.streamingAssetsPath, "Data\\achievements.txt");
+			if (!File.Exists(path) || !File.Exists(path2))
+			{
+				Debug.Log("Steam initialization skipped as one of the requisite files was not present.");
+				return;
+			}
+			GameObject gameObject = new GameObject("SteamManager");
+			steamManager = gameObject.AddComponent<SteamManager>();
+			userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);
+			gameID = new CGameID(SteamUtils.GetAppID());
+			Debug.Log("Steamworks initialized. AppId: " + gameID);
+		}
+
+		private void Update()
+		{
+			if (!(steamManager == null) && SteamManager.Initialized)
+			{
+				if (!requestedStats)
+				{
+					bool flag = requestedStats = SteamUserStats.RequestCurrentStats();
+				}
+				if (Input.GetKeyDown(KeyCode.R) && Application.platform == RuntimePlatform.WindowsEditor)
+				{
+					Debug.Log("Resetting achievements");
+					SteamUserStats.ResetAllStats(bAchievementsToo: true);
+					requestedStats = false;
+				}
+				if (needPushStats)
+				{
+					Debug.Log("Storing steam stats.");
+					SteamUserStats.StoreStats();
+					needPushStats = false;
+				}
+			}
+		}
 
 		public void Close()
 		{
