@@ -167,6 +167,18 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("DrawSpriteWithFilteringFixedSize", new OpType(BurikoOperations.DrawSpriteWithFilteringFixedSize, "issiiiiibbiiiib"));
 			paramLookup.Add("Update", new OpType(BurikoOperations.Update, string.Empty));
 			paramLookup.Add("Break", new OpType(BurikoOperations.Break, string.Empty));
+			paramLookup.Add("ModEnableNVLModeInADVMode", new OpType(BurikoOperations.ModEnableNVLModeInADVMode, string.Empty));
+			paramLookup.Add("ModDisableNVLModeInADVMode", new OpType(BurikoOperations.ModDisableNVLModeInADVMode, string.Empty));
+			paramLookup.Add("ModADVModeSettingLoad", new OpType(BurikoOperations.ModADVModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModNVLModeSettingLoad", new OpType(BurikoOperations.ModNVLModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModNVLADVModeSettingLoad", new OpType(BurikoOperations.ModNVLADVModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModCallScriptSection", new OpType(BurikoOperations.ModCallScriptSection, "ss"));
+			paramLookup.Add("ModDrawCharacter", new OpType(BurikoOperations.ModDrawCharacter, "iissiiibiiiiiiiiib"));
+			paramLookup.Add("ModDrawCharacterWithFiltering", new OpType(BurikoOperations.ModDrawCharacterWithFiltering, "iisssiiibiiiiiiib"));
+			paramLookup.Add("ModPlayVoiceLS", new OpType(BurikoOperations.ModPlayVoiceLS, "iisib"));
+			paramLookup.Add("ModPlayMovie", new OpType(BurikoOperations.ModPlayMovie, "s"));
+			paramLookup.Add("ModSetConfigFontSize", new OpType(BurikoOperations.ModSetConfigFontSize, "i"));
+			paramLookup.Add("ModSetChapterJumpFontSize", new OpType(BurikoOperations.ModSetChapterJumpFontSize, "ii"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

@@ -84,7 +84,31 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GLastSavePage", 26);
 			variableReference.Add("GArtStyle", 50);
 			variableReference.Add("GHideButtons", 51);
-			SetGlobalFlag("GMessageSpeed", 50);
+			variableReference.Add("GADVMode", 500);
+			variableReference.Add("GLinemodeSp", 501);
+			variableReference.Add("GCensor", 502);
+			variableReference.Add("GEffectExtend", 503);
+			variableReference.Add("GAltBGM", 504);
+			variableReference.Add("GAltSE", 505);
+			variableReference.Add("GAltBGMflow", 506);
+			variableReference.Add("GAltSEflow", 507);
+			variableReference.Add("GAltVoice", 508);
+			variableReference.Add("GAltVoicePriority", 509);
+			variableReference.Add("GCensorMaxNum", 510);
+			variableReference.Add("GEffectExtendMaxNum", 511);
+			variableReference.Add("GAltBGMflowMaxNum", 512);
+			variableReference.Add("GAltSEflowMaxNum", 513);
+			variableReference.Add("GMOD_SETTING_LOADER", 514);
+			variableReference.Add("GFlagForTest1", 515);
+			variableReference.Add("GFlagForTest2", 516);
+			variableReference.Add("GFlagForTest3", 517);
+			variableReference.Add("NVL_in_ADV", 518);
+			variableReference.Add("GFlagMonitor", 519);
+			variableReference.Add("DisableModHotkey", 520);
+			variableReference.Add("GMOD_DEBUG_MODE", 521);
+			variableReference.Add("GLipSync", 522);
+			variableReference.Add("GVideoOpening", 523);
+			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
 			SetGlobalFlag("GWindowOpacity", 50);
@@ -102,8 +126,12 @@ namespace Assets.Scripts.Core.Buriko
 			SetGlobalFlag("GArtStyle", 1);
 			SetGlobalFlag("GHideButtons", 0);
 			SetGlobalFlag("GLastSavePage", 0);
+			SetGlobalFlag("GLipSync", 1);
 			SetFlag("LTextFade", 1);
 			SetFlag("LTextColor", new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue).ToInt());
+			SetFlag("LTextFade", 1);
+			SetFlag("NVL_in_ADV", 0);
+			SetFlag("DisableModHotkey", 0);
 			Instance = this;
 			LoadGlobals();
 		}
@@ -368,7 +396,11 @@ namespace Assets.Scripts.Core.Buriko
 						bsonReader.CloseInput = false;
 						using (BsonReader reader = bsonReader)
 						{
-							globalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
+							// was: globalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
+							// if global.dat exists but a new build introduced a new global with a default value, then the default value would be overwritten.
+							// Replace each key-val pair instead
+							var persistedGlobalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
+							persistedGlobalFlags.ToList().ForEach(x => globalFlags[x.Key] = x.Value);
 						}
 						bsonReader = new BsonReader(stream);
 						bsonReader.CloseInput = false;

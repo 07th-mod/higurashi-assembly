@@ -1,3 +1,5 @@
+using MOD.Scripts.Core;
+using MOD.Scripts.Core.TextWindow;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System.Collections.Generic;
@@ -82,9 +84,7 @@ namespace Assets.Scripts.Core.Audio
 				channelDictionary.Add(num, audioLayerUnity4);
 				num++;
 			}
-			AudioConfiguration configuration = AudioSettings.GetConfiguration();
-			configuration.sampleRate = 44100;
-			AudioSettings.Reset(configuration);
+			AudioSettings.outputSampleRate = 44100;
 		}
 
 		public void SerializeCurrentAudio(MemoryStream ms)
@@ -282,27 +282,23 @@ namespace Assets.Scripts.Core.Audio
 
 		public void PlayVoice(string filename, int channel, float volume)
 		{
-			string text = filename.Substring(0, 4);
-			if (0 == 0)
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{
-				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-				if (currentAudio[AudioType.Voice].ContainsKey(channel))
+				currentAudio[AudioType.Voice].Remove(channel);
+			}
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			if (audio.IsPlaying())
+			{
+				audio.StopAudio();
+			}
+			audio.PlayAudio(filename, AudioType.Voice, volume);
+			if (GameSystem.Instance.IsAuto)
+			{
+				audio.OnLoadCallback(delegate
 				{
-					currentAudio[AudioType.Voice].Remove(channel);
-				}
-				currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
-				if (audio.IsPlaying())
-				{
-					audio.StopAudio();
-				}
-				audio.PlayAudio(filename, AudioType.Voice, volume);
-				if (GameSystem.Instance.IsAuto)
-				{
-					audio.OnLoadCallback(delegate
-					{
-						GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
-					});
-				}
+					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
+				});
 			}
 		}
 
@@ -467,6 +463,42 @@ namespace Assets.Scripts.Core.Audio
 			{
 				AudioLayerUnity audioLayerUnity4 = channelDictionary[GetChannelByTypeChannel(AudioType.System, l)];
 				audioLayerUnity4.SetBaseVolume(SystemVolume * GlobalVolume);
+			}
+		}
+
+		public bool IsSEPlaying(int channel)
+		{
+			return channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)].IsPlaying();
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public void MODPlayVoiceLS(string filename, int channel, float volume, int character)
+		{
+			MODTextController.MODCurrentVoiceLayerDetect = channel;
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			if (currentAudio[AudioType.Voice].ContainsKey(channel))
+			{
+				currentAudio[AudioType.Voice].Remove(channel);
+			}
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+			if (audio.IsPlaying())
+			{
+				audio.StopAudio();
+			}
+			audio.PlayAudio(filename, AudioType.Voice, volume);
+			if (MODSystem.instance.modSceneController.MODLipSyncBoolCheck(character))
+			{
+				GameSystem.Instance.SceneController.MODLipSyncStart(character, channel, filename);
+			}
+			if (GameSystem.Instance.IsAuto)
+			{
+				audio.OnLoadCallback(delegate
+				{
+					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
+				});
 			}
 		}
 	}

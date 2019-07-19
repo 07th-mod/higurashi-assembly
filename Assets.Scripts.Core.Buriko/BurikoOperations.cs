@@ -138,6 +138,18 @@ namespace Assets.Scripts.Core.Buriko
 		StopFragment,
 		DrawSpriteFixedSize,
 		DrawSpriteWithFilteringFixedSize,
-		Update
+		Update,
+		ModEnableNVLModeInADVMode,
+		ModDisableNVLModeInADVMode,
+		ModADVModeSettingLoad,
+		ModNVLModeSettingLoad,
+		ModNVLADVModeSettingLoad,
+		ModCallScriptSection,
+		ModDrawCharacter,
+		ModDrawCharacterWithFiltering,
+		ModPlayVoiceLS,
+		ModPlayMovie,
+		ModSetConfigFontSize,
+		ModSetChapterJumpFontSize
 	}
 }

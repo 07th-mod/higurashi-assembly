@@ -1,6 +1,5 @@
 using Steamworks;
 using System;
-using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -41,6 +40,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				{
 					Debug.LogError("[Steamworks.NET] DllCheck Test returned false, One or more of the Steamworks binaries seems to be the wrong version.", this);
 				}
+				/*
 				try
 				{
 					string path = Path.Combine(Application.streamingAssetsPath, "Data\\steamId.txt");
@@ -66,6 +66,7 @@ namespace Assets.Scripts.Core.SteamWorks
 					Application.Quit();
 					return;
 				}
+				*/
 				m_bInitialized = SteamAPI.Init();
 				if (!m_bInitialized)
 				{

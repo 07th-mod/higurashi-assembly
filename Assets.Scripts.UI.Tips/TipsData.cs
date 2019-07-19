@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +29,7 @@ namespace Assets.Scripts.UI.Tips
 				}
 				Debug.Log("Displaying tips up to " + num);
 				{
-					foreach (TipsDataEntry tip in Tips)
+					foreach (TipsDataEntry tip in MODSystem.instance.modTipsController.Tips)
 					{
 						if (tip.Id < num)
 						{
@@ -43,23 +44,25 @@ namespace Assets.Scripts.UI.Tips
 			int num2 = instance.GetFlag("NewTipsStart").IntValue();
 			int num3 = num2 + instance.GetFlag("NewTipsCount").IntValue();
 			Debug.Log("Displaying tips " + num2 + " to " + num3);
-			for (int i = 0; i < Tips.Count; i++)
+			var tips = MODSystem.instance.modTipsController.Tips;
+			for (int i = 0; i < tips.Count; i++)
 			{
-				int id = Tips[i].Id;
+				var tip = tips[i];
+				int id = tip.Id;
 				if (onlyNew)
 				{
 					if (id >= num2 && id < num3)
 					{
 						tipsDataGroup.TipsAvailable++;
 						tipsDataGroup.TipsUnlocked++;
-						tipsDataGroup.Tips.Add(Tips[i]);
+						tipsDataGroup.Tips.Add(tip);
 					}
 				}
 				else if (id < num3)
 				{
 					tipsDataGroup.TipsAvailable++;
 					tipsDataGroup.TipsUnlocked++;
-					tipsDataGroup.Tips.Add(Tips[i]);
+					tipsDataGroup.Tips.Add(tip);
 				}
 			}
 			return tipsDataGroup;

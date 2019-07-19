@@ -1,3 +1,4 @@
+using MOD.Scripts.Core;
 using System;
 using System.Collections;
 using System.IO;
@@ -70,6 +71,17 @@ namespace Assets.Scripts.Core.Scene
 		private FilmEffector effector;
 
 		private int lastWidth;
+
+		private int lastHeight;
+
+		private IEnumerator MODLipSyncCoroutine;
+
+		public Scene MODActiveScene => GetActiveScene();
+
+		static SceneController()
+		{
+			UpperLayerRange = 32;
+		}
 
 		public Layer GetIfInUse(int id)
 		{
@@ -870,20 +882,147 @@ namespace Assets.Scripts.Core.Scene
 			FragmentController = new FragmentController();
 		}
 
+		public void UpdateScreenSize() {
+			float screenAspectRatio = Screen.width / (float)Screen.height;
+			float gameAspectRatio = GameSystem.Instance.AspectRatio;
+			float scale = (!(gameAspectRatio > screenAspectRatio)) ? 1f : (gameAspectRatio / screenAspectRatio);
+			float num6 = 2f / (scale * 480f);
+			base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
+			GameSystem.Instance.MainUIController.UpdateGuiScale(1 / scale, 1 / scale);
+			lastWidth = Screen.width;
+			lastHeight = Screen.height;
+		}
+
 		private void Update()
 		{
-			if (Screen.width != lastWidth)
+			if (Screen.width != lastWidth || Screen.height != lastHeight)
 			{
-				Vector2 screenSize = NGUITools.screenSize;
-				float num = screenSize.x / screenSize.y;
-				float num2 = GameSystem.Instance.AspectRatio * 480f;
-				float num3 = 480f;
-				float num4 = num2 / num3;
-				float num5 = (!(num4 > num)) ? num3 : ((float)Mathf.RoundToInt(num2 / num));
-				float num6 = 2f / num5;
-				base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
-				lastWidth = Screen.width;
+				UpdateScreenSize();
 			}
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public void MODDrawBustshot(int layer, string textureName, Texture2D tex2d, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			Layer layer2 = GetLayer(layer);
+			while (layer2.FadingOut)
+			{
+				layer2.HideLayer();
+				layer2 = GetLayer(layer);
+			}
+			if (!move)
+			{
+				oldx = x;
+				oldy = y;
+				oldz = z;
+			}
+			layer2.MODDrawLayer(textureName, tex2d, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking);
+			layer2.SetPriority(priority);
+			if (move)
+			{
+				layer2.MoveLayer(x, y, z, 1f, 0, wait, isblocking, adjustAlpha: false);
+			}
+			iTween.Stop(layer2.gameObject);
+			if (Mathf.Approximately(wait, 0f))
+			{
+				layer2.FinishFade();
+			}
+			else
+			{
+				layer2.FadeInLayer(wait);
+				if (isblocking)
+				{
+					GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, layer2.FinishFade));
+				}
+				if (layer2.UsingCrossShader() && layer2.gameObject.layer != GetActiveLayerMask())
+				{
+					SetLayerActiveOnBothScenes(layer2);
+				}
+				else
+				{
+					UpdateLayerMask(layer2, priority);
+				}
+			}
+		}
+
+		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile)
+		{
+			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
+			string str = audiofile.Replace(".ogg", ".txt");
+			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare_fix(character, "0");
+			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare_fix(character, "1");
+			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare_fix(character, "2");
+			string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
+			if (File.Exists(path))
+			{
+				StreamReader streamReader = new StreamReader(path);
+				string text = streamReader.ReadLine();
+				string[] exparray = text.Split(',');
+				streamReader.Close();
+				for (int k = 0; k < exparray.Length; k++)
+				{
+					if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+					{
+						break;
+					}
+					if (exparray[k] == string.Empty)
+					{
+						exparray[k] = "0";
+					}
+					if (k > 1 && !exparray[k].Equals(exparray[k - 1]))
+					{
+						switch (exparray[k])
+						{
+						case "2":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, "2", exp2, coroutineId);
+							break;
+						case "1":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, "1", exp3, coroutineId);
+							break;
+						case "0":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
+							break;
+						}
+					}
+					yield return (object)new WaitForSeconds(0.0666f);
+				}
+			}
+			else
+			{
+				MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
+				yield return (object)new WaitForSeconds(0.25f);
+				MODSystem.instance.modSceneController.MODLipSyncProcess(character, "1", exp3, coroutineId);
+				yield return (object)new WaitForSeconds(0.25f);
+				int k = 0;
+				if (GameSystem.Instance.AudioController.IsVoicePlaying(audiolayer))
+				{
+					k = (int)(GameSystem.Instance.AudioController.GetRemainingVoicePlayTime(audiolayer) * 10f);
+				}
+				if (k >= 5)
+				{
+					for (int i = 0; i < k - 5; i += 5)
+					{
+						if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+						{
+							break;
+						}
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
+						yield return (object)new WaitForSeconds(0.25f);
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, "1", exp3, coroutineId);
+						yield return (object)new WaitForSeconds(0.25f);
+					}
+				}
+			}
+			MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
+		}
+
+		public void MODLipSyncStart(int character, int audiolayer, string audiofile)
+		{
+			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile);
+			StartCoroutine(MODLipSyncCoroutine);
 		}
 	}
 }

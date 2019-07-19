@@ -182,6 +182,31 @@ namespace Assets.Scripts.Core
 
 		private Thread CompileThread;
 
+		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
+		// so use private ones with public accessors
+		private bool _isFullscreen;
+		public bool IsFullscreen
+		{
+			get => _isFullscreen;
+			private set => _isFullscreen = value;
+		}
+
+		private float _configMenuFontSize = 0;
+		public float ConfigMenuFontSize
+		{
+			get => _configMenuFontSize;
+			set => _configMenuFontSize = value;
+		}
+
+		private float _chapterJumpFontSizeJapanese = 0;
+		private float _chapterJumpFontSizeEnglish = 0;
+		public float ChapterJumpFontSize => ChooseJapaneseEnglish(japanese: _chapterJumpFontSizeJapanese, english: _chapterJumpFontSizeEnglish);
+		public void SetChapterJumpFontSize(float japanese, float english)
+		{
+			_chapterJumpFontSizeJapanese = japanese;
+			_chapterJumpFontSizeEnglish = english;
+		}
+
 		public static GameSystem Instance => _instance ?? (_instance = GameObject.Find("_GameSystem").GetComponent<GameSystem>());
 
 		public GameState GameState
@@ -227,7 +252,23 @@ namespace Assets.Scripts.Core
 			{
 				PlayerPrefs.SetInt("height", 480);
 			}
-			if ((Screen.width < 640 || Screen.height < 480) && !Screen.fullScreen)
+			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 0) == 1;
+			fullscreenResolution.width = 0;
+			fullscreenResolution.height = 0;
+			fullscreenResolution = GetFullscreenResolution();
+
+			if (IsFullscreen)
+			{
+				Screen.SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
+			}
+			else if (PlayerPrefs.HasKey("height") && PlayerPrefs.HasKey("width"))
+			{
+				int width = PlayerPrefs.GetInt("width");
+				int height = PlayerPrefs.GetInt("height");
+				Debug.Log("Requesting window size " + width + "x" + height + " based on config file");
+				Screen.SetResolution(width, height, fullscreen: false);
+			}
+			if ((Screen.width < 640 || Screen.height < 480) && !IsFullscreen)
 			{
 				Screen.SetResolution(640, 480, fullscreen: false);
 			}
@@ -277,16 +318,14 @@ namespace Assets.Scripts.Core
 		public void UpdateAspectRatio(float newratio)
 		{
 			AspectRatio = newratio;
-			if (!Screen.fullScreen)
+			if (!IsFullscreen)
 			{
 				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
 				Screen.SetResolution(width, Screen.height, fullscreen: false);
 			}
-			if (!PlayerPrefs.HasKey("width"))
-			{
-				PlayerPrefs.SetInt("width", Mathf.RoundToInt((float)PlayerPrefs.GetInt("height") * AspectRatio));
-			}
+			PlayerPrefs.SetInt("width", Mathf.RoundToInt(PlayerPrefs.GetInt("height") * AspectRatio));
 			MainUIController.UpdateBlackBars();
+			SceneController.UpdateScreenSize();
 		}
 
 		public void CheckinSystem()
@@ -803,6 +842,8 @@ namespace Assets.Scripts.Core
 		{
 			yield return new WaitForEndOfFrame();
 			yield return new WaitForFixedUpdate();
+			IsFullscreen = fullscreen;
+			PlayerPrefs.SetInt("is_fullscreen", fullscreen ? 1 : 0);
 			Screen.SetResolution(width, height, fullscreen);
 			while (Screen.width != width || Screen.height != height)
 			{
@@ -813,12 +854,20 @@ namespace Assets.Scripts.Core
 
 		public void GoFullscreen()
 		{
-			int width = fullscreenResolution.width;
-			int height = fullscreenResolution.height;
-			Screen.SetResolution(width, height, fullscreen: true);
-			Debug.Log(width + " , " + height);
-			PlayerPrefs.SetInt("fullscreen_width", width);
-			PlayerPrefs.SetInt("fullscreen_height", height);
+			IsFullscreen = true;
+			PlayerPrefs.SetInt("is_fullscreen", 1);
+			Resolution resolution = GetFullscreenResolution();
+			Screen.SetResolution(resolution.width, resolution.height, fullscreen: true);
+			Debug.Log(resolution.width + " , " + resolution.height);
+			PlayerPrefs.SetInt("fullscreen_width", resolution.width);
+			PlayerPrefs.SetInt("fullscreen_height", resolution.height);
+		}
+
+		public void DeFullscreen(int width, int height)
+		{
+			IsFullscreen = false;
+			PlayerPrefs.SetInt("is_fullscreen", 0);
+			Screen.SetResolution(width, height, fullscreen: false);
 		}
 
 		private void OnApplicationFocus(bool focusStatus)
@@ -994,6 +1043,106 @@ namespace Assets.Scripts.Core
 			else
 			{
 				SteamController.Close();
+			}
+		}
+
+		/// <summary>
+		/// Chooses between a Japanese and English object based on the current language setting
+		/// </summary>
+		/// <returns>Either the Japanese or English object that was passed in</returns>
+		/// <param name="japanese">The Japanese object</param>
+		/// <param name="english">The English object</param>
+		public T ChooseJapaneseEnglish<T>(T japanese, T english)
+		{
+			if (UseEnglishText)
+			{
+				return english;
+			}
+			else
+			{
+				return japanese;
+			}
+		}
+
+		public Resolution GetFullscreenResolution()
+		{
+			Resolution resolution = new Resolution();
+			string source = "";
+			// Try to guess resolution from Screen.currentResolution
+			if (!Screen.fullScreen || Application.platform == RuntimePlatform.OSXPlayer)
+			{
+				resolution.width = this.fullscreenResolution.width = Screen.currentResolution.width;
+				resolution.height = this.fullscreenResolution.height = Screen.currentResolution.height;
+				source = "Screen.currentResolution";
+			}
+			else if (this.fullscreenResolution.width > 0 && this.fullscreenResolution.height > 0)
+			{
+				resolution.width = this.fullscreenResolution.width;
+				resolution.height = this.fullscreenResolution.height;
+				source = "Stored fullscreenResolution";
+			}
+			else if (PlayerPrefs.HasKey("fullscreen_width") && PlayerPrefs.HasKey("fullscreen_height"))
+			{
+				resolution.width = PlayerPrefs.GetInt("fullscreen_width");
+				resolution.height = PlayerPrefs.GetInt("fullscreen_height");
+				source = "PlayerPrefs";
+			}
+			else
+			{
+				resolution.width = Screen.currentResolution.width;
+				resolution.height = Screen.currentResolution.height;
+				source = "Screen.currentResolution as Fallback";
+			}
+
+			// Above can be glitchy on Linux, so also check the maximum resolution of a single monitor
+			// If it's bigger than that, then switch over
+			// Note that this (from what I can tell) gives you the biggest resolution of any of your monitors,
+			// not just the one the game is running under, so it could *also* be wrong, which is why we check both methods
+			if (Screen.resolutions.Length > 0)
+			{
+				Resolution tmp = Screen.resolutions[Screen.resolutions.Length - 1];
+				if (tmp.width <= resolution.width && tmp.height <= resolution.height) {
+					resolution = tmp;
+					source = "Screen.resolutions #" + (Screen.resolutions.Length - 1);
+				}
+			}
+
+			if (PlayerPrefs.HasKey("fullscreen_width_override"))
+			{
+				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+				source += " + Width Override";
+			}
+			if (PlayerPrefs.HasKey("fullscreen_height_override"))
+			{
+				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+				source += " + Height Override";
+			}
+			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
+			return resolution;
+		}
+
+		/// <summary>
+		/// Gets the amount you should offset gui elements to center them properly based on the current aspect ratio.
+		/// Add this number to GUI elements' positions to center them, subtract it from window positions.
+		/// </summary>
+		public float GetGUIOffset() {
+			float differenceFrom43 = (4f / 3f) - AspectRatio;
+			return differenceFrom43 * 384f;
+		}
+
+		~GameSystem()
+		{
+			// Fixes an issue where Unity would write garbage values to its saved state on Linux
+			// If we do this while the game is running, Unity will overwrite the values
+			// So do it in the finalizer, which will run as the game quits and the GameSystem is deallocated
+			if (PlayerPrefs.HasKey("width") && PlayerPrefs.HasKey("height"))
+			{
+				int width = PlayerPrefs.GetInt("width");
+				int height = PlayerPrefs.GetInt("height");
+				PlayerPrefs.SetInt("Screenmanager Resolution Width", width);
+				PlayerPrefs.SetInt("Screenmanager Resolution Height", height);
+				PlayerPrefs.SetInt("is_fullscreen", IsFullscreen ? 1 : 0);
+				PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 0);
 			}
 		}
 	}

@@ -1,3 +1,4 @@
+using MOD.Scripts.Core;
 using System;
 using System.IO;
 using UnityEngine;
@@ -230,25 +231,36 @@ namespace Assets.Scripts.Core
 
 		public static string GetSavePath()
 		{
+			string savePath;
 			if (Application.platform == RuntimePlatform.OSXPlayer)
 			{
-				return Application.persistentDataPath;
+				savePath = Application.persistentDataPath;
 			}
-			if (Application.platform == RuntimePlatform.LinuxPlayer)
+			else if (Application.platform == RuntimePlatform.LinuxPlayer)
 			{
-				return Application.persistentDataPath;
+				savePath = Application.persistentDataPath;
 			}
-			if (_savepath == string.Empty)
+			else
 			{
-				string text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				if (!Directory.Exists(text) || text == string.Empty)
+				if (_savepath == string.Empty)
 				{
-					text = Environment.ExpandEnvironmentVariables("%appdata%");
+					string text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+					if (!Directory.Exists(text) || text == string.Empty)
+					{
+						text = Environment.ExpandEnvironmentVariables("%appdata%");
+					}
+					_savepath = Path.Combine(text, "Mangagamer\\higurashi07");
+					Directory.CreateDirectory(_savepath);
 				}
-				_savepath = Path.Combine(text, "Mangagamer\\higurashi07");
-				Directory.CreateDirectory(_savepath);
+				savePath = _savepath;
 			}
-			return _savepath;
+			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+			if (!string.IsNullOrEmpty(subdir))
+			{
+				savePath = Path.Combine(savePath, subdir);
+			}
+			Directory.CreateDirectory(savePath);
+			return savePath;
 		}
 
 		public static string GetDataPath()
@@ -483,8 +495,9 @@ namespace Assets.Scripts.Core
 				return 417357;
 			case "selp_dd_0070":
 				return 71684;
+			default:
+				return 0;
 			}
-			return 0;
 		}
 
 		public static float Remap(this float value, float from1, float to1, float from2, float to2)
