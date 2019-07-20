@@ -28,7 +28,7 @@ namespace MOD.Scripts.Core.Movie
 				{
 					if (!isStarted)
 					{
-						MovieTexture = www.movie;
+						MovieTexture = www.GetMovieTexture();
 						movieInfo.Layer.MODMaterial.SetTexture("_Primary", MovieTexture);
 						audioSource.clip = MovieTexture.audioClip;
 						MovieTexture.Play();

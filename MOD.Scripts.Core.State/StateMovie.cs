@@ -88,7 +88,7 @@ namespace MOD.Scripts.Core.State
 		private void SetupBackgroundLayerForVideo()
 		{
 			movieInfo.Layer.ReleaseTextures();
-			movieInfo.Layer.DrawLayer("black", 0, 0, 0, null, 1f, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+			movieInfo.Layer.DrawLayer("black", 0, 0, 0, null, null, 1f, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 	}
 }
