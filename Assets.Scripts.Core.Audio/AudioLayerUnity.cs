@@ -104,6 +104,7 @@ namespace Assets.Scripts.Core.Audio
 			loadedName = string.Empty;
 			audioClip = null;
 			iTween.Stop(base.gameObject);
+			finishCallback = null;
 		}
 
 		public bool IsPlaying()
@@ -198,12 +199,12 @@ namespace Assets.Scripts.Core.Audio
 
 		private void OnAudioEnd()
 		{
-			if (finishCallback != null)
-			{
-				finishCallback();
-			}
-			finishCallback = null;
+			AudioFinishCallback callback = finishCallback;
 			StopAudio();
+			if (callback != null)
+			{
+				callback();
+			}
 		}
 
 		private void Start()

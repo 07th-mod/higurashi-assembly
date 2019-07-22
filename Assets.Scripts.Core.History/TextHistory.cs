@@ -1,40 +1,72 @@
 using Assets.Scripts.Core.Audio;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using TMPro;
 
 namespace Assets.Scripts.Core.History
 {
 	public class TextHistory
 	{
+		private const int MaxEntries = 100;
+
+		private static readonly Regex sizeTagRegex = new Regex("<\\/?size(?:=[+-]?\\d+)?>");
+		private static readonly Regex uncoloredNameRegex = new Regex("</color>([^<]+)<color");
+
 		private List<HistoryLine> lines = new List<HistoryLine>();
 
-		private AudioInfo lastVoice;
+		private List<AudioInfo> lastVoice = new List<AudioInfo>();
 
 		private HistoryLine last;
 
-		private TextMeshPro historyTextMesh;
+		private TextMeshPro textMeasurer;
 
-		private TextMeshProFont fontJapanese;
+		public int EnglishLineCount { get; private set; } = 0;
 
-		private TextMeshProFont fontEnglish;
-
-		private const int MaxEntries = 100;
+		public int JapaneseLineCount { get; private set; } = 0;
 
 		public int LineCount => lines.Count;
+
+		public TextHistory() {
+			TextMeshPro prefabTMP = GameSystem.Instance.HistoryPrefab.GetComponent<HistoryWindow>().Labels[0];
+			GameObject tmpObject = Object.Instantiate(prefabTMP.gameObject);
+			tmpObject.SetActive(false);
+			textMeasurer = tmpObject.GetComponent<TextMeshPro>();
+		}
+
 
 		public void ClearHistory()
 		{
 			lines = new List<HistoryLine>();
+			lastVoice = new List<AudioInfo>();
+			last = null;
+			EnglishLineCount = 0;
+			JapaneseLineCount = 0;
+		}
+
+		private string FormatName(string name)
+		{
+			if (name == "")
+			{
+				return name;
+			}
+			else
+			{
+				var explicitlyWhite = uncoloredNameRegex.Replace(name, (match) => "</color><color=#ffffff>" + match.Groups[1].Value + "</color><color");
+				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.NameFormat, explicitlyWhite) + "</line-height>";
+			}
 		}
 
 		public void RegisterLine(string english, string japanese, string nameen, string namejp)
 		{
+			english = sizeTagRegex.Replace(english, "");
+			japanese = sizeTagRegex.Replace(japanese, "");
 			if (english.StartsWith("\n"))
 			{
 				english = english.Replace("\n", string.Empty);
 				japanese = japanese.Replace("\n", string.Empty);
 				PushHistory();
-				if (english == string.Empty || japanese == string.Empty)
+				if (english == string.Empty && japanese == string.Empty)
 				{
 					return;
 				}
@@ -46,63 +78,32 @@ namespace Assets.Scripts.Core.History
 			}
 			else
 			{
-				string english2 = string.Format(GameSystem.Instance.TextController.NameFormat, nameen) + english;
-				string japanese2 = string.Format(GameSystem.Instance.TextController.NameFormat, namejp) + japanese;
-				last = new HistoryLine(english2, japanese2, null);
+				string english2 = FormatName(nameen) + english;
+				string japanese2 = FormatName(namejp) + japanese;
+				last = new HistoryLine(english2, japanese2);
+			}
+			if (lastVoice.Count > 0)
+			{
+				last.AddVoiceFile(lastVoice);
+				lastVoice = new List<AudioInfo>();
 			}
 		}
 
 		public void PushHistory()
 		{
-			if (historyTextMesh == null)
+			if (last != null)
 			{
-				historyTextMesh = GameSystem.Instance.HistoryTextMesh;
-				fontEnglish = GameSystem.Instance.MainUIController.GetEnglishFont();
-				fontJapanese = GameSystem.Instance.MainUIController.GetJapaneseFont();
-			}
-			while (last != null)
-			{
-				int num = -1;
-				int num2 = -1;
-				historyTextMesh.font = fontJapanese;
-				historyTextMesh.text = last.TextJapanese;
-				TMP_TextInfo textInfo = historyTextMesh.GetTextInfo(last.TextJapanese);
-				if (textInfo.lineCount > 4)
-				{
-					num = textInfo.lineInfo[3].lastCharacterIndex + 1;
-				}
-				historyTextMesh.font = fontEnglish;
-				historyTextMesh.text = last.TextEnglish;
-				textInfo = historyTextMesh.GetTextInfo(last.TextEnglish);
-				if (textInfo.lineCount > 4)
-				{
-					num2 = textInfo.lineInfo[3].lastCharacterIndex + 1;
-				}
-				if (num == -1 && num2 == -1)
-				{
-					lines.Add(last);
-					last = null;
-				}
-				else
-				{
-					string japanese = string.Empty;
-					string english = string.Empty;
-					if (num > 0)
-					{
-						japanese = last.TextJapanese.Substring(num);
-						last.TextJapanese = last.TextJapanese.Substring(0, num);
-					}
-					if (num2 > 0)
-					{
-						english = last.TextEnglish.Substring(num2).Trim();
-						last.TextEnglish = last.TextEnglish.Substring(0, num2);
-					}
-					lines.Add(last);
-					last = new HistoryLine(english, japanese, null);
-				}
+				last.TextEnglish += "\n ";
+				last.TextJapanese += "\n ";
+				last.CalculateHeight(textMeasurer);
+				EnglishLineCount += last.EnglishHeight;
+				JapaneseLineCount += last.JapaneseHeight;
+				lines.Add(last);
 			}
 			if (lines.Count > 100)
 			{
+				EnglishLineCount -= lines[0].EnglishHeight;
+				JapaneseLineCount -= lines[0].JapaneseHeight;
 				lines.RemoveAt(0);
 			}
 			last = null;
@@ -115,6 +116,11 @@ namespace Assets.Scripts.Core.History
 				return null;
 			}
 			return lines[id];
+		}
+
+		public void RegisterVoice(AudioInfo voice)
+		{
+			lastVoice.Add(voice);
 		}
 	}
 }

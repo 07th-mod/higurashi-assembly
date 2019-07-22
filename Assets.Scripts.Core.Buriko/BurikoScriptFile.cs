@@ -574,6 +574,7 @@ namespace Assets.Scripts.Core.Buriko
 			int channel = ReadVariable().IntValue();
 			string filename = ReadVariable().StringValue() + ".ogg";
 			float volume = (float)ReadVariable().IntValue() / 128f;
+			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			AudioController.Instance.PlayVoice(filename, channel, volume);
 			return BurikoVariable.Null;
 		}
@@ -2428,6 +2429,12 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODSetConfigFontSize();
 			case BurikoOperations.ModSetChapterJumpFontSize:
 				return OperationMODSetChapterJumpFontSize();
+			case BurikoOperations.ModSetHighestChapterFlag:
+				return OperationMODSetHighestChapterFlag();
+			case BurikoOperations.ModGetHighestChapterFlag:
+				return OperationMODGetHighestChapterFlag();
+			case BurikoOperations.ModSetMainFontOutlineWidth:
+				return OperationMODSetMainFontOutlineWidth();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2767,6 +2774,7 @@ namespace Assets.Scripts.Core.Buriko
 			string filename = ReadVariable().StringValue() + ".ogg";
 			float volume = (float)ReadVariable().IntValue() / 128f;
 			bool flag = ReadVariable().BoolValue();
+			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			if ((MODSystem.instance.modSceneController.MODLipSyncIsEnabled() && !gameSystem.IsSkipping) & flag)
 			{
 				MODSystem.instance.modSceneController.MODLipSyncPrepareVoice(character, channel);
@@ -2802,6 +2810,31 @@ namespace Assets.Scripts.Core.Buriko
 			int japanese = ReadVariable().IntValue();
 			int english = ReadVariable().IntValue();
 			GameSystem.Instance.SetChapterJumpFontSize(japanese, english);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetHighestChapterFlag()
+		{
+			SetOperationType("MODSetHighestChapterFlag");
+			int key = ReadVariable().IntValue();
+			int value = ReadVariable().IntValue();
+			BurikoMemory.Instance.SetHighestChapterFlag(key, value);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODGetHighestChapterFlag()
+		{
+			SetOperationType("MODGetHighestChapterFlag");
+			int key = ReadVariable().IntValue();
+			return BurikoMemory.Instance.GetHighestChapterFlag(key);
+		}
+
+		private BurikoVariable OperationMODSetMainFontOutlineWidth()
+		{
+			SetOperationType("MODSetMainFontOutlineWidth");
+			int width = ReadVariable().IntValue();
+			GameSystem.Instance.OutlineWidth = width / 100f;
+			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 			return BurikoVariable.Null;
 		}
 	}

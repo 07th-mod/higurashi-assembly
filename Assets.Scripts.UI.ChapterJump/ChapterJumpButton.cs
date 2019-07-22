@@ -3,6 +3,7 @@ using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using TMPro;
 using UnityEngine;
+using static MOD.Scripts.UI.ChapterJump.MODChapterJumpController;
 
 namespace Assets.Scripts.UI.ChapterJump
 {
@@ -19,6 +20,11 @@ namespace Assets.Scripts.UI.ChapterJump
 		public string Japanese;
 
 		public int ChapterNumber;
+
+		private string BlockName;
+
+		private int ArcNumber = 0;
+		private string FileName = null;
 
 		private TextMeshPro _text = null;
 		public TextMeshPro Text
@@ -53,7 +59,14 @@ namespace Assets.Scripts.UI.ChapterJump
 					{
 						BurikoMemory.Instance.SetFlag("s_jump", ChapterNumber);
 						Debug.Log("Setting chapter to " + ChapterNumber);
-						BurikoScriptSystem.Instance.JumpToBlock("Game");
+						if (FileName != null)
+						{
+							BurikoScriptSystem.Instance.JumpToScript(scriptname: FileName, blockname: BlockName ?? "Game");
+						}
+						else
+						{
+							BurikoScriptSystem.Instance.JumpToBlock(BlockName ?? "Game");
+						}
 					}
 				}
 			}
@@ -77,17 +90,18 @@ namespace Assets.Scripts.UI.ChapterJump
 		private void Start()
 		{
 			Text.text = GameSystem.Instance.ChooseJapaneseEnglish(japanese: Japanese, english: English);
-			if (!(base.name == "Return"))
+			Text.ForceMeshUpdate();
+			if (!(base.name == "Return")
+			    && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue()
+			    && BurikoMemory.Instance.GetHighestChapterFlag(ArcNumber).IntValue() < ChapterNumber)
 			{
-				if (BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue())
-				{
-					Debug.Log("GameClear, Unlocking");
-				}
-				else if (BurikoMemory.Instance.GetGlobalFlag("GHighestChapter").IntValue() < ChapterNumber)
-				{
-					base.gameObject.SetActive(value: false);
-				}
+				base.gameObject.SetActive(false);
 			}
+		}
+
+		public void UpdateTextAndActive()
+		{
+			Start();
 		}
 
 		public bool IsChapterButton => name != "Return";
@@ -99,6 +113,17 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void LateUpdate()
 		{
+		}
+
+		public void UpdateFromChapterJumpEntry(ChapterJumpEntry entry)
+		{
+			English = entry.English;
+			Japanese = entry.Japanese;
+			ChapterNumber = entry.ChapterNumber;
+			BlockName = entry.BlockName;
+			FileName = entry.FileName;
+			ArcNumber = entry.ArcNumber;
+			UpdateTextAndActive();
 		}
 	}
 }
