@@ -2,6 +2,7 @@ using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.Audio;
 using MOD.Scripts.Core;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Core.State
 {
@@ -53,7 +54,9 @@ namespace Assets.Scripts.Core.State
 			}
 			if (Input.GetKeyDown(KeyCode.R))
 			{
-				AudioController.Instance.MODLastVoicePlay();
+				var voices = gameSystem.TextHistory.LatestVoice;
+				Debug.Log(">>>playing " + voices.Count + " voices");
+				AudioController.Instance.PlayVoices(voices);
 				return false;
 			}
 			if (Input.GetKeyDown(KeyCode.Space))

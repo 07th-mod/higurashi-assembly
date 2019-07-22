@@ -41,30 +41,6 @@ namespace Assets.Scripts.Core.Audio
 
 		public static AudioController Instance => _instance ?? (_instance = GameSystem.Instance.AudioController);
 
-		public class MODVoiceInfo
-		{
-			public string filename { get; set; }
-			public int channel { get; set; }
-			public float volume { get; set; }
-		}
-		private MODVoiceInfo _MODLastVoice;
-		public void MODLastVoiceStore(string filename, int channel, float volume)
-		{
-			_MODLastVoice = new MODVoiceInfo
-			{
-				filename = filename,
-				channel = channel,
-				volume = volume
-			};
-		}
-		public void MODLastVoicePlay()
-		{
-			if (_MODLastVoice != null)
-			{
-				PlayVoice(_MODLastVoice.filename, _MODLastVoice.channel, _MODLastVoice.volume);
-			}
-		}
-
 		public AudioController()
 		{
 			GameSystem.Instance.AudioController = this;
@@ -544,7 +520,6 @@ namespace Assets.Scripts.Core.Audio
 
 		public void MODPlayVoiceLS(string filename, int channel, float volume, int character)
 		{
-			MODLastVoiceStore(filename, channel, volume);
 			MODTextController.MODCurrentVoiceLayerDetect = channel;
 			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
 			if (currentAudio[AudioType.Voice].ContainsKey(channel))
