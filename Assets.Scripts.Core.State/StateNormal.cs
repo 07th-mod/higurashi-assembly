@@ -55,7 +55,6 @@ namespace Assets.Scripts.Core.State
 			if (Input.GetKeyDown(KeyCode.R))
 			{
 				var voices = gameSystem.TextHistory.LatestVoice;
-				Debug.Log(">>>playing " + voices.Count + " voices");
 				AudioController.Instance.PlayVoices(voices);
 				return false;
 			}
