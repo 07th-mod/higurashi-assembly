@@ -178,6 +178,12 @@ namespace Assets.Scripts.UI.Config
 
 		private void Prepare()
 		{
+			// One of the buttons in the config menu has the wrong disabledColor and I don't feel like trying to modify it in the asset bundle
+			if (Obj1.Button.disabledColor.r < 0.9)
+			{
+				Obj1.Button.disabledColor = Obj2.Button.disabledColor;
+			}
+
 			Obj1.RegisterSwitchController(this);
 			Obj2.RegisterSwitchController(this);
 			UpdateButtonValues();
