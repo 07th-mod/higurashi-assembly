@@ -11,6 +11,22 @@ namespace Assets.Scripts.UI.Config
 
 		private UIButton button;
 
+		private int Height()
+		{
+			switch (Width)
+			{
+				case 640:
+					return 720;
+				case 800:
+					return 1080;
+				case 1024:
+					return 1440;
+				default:
+					Debug.LogWarning("Found unexpected width button " + Width);
+					return Mathf.RoundToInt(Width / GameSystem.Instance.AspectRatio);
+			}
+		}
+
 		private void OnClick()
 		{
 			if (IsFullscreen)
@@ -19,33 +35,11 @@ namespace Assets.Scripts.UI.Config
 			}
 			else
 			{
-				switch (Width)
-				{
-				case 640:
-				{
-					int num2 = Mathf.RoundToInt(480f * GameSystem.Instance.AspectRatio);
-					GameSystem.Instance.DeFullscreen(width: num2, height: 480);
-					PlayerPrefs.SetInt("width", num2);
-					PlayerPrefs.SetInt("height", 480);
-					break;
-				}
-				case 800:
-				{
-					int num3 = Mathf.RoundToInt(600f * GameSystem.Instance.AspectRatio);
-					GameSystem.Instance.DeFullscreen(width: num3, height: 600);
-					PlayerPrefs.SetInt("width", num3);
-					PlayerPrefs.SetInt("height", 600);
-					break;
-				}
-				case 1024:
-				{
-					int num = Mathf.RoundToInt(768f * GameSystem.Instance.AspectRatio);
-					GameSystem.Instance.DeFullscreen(width: num, height: 768);
-					PlayerPrefs.SetInt("width", num);
-					PlayerPrefs.SetInt("height", 768);
-					break;
-				}
-				}
+				int height = Height();
+				int width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
+				GameSystem.Instance.DeFullscreen(width: width, height: height);
+				PlayerPrefs.SetInt("width", width);
+				PlayerPrefs.SetInt("height", height);
 			}
 		}
 
@@ -55,7 +49,7 @@ namespace Assets.Scripts.UI.Config
 			{
 				return GameSystem.Instance.IsFullscreen;
 			}
-			return (3 * Width / 4) == Screen.height;
+			return Screen.height == Height();
 		}
 
 		private void Start()
