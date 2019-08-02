@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 namespace Assets.Scripts.Core.History
 {
@@ -121,6 +122,29 @@ namespace Assets.Scripts.Core.History
 		public void RegisterVoice(AudioInfo voice)
 		{
 			lastVoice.Add(voice);
+		}
+
+		/// <summary>
+		/// The latest voices that have played, if any. If none, returns an empty list; never returns null.
+		/// </summary>
+		public List<List<AudioInfo>> LatestVoice
+		{
+			get
+			{
+				// Do we currently have any voices registered that are not attached to a history line?
+				// This probably shouldn't happen, because conventionally voice commands precede OutputLine commands and they all execute quickly in sequence.
+				// Once the OutputLine hits, the voices in lastVoice get thrown into the "last" field's VoiceFiles and "lastVoice" is reinitialized
+				// to an empty list.  However, it seems more internally consistent/correct to keep this case.
+				if (lastVoice.Any())
+					return new List<List<AudioInfo>> { lastVoice };
+				// The the last voice has nothing, as expected.  But does the latest dialogue on screen have any voices associated?
+				if (last != null && last.VoiceFiles.Any())
+					return last.VoiceFiles;
+				// No voice associated with the current text on screen (narration / character POV monologue etc.), so we'll look for the last line in the history with voices.
+				var candidate = lines.LastOrDefault(x => x.VoiceFiles.Any());
+				// But there might not be one yet as there may have only been narration so far, so we check for that too.
+				return candidate == null ? new List<List<AudioInfo>>() : candidate.VoiceFiles;
+			}
 		}
 	}
 }

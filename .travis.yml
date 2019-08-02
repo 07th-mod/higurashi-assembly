@@ -36,6 +36,11 @@ deploy:
       branch: tsumi-mod
   - skip_cleanup: true
     provider: script
+    script: echo ${SSH_KEY} | base64 --decode > key && chmod 600 key && scp -o StrictHostKeyChecking=no -i key bin/Release/Assembly-CSharp.dll ${UPLOAD_SERVER}/minagoroshi/ 2>/dev/null
+    on:
+      branch: mina-mod-test
+  - skip_cleanup: true
+    provider: script
     script: echo ${SSH_KEY} | base64 --decode > key && chmod 600 key && scp -o StrictHostKeyChecking=no -i key bin/Release/Assembly-CSharp.dll ${UPLOAD_SERVER}/consolearcs/ 2>/dev/null
     on:
       branch: console-arcs
