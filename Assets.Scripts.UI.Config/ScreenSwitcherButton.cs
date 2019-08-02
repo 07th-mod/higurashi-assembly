@@ -13,6 +13,8 @@ namespace Assets.Scripts.UI.Config
 
 		private int Height()
 		{
+			// Old resolutions (which the assetbundle button widths are based on) were 640x480, 800x600, and 1024x768
+			// New resolutions are 1280x720, 1920x1080, and 2560x1440
 			switch (Width)
 			{
 				case 640:
