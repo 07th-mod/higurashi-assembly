@@ -134,12 +134,17 @@ namespace Assets.Scripts.Core.Buriko
 			SetGlobalFlag("GArtStyle", 1);
 			SetGlobalFlag("GHideButtons", 0);
 			SetGlobalFlag("GLipSync", 1);
+			InitFlags();
+			Instance = this;
+			LoadGlobals();
+		}
+
+		private void InitFlags()
+		{
 			SetFlag("LTextFade", 1);
 			SetFlag("NVL_in_ADV", 0);
 			SetFlag("DisableModHotkey", 0);
 			SetFlag("LFlagMonitor", 0);
-			Instance = this;
-			LoadGlobals();
 		}
 
 		private void LoadFlags()
@@ -379,6 +384,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			memorylist.Clear();
 			flags.Clear();
+			InitFlags();
 			BinaryReader binaryReader = new BinaryReader(ms);
 			JsonSerializer jsonSerializer = new JsonSerializer();
 			int num = binaryReader.ReadInt32();
@@ -408,17 +414,14 @@ namespace Assets.Scripts.Core.Buriko
 				burikoObject.DeSerialize(ms);
 				memorylist.Add(key, new BurikoMemoryEntry(scope, burikoObject));
 			}
-			BsonReader bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			using (BsonReader reader = bsonReader)
+			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
-				variableReference = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
+				// fix: when new variables are added for mod things, loading old save files would remove them and break stuff
+				variableReference.MergeOverwrite(jsonSerializer.Deserialize<Dictionary<string, int>>(reader));
 			}
-			bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			using (BsonReader reader2 = bsonReader)
+			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
-				flags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader2);
+				flags.MergeOverwrite(jsonSerializer.Deserialize<Dictionary<int, int>>(reader));
 			}
 		}
 
@@ -439,28 +442,20 @@ namespace Assets.Scripts.Core.Buriko
 					JsonSerializer jsonSerializer = new JsonSerializer();
 					using (MemoryStream stream = new MemoryStream(buffer))
 					{
-						BsonReader bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						using (BsonReader reader = bsonReader)
+						using (BsonReader reader = new BsonReader(stream) { CloseInput = false })
 						{
 							// was: globalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
 							// if global.dat exists but a new build introduced a new global with a default value, then the default value would be overwritten.
 							// Replace each key-val pair instead
-							var persistedGlobalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
-							persistedGlobalFlags.ToList().ForEach(x => globalFlags[x.Key] = x.Value);
+							globalFlags.MergeOverwrite(jsonSerializer.Deserialize<Dictionary<int, int>>(reader));
 						}
-						bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						bsonReader.ReadRootValueAsArray = true;
-						using (BsonReader reader2 = bsonReader)
+						using (BsonReader reader = new BsonReader(stream) { CloseInput = false, ReadRootValueAsArray = true })
 						{
-							cgflags = jsonSerializer.Deserialize<List<string>>(reader2);
+							cgflags = jsonSerializer.Deserialize<List<string>>(reader);
 						}
-						bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						using (BsonReader reader3 = bsonReader)
+						using (BsonReader reader = new BsonReader(stream) { CloseInput = false })
 						{
-							readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader3);
+							readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader);
 						}
 					}
 				}
