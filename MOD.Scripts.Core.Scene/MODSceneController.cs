@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.Scene;
@@ -8,6 +10,104 @@ namespace MOD.Scripts.Core.Scene
 	public class MODSceneController
 	{
 		public static int MODLipSync_Character_Audio;
+
+		public struct Filter
+		{
+			public static readonly Filter Identity = new Filter(256, 0, 0, 0, 256, 0, 0, 0, 256, 256);
+			public static readonly Filter Flashback = new Filter(136, 60, 60, 69, 115, 69, 84, 84, 88, 256); // 77 47 4 preserving luminosity
+
+			public int rr;
+			public int rg;
+			public int rb;
+			public int gr;
+			public int gg;
+			public int gb;
+			public int br;
+			public int bg;
+			public int bb;
+			public int a;
+
+			/// <summary>All colors should be in the range 0...256</summary>
+			public Filter(int rr, int rg, int rb, int gr, int gg, int gb, int br, int bg, int bb, int a)
+			{
+				this.rr = rr;
+				this.rg = rg;
+				this.rb = rb;
+				this.gr = gr;
+				this.gg = gg;
+				this.gb = gb;
+				this.br = br;
+				this.bg = bg;
+				this.bb = bb;
+				this.a = a;
+			}
+
+			/// <summary>
+			/// Gets values from a short array
+			/// </summary>
+			public Filter(short[] arr)
+			{
+				rr = arr[0];
+				rg = arr[1];
+				rb = arr[2];
+				gr = arr[3];
+				gg = arr[4];
+				gb = arr[5];
+				br = arr[6];
+				bg = arr[7];
+				bb = arr[8];
+				a = arr[9];
+			}
+
+			public bool MixesColors => rg != 0 || rb != 0 || gr != 0 || gb != 0 || br != 0 || bg != 0;
+			public bool ChangesColors => MixesColors || rr != 256 || gg != 256 || bb != 256;
+			public bool ChangesAlpha => a != 256;
+			public bool IsIdentity => !ChangesAlpha && !ChangesColors;
+
+			private static float F(int color)
+			{
+				return color / 256f;
+			}
+
+			public short[] AsShortArray => new short[]
+			{
+				(short)rr,
+				(short)rg,
+				(short)rb,
+				(short)gr,
+				(short)gg,
+				(short)gb,
+				(short)br,
+				(short)bg,
+				(short)bb,
+				(short)a
+			};
+
+			public Color AsColorMultiplier => new Color(F(rr), F(gg), F(bb), F(a));
+			public Matrix4x4 AsMatrix4x4 => new Matrix4x4
+			{
+				m00 = F(rr),
+				m01 = F(rg),
+				m02 = F(rb),
+				m10 = F(gr),
+				m11 = F(gg),
+				m12 = F(gb),
+				m20 = F(br),
+				m21 = F(bg),
+				m22 = F(bb),
+				m33 = F(a)
+			};
+		}
+
+		private static Dictionary<int, Filter> layerFilters = new Dictionary<int, Filter>();
+
+		public static void ClearLayerFilters() { layerFilters.Clear(); }
+
+		public static Dictionary<int, short[]> serializableLayerFilters
+		{
+			get => layerFilters.ToDictionary(x => x.Key, x => x.Value.AsShortArray);
+			set => layerFilters = value.ToDictionary(x => x.Key, x => new Filter(x.Value));
+		}
 
 		private static bool[] MODLipSync_Bool;
 
@@ -28,6 +128,85 @@ namespace MOD.Scripts.Core.Scene
 		public static int[] MODLipSync_Channel;
 
 		public static ulong[] MODLipSync_CoroutineId;
+
+		public static void SetLayerFilter(int layer, Filter filter)
+		{
+			if (filter.IsIdentity)
+			{
+				layerFilters.Remove(layer);
+			}
+			else
+			{
+				layerFilters[layer] = filter;
+			}
+		}
+
+		public static bool TryGetLayerFilter(int layer, out Filter value)
+		{
+			return layerFilters.TryGetValue(layer, out value);
+		}
+
+		public static void ApplyFilters(int layer, Texture2D texture)
+		{
+			if (!TryGetLayerFilter(layer, out Filter value)) { return; }
+			var watch = System.Diagnostics.Stopwatch.StartNew();
+			System.Diagnostics.Stopwatch innerWatch;
+
+			string filterString;
+			if (value.MixesColors)
+			{
+				var pixels = texture.GetPixels();
+				Matrix4x4 filter = value.AsMatrix4x4;
+				filterString = "<Matrix4x4 Filter>";
+				innerWatch = System.Diagnostics.Stopwatch.StartNew();
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					pixels[i] = filter * pixels[i];
+				}
+				innerWatch.Stop();
+				texture.SetPixels(pixels);
+			}
+			else if (value.ChangesColors)
+			{
+				var pixels = texture.GetPixels();
+				Color filter = value.AsColorMultiplier;
+				filterString = filter.ToString();
+				innerWatch = System.Diagnostics.Stopwatch.StartNew();
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					pixels[i] *= filter;
+				}
+				innerWatch.Stop();
+				texture.SetPixels(pixels);
+			}
+			else
+			{
+				var pixels = texture.GetPixels32();
+				filterString = "Alpha " + value.a;
+				innerWatch = System.Diagnostics.Stopwatch.StartNew();
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					Color32 pixel = pixels[i];
+					pixel.a = (byte)((pixel.a * value.a) >> 8);
+					pixels[i] = pixel;
+				}
+				innerWatch.Stop();
+				texture.SetPixels32(pixels);
+			}
+			watch.Stop();
+			texture.Apply();
+			MODUtility.FlagMonitorOnlyLog("Applied filter " + filterString + " to " + texture.name + " in " + watch.ElapsedMilliseconds + "ms, filter took " + innerWatch.ElapsedMilliseconds + "ms");
+		}
+
+		public static Texture2D LoadTextureWithFilters(int? layer, string textureName)
+		{
+			var watch = System.Diagnostics.Stopwatch.StartNew();
+			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName);
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms");
+			if (layer is int actualLayer) { ApplyFilters(actualLayer, texture); }
+			return texture;
+		}
 
 		public void MODLipSyncDisableAll()
 		{
@@ -86,24 +265,11 @@ namespace MOD.Scripts.Core.Scene
 			MODLipSync_CoroutineId = new ulong[50];
 		}
 
-		public void MODLipSyncPrepare(int charnum, string expressionnum)
-		{
-			int layer = MODLipSync_Layer[charnum];
-			string textureName = MODLipSync_Texture[charnum] + expressionnum;
-			int x = MODLipSync_X[charnum];
-			int y = MODLipSync_Y[charnum];
-			int z = MODLipSync_Z[charnum];
-			int priority = MODLipSync_Priority[charnum];
-			int type = MODLipSync_Type[charnum];
-			Texture2D tex2d = GameSystem.Instance.AssetManager.LoadTexture(textureName);
-			GameSystem.Instance.SceneController.MODDrawBustshot(layer, textureName, tex2d, x, y, z, 0, 0, 0, /*move:*/ false, priority, type, 0f, /*isblocking:*/ false);
-		}
-
-		public Texture2D MODLipSyncPrepare_fix(int charnum, string expressionnum)
+		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
 		{
 			int num = MODLipSync_Layer[charnum];
 			string textureName = MODLipSync_Texture[charnum] + expressionnum;
-			return GameSystem.Instance.AssetManager.LoadTexture(textureName);
+			return LoadTextureWithFilters(num, textureName);
 		}
 
 		static MODSceneController()
