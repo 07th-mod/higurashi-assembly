@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Assets.Scripts.Core.Buriko;
+using UnityEngine;
 
 /// <summary>
 /// Just a bunch of convenience functions
@@ -13,6 +15,14 @@ public static class MODUtility
 		foreach (var item in other)
 		{
 			self[item.Key] = item.Value;
+		}
+	}
+
+	public static void FlagMonitorOnlyLog(string str)
+	{
+		if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() != 0)
+		{
+			Debug.Log(str);
 		}
 	}
 }

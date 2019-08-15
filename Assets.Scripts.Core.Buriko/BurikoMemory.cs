@@ -1,7 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
-using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -176,6 +176,7 @@ namespace Assets.Scripts.Core.Buriko
 			memorylist = (from a in memorylist
 			where a.Value.Scope <= scopeLevel
 			select a).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
+			MODSceneController.ClearLayerFilters();
 		}
 
 		public bool SeenCG(string cg)
@@ -355,28 +356,44 @@ namespace Assets.Scripts.Core.Buriko
 
 		public byte[] SaveMemory()
 		{
-			using (MemoryStream memoryStream = new MemoryStream())
+			// Save extra variables that aren't in vanilla games into places where they'll be ignored by vanilla games
+			// In this case, the variable list seemed like a good spot (with a name that's not a valid Buriko variable name)
+			StringWriter layerFilters = new StringWriter();
+			new JsonSerializer().Serialize(layerFilters, MODSceneController.serializableLayerFilters);
+			BurikoString layerFilterString = new BurikoString();
+			layerFilterString.Stringlist = new List<string> { layerFilters.ToString() };
+			memorylist.Add("$layerFilters", new BurikoMemoryEntry(0, layerFilterString));
+
+			try
 			{
-				using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
+				using (MemoryStream memoryStream = new MemoryStream())
 				{
-					BsonWriter bsonWriter = new BsonWriter(memoryStream);
-					bsonWriter.CloseOutput = false;
-					using (BsonWriter jsonWriter = bsonWriter)
+					using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
 					{
-						JsonSerializer jsonSerializer = new JsonSerializer();
-						binaryWriter.Write(memorylist.Count);
-						foreach (KeyValuePair<string, BurikoMemoryEntry> item in memorylist)
+						BsonWriter bsonWriter = new BsonWriter(memoryStream);
+						bsonWriter.CloseOutput = false;
+						using (BsonWriter jsonWriter = bsonWriter)
 						{
-							binaryWriter.Write(item.Key);
-							binaryWriter.Write(item.Value.Scope);
-							binaryWriter.Write(item.Value.Obj.GetObjectType());
-							item.Value.Obj.Serialize(memoryStream);
+							JsonSerializer jsonSerializer = new JsonSerializer();
+							binaryWriter.Write(memorylist.Count);
+							foreach (KeyValuePair<string, BurikoMemoryEntry> item in memorylist)
+							{
+								binaryWriter.Write(item.Key);
+								binaryWriter.Write(item.Value.Scope);
+								binaryWriter.Write(item.Value.Obj.GetObjectType());
+								item.Value.Obj.Serialize(memoryStream);
+							}
+							jsonSerializer.Serialize(jsonWriter, variableReference);
+							jsonSerializer.Serialize(jsonWriter, flags);
+							return memoryStream.ToArray();
 						}
-						jsonSerializer.Serialize(jsonWriter, variableReference);
-						jsonSerializer.Serialize(jsonWriter, flags);
-						return memoryStream.ToArray();
 					}
 				}
+
+			}
+			finally
+			{
+				memorylist.Remove("$layerFilters");
 			}
 		}
 
@@ -413,6 +430,12 @@ namespace Assets.Scripts.Core.Buriko
 				}
 				burikoObject.DeSerialize(ms);
 				memorylist.Add(key, new BurikoMemoryEntry(scope, burikoObject));
+			}
+			if (memorylist.TryGetValue("$layerFilters", out var filters))
+			{
+				memorylist.Remove("$layerFilters");
+				JsonTextReader reader = new JsonTextReader(new StringReader(((BurikoString)filters.Obj).Stringlist[0]));
+				MODSceneController.serializableLayerFilters = new JsonSerializer().Deserialize<Dictionary<int, short[]>>(reader);
 			}
 			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
