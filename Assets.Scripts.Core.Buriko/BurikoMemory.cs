@@ -1,7 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
-using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -129,14 +129,19 @@ namespace Assets.Scripts.Core.Buriko
 			SetGlobalFlag("GHideButtons", 0);
 			SetGlobalFlag("GLastSavePage", 0);
 			SetGlobalFlag("GLipSync", 1);
+			InitFlags();
+			Instance = this;
+			LoadGlobals();
+		}
+
+		private void InitFlags()
+		{
 			SetFlag("LTextFade", 1);
 			SetFlag("LTextColor", new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue).ToInt());
 			SetFlag("LTextFade", 1);
 			SetFlag("NVL_in_ADV", 0);
 			SetFlag("DisableModHotkey", 0);
 			SetFlag("LFlagMonitor", 0);
-			Instance = this;
-			LoadGlobals();
 		}
 
 		private void LoadFlags()
@@ -168,6 +173,7 @@ namespace Assets.Scripts.Core.Buriko
 			memorylist = (from a in memorylist
 			where a.Value.Scope <= scopeLevel
 			select a).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
+			MODSceneController.ClearLayerFilters();
 		}
 
 		public bool SeenCG(string cg)
@@ -351,28 +357,44 @@ namespace Assets.Scripts.Core.Buriko
 
 		public byte[] SaveMemory()
 		{
-			using (MemoryStream memoryStream = new MemoryStream())
+			// Save extra variables that aren't in vanilla games into places where they'll be ignored by vanilla games
+			// In this case, the variable list seemed like a good spot (with a name that's not a valid Buriko variable name)
+			StringWriter layerFilters = new StringWriter();
+			new JsonSerializer().Serialize(layerFilters, MODSceneController.serializableLayerFilters);
+			BurikoString layerFilterString = new BurikoString();
+			layerFilterString.Stringlist = new List<string> { layerFilters.ToString() };
+			memorylist.Add("$layerFilters", new BurikoMemoryEntry(0, layerFilterString));
+
+			try
 			{
-				using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
+				using (MemoryStream memoryStream = new MemoryStream())
 				{
-					BsonWriter bsonWriter = new BsonWriter(memoryStream);
-					bsonWriter.CloseOutput = false;
-					using (BsonWriter jsonWriter = bsonWriter)
+					using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
 					{
-						JsonSerializer jsonSerializer = new JsonSerializer();
-						binaryWriter.Write(memorylist.Count);
-						foreach (KeyValuePair<string, BurikoMemoryEntry> item in memorylist)
+						BsonWriter bsonWriter = new BsonWriter(memoryStream);
+						bsonWriter.CloseOutput = false;
+						using (BsonWriter jsonWriter = bsonWriter)
 						{
-							binaryWriter.Write(item.Key);
-							binaryWriter.Write(item.Value.Scope);
-							binaryWriter.Write(item.Value.Obj.GetObjectType());
-							item.Value.Obj.Serialize(memoryStream);
+							JsonSerializer jsonSerializer = new JsonSerializer();
+							binaryWriter.Write(memorylist.Count);
+							foreach (KeyValuePair<string, BurikoMemoryEntry> item in memorylist)
+							{
+								binaryWriter.Write(item.Key);
+								binaryWriter.Write(item.Value.Scope);
+								binaryWriter.Write(item.Value.Obj.GetObjectType());
+								item.Value.Obj.Serialize(memoryStream);
+							}
+							jsonSerializer.Serialize(jsonWriter, variableReference);
+							jsonSerializer.Serialize(jsonWriter, flags);
+							return memoryStream.ToArray();
 						}
-						jsonSerializer.Serialize(jsonWriter, variableReference);
-						jsonSerializer.Serialize(jsonWriter, flags);
-						return memoryStream.ToArray();
 					}
 				}
+
+			}
+			finally
+			{
+				memorylist.Remove("$layerFilters");
 			}
 		}
 
@@ -380,6 +402,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			memorylist.Clear();
 			flags.Clear();
+			InitFlags();
 			BinaryReader binaryReader = new BinaryReader(ms);
 			JsonSerializer jsonSerializer = new JsonSerializer();
 			int num = binaryReader.ReadInt32();
@@ -409,17 +432,20 @@ namespace Assets.Scripts.Core.Buriko
 				burikoObject.DeSerialize(ms);
 				memorylist.Add(key, new BurikoMemoryEntry(scope, burikoObject));
 			}
-			BsonReader bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			using (BsonReader reader = bsonReader)
+			if (memorylist.TryGetValue("$layerFilters", out var filters))
 			{
-				variableReference = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
+				memorylist.Remove("$layerFilters");
+				JsonTextReader reader = new JsonTextReader(new StringReader(((BurikoString)filters.Obj).Stringlist[0]));
+				MODSceneController.serializableLayerFilters = new JsonSerializer().Deserialize<Dictionary<int, short[]>>(reader);
 			}
-			bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			using (BsonReader reader2 = bsonReader)
+			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
-				flags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader2);
+				// fix: when new variables are added for mod things, loading old save files would remove them and break stuff
+				variableReference.MergeOverwrite(jsonSerializer.Deserialize<Dictionary<string, int>>(reader));
+			}
+			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
+			{
+				flags.MergeOverwrite(jsonSerializer.Deserialize<Dictionary<int, int>>(reader));
 			}
 		}
 
@@ -440,28 +466,20 @@ namespace Assets.Scripts.Core.Buriko
 					JsonSerializer jsonSerializer = new JsonSerializer();
 					using (MemoryStream stream = new MemoryStream(buffer))
 					{
-						BsonReader bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						using (BsonReader reader = bsonReader)
+						using (BsonReader reader = new BsonReader(stream) { CloseInput = false })
 						{
 							// was: globalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
 							// if global.dat exists but a new build introduced a new global with a default value, then the default value would be overwritten.
 							// Replace each key-val pair instead
-							var persistedGlobalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
-							persistedGlobalFlags.ToList().ForEach(x => globalFlags[x.Key] = x.Value);
+							globalFlags.MergeOverwrite(jsonSerializer.Deserialize<Dictionary<int, int>>(reader));
 						}
-						bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						bsonReader.ReadRootValueAsArray = true;
-						using (BsonReader reader2 = bsonReader)
+						using (BsonReader reader = new BsonReader(stream) { CloseInput = false, ReadRootValueAsArray = true })
 						{
-							cgflags = jsonSerializer.Deserialize<List<string>>(reader2);
+							cgflags = jsonSerializer.Deserialize<List<string>>(reader);
 						}
-						bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						using (BsonReader reader3 = bsonReader)
+						using (BsonReader reader = new BsonReader(stream) { CloseInput = false })
 						{
-							readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader3);
+							readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader);
 						}
 					}
 				}
