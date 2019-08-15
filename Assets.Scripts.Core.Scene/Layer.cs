@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.AssetManagement;
+using MOD.Scripts.Core.Scene;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -78,6 +79,14 @@ namespace Assets.Scripts.Core.Scene
 		private LayerAlignment alignment;
 
 		private MtnCtrlElement[] motion;
+
+		private int? layerID; // The layer number in the scene controller, if it has one
+
+		public int? LayerID
+		{
+			get => layerID;
+			set => layerID = value;
+		}
 
 		public bool IsInUse => primary != null;
 
@@ -312,7 +321,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
 		{
-			Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
+			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
 			Texture2D maskTexture = AssetManager.Instance.LoadTexture(maskName);
 			material.shader = shaderMasked;
 			SetPrimaryTexture(texture2D);
@@ -385,7 +394,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + textureName);
@@ -491,7 +500,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void CrossfadeLayer(string targetImage, float wait, bool isBlocking)
 		{
-			Texture2D primaryTexture = AssetManager.Instance.LoadTexture(targetImage);
+			Texture2D primaryTexture = MODSceneController.LoadTextureWithFilters(layerID, targetImage);
 			material.shader = shaderCrossfade;
 			SetSecondaryTexture(primary);
 			SetPrimaryTexture(primaryTexture);
@@ -638,7 +647,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = AssetManager.Instance.LoadTexture(PrimaryName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, PrimaryName);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + PrimaryName);
