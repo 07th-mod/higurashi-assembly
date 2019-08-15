@@ -28,6 +28,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ReturnLayer(Layer layer)
 		{
+			layer.LayerID = null;
 			GameObject gameObject = layer.gameObject;
 			gameObject.transform.parent = base.transform;
 			gameObject.layer = LayerMask.NameToLayer("NotRendered");

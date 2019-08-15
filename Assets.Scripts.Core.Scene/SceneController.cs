@@ -96,6 +96,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			Layer layer = LayerPool.ActivateLayer();
 			layer.name = "Layer " + id;
+			layer.LayerID = id;
 			layers[id] = layer;
 			return layer;
 		}
@@ -855,9 +856,9 @@ namespace Assets.Scripts.Core.Scene
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
 			string str = audiofile.Replace(".ogg", ".txt");
-			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare_fix(character, "0");
-			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare_fix(character, "1");
-			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare_fix(character, "2");
+			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
+			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
+			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
 			string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
 			if (File.Exists(path))
 			{
