@@ -6,6 +6,7 @@ using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using MOD.Scripts.Core.State;
 using MOD.Scripts.UI;
 using System;
@@ -2184,6 +2185,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODGetHighestChapterFlag();
 			case BurikoOperations.ModSetMainFontOutlineWidth:
 				return OperationMODSetMainFontOutlineWidth();
+			case BurikoOperations.ModSetLayerFilter:
+				return OperationMODSetLayerFilter();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2569,6 +2572,30 @@ namespace Assets.Scripts.Core.Buriko
 			int width = ReadVariable().IntValue();
 			GameSystem.Instance.OutlineWidth = width / 100f;
 			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetLayerFilter()
+		{
+			SetOperationType("MODSetLayerFilter");
+			int layer = ReadVariable().IntValue();
+			int alpha = ReadVariable().IntValue();
+			string color = ReadVariable().StringValue();
+			MODSceneController.Filter filter;
+			switch (color.ToLower())
+			{
+				case "":
+				case "none":
+					filter = MODSceneController.Filter.Identity;
+					break;
+				case "flashback":
+					filter = MODSceneController.Filter.Flashback;
+					break;
+				default:
+					throw new ArgumentException("Invalid color given to MODSetLayerFilter: " + color);
+			}
+			filter.a = (short)alpha;
+			MODSceneController.SetLayerFilter(layer, filter);
 			return BurikoVariable.Null;
 		}
 	}
