@@ -97,6 +97,41 @@ namespace MOD.Scripts.Core.Scene
 				m22 = F(bb),
 				m33 = F(a)
 			};
+
+			public void ApplyTo(Color32[] pixels)
+			{
+				unsafe
+				{
+					fixed (Color32 *pixelPtr = pixels)
+					{
+						if (MixesColors)
+						{
+							for (int i = 0; i < pixels.Length; i++)
+							{
+								byte* p = (byte*)pixelPtr + i * 4;
+								byte r = unchecked((byte)((p[0]*rr + p[1]*rg + p[2]*rb) >> 8));
+								byte g = unchecked((byte)((p[0]*gr + p[1]*gg + p[2]*gb) >> 8));
+								byte b = unchecked((byte)((p[0]*br + p[1]*bg + p[2]*bb) >> 8));
+								p[0] = r;
+								p[1] = g;
+								p[2] = b;
+								p[3] = unchecked((byte)((p[3]*a) >> 8));
+							}
+						}
+						else
+						{
+							for (int i = 0; i < pixels.Length; i++)
+							{
+								byte* p = (byte*)pixelPtr + i * 4;
+								p[0] = unchecked((byte)((p[0]*rr) >> 8));
+								p[1] = unchecked((byte)((p[1]*gg) >> 8));
+								p[2] = unchecked((byte)((p[2]*bb) >> 8));
+								p[3] = unchecked((byte)((p[3]*a) >> 8));
+							}
+						}
+					}
+				}
+			}
 		}
 
 		private static Dictionary<int, Filter> layerFilters = new Dictionary<int, Filter>();
@@ -149,61 +184,15 @@ namespace MOD.Scripts.Core.Scene
 		public static void ApplyFilters(int layer, Texture2D texture)
 		{
 			if (!TryGetLayerFilter(layer, out Filter value)) { return; }
-			var watch = System.Diagnostics.Stopwatch.StartNew();
-			System.Diagnostics.Stopwatch innerWatch;
-
-			string filterString;
-			if (value.MixesColors)
-			{
-				var pixels = texture.GetPixels();
-				Matrix4x4 filter = value.AsMatrix4x4;
-				filterString = "<Matrix4x4 Filter>";
-				innerWatch = System.Diagnostics.Stopwatch.StartNew();
-				for (int i = 0; i < pixels.Length; i++)
-				{
-					pixels[i] = filter * pixels[i];
-				}
-				innerWatch.Stop();
-				texture.SetPixels(pixels);
-			}
-			else if (value.ChangesColors)
-			{
-				var pixels = texture.GetPixels();
-				Color filter = value.AsColorMultiplier;
-				filterString = filter.ToString();
-				innerWatch = System.Diagnostics.Stopwatch.StartNew();
-				for (int i = 0; i < pixels.Length; i++)
-				{
-					pixels[i] *= filter;
-				}
-				innerWatch.Stop();
-				texture.SetPixels(pixels);
-			}
-			else
-			{
-				var pixels = texture.GetPixels32();
-				filterString = "Alpha " + value.a;
-				innerWatch = System.Diagnostics.Stopwatch.StartNew();
-				for (int i = 0; i < pixels.Length; i++)
-				{
-					Color32 pixel = pixels[i];
-					pixel.a = (byte)((pixel.a * value.a) >> 8);
-					pixels[i] = pixel;
-				}
-				innerWatch.Stop();
-				texture.SetPixels32(pixels);
-			}
-			watch.Stop();
+			var pixels = texture.GetPixels32();
+			value.ApplyTo(pixels);
+			texture.SetPixels32(pixels);
 			texture.Apply();
-			MODUtility.FlagMonitorOnlyLog("Applied filter " + filterString + " to " + texture.name + " in " + watch.ElapsedMilliseconds + "ms, filter took " + innerWatch.ElapsedMilliseconds + "ms");
 		}
 
 		public static Texture2D LoadTextureWithFilters(int? layer, string textureName)
 		{
-			var watch = System.Diagnostics.Stopwatch.StartNew();
 			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName);
-			watch.Stop();
-			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms");
 			if (layer is int actualLayer) { ApplyFilters(actualLayer, texture); }
 			return texture;
 		}
