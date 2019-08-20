@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.Buriko
@@ -2755,7 +2756,28 @@ namespace Assets.Scripts.Core.Buriko
 				case "flashback":
 					filter = MODSceneController.Filter.Flashback;
 					break;
+				case "night":
+					filter = MODSceneController.Filter.Night;
+					break;
+				case "sunset":
+					filter = MODSceneController.Filter.Sunset;
+					break;
 				default:
+					try
+					{
+						var split = color.Split(',').Select(Int32.Parse).ToArray();
+						if (split.Length == 3)
+						{
+							filter = new MODSceneController.Filter(split[0], 0, 0, 0, split[1], 0, 0, 0, split[2], 256);
+							break;
+						}
+						else if (split.Length == 9)
+						{
+							filter = new MODSceneController.Filter(split[0], split[1], split[2], split[3], split[4], split[5], split[6], split[7], split[8], 256);
+							break;
+						}
+					}
+					catch (FormatException) { }
 					throw new ArgumentException("Invalid color given to MODSetLayerFilter: " + color);
 			}
 			filter.a = (short)alpha;
