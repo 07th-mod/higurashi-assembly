@@ -14,7 +14,9 @@ namespace MOD.Scripts.Core.Scene
 		public struct Filter
 		{
 			public static readonly Filter Identity = new Filter(256, 0, 0, 0, 256, 0, 0, 0, 256, 256);
-			public static readonly Filter Flashback = new Filter(136, 60, 60, 69, 115, 69, 84, 84, 88, 256); // 77 47 4 preserving luminosity
+			public static readonly Filter Flashback = new Filter(117, 127, 39, 58, 171, 20, 69, 107, 40, 256); // 77 47 4 preserving luminosity
+			public static readonly Filter Night = new Filter(222, 0, 0, 0, 222, 0, 0, 0, 256, 256);
+			public static readonly Filter Sunset = new Filter(240, 0, 0, 0, 200, 0, 0, 0, 180, 256);
 
 			public int rr;
 			public int rg;
@@ -98,6 +100,11 @@ namespace MOD.Scripts.Core.Scene
 				m33 = F(a)
 			};
 
+			private static byte _saturatingCast(int num)
+			{
+				return (byte)(num > 255 ? 255 : num);
+			}
+
 			public void ApplyTo(Color32[] pixels)
 			{
 				unsafe
@@ -109,9 +116,9 @@ namespace MOD.Scripts.Core.Scene
 							for (int i = 0; i < pixels.Length; i++)
 							{
 								byte* p = (byte*)pixelPtr + i * 4;
-								byte r = unchecked((byte)((p[0]*rr + p[1]*rg + p[2]*rb) >> 8));
-								byte g = unchecked((byte)((p[0]*gr + p[1]*gg + p[2]*gb) >> 8));
-								byte b = unchecked((byte)((p[0]*br + p[1]*bg + p[2]*bb) >> 8));
+								byte r = _saturatingCast(unchecked((p[0]*rr + p[1]*rg + p[2]*rb) >> 8));
+								byte g = _saturatingCast(unchecked((p[0]*gr + p[1]*gg + p[2]*gb) >> 8));
+								byte b = _saturatingCast(unchecked((p[0]*br + p[1]*bg + p[2]*bb) >> 8));
 								p[0] = r;
 								p[1] = g;
 								p[2] = b;
@@ -184,15 +191,21 @@ namespace MOD.Scripts.Core.Scene
 		public static void ApplyFilters(int layer, Texture2D texture)
 		{
 			if (!TryGetLayerFilter(layer, out Filter value)) { return; }
+			var watch = System.Diagnostics.Stopwatch.StartNew();
 			var pixels = texture.GetPixels32();
 			value.ApplyTo(pixels);
 			texture.SetPixels32(pixels);
 			texture.Apply();
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Applied filter to " + texture.name + " in " + watch.ElapsedMilliseconds + "ms");
 		}
 
 		public static Texture2D LoadTextureWithFilters(int? layer, string textureName)
 		{
+			var watch = System.Diagnostics.Stopwatch.StartNew();
 			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName);
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms");
 			if (layer is int actualLayer) { ApplyFilters(actualLayer, texture); }
 			return texture;
 		}
