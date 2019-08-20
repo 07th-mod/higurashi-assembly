@@ -81,7 +81,7 @@ The built DLLs are available here:
 
 [![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=tsumi-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Tsumihoroboshi](https://07th-mod.com/higurashi_dlls/tsumihoroboshi/Assembly-CSharp.dll)
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=mina-mod-test)](https://travis-ci.com/07th-mod/higurashi-assembly) [Minagoroshi](https://07th-mod.com/higurashi_dlls/minagoroshi/Assembly-CSharp.dll)
+[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=mina-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Minagoroshi](https://07th-mod.com/higurashi_dlls/minagoroshi/Assembly-CSharp.dll)
 
 [![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=console-arcs)](https://travis-ci.com/07th-mod/higurashi-assembly) [Console Arcs](https://07th-mod.com/higurashi_dlls/consolearcs/Assembly-CSharp.dll)
 
