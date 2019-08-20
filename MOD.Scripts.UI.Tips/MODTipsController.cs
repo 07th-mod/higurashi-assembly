@@ -15,8 +15,8 @@ namespace MOD.Scripts.UI.Tips
 		private static readonly string TipsFilePath = Path.Combine(MODSystem.BaseDirectory, "tips.json");
 
 		/// <summary>
-		/// This returns the current tips for the arc.
-		/// If no tips.json file is present or is malformed, gracefully falls back to the hard-coded tips
+		/// This returns the current modded tips for the arc, if present.
+		/// If no tips.json file is present or is malformed, returns an empty list
 		/// Otherwise, it returns the tips associated with the current value of the "GArc" flag, which is 0 by default.
 		/// <seealso cref="TipsData.Tips"/>
 		/// </summary>
@@ -60,7 +60,7 @@ namespace MOD.Scripts.UI.Tips
 					fixedTips.TryGetValue(arc, out List<TipsDataEntry> value);
 					return value ?? new List<TipsDataEntry>();
 				}
-				return TipsData.Tips;
+				return new List<TipsDataEntry>();
 			}
 		}
 	}

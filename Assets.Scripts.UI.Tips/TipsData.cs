@@ -3,23 +3,54 @@ using MOD.Scripts.Core;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Tips
 {
 	public static class TipsData
 	{
-		public static List<TipsDataEntry> Tips = new List<TipsDataEntry>();
+		/// <summary>
+		/// This returns the current tips for the arc.
+		/// Prioritizes mod system's tips, falling back to built-in tips.
+		/// <seealso cref="MODTipsController.Tips"/>
+		/// </summary>
+		public static List<TipsDataEntry> Tips
+		{
+			get
+			{
+				var modTips = MODSystem.instance.modTipsController.Tips;
+				if (modTips != null && modTips.Any())
+				{
+					return modTips;
+				}
+				return LoadBuiltInTips();
+			}
+		}
+
+		/// <summary>
+		/// Tips that came with the game
+		/// </summary>
+		private static List<TipsDataEntry> BuiltInTips = new List<TipsDataEntry>();
+
+		/// <summary>
+		/// Initialize and load tips
+		/// </summary>
+		/// <returns></returns>
+		private static List<TipsDataEntry> LoadBuiltInTips()
+		{
+			if (BuiltInTips.Count == 0)
+			{
+				string value = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "Data\\tips.txt"));
+				BuiltInTips = JsonConvert.DeserializeObject<List<TipsDataEntry>>(value);
+			}
+			return BuiltInTips;
+		}
 
 		public static TipsDataGroup GetVisibleTips(bool onlyNew, bool global)
 		{
 			TipsDataGroup tipsDataGroup = new TipsDataGroup();
 			BurikoMemory instance = BurikoMemory.Instance;
-			if (Tips.Count == 0)
-			{
-				string value = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "Data\\tips.txt"));
-				Tips = JsonConvert.DeserializeObject<List<TipsDataEntry>>(value);
-			}
 			if (global)
 			{
 				int num = instance.GetGlobalFlag("GTotalTips").IntValue();
@@ -29,7 +60,7 @@ namespace Assets.Scripts.UI.Tips
 				}
 				Debug.Log("Displaying tips up to " + num);
 				{
-					foreach (TipsDataEntry tip in MODSystem.instance.modTipsController.Tips)
+					foreach (TipsDataEntry tip in Tips)
 					{
 						if (tip.Id < num)
 						{
@@ -44,10 +75,9 @@ namespace Assets.Scripts.UI.Tips
 			int num2 = instance.GetFlag("NewTipsStart").IntValue();
 			int num3 = num2 + instance.GetFlag("NewTipsCount").IntValue();
 			Debug.Log("Displaying tips " + num2 + " to " + num3);
-			var tips = MODSystem.instance.modTipsController.Tips;
-			for (int i = 0; i < tips.Count; i++)
+			for (int i = 0; i < Tips.Count; i++)
 			{
-				var tip = tips[i];
+				var tip = Tips[i];
 				int id = tip.Id;
 				if (onlyNew)
 				{
