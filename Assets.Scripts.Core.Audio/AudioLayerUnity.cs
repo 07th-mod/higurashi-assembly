@@ -131,16 +131,18 @@ namespace Assets.Scripts.Core.Audio
 
 		private IEnumerator WaitForLoad(string filename, AudioType type)
 		{
+			var watch = System.Diagnostics.Stopwatch.StartNew();
 			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
 			WWW audioLoader = new WWW("file://" + path);
 			yield return audioLoader;
-			this.loadedName = filename;
-			this.audioClip = audioLoader.GetAudioClip(threeD: false);
-			this.isLoading = false;
-			this.isLoaded = true;
-			this.loadCoroutine = null;
-			this.OnFinishLoading();
-			yield break;
+			loadedName = filename;
+			audioClip = audioLoader.GetAudioClip(threeD: false);
+			isLoading = false;
+			isLoaded = true;
+			loadCoroutine = null;
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Loaded audio " + filename + " in " + watch.ElapsedMilliseconds + " ms");
+			OnFinishLoading();
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)
