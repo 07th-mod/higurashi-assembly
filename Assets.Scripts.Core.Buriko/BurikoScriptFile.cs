@@ -2347,7 +2347,10 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("Operation");
 			BurikoOperations op = (BurikoOperations)dataReader.ReadInt16();
+			var watch = System.Diagnostics.Stopwatch.StartNew();
 			ExecuteOperation(op);
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Executed " + opType + " in " + watch.ElapsedMilliseconds + "ms");
 		}
 
 		private void CommandDeclaration()
