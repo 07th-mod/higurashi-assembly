@@ -132,6 +132,7 @@ namespace Assets.Scripts.Core.Audio
 
 		private IEnumerator WaitForLoad(string filename, AudioType type)
 		{
+			var watch = System.Diagnostics.Stopwatch.StartNew();
 			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
 			WWW audioLoader = new WWW("file://" + path);
 			yield return audioLoader;
@@ -140,6 +141,8 @@ namespace Assets.Scripts.Core.Audio
 			isLoading = false;
 			isLoaded = true;
 			loadCoroutine = null;
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Loaded audio " + filename + " in " + watch.ElapsedMilliseconds + " ms");
 			OnFinishLoading();
 		}
 
