@@ -1072,5 +1072,10 @@ namespace Assets.Scripts.Core
 				PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 0);
 			}
 		}
+
+		static GameSystem()
+		{
+			MODUtility.GoRetina();
+		}
 	}
 }
