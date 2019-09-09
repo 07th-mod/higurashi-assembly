@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
@@ -181,6 +182,18 @@ namespace Assets.Scripts.Core.AssetManagement
 				}
 			}
 			return LoadTexture("no_data");
+		}
+
+		public string LoadTextDataString(string dataName)
+		{
+			string path = Path.Combine(Application.streamingAssetsPath, "Data");
+			return File.ReadAllText(Path.Combine(path, dataName));
+		}
+
+		public List<string> LoadTextDataLines(string dataName)
+		{
+			string path = Path.Combine(Application.streamingAssetsPath, "Data");
+			return File.ReadAllLines(Path.Combine(path, dataName)).ToList();
 		}
 
 		public Texture2D LoadTexture(string textureName)

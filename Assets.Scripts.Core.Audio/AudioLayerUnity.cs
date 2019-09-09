@@ -140,7 +140,11 @@ namespace Assets.Scripts.Core.Audio
 			WWW audioLoader = new WWW("file:///" + path);
 			yield return audioLoader;
 			this.loadedName = filename;
-			this.audioClip = audioLoader.GetAudioClip(threeD: false);
+			audioClip = audioLoader.GetAudioClip(false, type == AudioType.BGM);
+			while (audioClip.loadState != AudioDataLoadState.Loaded)
+			{
+				yield return null;
+			}
 			this.isLoading = false;
 			this.isLoaded = true;
 			this.loadCoroutine = null;
