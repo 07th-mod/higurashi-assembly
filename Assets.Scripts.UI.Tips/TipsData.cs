@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using MOD.Scripts.Core;
 using Newtonsoft.Json;
@@ -41,7 +42,7 @@ namespace Assets.Scripts.UI.Tips
 		{
 			if (BuiltInTips.Count == 0)
 			{
-				string value = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "Data\\tips.txt"));
+				string value = AssetManager.Instance.LoadTextDataString("tips.txt");
 				BuiltInTips = JsonConvert.DeserializeObject<List<TipsDataEntry>>(value);
 			}
 			return BuiltInTips;

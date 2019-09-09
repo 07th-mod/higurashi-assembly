@@ -52,26 +52,19 @@ namespace Assets.Scripts.Core.Scene
 		private void Initialize()
 		{
 			GameObject original = Resources.Load<GameObject>("Layer");
-			int num = 0;
-			while (true)
+			for (int i = 0; i < PoolSize; i++)
 			{
-				if (num < PoolSize)
+				GameObject gameObject = UnityEngine.Object.Instantiate(original);
+				if (gameObject == null)
 				{
-					GameObject gameObject = UnityEngine.Object.Instantiate(original);
-					if (gameObject == null)
-					{
-						break;
-					}
-					gameObject.transform.parent = base.transform;
-					gameObject.SetActive(value: false);
-					layerList.Push(gameObject);
-					layerObjList.Add(gameObject);
-					num++;
-					continue;
+					throw new Exception("Failed to instantiate Layer prefab!");
 				}
-				return;
+				gameObject.transform.parent = base.transform;
+				gameObject.SetActive(false);
+				layerList.Push(gameObject);
+				layerObjList.Add(gameObject);
 			}
-			throw new Exception("Failed to instantiate Layer prefab!");
+			isInitialized = true;
 		}
 	}
 }

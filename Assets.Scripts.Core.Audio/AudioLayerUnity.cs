@@ -135,14 +135,19 @@ namespace Assets.Scripts.Core.Audio
 			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
 			WWW audioLoader = new WWW("file://" + path);
 			yield return audioLoader;
-			loadedName = filename;
-			audioClip = audioLoader.GetAudioClip(threeD: false);
-			isLoading = false;
-			isLoaded = true;
-			loadCoroutine = null;
+			this.loadedName = filename;
+			audioClip = audioLoader.GetAudioClip(false, type == AudioType.BGM);
+			while (audioClip.loadState != AudioDataLoadState.Loaded)
+			{
+				yield return null;
+			}
+			this.isLoading = false;
+			this.isLoaded = true;
+			this.loadCoroutine = null;
 			watch.Stop();
 			MODUtility.FlagMonitorOnlyLog("Loaded audio " + filename + " in " + watch.ElapsedMilliseconds + " ms");
-			OnFinishLoading();
+			this.OnFinishLoading();
+			yield break;
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)

@@ -43,7 +43,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				/*
 				try
 				{
-					string path = Path.Combine(Application.streamingAssetsPath, "Data\\steamId.txt");
+					string path = Path.Combine(Application.streamingAssetsPath, "Data/steamId.txt");
 					if (!File.Exists(path))
 					{
 						Debug.Log("App id file missing, disabling steam integration.");

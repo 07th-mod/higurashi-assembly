@@ -32,8 +32,8 @@ namespace Assets.Scripts.Core.SteamWorks
 				Debug.Log("-nosteam switch set, skipping steamworks initialization.");
 				return;
 			}
-			string path = Path.Combine(Application.streamingAssetsPath, "Data\\steamId.txt");
-			string path2 = Path.Combine(Application.streamingAssetsPath, "Data\\achievements.txt");
+			string path = Path.Combine(Application.streamingAssetsPath, "Data/steamId.txt");
+			string path2 = Path.Combine(Application.streamingAssetsPath, "Data/achievements.txt");
 			if (!File.Exists(path) || !File.Exists(path2))
 			{
 				Debug.Log("Steam initialization skipped as one of the requisite files was not present.");
