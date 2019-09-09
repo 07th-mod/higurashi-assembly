@@ -52,7 +52,7 @@ namespace Assets.Scripts.UI.Menu
 						gameSystem.SceneController.HideFace(0f);
 						gameSystem.SceneController.HideAllLayers(0f);
 						gameSystem.SceneController.HideFilmEffector(0f, isBlocking: false);
-						gameSystem.SceneController.FragmentController.StopFragment(100f);
+						gameSystem.SceneController.FragmentController.StopFragment(1f);
 						gameSystem.MainUIController.HideMessageBox();
 						gameSystem.ExecuteActions();
 						BurikoScriptSystem.Instance.JumpToScript("flow");

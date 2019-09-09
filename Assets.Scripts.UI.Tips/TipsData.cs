@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Assets.Scripts.UI.Tips
 			BurikoMemory instance = BurikoMemory.Instance;
 			if (Tips.Count == 0)
 			{
-				string value = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "Data\\tips.txt"));
+				string value = AssetManager.Instance.LoadTextDataString("tips.txt");
 				Tips = JsonConvert.DeserializeObject<List<TipsDataEntry>>(value);
 			}
 			if (global)

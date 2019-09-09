@@ -27,6 +27,8 @@ namespace Assets.Scripts.UI.Tips
 
 		public bool isActive = true;
 
+		public bool hasTips;
+
 		private int page;
 
 		private int numPages = 1;
@@ -58,7 +60,14 @@ namespace Assets.Scripts.UI.Tips
 
 		public void ClearTitle()
 		{
-			tipsTitleText.text = string.Empty;
+			if (hasTips)
+			{
+				tipsTitleText.text = string.Empty;
+			}
+			else
+			{
+				tipsTitleText.text = ((!GameSystem.Instance.UseEnglishText) ? "“üŽè‚s‚h‚o‚r‚Í‚ ‚è‚Ü‚¹‚ñ" : "No new tips available.");
+			}
 		}
 
 		public void UpdatePage()
@@ -90,10 +99,12 @@ namespace Assets.Scripts.UI.Tips
 				{
 					TipsEntries[i].gameObject.SetActive(value: true);
 					TipsEntries[i].Init(tipsData.Tips[num], this);
+					hasTips = true;
 				}
 				if (num < tipsData.TipsAvailable)
 				{
 					TipsEntries[i].gameObject.SetActive(value: true);
+					hasTips = true;
 				}
 			}
 			UpdatePage();
@@ -123,6 +134,10 @@ namespace Assets.Scripts.UI.Tips
 			}
 			page = 0;
 			numPages = Mathf.CeilToInt((float)tipsData.TipsAvailable / 8f) - 1;
+			if (numPages < 0)
+			{
+				numPages = 0;
+			}
 			if (numPages >= ReturnPage)
 			{
 				page = ReturnPage;
