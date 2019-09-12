@@ -814,6 +814,7 @@ namespace Assets.Scripts.Core.Scene
 
 		private void SwapActiveScenes()
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateIdsForAll();
 			if (activeScene == 0)
 			{
 				activeScene = 1;

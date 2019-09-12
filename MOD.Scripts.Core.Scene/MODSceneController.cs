@@ -171,6 +171,8 @@ namespace MOD.Scripts.Core.Scene
 
 		public static ulong[] MODLipSync_CoroutineId;
 
+		const uint NUM_CHARACTERS = 50;
+
 		public static void SetLayerFilter(int layer, Filter filter)
 		{
 			if (filter.IsIdentity)
@@ -256,15 +258,15 @@ namespace MOD.Scripts.Core.Scene
 		public void MODLipSyncInitializeAll()
 		{
 			MODLipSync_Character_Audio = 0;
-			MODLipSync_Bool = new bool[50];
-			MODLipSync_Layer = new int[50];
-			MODLipSync_Texture = new string[50];
-			MODLipSync_X = new int[50];
-			MODLipSync_Y = new int[50];
-			MODLipSync_Z = new int[50];
-			MODLipSync_Priority = new int[50];
-			MODLipSync_Channel = new int[50];
-			MODLipSync_CoroutineId = new ulong[50];
+			MODLipSync_Bool = new bool[NUM_CHARACTERS];
+			MODLipSync_Layer = new int[NUM_CHARACTERS];
+			MODLipSync_Texture = new string[NUM_CHARACTERS];
+			MODLipSync_X = new int[NUM_CHARACTERS];
+			MODLipSync_Y = new int[NUM_CHARACTERS];
+			MODLipSync_Z = new int[NUM_CHARACTERS];
+			MODLipSync_Priority = new int[NUM_CHARACTERS];
+			MODLipSync_Channel = new int[NUM_CHARACTERS];
+			MODLipSync_CoroutineId = new ulong[NUM_CHARACTERS];
 		}
 
 		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
@@ -276,16 +278,16 @@ namespace MOD.Scripts.Core.Scene
 
 		static MODSceneController()
 		{
-			MODLipSync_Bool = new bool[50];
-			MODLipSync_Layer = new int[50];
-			MODLipSync_Texture = new string[50];
-			MODLipSync_X = new int[50];
-			MODLipSync_Y = new int[50];
-			MODLipSync_Z = new int[50];
-			MODLipSync_Priority = new int[50];
-			MODLipSync_Type = new int[50];
-			MODLipSync_Channel = new int[50];
-			MODLipSync_CoroutineId = new ulong[50];
+			MODLipSync_Bool = new bool[NUM_CHARACTERS];
+			MODLipSync_Layer = new int[NUM_CHARACTERS];
+			MODLipSync_Texture = new string[NUM_CHARACTERS];
+			MODLipSync_X = new int[NUM_CHARACTERS];
+			MODLipSync_Y = new int[NUM_CHARACTERS];
+			MODLipSync_Z = new int[NUM_CHARACTERS];
+			MODLipSync_Priority = new int[NUM_CHARACTERS];
+			MODLipSync_Type = new int[NUM_CHARACTERS];
+			MODLipSync_Channel = new int[NUM_CHARACTERS];
+			MODLipSync_CoroutineId = new ulong[NUM_CHARACTERS];
 		}
 
 		private void MODLipSyncStoreAudioChannel(int character, int channel)
@@ -320,9 +322,21 @@ namespace MOD.Scripts.Core.Scene
 			return false;
 		}
 
+		/// <summary>
+		/// This should cause any executing coroutine to never take any further affect.
+		/// Contrast with disabling, in which case the lipsync coroutine will still try to finish by returning character to closed mouth
+		/// </summary>
 		public ulong MODLipSyncInvalidateAndGenerateId(int character)
 		{
 			return ++MODLipSync_CoroutineId[character];
+		}
+
+		public void MODLipSyncInvalidateAndGenerateIdsForAll()
+		{
+			for (int character = 0; character < NUM_CHARACTERS; character++)
+			{
+				MODLipSyncInvalidateAndGenerateId(character);
+			}
 		}
 
 		public bool MODLipSyncAnimationStillActive(int character, ulong coroutineId)
