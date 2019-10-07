@@ -249,11 +249,11 @@ namespace Assets.Scripts.Core
 			MessageBoxVisible = false;
 			if (!PlayerPrefs.HasKey("width"))
 			{
-				PlayerPrefs.SetInt("width", 640);
+				PlayerPrefs.SetInt("width", 1280);
 			}
 			if (!PlayerPrefs.HasKey("height"))
 			{
-				PlayerPrefs.SetInt("height", 480);
+				PlayerPrefs.SetInt("height", 720);
 			}
 			if (PlayerPrefs.GetInt("width") < 640)
 			{
@@ -1071,6 +1071,11 @@ namespace Assets.Scripts.Core
 				PlayerPrefs.SetInt("is_fullscreen", IsFullscreen ? 1 : 0);
 				PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 0);
 			}
+		}
+
+		static GameSystem()
+		{
+			MODUtility.GoRetina();
 		}
 	}
 }
