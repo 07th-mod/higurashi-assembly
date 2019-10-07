@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Assets.Scripts.Core.Buriko;
 using UnityEngine;
 
@@ -23,6 +24,24 @@ public static class MODUtility
 		if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() != 0)
 		{
 			Debug.Log(str);
+		}
+	}
+
+	[DllImport("Retinaizer", EntryPoint = "goRetina")]
+	private static extern void CGoRetina();
+
+	public static void GoRetina()
+	{
+		try
+		{
+			CGoRetina();
+		}
+		catch (System.DllNotFoundException)
+		{
+			if (Application.platform == RuntimePlatform.OSXPlayer)
+			{
+				Debug.Log("Not attempting Retina, no library");
+			}
 		}
 	}
 }
