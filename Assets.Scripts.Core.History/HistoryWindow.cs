@@ -59,6 +59,9 @@ namespace Assets.Scripts.Core.History
 
 		public void Leave(MenuUIController.MenuCloseDelegate onClose)
 		{
+			foreach (HistoryTextButton t in textButtons) {
+				t.SetIsClosing(true);
+			}
 			StartCoroutine(LeaveMenuAnimation(onClose));
 		}
 
