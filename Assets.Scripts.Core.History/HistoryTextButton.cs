@@ -15,6 +15,14 @@ namespace Assets.Scripts.Core.History
 
 		private bool isHovered = false;
 
+		/// <summary>
+		/// Used by HistoryWindow to block audio playback when closing
+		/// Solves the issue where right click plays audio in addition to closing the history window
+		/// There's probably a better way to do this, but this works
+		/// Note: The solution relies on HistoryWindow's Leave getting called before the button's OnClick.  If the patch isn't working, that might be the cause.
+		/// </summary>
+		private bool isClosing = false;
+
 		public TextMeshPro GetTextMesh()
 		{
 			if (textMesh == null)
@@ -44,10 +52,15 @@ namespace Assets.Scripts.Core.History
 
 		private void OnClick()
 		{
-			if (voices != null && voices.Count > 0)
+			if (!isClosing && voices != null && voices.Count > 0)
 			{
 				GameSystem.Instance.AudioController.PlayVoices(voices);
 			}
+		}
+
+		public void SetIsClosing(bool isClosing)
+		{
+			this.isClosing = isClosing;
 		}
 
 		public void UpdateAlpha(float a)
