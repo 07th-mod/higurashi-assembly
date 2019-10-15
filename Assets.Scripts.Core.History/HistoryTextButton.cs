@@ -19,6 +19,7 @@ namespace Assets.Scripts.Core.History
 		/// Used by HistoryWindow to block audio playback when closing
 		/// Solves the issue where right click plays audio in addition to closing the history window
 		/// There's probably a better way to do this, but this works
+		/// Note: The solution relies on HistoryWindow's Leave getting called before the button's OnClick.  If the patch isn't working, that might be the cause.
 		/// </summary>
 		private bool isClosing = false;
 
