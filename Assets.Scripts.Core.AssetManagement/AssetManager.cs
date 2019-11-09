@@ -9,11 +9,27 @@ using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
 {
-	public class AssetManager
-	{
+	/// <summary>
+	/// Stores an ordered list of paths for the engine to check when trying to find a cg
+	/// </summary>
+	public struct PathCascadeList {
+		public readonly string nameEN;
+		public readonly string nameJP;
+		public readonly string[] paths;
+		public PathCascadeList(string nameEN, string nameJP, string[] paths)
+		{
+			this.nameEN = nameEN;
+			this.nameJP = nameJP;
+			this.paths = paths;
+		}
+	}
+	public class AssetManager {
 		private static AssetManager _instance;
 
-		public bool UseNewArt = true;
+		private List<PathCascadeList> artsets = new List<PathCascadeList>();
+		public int CurrentArtsetIndex = 0;
+		public int ArtsetCount => artsets.Count == 0 ? 2 : artsets.Count;
+		public PathCascadeList CurrentArtset => GetArtset(CurrentArtsetIndex);
 
 		private Texture2D windowTexture;
 
@@ -22,6 +38,54 @@ namespace Assets.Scripts.Core.AssetManagement
 		private List<string> scriptList = new List<string>();
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
+
+		/// <summary>
+		/// Get the artset at the given index
+		/// </summary>
+		/// <param name="index">The index of the artset to get</param>
+		/// <returns></returns>
+		public PathCascadeList GetArtset(int index)
+		{
+			// To maintain compatibility with scripts that don't specify artsets, if none have been added act like the base game
+			if (artsets.Count == 0)
+			{
+				if (index == 0)
+				{
+					return new PathCascadeList("Console", "ゲーム機", new string[] { "CG" });
+				}
+				if (index == 1)
+				{
+					return new PathCascadeList("Remake", "リメーク", new string[] { "CGAlt", "CG" });
+				}
+			}
+			if (index >= 0 && index < artsets.Count)
+			{
+				return artsets[index];
+			}
+			return new PathCascadeList("Unknown (" + index + ")", "不明(" + index + ")", new string[] { "CG" });
+		}
+
+		public void AddArtset(PathCascadeList artset)
+		{
+			artsets.Add(artset);
+		}
+
+		/// <summary>
+		/// Gets the path to an asset with the given name in the given artset, or null if none are found
+		/// </summary>
+		/// <returns>A path to an on-disk asset or null</returns>
+		public string PathToAssetWithName(string name, PathCascadeList artset)
+		{
+			foreach (var path in artset.paths)
+			{
+				string filePath = Path.Combine(Path.Combine(assetPath, path), name);
+				if (File.Exists(filePath))
+				{
+					return filePath;
+				}
+			}
+			return null;
+		}
 
 		public void CompileFolder(string srcDir, string destDir)
 		{
@@ -173,44 +237,21 @@ namespace Assets.Scripts.Core.AssetManagement
 			{
 				return windowTexture;
 			}
-			string path = Path.Combine(assetPath, "CG/" + textureName.ToLower() + "_j.png");
-			string path2 = Path.Combine(assetPath, "CGAlt/" + textureName.ToLower() + "_j.png");
-			string text = Path.Combine(assetPath, "CG/" + textureName.ToLower() + ".png");
-			string path3 = Path.Combine(assetPath, "CGAlt/" + textureName.ToLower() + ".png");
-			byte[] array = new byte[0];
-			bool flag = false;
+			string path = null;
 			if (!GameSystem.Instance.UseEnglishText)
 			{
-				if (UseNewArt && File.Exists(path2))
-				{
-					array = File.ReadAllBytes(path2);
-					flag = true;
-				}
-				else if (File.Exists(path))
-				{
-					array = File.ReadAllBytes(path);
-					flag = true;
-				}
+				path = PathToAssetWithName(textureName.ToLower() + "_j.png", CurrentArtset);
 			}
-			if (!flag)
+			path = path ?? PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
+			if (path == null)
 			{
-				if (UseNewArt && File.Exists(path3))
-				{
-					array = File.ReadAllBytes(path3);
-				}
-				else
-				{
-					if (!File.Exists(text))
-					{
-						Logger.LogWarning("Could not find texture asset " + text);
-						return null;
-					}
-					array = File.ReadAllBytes(text);
-				}
+				Logger.LogWarning("Could not find texture asset " + textureName.ToLower() + " in " + CurrentArtset.nameEN);
+				return null;
 			}
+			byte[] array = File.ReadAllBytes(path);
 			if (array == null || array.Length == 0)
 			{
-				throw new Exception("Failed loading texture " + textureName.ToLower());
+				throw new Exception("Failed loading texture " + path);
 			}
 			byte[] array2 = new byte[4];
 			Buffer.BlockCopy(array, 16, array2, 0, 4);
