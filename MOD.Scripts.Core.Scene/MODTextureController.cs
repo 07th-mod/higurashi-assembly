@@ -42,9 +42,17 @@ namespace MOD.Scripts.Core.Scene
 			}
 		}
 
-		public void ToggleArtStyle()
+		public void ToggleArtStyle(bool allowMoreThan2 = true)
 		{
-			// PS3LOCK - Disabled for console arcs; only PS3 art present
+			int max = allowMoreThan2 ? AssetManager.Instance.ArtsetCount : 2;
+			AssetManager.Instance.CurrentArtsetIndex += 1;
+			if (AssetManager.Instance.CurrentArtsetIndex >= max)
+			{
+				AssetManager.Instance.CurrentArtsetIndex = 0;
+			}
+			BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.CurrentArtsetIndex);
+			RestoreTextures();
+			GameSystem.Instance.SceneController.ReloadAllImages();
 		}
 	}
 }
