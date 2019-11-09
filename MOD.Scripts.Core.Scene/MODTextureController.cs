@@ -42,9 +42,14 @@ namespace MOD.Scripts.Core.Scene
 			}
 		}
 
-		public void ToggleArtStyle()
+		public void ToggleArtStyle(bool allowMoreThan2 = true)
 		{
-			AssetManager.Instance.CurrentArtsetIndex = (AssetManager.Instance.CurrentArtsetIndex + 1) % AssetManager.Instance.ArtsetCount;
+			int max = allowMoreThan2 ? AssetManager.Instance.ArtsetCount : 2;
+			AssetManager.Instance.CurrentArtsetIndex += 1;
+			if (AssetManager.Instance.CurrentArtsetIndex >= max)
+			{
+				AssetManager.Instance.CurrentArtsetIndex = 0;
+			}
 			BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.CurrentArtsetIndex);
 			RestoreTextures();
 			GameSystem.Instance.SceneController.ReloadAllImages();
