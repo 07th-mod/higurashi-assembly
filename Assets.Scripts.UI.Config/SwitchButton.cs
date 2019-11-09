@@ -52,7 +52,7 @@ namespace Assets.Scripts.UI.Config
 				flag = GameSystem.Instance.UseSystemSounds;
 				break;
 			case ConfigButtonType.ArtStyle:
-				flag = AssetManager.Instance.UseNewArt;
+				flag = AssetManager.Instance.CurrentArtsetIndex == 1;
 				break;
 			case ConfigButtonType.Language:
 				flag = GameSystem.Instance.UseEnglishText;

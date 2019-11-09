@@ -44,8 +44,8 @@ namespace MOD.Scripts.Core.Scene
 
 		public void ToggleArtStyle()
 		{
-			AssetManager.Instance.UseNewArt = !AssetManager.Instance.UseNewArt;
-			BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.UseNewArt ? 1 : 0);
+			AssetManager.Instance.CurrentArtsetIndex = (AssetManager.Instance.CurrentArtsetIndex + 1) % AssetManager.Instance.ArtsetCount;
+			BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.CurrentArtsetIndex);
 			RestoreTextures();
 			GameSystem.Instance.SceneController.ReloadAllImages();
 		}

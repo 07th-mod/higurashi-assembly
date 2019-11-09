@@ -28,7 +28,7 @@ namespace Assets.Scripts.UI.Tips
 			}
 			string name = $"tips{t.Id:D3}na_normal";
 			UISpriteData uISpriteData = sprite.atlas.GetSprite(name);
-			if (uISpriteData != null && AssetManager.Instance.UseNewArt)
+			if (uISpriteData != null && AssetManager.Instance.CurrentArtsetIndex == 1)
 			{
 				button.normalSprite = $"tips{t.Id:D3}na_normal";
 				button.hoverSprite = $"tips{t.Id:D3}na_hover";
