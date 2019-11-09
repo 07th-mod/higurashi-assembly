@@ -52,7 +52,7 @@ namespace Assets.Scripts.UI.Config
 				flag = GameSystem.Instance.UseSystemSounds;
 				break;
 			case ConfigButtonType.ArtStyle:
-				flag = AssetManager.Instance.UseNewArt;
+				flag = AssetManager.Instance.CurrentArtsetIndex > 0;
 				break;
 			case ConfigButtonType.Language:
 				flag = GameSystem.Instance.UseEnglishText;
@@ -156,7 +156,7 @@ namespace Assets.Scripts.UI.Config
 				GameSystem.Instance.TextController.SwapLanguages();
 				break;
 			case ConfigButtonType.ArtStyle:
-				MODSystem.instance.modTextureController.ToggleArtStyle();
+				MODSystem.instance.modTextureController.ToggleArtStyle(allowMoreThan2: false);
 				break;
 			case ConfigButtonType.AutoHideUI:
 			{

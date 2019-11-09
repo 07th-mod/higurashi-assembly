@@ -484,7 +484,7 @@ namespace Assets.Scripts.Core.Buriko
 					GameSystem.Instance.StopVoiceOnClick = GetGlobalFlag("GCutVoiceOnClick").BoolValue();
 					GameSystem.Instance.UseSystemSounds = GetGlobalFlag("GUseSystemSound").BoolValue();
 					GameSystem.Instance.UseEnglishText = GetGlobalFlag("GLanguage").BoolValue();
-					AssetManager.Instance.UseNewArt = GetGlobalFlag("GArtStyle").BoolValue();
+					AssetManager.Instance.CurrentArtsetIndex = GetGlobalFlag("GArtStyle").IntValue();
 					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 				}
 				catch (Exception message)
@@ -519,7 +519,7 @@ namespace Assets.Scripts.Core.Buriko
 		public void MODSyncState()
 		{
 			// Sync Art Style.  This is really set up to support only init.txt initialization
-			AssetManager.Instance.UseNewArt = GetGlobalFlag("GArtStyle").BoolValue();
+			AssetManager.Instance.CurrentArtsetIndex = GetGlobalFlag("GArtStyle").IntValue();
 		}
 	}
 }
