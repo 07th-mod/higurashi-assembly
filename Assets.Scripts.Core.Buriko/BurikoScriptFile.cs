@@ -2337,6 +2337,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODSetMainFontOutlineWidth();
 			case BurikoOperations.ModSetLayerFilter:
 				return OperationMODSetLayerFilter();
+			case BurikoOperations.ModAddArtset:
+				return OperationMODAddArtset();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2785,6 +2787,16 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			filter.a = (short)alpha;
 			MODSceneController.SetLayerFilter(layer, filter);
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddArtset()
+		{
+			SetOperationType("MODAddArtset");
+			string nameEN = ReadVariable().StringValue();
+			string nameJP = ReadVariable().StringValue();
+			string[] paths = ReadVariable().StringValue().Split(':');
+			AssetManager.Instance.AddArtset(new PathCascadeList(nameEN, nameJP, paths));
 			return BurikoVariable.Null;
 		}
 	}
