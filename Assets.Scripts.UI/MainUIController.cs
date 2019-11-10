@@ -4,6 +4,7 @@ using Assets.Scripts.Core.Scene;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -523,264 +524,239 @@ namespace Assets.Scripts.UI
 
 		public void OnGUI()
 		{
+			// Helper Functions for processing flags
+			string boolDesc(string flag, string name)
+			{
+				switch (BurikoMemory.Instance.GetGlobalFlag(flag).IntValue())
+				{
+				case 0:
+					return name + " = OFF";
+				case 1:
+					return name + " = ON";
+				default:
+					return name + " = ERROR";
+				}
+			}
+			string intDesc(string flag, string maxFlag, string name)
+			{
+				int max = BurikoMemory.Instance.GetGlobalFlag(maxFlag).IntValue();
+				int val = BurikoMemory.Instance.GetGlobalFlag(flag).IntValue();
+				return val > max ? name + " = ERROR" : name + " = " + val;
+			}
+			BurikoVariable getOptionalLocalFlag(string flag)
+			{
+				try
+				{
+					return BurikoMemory.Instance.GetFlag(flag);
+				}
+				catch
+				{
+					return null;
+				}
+			}
+
+
 			if (BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2)
 			{
 				gameSystem.CanSkip = true;
 				gameSystem.CanInput = true;
 				gameSystem.ShowUIControls();
 			}
-			if ((BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 1) | (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2))
+			if ((BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 1) || (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2))
 			{
-				string[] array = new string[6]
+				string settingLoaderDesc;
+				switch (BurikoMemory.Instance.GetGlobalFlag("GMOD_SETTING_LOADER").IntValue())
 				{
-					"GADVMode",
-					"GAltBGM",
-					"GAltSE",
-					"GAltVoice",
-					"GAltVoicePriority",
-					"GLipSync"
-				};
-				string[] array2 = new string[array.Length];
-				for (int i = 0; i < array.Length; i++)
-				{
-					if (BurikoMemory.Instance.GetGlobalFlag(array[i]).IntValue() == 0)
-					{
-						array2[i] = "OFF";
-					}
-					else if (BurikoMemory.Instance.GetGlobalFlag(array[i]).IntValue() == 1)
-					{
-						array2[i] = "ON";
-					}
-					else
-					{
-						array2[i] = "ERROR";
-					}
+				case 0:
+					settingLoaderDesc = "Restore ADV-MODE Settings\nRelaunch Game 2 Times";
+					break;
+				case 1:
+					settingLoaderDesc = "Restore NVL-MODE Settings\nRelaunch Game 2 Times";
+					break;
+				case 2:
+					settingLoaderDesc = "Restore Vanilla Settings\nRelaunch Game and Delete MOD";
+					break;
+				case 3:
+					settingLoaderDesc = "Disable";
+					break;
+				default:
+					settingLoaderDesc = "ERROR";
+					break;
 				}
-				string[] array3 = new string[4]
-				{
-					"GCensor",
-					"GEffectExtend",
-					"GAltBGMflow",
-					"GAltSEflow"
-				};
-				string[] array4 = new string[4]
-				{
-					"GCensorMaxNum",
-					"GEffectExtendMaxNum",
-					"GAltBGMflowMaxNum",
-					"GAltSEflowMaxNum"
-				};
-				string[] array5 = new string[array4.Length];
-				for (int j = 0; j < array4.Length; j++)
-				{
-					array5[j] = " (MAX:" + BurikoMemory.Instance.GetGlobalFlag(array4[j]).IntValue().ToString() + ")";
-				}
-				string[] array6 = new string[array3.Length];
-				for (int k = 0; k < array3.Length; k++)
-				{
-					if (BurikoMemory.Instance.GetGlobalFlag(array3[k]).IntValue() > BurikoMemory.Instance.GetGlobalFlag(array4[k]).IntValue())
-					{
-						array6[k] = "ERROR";
-					}
-					else
-					{
-						array6[k] = BurikoMemory.Instance.GetGlobalFlag(array3[k]).IntValue().ToString();
-					}
-				}
-				string text = (BurikoMemory.Instance.GetGlobalFlag("GMOD_SETTING_LOADER").IntValue() == 0) ? "\nRestore ADV-MODE Settings\nRelaunch Game 2 Times" : ((BurikoMemory.Instance.GetGlobalFlag("GMOD_SETTING_LOADER").IntValue() == 1) ? "\nRestore NVL-MODE Settings\nRelaunch Game 2 Times" : ((BurikoMemory.Instance.GetGlobalFlag("GMOD_SETTING_LOADER").IntValue() == 2) ? "\nRestore Vanilla Settings\nRelaunch Game and Delete MOD" : ((BurikoMemory.Instance.GetGlobalFlag("GMOD_SETTING_LOADER").IntValue() != 3) ? "\nERROR" : "\nDisable")));
-				string text2 = BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue().ToString();
-				string text3;
-				try
-				{
-					text3 = ((BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() != 1) ? "" : "You can not swap NVL-ADV now\n");
-				}
-				catch (Exception)
-				{
-					text3 = "";
-				}
-				string text4;
-				try
-				{
-					text4 = ((BurikoMemory.Instance.GetFlag("DisableModHotkey").IntValue() != 1) ? "" : "You can not use Hotkey\n1,2,3,4,5,6,F2,F3 for avoid bug\n");
-				}
-				catch (Exception)
-				{
-					text4 = "";
-				}
-				string text5 = "";
-				if (!gameSystem.CanSave)
-				{
-					text5 = "You can't save now\n";
-				}
-				string text6 = "";
-				if (!gameSystem.CanInput)
-				{
-					text6 = "Game avoid any input now\n";
-				}
+				string nvlAdvDesc = getOptionalLocalFlag("NVL_in_ADV")?.IntValue() != 1 ? "" : "You can not swap NVL-ADV now\n";
+				string hotkeyDesc = getOptionalLocalFlag("DisableModHotkey")?.IntValue() != 1 ? "" : "You can not use Hotkey\n1,2,3,4,5,6,F2,F3 for avoid bug\n";
+				string canSaveDesc = gameSystem.CanSave ? "" : "You can't save now\n";
+				string canInputDesc = gameSystem.CanInput ? "" : "Game avoid any input now\n";
 				var videoOpeningValue = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue();
 				var videoOpeningDescription = videoOpeningValue == 0 ? "Unset" : videoOpeningValue == 1 ? "Disabled" : videoOpeningValue == 2 ? "In-game" : videoOpeningValue == 3 ? "At launch + in-game" : "Unknown";
-				var artsetDescription = "Art: " + GameSystem.Instance.ChooseJapaneseEnglish(
+				var artsetDescription = "Art = " + GameSystem.Instance.ChooseJapaneseEnglish(
 					japanese: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameJP,
 					english: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameEN
 				);
-				string text7 = "[MOD SETTINGS]\nADV-MODE = " + array2[0] + "\nLip-Sync = " + array2[5] + "\nAlternative BGM = " + array2[1] + "\nAlternative BGM Flow = " + array6[2] + array5[2] + "\nAlternative SE = " + array2[2] + "\nAlternative SE Flow = " + array6[3] + array5[3] + "\nAlternative Voice = " + array2[3] + "\nAlternative Voice Priority = " + array2[4] + "\nVoice Matching Level = " + array6[0] + array5[0] + "\nEffect Level = " + array6[1] + array5[1] + "\nVoice Volume = " + text2 + $"\nOP movies = {videoOpeningDescription} ({videoOpeningValue})\n" + artsetDescription + "\n\n[Restore Game Settings]" + text + "\n\n[Status]\n" + text4 + text3 + text5 + text6;
-				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), text7, 900);
+				string textToDraw = string.Join("\n", new string[] {
+					"[MOD SETTINGS]",
+					boolDesc("GADVMode",                             "ADV-MODE"),
+					boolDesc("GLipSync",                             "Lip-Sync"),
+					boolDesc("GAltBGM",                              "Alternative BGM"),
+					intDesc ("GAltBGMflow",   "GAltBGMflowMaxNum",   "Alternative BGM Flow"),
+					boolDesc("GAltSE",                               "Alternative SE"),
+					intDesc ("GAltSEflow",    "GAltSEflowMaxNum",    "Alternative SE Flow"),
+					boolDesc("GAltVoice",                            "Alternative Voice"),
+					boolDesc("GAltVoicePriority",                    "Alternative Voice Priority"),
+					intDesc ("GCensor",       "GCensorMaxNum",       "Voice Matching Level"),
+					intDesc ("GEffectExtend", "GEffectExtendMaxNum", "Effect Level"),
+					"Voice Volume = " + BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue().ToString(),
+					$"OP Movies = {videoOpeningDescription} ({videoOpeningValue})",
+					artsetDescription,
+					"\n[Restore Game Settings]",
+					settingLoaderDesc,
+					"\n[Status]",
+					hotkeyDesc + nvlAdvDesc + canSaveDesc + canInputDesc
+				});
+				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
-				string text8 = "[Vanilla Hotkey]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF : FullScreen\nSpace : Hide Text\nL : Swap Language\nP : Swap Sprites\n\n[MOD Hotkey]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Setting Monitor\nM : Increase Voice Volume\nN : Decrease Voice Volume\n1 : Alternative BGM\n2 : Alternative BGM Flow\n3 : Alternative SE\n4 : Alternative SE Flow\n5 : Alternative Voice\n6 : Alternative Voice Priority\n7 : Lip-Sync\nLShift + F9 : Restore Settings\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MIN";
-				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), text8, 900);
+				string textToDraw = string.Join("\n", new string[] {
+					"[Vanilla Hotkey]",
+					"Enter,Return,RightArrow,PageDown : Advance Text",
+					"LeftArrow,Pageup : See Backlog",
+					"ESC : Open Menu",
+					"Ctrl : Hold Skip Mode",
+					"A : Auto Mode",
+					"S : Toggle Skip Mode",
+					"F : FullScreen",
+					"Space : Hide Text",
+					"L : Swap Language",
+					"P : Swap Sprites",
+					"\n[MOD Hotkey]",
+					"F1 : ADV-NVL MODE",
+					"F2 : Voice Matching Level",
+					"F3 : Effect Level",
+					"F5 : QuickSave",
+					"F7 : QuickLoad",
+					"F10 : Setting Monitor",
+					"M : Increase Voice Volume",
+					"N : Decrease Voice Volume",
+					"1 : Alternative BGM",
+					"2 : Alternative BGM Flow",
+					"3 : Alternative SE",
+					"4 : Alternative SE Flow",
+					"5 : Alternative Voice",
+					"6 : Alternative Voice Priority",
+					"7 : Lip-Sync",
+					"LShift + F9 : Restore Settings",
+					"LShift + M : Voice Volume MAX",
+					"LShift + N : Voice Volume MIN"
+				});
+				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 3)
 			{
-				string[] array7 = new string[]
-				{
-					"GADVMode",
-					"GLinemodeSp",
-					"GCensor",
-					"GEffectExtend",
-					"GAltBGM",
-					"GAltSE",
-					"GAltBGMflow",
-					"GAltSEflow",
-					"GAltVoice",
-					"GAltVoicePriority",
-					"GCensorMaxNum",
-					"GEffectExtendMaxNum",
-					"GAltBGMflowMaxNum",
-					"GAltSEflowMaxNum",
-					"GMOD_SETTING_LOADER",
-					"GFlagForTest1",
-					"GFlagForTest2",
-					"GFlagForTest3",
-					"GMOD_DEBUG_MODE",
-					"GLipSync",
-					"GVideoOpening"
-				};
-				string[] array8 = new string[array7.Length];
-				for (int l = 0; l < array7.Length; l++)
-				{
-					array8[l] = BurikoMemory.Instance.GetGlobalFlag(array7[l]).IntValue().ToString();
-				}
-				string[] array9 = new string[array7.Length];
-				string str = "[MOD Global Flags]\n";
-				for (int m = 0; m < array7.Length; m++)
-				{
-					array9[m] = array7[m] + " = " + array8[m] + "\n";
-					str += array9[m];
-				}
-				str += "\n[MOD Local Flags]\n";
-				string[] array10 = new string[]
-				{
-					"NVL_in_ADV",
-					"DisableModHotkey",
-					"LFlagMonitor"
-				};
-				string[] array11 = new string[array10.Length];
-				for (int n = 0; n < array10.Length; n++)
-				{
-					try
+				string textToDraw = "[MOD Global Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
 					{
-						array11[n] = BurikoMemory.Instance.GetFlag(array10[n]).IntValue().ToString();
+						"GADVMode",
+						"GLinemodeSp",
+						"GCensor",
+						"GEffectExtend",
+						"GAltBGM",
+						"GAltSE",
+						"GAltBGMflow",
+						"GAltSEflow",
+						"GAltVoice",
+						"GAltVoicePriority",
+						"GCensorMaxNum",
+						"GEffectExtendMaxNum",
+						"GAltBGMflowMaxNum",
+						"GAltSEflowMaxNum",
+						"GMOD_SETTING_LOADER",
+						"GFlagForTest1",
+						"GFlagForTest2",
+						"GFlagForTest3",
+						"GMOD_DEBUG_MODE",
+						"GLipSync",
+						"GVideoOpening"
 					}
-					catch (Exception)
+					.Select(flag => flag + " = " + BurikoMemory.Instance.GetGlobalFlag(flag).IntValue().ToString())
+					.ToArray()
+				);
+				textToDraw += "\n\n[MOD Local Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
 					{
-						array11[n] = "disable";
+						"NVL_in_ADV",
+						"DisableModHotkey",
+						"LFlagMonitor"
 					}
-				}
-				string[] array12 = new string[array10.Length];
-				for (int num = 0; num < array10.Length; num++)
-				{
-					array12[num] = array10[num] + " = " + array11[num] + "\n";
-					str += array12[num];
-				}
-				string text9 = "\n\n[GameStatus]";
-				string text10 = "";
-				text10 = ((!gameSystem.CanInput) ? "false" : "true");
-				string text11 = "";
-				text11 = ((!gameSystem.CanSave) ? "false" : "true");
-				text9 = text9 + "\nCanInput = " + text10 + "\nCanSave = " + text11;
-				str += text9;
-				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), str, 900);
+					.Select(flag => flag + " = " + (getOptionalLocalFlag(flag)?.IntValue().ToString() ?? "disable"))
+					.ToArray()
+				);
+				textToDraw += "\n\n[GameStatus]\n";
+				textToDraw += string.Join("\n", new string[] {
+					"CanInput = " + (gameSystem.CanInput ? "true" : "false"),
+					"CanSave = " + (gameSystem.CanSave ? "true" : "false"),
+				});
+				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 4)
 			{
-				string[] array13 = new string[33]
-				{
-					"GFlag_FirstPlay",
-					"GFlag_GameClear",
-					"GQsaveNum",
-					"GOnikakushiDay",
-					"GMessageSpeed",
-					"GAutoSpeed",
-					"GAutoAdvSpeed",
-					"GUsePrompts",
-					"GSlowSkip",
-					"GSkipUnread",
-					"GClickDuringAuto",
-					"GRightClickMenu",
-					"GWindowOpacity",
-					"GVoiceVolume",
-					"GBGMVolume",
-					"GSEVolume",
-					"GCutVoiceOnClick",
-					"GUseSystemSound",
-					"GLanguage",
-					"GVChie",
-					"GVEiji",
-					"GVKana",
-					"GVKira",
-					"GVMast",
-					"GVMura",
-					"GVRiho",
-					"GVRmn_",
-					"GVSari",
-					"GVTika",
-					"GVYayo",
-					"GVOther",
-					"GArtStyle",
-					"GHideButtons"
-				};
-				string[] array14 = new string[array13.Length];
-				for (int num2 = 0; num2 < array13.Length; num2++)
-				{
-					array14[num2] = BurikoMemory.Instance.GetGlobalFlag(array13[num2]).IntValue().ToString();
-				}
-				string[] array15 = new string[array13.Length];
-				string str2 = "[Vanilla Global Flags]\n";
-				for (int num3 = 0; num3 < array13.Length; num3++)
-				{
-					array15[num3] = array13[num3] + " = " + array14[num3] + "\n";
-					str2 += array15[num3];
-				}
-				str2 += "\n[Vanilla Local Flags]\n";
-				string[] array16 = new string[5]
-				{
-					"LOCALWORK_NO_RESULT",
-					"TipsMode",
-					"ChapterNumber",
-					"LOnikakushiDay",
-					"LTextFade"
-				};
-				string[] array17 = new string[array16.Length];
-				for (int num4 = 0; num4 < array16.Length; num4++)
-				{
-					try
+				string textToDraw = "[Vanilla Global Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
 					{
-						array17[num4] = BurikoMemory.Instance.GetFlag(array16[num4]).IntValue().ToString();
+						"GFlag_FirstPlay",
+						"GFlag_GameClear",
+						"GQsaveNum",
+						"GOnikakushiDay",
+						"GMessageSpeed",
+						"GAutoSpeed",
+						"GAutoAdvSpeed",
+						"GUsePrompts",
+						"GSlowSkip",
+						"GSkipUnread",
+						"GClickDuringAuto",
+						"GRightClickMenu",
+						"GWindowOpacity",
+						"GVoiceVolume",
+						"GBGMVolume",
+						"GSEVolume",
+						"GCutVoiceOnClick",
+						"GUseSystemSound",
+						"GLanguage",
+						"GVChie",
+						"GVEiji",
+						"GVKana",
+						"GVKira",
+						"GVMast",
+						"GVMura",
+						"GVRiho",
+						"GVRmn_",
+						"GVSari",
+						"GVTika",
+						"GVYayo",
+						"GVOther",
+						"GArtStyle",
+						"GHideButtons"
 					}
-					catch (Exception)
+					.Select(flag => flag + " = " + BurikoMemory.Instance.GetGlobalFlag(flag).IntValue().ToString())
+					.ToArray()
+				);
+				textToDraw += "\n\n[Vanilla Local Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
 					{
-						array17[num4] = "disable";
+						"LOCALWORK_NO_RESULT",
+						"TipsMode",
+						"ChapterNumber",
+						"LOnikakushiDay",
+						"LTextFade"
 					}
-				}
-				string[] array18 = new string[array16.Length];
-				for (int num5 = 0; num5 < array16.Length; num5++)
-				{
-					array18[num5] = array16[num5] + " = " + array17[num5] + "\n";
-					str2 += array18[num5];
-				}
-				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), str2, 900);
+					.Select(flag => flag + " = " + (getOptionalLocalFlag(flag)?.IntValue().ToString() ?? "disable"))
+					.ToArray()
+				);
+				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
 			}
 		}
 
