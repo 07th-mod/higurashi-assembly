@@ -85,7 +85,7 @@ namespace Assets.Scripts.UI.Choice
 			TextMeshPro baseText = GameSystem.Instance.TextController.TextArea;
 			ButtonTextMesh.isOrthographic = baseText.isOrthographic; // Font is 1/10 the size with this off.  Who knows why
 			ButtonTextMesh.fontStyle = baseText.fontStyle;
-			ButtonTextMesh.fontSize = baseText.fontSize;
+			ButtonTextMesh.fontSize = 48f; // Taken from Himatsubushi
 
 			ButtonTextMesh.font = GameSystem.Instance.MainUIController.GetCurrentFont();
 			ButtonTextMesh.text = newtxt;
