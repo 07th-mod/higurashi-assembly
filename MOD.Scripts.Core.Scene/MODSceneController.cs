@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.Scene;
 using UnityEngine;
@@ -315,7 +316,7 @@ namespace MOD.Scripts.Core.Scene
 
 		public bool MODLipSyncIsEnabled()
 		{
-			if (BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() == 0)
+			if (AssetManager.Instance.CurrentArtset.paths.SequenceEqual(AssetManager.Instance.GetArtset(0).paths))
 			{
 				return BurikoMemory.Instance.GetGlobalFlag("GLipSync").IntValue() == 1;
 			}

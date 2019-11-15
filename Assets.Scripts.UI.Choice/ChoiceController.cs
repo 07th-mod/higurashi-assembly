@@ -29,35 +29,47 @@ namespace Assets.Scripts.UI.Choice
 		public void Create(List<string> optstrings, int count)
 		{
 			GameObject gameObject = GameObject.FindGameObjectWithTag("PrimaryUIPanel");
-			int num = Mathf.RoundToInt(120f / (float)(count - 1));
-			int num2 = 0;
-			while (true)
+			for (int i = 0; i < count; i++)
 			{
-				if (num2 >= count)
-				{
-					return;
-				}
-				int id = num2;
+				int id = i;
 				GameObject gameObject2 = UnityEngine.Object.Instantiate(Resources.Load("ChoiceButton")) as GameObject;
 				if (gameObject2 == null)
 				{
-					break;
+					throw new Exception("Failed to instantiate ChoiceButton!");
 				}
 				gameObject2.transform.parent = gameObject.transform;
 				gameObject2.transform.localScale = Vector3.one;
-				gameObject2.transform.localPosition = new Vector3(GameSystem.Instance.GetGUIOffset(), (float)(170 - num * num2), 0f);
+				if (count > 8)
+				{
+					float x;
+					if (i == count - 1 && count % 2 == 1)
+					{
+						x = GameSystem.Instance.GetGUIOffset();
+					}
+					else if (i % 2 == 0)
+					{
+						x = GameSystem.Instance.GetGUIOffset() - 300f;
+					}
+					else
+					{
+						x = GameSystem.Instance.GetGUIOffset() + 300f;
+					}
+					gameObject2.transform.localPosition = new Vector3(x, (float)(-75 * (i / 2) + 27 * count - 50), 0f);
+				}
+				else
+				{
+					gameObject2.transform.localPosition = new Vector3(GameSystem.Instance.GetGUIOffset(), (float)(-75 * i + 27 * count + 50), 0f);
+				}
 				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
-				component.ChangeText(optstrings[num2]);
+				component.ChangeText(optstrings[i]);
 				component.SetCallback(this, delegate
 				{
 					GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);
 					Debug.Log("ID: " + id);
-					FinishChoice();
+					this.FinishChoice();
 				});
-				options.Add(gameObject2.GetComponent<ChoiceButton>());
-				num2++;
+				this.options.Add(gameObject2.GetComponent<ChoiceButton>());
 			}
-			throw new Exception("Failed to instantiate ChoiceButton!");
 		}
 	}
 }
