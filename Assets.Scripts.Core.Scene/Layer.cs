@@ -80,6 +80,10 @@ namespace Assets.Scripts.Core.Scene
 
 		private LayerAlignment alignment;
 
+		private float aspectRatio;
+
+		private Vector2? origin;
+
 		private MtnCtrlElement[] motion;
 
 		private int? layerID; // The layer number in the scene controller, if it has one
@@ -322,6 +326,24 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin)
+		{
+			if (mesh == null || !Mathf.Approximately((float)width / height, aspectRatio) || this.alignment != alignment || this.origin != origin)
+			{
+				if (origin is Vector2 nonnullOrigin)
+				{
+					CreateMesh(width, height, nonnullOrigin);
+				}
+				else
+				{
+					CreateMesh(width, height, alignment);
+				}
+			}
+			this.origin = origin;
+			this.alignment = alignment;
+			this.aspectRatio = (float)width / height;
+		}
+
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
 		{
 			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
@@ -336,22 +358,11 @@ namespace Assets.Scripts.Core.Scene
 			targetAlpha = 1f;
 			targetAngle = 0f;
 			shaderType = 0;
-			if (mesh == null)
-			{
-				alignment = LayerAlignment.AlignCenter;
-				if ((x != 0 || y != 0) && !isBustshot)
-				{
-					alignment = LayerAlignment.AlignTopleft;
-				}
-				if (origin.HasValue)
-				{
-					CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
-				}
-				else
-				{
-					CreateMesh(texture2D.width, texture2D.height, alignment);
-				}
-			}
+			EnsureCorrectlySizedMesh(
+				width: texture2D.width, height: texture2D.height,
+				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+				origin: origin
+			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
 			GameSystem.Instance.RegisterAction(delegate
@@ -419,22 +430,12 @@ namespace Assets.Scripts.Core.Scene
 					{
 						num = 1f + (float)z / -400f;
 					}
-					if (mesh == null)
-					{
-						alignment = LayerAlignment.AlignCenter;
-						if ((x != 0 || y != 0) && !isBustshot)
-						{
-							alignment = LayerAlignment.AlignTopleft;
-						}
-						if (origin.HasValue)
-						{
-							CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
-						}
-						else
-						{
-							CreateMesh(texture2D.width, texture2D.height, alignment);
-						}
-					}
+					EnsureCorrectlySizedMesh(
+						width: texture2D.width, height: texture2D.height,
+						alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+						origin: origin
+					);
+					aspectRatio = (float)texture2D.width / texture2D.height;
 					if (primary != null)
 					{
 						material.shader = shaderCrossfade;
@@ -659,6 +660,7 @@ namespace Assets.Scripts.Core.Scene
 				else
 				{
 					SetPrimaryTexture(texture2D);
+					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin);
 				}
 			}
 		}
@@ -818,22 +820,11 @@ namespace Assets.Scripts.Core.Scene
 				{
 					num = 1f + (float)z / -400f;
 				}
-				if (mesh == null)
-				{
-					alignment = LayerAlignment.AlignCenter;
-					if ((x != 0 || y != 0) && !isBustshot)
-					{
-						alignment = LayerAlignment.AlignTopleft;
-					}
-					if (origin.HasValue)
-					{
-						CreateMesh(tex2d.width, tex2d.height, origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMesh(tex2d.width, tex2d.height, alignment);
-					}
-				}
+				EnsureCorrectlySizedMesh(
+					width: tex2d.width, height: tex2d.height,
+					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+					origin: origin
+				);
 				if (primary != null)
 				{
 					material.shader = shaderCrossfade;
