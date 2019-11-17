@@ -88,12 +88,6 @@ namespace Assets.Scripts.UI.Config
 				Obj1.Button.isEnabled = true;
 				Obj2.Button.isEnabled = false;
 			}
-			// PS3LOCK - Disable these buttons 
-			if (Type == ConfigButtonType.ArtStyle)
-			{
-				Obj1.Button.isEnabled = false;
-				Obj2.Button.isEnabled = false;
-			}
 		}
 
 		public void Click()
