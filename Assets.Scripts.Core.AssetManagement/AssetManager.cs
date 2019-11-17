@@ -12,7 +12,7 @@ namespace Assets.Scripts.Core.AssetManagement
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find a cg
 	/// </summary>
-	public struct PathCascadeList {
+	public class PathCascadeList {
 		public readonly string nameEN;
 		public readonly string nameJP;
 		public readonly string[] paths;
