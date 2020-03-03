@@ -332,16 +332,40 @@ namespace Assets.Scripts.Core.Buriko
 			memorylist.Add(name, new BurikoMemoryEntry(scopeLevel, obj));
 		}
 
+		private void serializeToSave<T>(string variableName, T variable)
+		{
+			StringWriter writer = new StringWriter();
+			new JsonSerializer().Serialize(writer, variable);
+			BurikoString str = new BurikoString();
+			str.Stringlist = new List<string> { writer.ToString() };
+			memorylist.Add(variableName, new BurikoMemoryEntry(0, str));
+		}
+
+		private bool tryDeserializeFromSave<T>(string variableName, out T variable)
+		{
+			if (memorylist.TryGetValue(variableName, out var burikoVar))
+			{
+				memorylist.Remove(variableName);
+				JsonTextReader reader = new JsonTextReader(new StringReader(((BurikoString)burikoVar.Obj).Stringlist[0]));
+				variable = new JsonSerializer().Deserialize<T>(reader);
+				return true;
+			}
+			else
+			{
+				variable = default;
+				return false;
+			}
+		}
+
 		public byte[] SaveMemory()
 		{
 			// Save extra variables that aren't in vanilla games into places where they'll be ignored by vanilla games
 			// In this case, the variable list seemed like a good spot (with a name that's not a valid Buriko variable name)
-			StringWriter layerFilters = new StringWriter();
-			new JsonSerializer().Serialize(layerFilters, MODSceneController.serializableLayerFilters);
-			BurikoString layerFilterString = new BurikoString();
-			layerFilterString.Stringlist = new List<string> { layerFilters.ToString() };
-			memorylist.Add("$layerFilters", new BurikoMemoryEntry(0, layerFilterString));
-
+			serializeToSave("$layerFilters", MODSceneController.serializableLayerFilters);
+			if (AssetManager.Instance.ShouldSerializeArtsets)
+			{
+				serializeToSave("$artsets", AssetManager.Instance.Artsets);
+			}
 			try
 			{
 				using (MemoryStream memoryStream = new MemoryStream())
@@ -372,6 +396,7 @@ namespace Assets.Scripts.Core.Buriko
 			finally
 			{
 				memorylist.Remove("$layerFilters");
+				memorylist.Remove("$artsets");
 			}
 		}
 
@@ -409,11 +434,15 @@ namespace Assets.Scripts.Core.Buriko
 				burikoObject.DeSerialize(ms);
 				memorylist.Add(key, new BurikoMemoryEntry(scope, burikoObject));
 			}
-			if (memorylist.TryGetValue("$layerFilters", out var filters))
+			if (tryDeserializeFromSave<Dictionary<int, short[]>>("$layerFilters", out var filters))
 			{
-				memorylist.Remove("$layerFilters");
-				JsonTextReader reader = new JsonTextReader(new StringReader(((BurikoString)filters.Obj).Stringlist[0]));
-				MODSceneController.serializableLayerFilters = new JsonSerializer().Deserialize<Dictionary<int, short[]>>(reader);
+				MODSceneController.serializableLayerFilters = filters;
+			}
+			if (tryDeserializeFromSave<List<PathCascadeList>>("$artsets", out var artsets))
+			{
+				AssetManager.Instance.Artsets = artsets;
+				AssetManager.Instance.ShouldSerializeArtsets = true;
+				Debug.Log("Loaded " + artsets.Count + " artsets: " + string.Join(", ", artsets.Select(x => x.ToString()).ToArray()));
 			}
 			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
