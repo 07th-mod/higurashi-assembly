@@ -142,5 +142,6 @@ namespace Assets.Scripts.Core.Buriko
 		ModSetMainFontOutlineWidth,
 		ModSetLayerFilter,
 		ModAddArtset,
+		ModClearArtsets,
 	}
 }
