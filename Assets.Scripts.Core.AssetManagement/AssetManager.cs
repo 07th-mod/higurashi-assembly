@@ -12,7 +12,7 @@ namespace Assets.Scripts.Core.AssetManagement
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find a cg
 	/// </summary>
-	public struct PathCascadeList {
+	public class PathCascadeList {
 		public readonly string nameEN;
 		public readonly string nameJP;
 		public readonly string[] paths;
@@ -26,10 +26,11 @@ namespace Assets.Scripts.Core.AssetManagement
 	public class AssetManager {
 		private static AssetManager _instance;
 
-		private List<PathCascadeList> artsets = new List<PathCascadeList>();
+		public List<PathCascadeList> Artsets = new List<PathCascadeList>();
 		public int CurrentArtsetIndex = 0;
-		public int ArtsetCount => artsets.Count == 0 ? 2 : artsets.Count;
+		public int ArtsetCount => Artsets.Count == 0 ? 2 : Artsets.Count;
 		public PathCascadeList CurrentArtset => GetArtset(CurrentArtsetIndex);
+		public bool ShouldSerializeArtsets = false;
 
 		private Texture2D windowTexture;
 
@@ -47,7 +48,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public PathCascadeList GetArtset(int index)
 		{
 			// To maintain compatibility with scripts that don't specify artsets, if none have been added act like the base game
-			if (artsets.Count == 0)
+			if (Artsets.Count == 0)
 			{
 				if (index == 0)
 				{
@@ -58,16 +59,21 @@ namespace Assets.Scripts.Core.AssetManagement
 					return new PathCascadeList("Remake", "リメーク", new string[] { "CGAlt", "CG" });
 				}
 			}
-			if (index >= 0 && index < artsets.Count)
+			if (index >= 0 && index < Artsets.Count)
 			{
-				return artsets[index];
+				return Artsets[index];
 			}
 			return new PathCascadeList("Unknown (" + index + ")", "不明(" + index + ")", new string[] { "CG" });
 		}
 
 		public void AddArtset(PathCascadeList artset)
 		{
-			artsets.Add(artset);
+			Artsets.Add(artset);
+		}
+
+		public void ClearArtsets()
+		{
+			Artsets.Clear();
 		}
 
 		/// <summary>
