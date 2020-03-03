@@ -91,7 +91,8 @@ namespace Assets.Scripts.UI.ChapterJump
 			Text.ForceMeshUpdate();
 			if (!(base.name == "Return")
 			    && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue()
-			    && BurikoMemory.Instance.GetHighestChapterFlag(ArcNumber).IntValue() < ChapterNumber)
+			    // Note: ArcNumbers are set *after* chapters so the jump to the next one should be open
+			    && (BurikoMemory.Instance.GetHighestChapterFlag(ArcNumber).IntValue() + 1) < ChapterNumber)
 			{
 				base.gameObject.SetActive(false);
 			}

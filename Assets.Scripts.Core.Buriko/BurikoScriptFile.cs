@@ -2196,6 +2196,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODSetLayerFilter();
 			case BurikoOperations.ModAddArtset:
 				return OperationMODAddArtset();
+			case BurikoOperations.ModClearArtsets:
+				return OperationMODClearArtsets();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2639,6 +2641,14 @@ namespace Assets.Scripts.Core.Buriko
 			string nameJP = ReadVariable().StringValue();
 			string[] paths = ReadVariable().StringValue().Split(':');
 			AssetManager.Instance.AddArtset(new PathCascadeList(nameEN, nameJP, paths));
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODClearArtsets()
+		{
+			SetOperationType("MODClearArtsets");
+			AssetManager.Instance.ClearArtsets();
+			AssetManager.Instance.ShouldSerializeArtsets = true;
 			return BurikoVariable.Null;
 		}
 	}
