@@ -61,7 +61,7 @@ namespace Assets.Scripts.UI.Tips
 				}
 				Debug.Log("Displaying tips up to " + num);
 				{
-					foreach (TipsDataEntry tip in Tips)
+					foreach (TipsDataEntry tip in MODSystem.instance.modTipsController.Tips)
 					{
 						if (tip.Id < num)
 						{
@@ -76,9 +76,10 @@ namespace Assets.Scripts.UI.Tips
 			int num2 = instance.GetFlag("NewTipsStart").IntValue();
 			int num3 = num2 + instance.GetFlag("NewTipsCount").IntValue();
 			Debug.Log("Displaying tips " + num2 + " to " + num3);
-			for (int i = 0; i < Tips.Count; i++)
+			var tips = MODSystem.instance.modTipsController.Tips;
+			for (int i = 0; i < tips.Count; i++)
 			{
-				var tip = Tips[i];
+				var tip = tips[i];
 				int id = tip.Id;
 				if (onlyNew)
 				{
