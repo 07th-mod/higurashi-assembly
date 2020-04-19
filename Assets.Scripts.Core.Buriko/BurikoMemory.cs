@@ -106,6 +106,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GMOD_DEBUG_MODE", 521);
 			variableReference.Add("GLipSync", 522);
 			variableReference.Add("GVideoOpening", 523);
+			variableReference.Add("GChoiceMode", 524);
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
