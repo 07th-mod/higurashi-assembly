@@ -261,7 +261,11 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				throw new Exception("Unable to get flag with the name " + flagname + ", flag not found.");
 			}
-			return new BurikoVariable(flags[value]);
+			if (!flags.TryGetValue(value, out int flag))
+			{
+				throw new Exception("Unable to get flag with the name " + flagname + ", flag not yet set.");
+			}
+			return new BurikoVariable(flag);
 		}
 
 		private BurikoVariable GetGlobalFlag(int key)
