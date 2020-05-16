@@ -11,11 +11,10 @@ namespace Assets.Scripts.Core.State
 
 		private bool isLeaving;
 
-		public StateChapterScreen()
+		public StateChapterScreen(bool isFragmentVariant = false)
 		{
 			gameSystem = GameSystem.Instance;
-			GameObject gameObject = Object.Instantiate(gameSystem.ChapterScreenPrefab);
-			chapterScreen = gameObject.GetComponent<ChapterScreen>();
+			chapterScreen = (isFragmentVariant ? Object.Instantiate(gameSystem.FragmentChapterPrefab) : Object.Instantiate(gameSystem.ChapterScreenPrefab)).GetComponent<ChapterScreen>();
 			chapterScreen.Show();
 		}
 

@@ -373,6 +373,11 @@ namespace Assets.Scripts.Core.Audio
 				startvolume = 0f;
 			}
 			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(type, channel)];
+			if (audioLayerUnity.IsPlaying() && currentAudio[AudioType.BGM].TryGetValue(channel, out AudioInfo value) && value.Filename == filename)
+			{
+				audioLayerUnity.SetCurrentVolume(volume);
+				return;
+			}
 			if (audioLayerUnity.IsPlaying())
 			{
 				audioLayerUnity.StopAudio();

@@ -41,7 +41,6 @@ namespace Assets.Scripts.Core.Scene
 						mr.sharedMaterial.SetFloat("_Alpha", f);
 					}, 0f, 1f, time);
 				});
-				GameSystem.Instance.ExecuteActions();
 				IsActive = true;
 			});
 		}

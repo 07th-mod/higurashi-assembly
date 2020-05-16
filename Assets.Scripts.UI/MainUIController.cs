@@ -1,4 +1,6 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
+using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.TextWindow;
 using System.Collections;
@@ -93,9 +95,26 @@ namespace Assets.Scripts.UI
 			{
 				ShowCarret();
 			}
+			string text = "windo_filter";
+			if (BurikoMemory.Instance.IsMemory("WindowBackground"))
+			{
+				text = BurikoMemory.Instance.GetMemory("WindowBackground").StringValue(new BurikoReference("bg", 0));
+			}
+			if (string.IsNullOrEmpty(text))
+			{
+				text = "windo_filter";
+			}
 			if (bgLayer != null)
 			{
-				bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
+				string primaryName = bgLayer.PrimaryName;
+				if (text == primaryName)
+				{
+					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
+					return;
+				}
+				bgLayer.IsStatic = false;
+				bgLayer.HideLayer();
+				bgLayer = null;
 			}
 			else
 			{
@@ -108,7 +127,7 @@ namespace Assets.Scripts.UI
 				bgLayer.SetPriority(62);
 				bgLayer.name = "Window Background";
 				bgLayer.IsStatic = true;
-				bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+				bgLayer.DrawLayer(text, 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 			}
 		}
 

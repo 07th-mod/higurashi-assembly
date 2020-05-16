@@ -74,6 +74,10 @@ namespace Assets.Scripts.Core
 
 		public GameObject ChapterScreenPrefab;
 
+		public GameObject FragmentChapterPrefab;
+
+		public GameObject FragmentScreenPrefab;
+
 		public GameObject ExtraScreenPrefab;
 
 		public GameObject TipsPrefab;
@@ -140,6 +144,8 @@ namespace Assets.Scripts.Core
 
 		public bool CanExit;
 
+		private int actionCount;
+
 		private GameState gameState;
 
 		public bool MessageBoxVisible;
@@ -205,6 +211,7 @@ namespace Assets.Scripts.Core
 			AudioController = new AudioController();
 			TextController = new TextController();
 			TextHistory = new TextHistory();
+			FragmentData.Initialize();
 			IsRunning = false;
 			GameState = GameState.Normal;
 			curStateObj = new StateNormal();
@@ -243,24 +250,29 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		public void StartScriptSystem()
+		{
+			Logger.Log("GameSystem: Starting ScriptInterpreter");
+			Type type = Type.GetType(ScriptInterpreterName);
+			if (type == null)
+			{
+				throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
+			}
+			ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
+			if (ScriptSystem == null)
+			{
+				throw new Exception("Failed to instantiate ScriptSystem!");
+			}
+			ScriptSystem.Initialize(this);
+		}
+
+
 		public void CompileScripts()
 		{
 			try
 			{
 				Debug.Log("Compiling!");
 				AssetManager.CompileIfNeeded();
-				Logger.Log("GameSystem: Starting ScriptInterpreter");
-				Type type = Type.GetType(ScriptInterpreterName);
-				if (type == null)
-				{
-					throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
-				}
-				ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
-				if (ScriptSystem == null)
-				{
-					throw new Exception("Failed to instantiate ScriptSystem!");
-				}
-				ScriptSystem.Initialize(this);
 			}
 			catch (Exception arg)
 			{
@@ -271,6 +283,7 @@ namespace Assets.Scripts.Core
 
 		public void PostLoading()
 		{
+			StartScriptSystem();
 			LoadingBox.SetActive(value: false);
 		}
 
@@ -413,7 +426,7 @@ namespace Assets.Scripts.Core
 
 		private IEnumerator ActionRunner(PreparedAction act)
 		{
-			Resources.UnloadUnusedAssets();
+			actionCount++;
 			yield return null;
 			yield return null;
 			if (act != null)
@@ -828,6 +841,11 @@ namespace Assets.Scripts.Core
 
 		private void LateUpdate()
 		{
+			if (actionCount > 30)
+			{
+				Resources.UnloadUnusedAssets();
+				actionCount = 0;
+			}
 			if (screenModeSet == -1)
 			{
 				screenModeSet = 0;
@@ -926,7 +944,7 @@ namespace Assets.Scripts.Core
 						goto end_IL_00b7;
 						IL_0127:
 						float num = Time.time + 0.01f;
-						while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction)
+						while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction && gameState == GameState.Normal)
 						{
 							ScriptSystem.Advance();
 						}

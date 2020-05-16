@@ -40,6 +40,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("CallScript", new OpType(BurikoOperations.CallScript, "s"));
 			paramLookup.Add("JumpScript", new OpType(BurikoOperations.JumpScript, "s"));
 			paramLookup.Add("CallSection", new OpType(BurikoOperations.CallSection, "s"));
+			paramLookup.Add("ShiftSection", new OpType(BurikoOperations.ShiftSection, "s"));
 			paramLookup.Add("JumpSection", new OpType(BurikoOperations.JumpSection, "s"));
 			paramLookup.Add("Return", new OpType(BurikoOperations.Return, string.Empty));
 			paramLookup.Add("Wait", new OpType(BurikoOperations.Wait, "i"));
@@ -166,6 +167,10 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("DrawSpriteFixedSize", new OpType(BurikoOperations.DrawSpriteFixedSize, "issiiiiiiiibbiiiib"));
 			paramLookup.Add("DrawSpriteWithFilteringFixedSize", new OpType(BurikoOperations.DrawSpriteWithFilteringFixedSize, "issiiiiibbiiiib"));
 			paramLookup.Add("Update", new OpType(BurikoOperations.Update, string.Empty));
+			paramLookup.Add("FragmentViewChapterScreen", new OpType(BurikoOperations.FragmentViewChapterScreen, string.Empty));
+			paramLookup.Add("FragmentListScreen", new OpType(BurikoOperations.FragmentListScreen, string.Empty));
+			paramLookup.Add("SetWindowBackground", new OpType(BurikoOperations.SetWindowBackground, "s"));
+			paramLookup.Add("JumpScriptSection", new OpType(BurikoOperations.JumpScriptSection, "ss"));
 			paramLookup.Add("Break", new OpType(BurikoOperations.Break, string.Empty));
 		}
 

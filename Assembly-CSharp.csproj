@@ -81,6 +81,7 @@
     <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoString.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoVector.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoFlagInfo.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoMemory.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoMemoryEntry.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Assets.Scripts.Core.State\StateChapterScreen.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateDialogPrompt.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateExtraScreen.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateFragmentList.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateHistory.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateNormal.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateSaveLoad.cs" />
@@ -163,7 +165,10 @@
     <Compile Include="Assets.Scripts.UI.Config\SwitchButtonObj.cs" />
     <Compile Include="Assets.Scripts.UI.Extra\ExtraButton.cs" />
     <Compile Include="Assets.Scripts.UI.Extra\ExtraManager.cs" />
+    <Compile Include="Assets.Scripts.UI.Fragments\FragmentEntryButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Fragments\FragmentsManager.cs" />
     <Compile Include="Assets.Scripts.UI.Fragments\FragmentSpinner.cs" />
+    <Compile Include="Assets.Scripts.UI.Fragments\FragmentUiButton.cs" />
     <Compile Include="Assets.Scripts.UI.Menu\MenuUIButton.cs" />
     <Compile Include="Assets.Scripts.UI.Prompt\DialogCallback.cs" />
     <Compile Include="Assets.Scripts.UI.Prompt\PromptButton.cs" />
@@ -210,6 +215,9 @@
     <Compile Include="EnableCameraDepthInForward.cs" />
     <Compile Include="EventDelegate.cs" />
     <Compile Include="Expo.cs" />
+    <Compile Include="FragmentData.cs" />
+    <Compile Include="FragmentDataEntry.cs" />
+    <Compile Include="FragmentViewType.cs" />
     <Compile Include="iTween.cs" />
     <Compile Include="LanguageSelection.cs" />
     <Compile Include="Linear.cs" />

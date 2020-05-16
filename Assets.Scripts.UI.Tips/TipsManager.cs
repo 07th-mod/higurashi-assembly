@@ -113,6 +113,16 @@ namespace Assets.Scripts.UI.Tips
 
 		public void Show(int tipstype)
 		{
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextMeshProFont englishFont = GameSystem.Instance.MainUIController.GetEnglishFont();
+				tipsTitleText.font = englishFont;
+			}
+			else
+			{
+				TextMeshProFont japaneseFont = GameSystem.Instance.MainUIController.GetJapaneseFont();
+				tipsTitleText.font = japaneseFont;
+			}
 			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 			lTDescr.onComplete = delegate
 			{

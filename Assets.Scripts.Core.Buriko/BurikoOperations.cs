@@ -138,6 +138,11 @@ namespace Assets.Scripts.Core.Buriko
 		StopFragment,
 		DrawSpriteFixedSize,
 		DrawSpriteWithFilteringFixedSize,
-		Update
+		Update,
+		ShiftSection,
+		FragmentViewChapterScreen,
+		FragmentListScreen,
+		SetWindowBackground,
+		JumpScriptSection
 	}
 }

@@ -43,7 +43,6 @@ namespace Assets.Scripts.Core.Scene
 		private void SetFinalPower()
 		{
 			Power = targetPower;
-			Debug.Log(Power);
 			UpdatePower(Power);
 		}
 

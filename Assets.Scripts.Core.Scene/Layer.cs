@@ -87,6 +87,8 @@ namespace Assets.Scripts.Core.Scene
 
 		public bool IsInUse => primary != null;
 
+		public string PrimaryTextureName => (!(primary == null)) ? primary.name : null;
+
 		public void RestoreScaleAndPosition(Vector3 scale, Vector3 position)
 		{
 			targetPosition = position;

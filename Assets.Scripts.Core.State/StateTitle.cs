@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.TitleScreen;
 using System;
 using UnityEngine;
@@ -15,6 +16,7 @@ namespace Assets.Scripts.Core.State
 			gameSystem = GameSystem.Instance;
 			GameObject gameObject = UnityEngine.Object.Instantiate(gameSystem.TitlePrefab);
 			titleScreen = gameObject.GetComponent<TitleScreen>();
+			BurikoMemory.Instance.ResetFlags();
 			gameSystem.IsSkipping = false;
 			gameSystem.IsForceSkip = false;
 			gameSystem.IsAuto = false;

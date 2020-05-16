@@ -38,52 +38,32 @@ namespace Assets.Scripts.Core.Buriko
 		public BurikoMemory()
 		{
 			memorylist = new Dictionary<string, BurikoMemoryEntry>();
-			variableReference.Add("LOCALWORK_NO_RESULT", 0);
-			variableReference.Add("TipsMode", 1);
-			variableReference.Add("SelectResult", 2);
-			variableReference.Add("s_jump", 3);
-			variableReference.Add("kakera_01", 4);
-			variableReference.Add("ChapterNumber", 10);
-			variableReference.Add("LOnikakushiDay", 30);
-			variableReference.Add("LWatanagashiDay", 32);
-			variableReference.Add("LTatarigoroshiDay", 33);
-			variableReference.Add("LHimatsubushiDay", 34);
-			variableReference.Add("LMinagoroshiDay", 35);
-			variableReference.Add("LTextFade", 31);
-			variableReference.Add("LTextColor", 40);
-			variableReference.Add("NewTipsStart", 50);
-			variableReference.Add("NewTipsCount", 51);
-			variableReference.Add("TipsCount", 52);
-			variableReference.Add("GFlag_FirstPlay", 0);
-			variableReference.Add("GFlag_GameClear", 1);
-			variableReference.Add("GQsaveNum", 2);
-			variableReference.Add("GOnikakushiDay", 3);
-			variableReference.Add("GWatanagashiDay", 4);
-			variableReference.Add("GTatarigoroshiDay", 5);
-			variableReference.Add("GHimatsubushiDay", 6);
-			variableReference.Add("redbox", 7);
-			variableReference.Add("bluebox", 8);
-			variableReference.Add("GTotalTips", 9);
-			variableReference.Add("GHighestChapter", 28);
-			variableReference.Add("GMinagoroshiDay", 29);
-			variableReference.Add("GMessageSpeed", 10);
-			variableReference.Add("GAutoSpeed", 11);
-			variableReference.Add("GAutoAdvSpeed", 12);
-			variableReference.Add("GUsePrompts", 13);
-			variableReference.Add("GSlowSkip", 14);
-			variableReference.Add("GSkipUnread", 15);
-			variableReference.Add("GClickDuringAuto", 16);
-			variableReference.Add("GRightClickMenu", 17);
-			variableReference.Add("GWindowOpacity", 18);
-			variableReference.Add("GVoiceVolume", 19);
-			variableReference.Add("GBGMVolume", 20);
-			variableReference.Add("GSEVolume", 21);
-			variableReference.Add("GCutVoiceOnClick", 22);
-			variableReference.Add("GUseSystemSound", 23);
-			variableReference.Add("GLanguage", 24);
-			variableReference.Add("GLastSavePage", 26);
-			variableReference.Add("GArtStyle", 50);
-			variableReference.Add("GHideButtons", 51);
+			string value = AssetManager.Instance.LoadTextDataString("localflags.txt");
+			List<BurikoFlagInfo> list = JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(value);
+			foreach (BurikoFlagInfo item in list)
+			{
+				if (variableReference.ContainsKey(item.Name))
+				{
+					Debug.LogError("Local variable " + item.Name + " already exists!");
+				}
+				else
+				{
+					variableReference.Add(item.Name, item.Id);
+				}
+			}
+			string value2 = AssetManager.Instance.LoadTextDataString("globalflags.txt");
+			List<BurikoFlagInfo> list2 = JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(value2);
+			foreach (BurikoFlagInfo item2 in list2)
+			{
+				if (variableReference.ContainsKey(item2.Name))
+				{
+					Debug.LogError("Local variable " + item2.Name + " already exists!");
+				}
+				else
+				{
+					variableReference.Add(item2.Name, item2.Id);
+				}
+			}
 			SetGlobalFlag("GMessageSpeed", 50);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
@@ -191,6 +171,33 @@ namespace Assets.Scripts.Core.Buriko
 				return false;
 			}
 			return true;
+		}
+
+		public void SetFragmentValueStatus(int fragmentId, int value)
+		{
+			SetFlag("FragmentStatus" + fragmentId.ToString("D2"), value);
+		}
+
+		public void SetFragmentReadStatus(int fragmentId)
+		{
+			SetFlag("FragmentRead" + fragmentId.ToString("D2"), 1);
+		}
+
+		public int GetFragmentValueStatus(int fragmentId)
+		{
+			return GetFlag("FragmentStatus" + fragmentId.ToString("D2")).IntValue();
+		}
+
+		public int GetFragmentReadStatus(int fragmentId)
+		{
+			return GetFlag("FragmentRead" + fragmentId.ToString("D2")).IntValue();
+		}
+
+		public void ResetFlags()
+		{
+			flags.Clear();
+			Color32 color = new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);
+			Instance.SetFlag("LTextColor", color.ToInt());
 		}
 
 		public BurikoVariable GetFlag(string flagname)
@@ -337,7 +344,7 @@ namespace Assets.Scripts.Core.Buriko
 			bsonReader.CloseInput = false;
 			using (BsonReader reader = bsonReader)
 			{
-				variableReference = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
+				Dictionary<string, int> dictionary = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
 			}
 			bsonReader = new BsonReader(ms);
 			bsonReader.CloseInput = false;

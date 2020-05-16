@@ -40,11 +40,19 @@ namespace Assets.Scripts.UI.ChapterScreen
 							{
 								if (!(name == "SaveLoad"))
 								{
-									if (name == "Continue")
+									if (!(name == "Fragments"))
+									{
+										if (name == "Continue")
+										{
+											stateChapterScreen.RequestLeave();
+											BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+											AudioController.Instance.ClearTempAudio();
+										}
+									}
+									else
 									{
 										stateChapterScreen.RequestLeave();
-										BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
-										AudioController.Instance.ClearTempAudio();
+										BurikoMemory.Instance.SetFlag("TipsMode", 1);
 									}
 								}
 								else

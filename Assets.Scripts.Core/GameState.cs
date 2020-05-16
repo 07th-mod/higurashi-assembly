@@ -17,6 +17,7 @@ namespace Assets.Scripts.Core
 		GalleryView,
 		ExtraScreen,
 		TipsScreen,
+		FragmentScreen,
 		ChapterScreen,
 		ChapterJumpScreen,
 		ChapterPreview

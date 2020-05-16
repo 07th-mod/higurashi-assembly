@@ -225,6 +225,15 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationJumpScriptSection()
+		{
+			SetOperationType("JumpScriptSection");
+			string scriptname = ReadVariable().StringValue();
+			string blockname = ReadVariable().StringValue();
+			scriptSystem.JumpToScript(scriptname, blockname);
+			return BurikoVariable.Null;
+		}
+
 		public BurikoVariable OperationCallSection()
 		{
 			SetOperationType("CallSection");
@@ -241,8 +250,18 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationShiftSection()
+		{
+			SetOperationType("ShiftSection");
+			string text = ReadVariable().StringValue();
+			Debug.Log("Jump to " + text);
+			JumpToBlock(text);
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationReturn()
 		{
+			scriptSystem.Return();
 			return BurikoVariable.Null;
 		}
 
@@ -1819,6 +1838,10 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				return BurikoVariable.Null;
 			}
+			if (gameSystem.IsSkipping)
+			{
+				time = 0f;
+			}
 			fragmentController.StopFragment(time);
 			return BurikoVariable.Null;
 		}
@@ -1873,6 +1896,15 @@ namespace Assets.Scripts.Core.Buriko
 			gameSystem.AudioController.SaveRestoreTempAudio();
 			gameSystem.PushStateObject(new StateChapterScreen());
 			scriptSystem.RestoreTempSnapshot();
+			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationFragmentViewChapterScreen()
+		{
+			SetOperationType("FragmentViewChapterScreen");
+			gameSystem.PushStateObject(new StateChapterScreen(isFragmentVariant: true));
+			GameSystem.Instance.AudioController.PlayAudio("it_move2.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.8f);
 			gameSystem.ExecuteActions();
 			return BurikoVariable.Null;
 		}
@@ -2098,6 +2130,40 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationFragmentListScreen()
+		{
+			SetOperationType("OperationFragmentListScreen");
+			gameSystem.AudioController.FadeOutBGM(1, 500, waitForFade: false);
+			gameSystem.AudioController.FadeOutBGM(2, 500, waitForFade: false);
+			gameSystem.AudioController.FadeOutSE(0, 500f, waitForFade: false);
+			gameSystem.AudioController.FadeOutSE(1, 500f, waitForFade: false);
+			gameSystem.AudioController.FadeOutSE(2, 500f, waitForFade: false);
+			gameSystem.PushStateObject(new StateFragmentList());
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetWindowBackground()
+		{
+			SetOperationType("OperationSetWindowBackground");
+			string s = ReadVariable().StringValue();
+			BurikoVariable var = new BurikoVariable(s);
+			if (!BurikoMemory.Instance.IsMemory("WindowBackground"))
+			{
+				BurikoString burikoString = new BurikoString();
+				burikoString.Create(1);
+				BurikoReference reference = new BurikoReference("bg", 0);
+				burikoString.SetValue(reference, var);
+				BurikoMemory.Instance.AddMemory("WindowBackground", burikoString);
+			}
+			else
+			{
+				IBurikoObject memory = BurikoMemory.Instance.GetMemory("WindowBackground");
+				BurikoReference reference2 = new BurikoReference("bg", 0);
+				memory.SetValue(reference2, var);
+			}
+			return BurikoVariable.Null;
+		}
+
 		public int GetPositionByLineNumber(int linenum)
 		{
 			if (!lineLookup.ContainsKey(linenum))
@@ -2129,6 +2195,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationCallSection();
 			case BurikoOperations.JumpSection:
 				return OperationJumpSection();
+			case BurikoOperations.ShiftSection:
+				return OperationShiftSection();
 			case BurikoOperations.Return:
 				return OperationReturn();
 			case BurikoOperations.StoreValueToLocalWork:
@@ -2325,6 +2393,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationRevealGallery();
 			case BurikoOperations.ViewChapterScreen:
 				return OperationViewChapterScreen();
+			case BurikoOperations.FragmentViewChapterScreen:
+				return OperationFragmentViewChapterScreen();
 			case BurikoOperations.ViewExtras:
 				return OperationViewExtras();
 			case BurikoOperations.ViewTips:
@@ -2381,6 +2451,12 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationDrawSpriteWithFilteringFixedSize();
 			case BurikoOperations.Update:
 				return OperationUpdate();
+			case BurikoOperations.FragmentListScreen:
+				return OperationFragmentListScreen();
+			case BurikoOperations.SetWindowBackground:
+				return OperationSetWindowBackground();
+			case BurikoOperations.JumpScriptSection:
+				return OperationJumpScriptSection();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2513,7 +2589,7 @@ namespace Assets.Scripts.Core.Buriko
 				BurikoScriptSystem.Instance.Return();
 				break;
 			default:
-				ScriptError(string.Format("No handler for command " + burikoCommands + " (value " + (int)burikoCommands + ")"));
+				ScriptError(string.Format("No handler for command " + Enum.GetName(typeof(BurikoCommands), burikoCommands) + " (value " + (int)burikoCommands + ")"));
 				break;
 			}
 		}
