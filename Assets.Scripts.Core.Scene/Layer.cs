@@ -100,13 +100,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public bool IsInUse => primary != null;
 
-<<<<<<< HEAD
 		public string PrimaryTextureName => (!(primary == null)) ? primary.name : null;
-=======
+
 		public Material MODMaterial => material;
 
 		public MeshRenderer MODMeshRenderer => meshRenderer;
->>>>>>> origin/mina-mod
 
 		public void RestoreScaleAndPosition(Vector3 scale, Vector3 position)
 		{
