@@ -39,7 +39,6 @@ namespace Assets.Scripts.Core.Buriko
 		public BurikoMemory()
 		{
 			memorylist = new Dictionary<string, BurikoMemoryEntry>();
-<<<<<<< HEAD
 			string value = AssetManager.Instance.LoadTextDataString("localflags.txt");
 			List<BurikoFlagInfo> list = JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(value);
 			foreach (BurikoFlagInfo item in list)
@@ -66,54 +65,6 @@ namespace Assets.Scripts.Core.Buriko
 					variableReference.Add(item2.Name, item2.Id);
 				}
 			}
-			SetGlobalFlag("GMessageSpeed", 50);
-=======
-			variableReference.Add("LOCALWORK_NO_RESULT", 0);
-			variableReference.Add("TipsMode", 1);
-			variableReference.Add("SelectResult", 2);
-			variableReference.Add("s_jump", 3);
-			variableReference.Add("kakera_01", 4);
-			variableReference.Add("ChapterNumber", 10);
-			variableReference.Add("LOnikakushiDay", 30);
-			variableReference.Add("LWatanagashiDay", 32);
-			variableReference.Add("LTatarigoroshiDay", 33);
-			variableReference.Add("LHimatsubushiDay", 34);
-			variableReference.Add("LMinagoroshiDay", 35);
-			variableReference.Add("LTextFade", 31);
-			variableReference.Add("LTextColor", 40);
-			variableReference.Add("NewTipsStart", 50);
-			variableReference.Add("NewTipsCount", 51);
-			variableReference.Add("TipsCount", 52);
-			variableReference.Add("GFlag_FirstPlay", 0);
-			variableReference.Add("GFlag_GameClear", 1);
-			variableReference.Add("GQsaveNum", 2);
-			variableReference.Add("GOnikakushiDay", 3);
-			variableReference.Add("GWatanagashiDay", 4);
-			variableReference.Add("GTatarigoroshiDay", 5);
-			variableReference.Add("GHimatsubushiDay", 6);
-			variableReference.Add("redbox", 7);
-			variableReference.Add("bluebox", 8);
-			variableReference.Add("GTotalTips", 9);
-			variableReference.Add("GHighestChapter", 28);
-			variableReference.Add("GMinagoroshiDay", 29);
-			variableReference.Add("GMessageSpeed", 10);
-			variableReference.Add("GAutoSpeed", 11);
-			variableReference.Add("GAutoAdvSpeed", 12);
-			variableReference.Add("GUsePrompts", 13);
-			variableReference.Add("GSlowSkip", 14);
-			variableReference.Add("GSkipUnread", 15);
-			variableReference.Add("GClickDuringAuto", 16);
-			variableReference.Add("GRightClickMenu", 17);
-			variableReference.Add("GWindowOpacity", 18);
-			variableReference.Add("GVoiceVolume", 19);
-			variableReference.Add("GBGMVolume", 20);
-			variableReference.Add("GSEVolume", 21);
-			variableReference.Add("GCutVoiceOnClick", 22);
-			variableReference.Add("GUseSystemSound", 23);
-			variableReference.Add("GLanguage", 24);
-			variableReference.Add("GLastSavePage", 26);
-			variableReference.Add("GArtStyle", 50);
-			variableReference.Add("GHideButtons", 51);
 			variableReference.Add("GADVMode", 500);
 			variableReference.Add("GLinemodeSp", 501);
 			variableReference.Add("GCensor", 502);
@@ -140,8 +91,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GVideoOpening", 523);
 			variableReference.Add("GChoiceMode", 524);
 			// 611 - 619 used for additional chapter progress info
-			SetGlobalFlag("GMessageSpeed", 60);
->>>>>>> origin/mina-mod
+			SetGlobalFlag("GMessageSpeed", 50);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
 			SetGlobalFlag("GWindowOpacity", 50);
@@ -517,11 +467,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			if (tryDeserializeFromSave<Dictionary<int, short[]>>("$layerFilters", out var filters))
 			{
-<<<<<<< HEAD
-				Dictionary<string, int> dictionary = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
-=======
 				MODSceneController.serializableLayerFilters = filters;
->>>>>>> origin/mina-mod
 			}
 			if (tryDeserializeFromSave<List<PathCascadeList>>("$artsets", out var artsets))
 			{
