@@ -2477,14 +2477,12 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationDrawSpriteWithFilteringFixedSize();
 			case BurikoOperations.Update:
 				return OperationUpdate();
-<<<<<<< HEAD
 			case BurikoOperations.FragmentListScreen:
 				return OperationFragmentListScreen();
 			case BurikoOperations.SetWindowBackground:
 				return OperationSetWindowBackground();
 			case BurikoOperations.JumpScriptSection:
 				return OperationJumpScriptSection();
-=======
 			case BurikoOperations.ModEnableNVLModeInADVMode:
 				return OperationMODenableNVLModeInADVMode();
 			case BurikoOperations.ModDisableNVLModeInADVMode:
@@ -2521,7 +2519,6 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODAddArtset();
 			case BurikoOperations.ModClearArtsets:
 				return OperationMODClearArtsets();
->>>>>>> origin/mina-mod
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
