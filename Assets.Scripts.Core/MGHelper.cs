@@ -249,15 +249,10 @@ namespace Assets.Scripts.Core
 					{
 						text = Environment.ExpandEnvironmentVariables("%appdata%");
 					}
-					_savepath = Path.Combine(text, "Mangagamer\\higurashi07");
+					_savepath = Path.Combine(text, "Mangagamer\\higurashi08");
 					Directory.CreateDirectory(_savepath);
 				}
-<<<<<<< HEAD
-				_savepath = Path.Combine(text, "Mangagamer\\higurashi08");
-				Directory.CreateDirectory(_savepath);
-=======
 				savePath = _savepath;
->>>>>>> origin/mina-mod
 			}
 			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
 			if (!string.IsNullOrEmpty(subdir))
