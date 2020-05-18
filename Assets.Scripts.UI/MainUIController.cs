@@ -1,9 +1,6 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
-<<<<<<< HEAD
 using Assets.Scripts.Core.Buriko.Util;
-=======
->>>>>>> origin/mina-mod
 using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.TextWindow;
 using MOD.Scripts.UI;
@@ -115,19 +112,19 @@ namespace Assets.Scripts.UI
 
 		private void ShowLayerBackground(float time)
 		{
-<<<<<<< HEAD
 			if (carretVisible)
 			{
 				ShowCarret();
 			}
-			string text = "windo_filter";
+			string defaultText = BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 ? "windo_filter_adv" : "windo_filter";
+			string text = defaultText;
 			if (BurikoMemory.Instance.IsMemory("WindowBackground"))
 			{
 				text = BurikoMemory.Instance.GetMemory("WindowBackground").StringValue(new BurikoReference("bg", 0));
 			}
 			if (string.IsNullOrEmpty(text))
 			{
-				text = "windo_filter";
+				text = defaultText;
 			}
 			if (bgLayer != null)
 			{
@@ -144,15 +141,9 @@ namespace Assets.Scripts.UI
 			else
 			{
 				if (bgLayer == null)
-=======
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				if (carretVisible)
->>>>>>> origin/mina-mod
 				{
-					ShowCarret();
+					bgLayer = LayerPool.ActivateLayer();
 				}
-<<<<<<< HEAD
 				bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
 				bgLayer.transform.parent = GameSystem.Instance.SceneController.FacePanel.transform;
 				bgLayer.SetPriority(62);
@@ -166,77 +157,30 @@ namespace Assets.Scripts.UI
 		{
 			if (bgLayer == null || !bgLayer.IsInUse)
 			{
-=======
->>>>>>> origin/mina-mod
 				if (bgLayer != null)
 				{
-					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
-				}
-				else
-				{
-					if (bgLayer == null)
-					{
-						bgLayer = LayerPool.ActivateLayer();
-					}
-					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
-					bgLayer.SetPriority(62);
-					bgLayer.name = "Window Background";
-					bgLayer.IsStatic = true;
-					bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					bgLayer.FadeTo(0f, time);
 				}
 			}
 			else
 			{
-				if (carretVisible)
+				if (Mathf.Approximately(time, 0f))
 				{
-					ShowCarret();
-				}
-				if (bgLayer != null)
-				{
-					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
-				}
-				else
-				{
-					if (bgLayer == null)
+					if (bgLayer != null)
 					{
-						bgLayer = LayerPool.ActivateLayer();
+						bgLayer.FadeTo(0f, time);
 					}
-					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
-					bgLayer.SetPriority(62);
-					bgLayer.name = "Window Background";
-					bgLayer.IsStatic = true;
-					bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
+				else if (bgLayer != null)
+				{
+					bgLayer.FadeTo(0f, time);
+				}
+				HideCarret();
 			}
 		}
 
-		private void HideLayerBackground(float time)
-		{
-            if (bgLayer == null || !bgLayer.IsInUse)
-            {
-                if (bgLayer != null)
-                {
-                    bgLayer.FadeTo(0f, time);
-                }
-            }
-            else
-            {
-                if (Mathf.Approximately(time, 0f))
-                {
-                    if (bgLayer != null)
-                    {
-                        bgLayer.FadeTo(0f, time);
-                    }
-                }
-                else if (bgLayer != null)
-                {
-                    bgLayer.FadeTo(0f, time);
-                }
-                HideCarret();
-            }
-        }
 
-        public void ShowMessageBox()
+		public void ShowMessageBox()
 		{
 			ShowLayerBackground(0f);
 			bgLayer.FinishAll();
