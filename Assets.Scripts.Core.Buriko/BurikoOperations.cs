@@ -139,10 +139,31 @@ namespace Assets.Scripts.Core.Buriko
 		DrawSpriteFixedSize,
 		DrawSpriteWithFilteringFixedSize,
 		Update,
+<<<<<<< HEAD
 		ShiftSection,
 		FragmentViewChapterScreen,
 		FragmentListScreen,
 		SetWindowBackground,
 		JumpScriptSection
+=======
+		ModEnableNVLModeInADVMode,
+		ModDisableNVLModeInADVMode,
+		ModADVModeSettingLoad,
+		ModNVLModeSettingLoad,
+		ModNVLADVModeSettingLoad,
+		ModCallScriptSection,
+		ModDrawCharacter,
+		ModDrawCharacterWithFiltering,
+		ModPlayVoiceLS,
+		ModPlayMovie,
+		ModSetConfigFontSize,
+		ModSetChapterJumpFontSize,
+		ModSetHighestChapterFlag,
+		ModGetHighestChapterFlag,
+		ModSetMainFontOutlineWidth,
+		ModSetLayerFilter,
+		ModAddArtset,
+		ModClearArtsets,
+>>>>>>> origin/mina-mod
 	}
 }

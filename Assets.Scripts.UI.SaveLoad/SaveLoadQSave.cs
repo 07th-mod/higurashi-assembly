@@ -20,13 +20,18 @@ namespace Assets.Scripts.UI.SaveLoad
 			SaveButton.isEnabled = false;
 			LoadButton.isEnabled = true;
 			BottomLabel.text = entry.Time.ToString("MMM dd, yyyy h:mm tt");
+			// Save button is never useful so hide it
+			SaveButton.gameObject.SetActive(false);
 		}
 
 		private void DisableButton()
 		{
+
 			SaveButton.isEnabled = false;
 			LoadButton.isEnabled = false;
 			BottomLabel.text = string.Empty;
+			// Save button is never useful so hide it
+			SaveButton.gameObject.SetActive(false);
 		}
 
 		public void LoadSlot(int slotnum)

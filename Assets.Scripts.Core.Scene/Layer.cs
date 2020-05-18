@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.AssetManagement;
+using MOD.Scripts.Core.Scene;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -83,11 +84,29 @@ namespace Assets.Scripts.Core.Scene
 
 		private LayerAlignment alignment;
 
+		private float aspectRatio;
+
+		private Vector2? origin;
+
 		private MtnCtrlElement[] motion;
+
+		private int? layerID; // The layer number in the scene controller, if it has one
+
+		public int? LayerID
+		{
+			get => layerID;
+			set => layerID = value;
+		}
 
 		public bool IsInUse => primary != null;
 
+<<<<<<< HEAD
 		public string PrimaryTextureName => (!(primary == null)) ? primary.name : null;
+=======
+		public Material MODMaterial => material;
+
+		public MeshRenderer MODMeshRenderer => meshRenderer;
+>>>>>>> origin/mina-mod
 
 		public void RestoreScaleAndPosition(Vector3 scale, Vector3 position)
 		{
@@ -315,9 +334,33 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, Vector2? forceSize)
+		{
+			if (forceSize is Vector2 nonnullForceSize)
+			{
+				width = Mathf.RoundToInt(nonnullForceSize.x);
+				height = Mathf.RoundToInt(nonnullForceSize.y);
+			}
+			if (mesh == null || !Mathf.Approximately((float)width / height, aspectRatio) || this.alignment != alignment || this.origin != origin)
+			{
+				if (origin is Vector2 nonnullOrigin)
+				{
+					CreateMesh(width, height, nonnullOrigin);
+				}
+				else
+				{
+					CreateMesh(width, height, alignment);
+				}
+			}
+			this.origin = origin;
+			this.alignment = alignment;
+			this.ForceSize = forceSize;
+			this.aspectRatio = (float)width / height;
+		}
+
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
 		{
-			Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
+			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
 			Texture2D maskTexture = AssetManager.Instance.LoadTexture(maskName);
 			material.shader = shaderMasked;
 			SetPrimaryTexture(texture2D);
@@ -329,43 +372,11 @@ namespace Assets.Scripts.Core.Scene
 			targetAlpha = 1f;
 			targetAngle = 0f;
 			shaderType = 0;
-			if (mesh == null)
-			{
-				alignment = LayerAlignment.AlignCenter;
-				if ((x != 0 || y != 0) && !isBustshot)
-				{
-					alignment = LayerAlignment.AlignTopleft;
-				}
-				if (!forceSize.HasValue)
-				{
-					if (origin.HasValue)
-					{
-						CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMesh(texture2D.width, texture2D.height, alignment);
-					}
-				}
-				else
-				{
-					ForceSize = forceSize;
-					if (origin.HasValue)
-					{
-						Vector2 value = forceSize.Value;
-						int width = Mathf.RoundToInt(value.x);
-						Vector2 value2 = forceSize.Value;
-						CreateMeshNoResize(width, Mathf.RoundToInt(value2.y), origin.GetValueOrDefault());
-					}
-					else
-					{
-						Vector2 value3 = forceSize.Value;
-						int width2 = Mathf.RoundToInt(value3.x);
-						Vector2 value4 = forceSize.Value;
-						CreateMeshNoResize(width2, Mathf.RoundToInt(value4.y), alignment);
-					}
-				}
-			}
+			EnsureCorrectlySizedMesh(
+				width: texture2D.width, height: texture2D.height,
+				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+				origin: origin, forceSize: forceSize
+			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
 			GameSystem.Instance.RegisterAction(delegate
@@ -410,7 +421,7 @@ namespace Assets.Scripts.Core.Scene
 				HideLayer();
 				return;
 			}
-			Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
+			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
 			if (texture2D == null)
 			{
 				Logger.LogError("Failed to load texture " + textureName);
@@ -435,43 +446,11 @@ namespace Assets.Scripts.Core.Scene
 			{
 				Origin = origin;
 			}
-			if (mesh == null)
-			{
-				alignment = LayerAlignment.AlignCenter;
-				if ((x != 0 || y != 0) && !isBustshot)
-				{
-					alignment = LayerAlignment.AlignTopleft;
-				}
-				if (!forceSize.HasValue)
-				{
-					if (origin.HasValue)
-					{
-						CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMesh(texture2D.width, texture2D.height, alignment);
-					}
-				}
-				else
-				{
-					ForceSize = forceSize;
-					if (origin.HasValue)
-					{
-						Vector2 value = forceSize.Value;
-						int width = Mathf.RoundToInt(value.x);
-						Vector2 value2 = forceSize.Value;
-						CreateMeshNoResize(width, Mathf.RoundToInt(value2.y), origin.GetValueOrDefault());
-					}
-					else
-					{
-						Vector2 value3 = forceSize.Value;
-						int width2 = Mathf.RoundToInt(value3.x);
-						Vector2 value4 = forceSize.Value;
-						CreateMeshNoResize(width2, Mathf.RoundToInt(value4.y), alignment);
-					}
-				}
-			}
+			EnsureCorrectlySizedMesh(
+				width: texture2D.width, height: texture2D.height,
+				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+				origin: origin, forceSize: forceSize
+			);
 			if (primary != null)
 			{
 				material.shader = shaderCrossfade;
@@ -538,7 +517,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void CrossfadeLayer(string targetImage, float wait, bool isBlocking)
 		{
-			Texture2D primaryTexture = AssetManager.Instance.LoadTexture(targetImage);
+			Texture2D primaryTexture = MODSceneController.LoadTextureWithFilters(layerID, targetImage);
 			material.shader = shaderCrossfade;
 			SetSecondaryTexture(primary);
 			SetPrimaryTexture(primaryTexture);
@@ -647,7 +626,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void SetPrimaryTexture(Texture2D tex)
+		public void SetPrimaryTexture(Texture2D tex)
 		{
 			primary = tex;
 			material.SetTexture("_Primary", primary);
@@ -686,7 +665,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = AssetManager.Instance.LoadTexture(PrimaryName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, PrimaryName);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + PrimaryName);
@@ -694,6 +673,7 @@ namespace Assets.Scripts.Core.Scene
 				else
 				{
 					SetPrimaryTexture(texture2D);
+					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin, ForceSize);
 				}
 			}
 		}
@@ -793,7 +773,7 @@ namespace Assets.Scripts.Core.Scene
 			meshFilter.mesh = mesh;
 		}
 
-		private void Initialize()
+		public void Initialize()
 		{
 			shaderDefault = Shader.Find("MGShader/LayerShader");
 			shaderAlphaBlend = Shader.Find("MGShader/LayerShaderAlpha");
@@ -835,6 +815,73 @@ namespace Assets.Scripts.Core.Scene
 
 		private void Update()
 		{
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public void MODDrawLayer(string textureName, Texture2D tex2d, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		{
+			FinishAll();
+			if (textureName == string.Empty)
+			{
+				HideLayer();
+			}
+			else if (tex2d == null)
+			{
+				Logger.LogError("Failed to load texture " + textureName);
+			}
+			else
+			{
+				startRange = 0f;
+				targetRange = alpha;
+				targetAlpha = alpha;
+				meshRenderer.enabled = true;
+				shaderType = type;
+				PrimaryName = textureName;
+				float num = 1f;
+				if (z > 0)
+				{
+					num = 1f - (float)z / 400f;
+				}
+				if (z < 0)
+				{
+					num = 1f + (float)z / -400f;
+				}
+				EnsureCorrectlySizedMesh(
+					width: tex2d.width, height: tex2d.height,
+					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+					origin: origin, forceSize: ForceSize
+				);
+				if (primary != null)
+				{
+					material.shader = shaderCrossfade;
+					SetSecondaryTexture(primary);
+					SetPrimaryTexture(tex2d);
+					startRange = 1f;
+					targetRange = 0f;
+					targetAlpha = 1f;
+				}
+				else
+				{
+					material.shader = shaderDefault;
+					if (type == 3)
+					{
+						material.shader = shaderMultiply;
+					}
+					SetPrimaryTexture(tex2d);
+				}
+				SetRange(startRange);
+				base.transform.localPosition = new Vector3((float)x, 0f - (float)y, (float)Priority * -0.1f);
+				base.transform.localScale = new Vector3(num, num, 1f);
+				targetPosition = base.transform.localPosition;
+				targetScale = base.transform.localScale;
+				if (Mathf.Approximately(wait, 0f))
+				{
+					FinishFade();
+				}
+			}
 		}
 	}
 }

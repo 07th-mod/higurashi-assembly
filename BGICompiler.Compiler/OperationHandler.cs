@@ -172,6 +172,24 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetWindowBackground", new OpType(BurikoOperations.SetWindowBackground, "s"));
 			paramLookup.Add("JumpScriptSection", new OpType(BurikoOperations.JumpScriptSection, "ss"));
 			paramLookup.Add("Break", new OpType(BurikoOperations.Break, string.Empty));
+			paramLookup.Add("ModEnableNVLModeInADVMode", new OpType(BurikoOperations.ModEnableNVLModeInADVMode, string.Empty));
+			paramLookup.Add("ModDisableNVLModeInADVMode", new OpType(BurikoOperations.ModDisableNVLModeInADVMode, string.Empty));
+			paramLookup.Add("ModADVModeSettingLoad", new OpType(BurikoOperations.ModADVModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModNVLModeSettingLoad", new OpType(BurikoOperations.ModNVLModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModNVLADVModeSettingLoad", new OpType(BurikoOperations.ModNVLADVModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModCallScriptSection", new OpType(BurikoOperations.ModCallScriptSection, "ss"));
+			paramLookup.Add("ModDrawCharacter", new OpType(BurikoOperations.ModDrawCharacter, "iissiiibiiiiiiiiib"));
+			paramLookup.Add("ModDrawCharacterWithFiltering", new OpType(BurikoOperations.ModDrawCharacterWithFiltering, "iisssiiibiiiiiiib"));
+			paramLookup.Add("ModPlayVoiceLS", new OpType(BurikoOperations.ModPlayVoiceLS, "iisib"));
+			paramLookup.Add("ModPlayMovie", new OpType(BurikoOperations.ModPlayMovie, "s"));
+			paramLookup.Add("ModSetConfigFontSize", new OpType(BurikoOperations.ModSetConfigFontSize, "i"));
+			paramLookup.Add("ModSetChapterJumpFontSize", new OpType(BurikoOperations.ModSetChapterJumpFontSize, "ii"));
+			paramLookup.Add("ModSetHighestChapterFlag", new OpType(BurikoOperations.ModSetHighestChapterFlag, "ii"));
+			paramLookup.Add("ModGetHighestChapterFlag", new OpType(BurikoOperations.ModGetHighestChapterFlag, "i"));
+			paramLookup.Add("ModSetMainFontOutlineWidth", new OpType(BurikoOperations.ModSetMainFontOutlineWidth, "i"));
+			paramLookup.Add("ModSetLayerFilter", new OpType(BurikoOperations.ModSetLayerFilter, "iis"));
+			paramLookup.Add("ModAddArtset", new OpType(BurikoOperations.ModAddArtset, "sss"));
+			paramLookup.Add("ModClearArtsets", new OpType(BurikoOperations.ModClearArtsets, string.Empty));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

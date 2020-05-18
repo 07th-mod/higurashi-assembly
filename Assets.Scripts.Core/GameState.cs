@@ -20,6 +20,7 @@ namespace Assets.Scripts.Core
 		FragmentScreen,
 		ChapterScreen,
 		ChapterJumpScreen,
-		ChapterPreview
+		ChapterPreview,
+		Movie
 	}
 }

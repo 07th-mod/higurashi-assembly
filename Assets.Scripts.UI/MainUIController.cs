@@ -1,9 +1,15 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
+<<<<<<< HEAD
 using Assets.Scripts.Core.Buriko.Util;
+=======
+>>>>>>> origin/mina-mod
 using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.TextWindow;
+using MOD.Scripts.UI;
+using System;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -46,9 +52,27 @@ namespace Assets.Scripts.UI
 
 		private GameSystem gameSystem;
 
+		private Vector3 unscaledPosition;
+
 		public void UpdateGuiPosition(int x, int y)
 		{
-			mainuiPanel.transform.localPosition = new Vector3((float)x, (float)y, 0f);
+			unscaledPosition = new Vector3((float)x, (float)y, 0f);
+			UpdateGuiPosition();
+		}
+
+		public void UpdateGuiScale(float x, float y)
+		{
+			mainuiPanel.transform.localScale = new Vector3(x, y, 1f);
+			UpdateGuiPosition();
+		}
+
+		private void UpdateGuiPosition()
+		{
+			Vector3 scaledPosition = new Vector3(unscaledPosition.x, unscaledPosition.y, unscaledPosition.z);
+			scaledPosition.x *= mainuiPanel.transform.localScale.x;
+			scaledPosition.y *= mainuiPanel.transform.localScale.y;
+			scaledPosition.z *= mainuiPanel.transform.localScale.z;
+			mainuiPanel.transform.localPosition = scaledPosition;
 		}
 
 		public void UpdateBlackBars()
@@ -91,6 +115,7 @@ namespace Assets.Scripts.UI
 
 		private void ShowLayerBackground(float time)
 		{
+<<<<<<< HEAD
 			if (carretVisible)
 			{
 				ShowCarret();
@@ -119,9 +144,15 @@ namespace Assets.Scripts.UI
 			else
 			{
 				if (bgLayer == null)
+=======
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			{
+				if (carretVisible)
+>>>>>>> origin/mina-mod
 				{
-					bgLayer = LayerPool.ActivateLayer();
+					ShowCarret();
 				}
+<<<<<<< HEAD
 				bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
 				bgLayer.transform.parent = GameSystem.Instance.SceneController.FacePanel.transform;
 				bgLayer.SetPriority(62);
@@ -135,29 +166,77 @@ namespace Assets.Scripts.UI
 		{
 			if (bgLayer == null || !bgLayer.IsInUse)
 			{
+=======
+>>>>>>> origin/mina-mod
 				if (bgLayer != null)
 				{
-					bgLayer.FadeTo(0f, time);
+					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
+				}
+				else
+				{
+					if (bgLayer == null)
+					{
+						bgLayer = LayerPool.ActivateLayer();
+					}
+					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
+					bgLayer.SetPriority(62);
+					bgLayer.name = "Window Background";
+					bgLayer.IsStatic = true;
+					bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
 			}
 			else
 			{
-				if (Mathf.Approximately(time, 0f))
+				if (carretVisible)
 				{
-					if (bgLayer != null)
+					ShowCarret();
+				}
+				if (bgLayer != null)
+				{
+					bgLayer.FadeTo(gameSystem.MessageWindowOpacity, time);
+				}
+				else
+				{
+					if (bgLayer == null)
 					{
-						bgLayer.FadeTo(0f, time);
+						bgLayer = LayerPool.ActivateLayer();
 					}
+					bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
+					bgLayer.SetPriority(62);
+					bgLayer.name = "Window Background";
+					bgLayer.IsStatic = true;
+					bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
-				else if (bgLayer != null)
-				{
-					bgLayer.FadeTo(0f, time);
-				}
-				HideCarret();
 			}
 		}
 
-		public void ShowMessageBox()
+		private void HideLayerBackground(float time)
+		{
+            if (bgLayer == null || !bgLayer.IsInUse)
+            {
+                if (bgLayer != null)
+                {
+                    bgLayer.FadeTo(0f, time);
+                }
+            }
+            else
+            {
+                if (Mathf.Approximately(time, 0f))
+                {
+                    if (bgLayer != null)
+                    {
+                        bgLayer.FadeTo(0f, time);
+                    }
+                }
+                else if (bgLayer != null)
+                {
+                    bgLayer.FadeTo(0f, time);
+                }
+                HideCarret();
+            }
+        }
+
+        public void ShowMessageBox()
 		{
 			ShowLayerBackground(0f);
 			bgLayer.FinishAll();
@@ -295,6 +374,7 @@ namespace Assets.Scripts.UI
 			{
 				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
 			}
+			TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 		}
 
 		private void Awake()
@@ -308,6 +388,7 @@ namespace Assets.Scripts.UI
 			{
 				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
 			}
+			TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 		}
 
 		public void ShowCarret()
@@ -391,7 +472,298 @@ namespace Assets.Scripts.UI
 				{
 					TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
 				}
+				TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
 			}
+		}
+
+		public void MODResetLayerBackground()
+		{
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.NVLModeSettingStore();
+			}
+			else
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.ADVModeSettingStore();
+			}
+		}
+
+		public void MODenableNVLModeINADVMode()
+		{
+			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 1);
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			{
+				MODMainUIController mODMainUIController = new MODMainUIController();
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_nvladv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.NVLADVModeSettingStore();
+			}
+		}
+
+		public void MODdisableNVLModeINADVMode()
+		{
+			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 0);
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			{
+				MODMainUIController mODMainUIController = new MODMainUIController();
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.ADVModeSettingStore();
+			}
+		}
+
+		public void OnGUI()
+		{
+			// Helper Functions for processing flags
+			string boolDesc(string flag, string name)
+			{
+				switch (BurikoMemory.Instance.GetGlobalFlag(flag).IntValue())
+				{
+				case 0:
+					return name + " = OFF";
+				case 1:
+					return name + " = ON";
+				default:
+					return name + " = ERROR";
+				}
+			}
+			string intDesc(string flag, string maxFlag, string name)
+			{
+				int max = BurikoMemory.Instance.GetGlobalFlag(maxFlag).IntValue();
+				int val = BurikoMemory.Instance.GetGlobalFlag(flag).IntValue();
+				return val > max ? name + " = ERROR" : name + " = " + val;
+			}
+			BurikoVariable getOptionalLocalFlag(string flag)
+			{
+				try
+				{
+					return BurikoMemory.Instance.GetFlag(flag);
+				}
+				catch
+				{
+					return null;
+				}
+			}
+
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2)
+			{
+				gameSystem.CanSkip = true;
+				gameSystem.CanInput = true;
+				gameSystem.ShowUIControls();
+			}
+			if ((BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 1) || (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2))
+			{
+				string settingLoaderDesc;
+				switch (BurikoMemory.Instance.GetGlobalFlag("GMOD_SETTING_LOADER").IntValue())
+				{
+				case 0:
+					settingLoaderDesc = "Restore ADV-MODE Settings\nRelaunch Game 2 Times";
+					break;
+				case 1:
+					settingLoaderDesc = "Restore NVL-MODE Settings\nRelaunch Game 2 Times";
+					break;
+				case 2:
+					settingLoaderDesc = "Restore Vanilla Settings\nRelaunch Game and Delete MOD";
+					break;
+				case 3:
+					settingLoaderDesc = "Disable";
+					break;
+				default:
+					settingLoaderDesc = "ERROR";
+					break;
+				}
+				string nvlAdvDesc = getOptionalLocalFlag("NVL_in_ADV")?.IntValue() != 1 ? "" : "You can not swap NVL-ADV now\n";
+				string hotkeyDesc = getOptionalLocalFlag("DisableModHotkey")?.IntValue() != 1 ? "" : "You can not use Hotkey\n1,2,3,4,5,6,F2,F3 for avoid bug\n";
+				string canSaveDesc = gameSystem.CanSave ? "" : "You can't save now\n";
+				string canInputDesc = gameSystem.CanInput ? "" : "Game avoid any input now\n";
+				var videoOpeningValue = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue();
+				var videoOpeningDescription = videoOpeningValue == 0 ? "Unset" : videoOpeningValue == 1 ? "Disabled" : videoOpeningValue == 2 ? "In-game" : videoOpeningValue == 3 ? "At launch + in-game" : "Unknown";
+				var artsetDescription = "Art = " + GameSystem.Instance.ChooseJapaneseEnglish(
+					japanese: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameJP,
+					english: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameEN
+				);
+				string textToDraw = string.Join("\n", new string[] {
+					"[MOD SETTINGS]",
+					boolDesc("GADVMode",                             "ADV-MODE"),
+					boolDesc("GLipSync",                             "Lip-Sync"),
+					boolDesc("GAltBGM",                              "Alternative BGM"),
+					intDesc ("GAltBGMflow",   "GAltBGMflowMaxNum",   "Alternative BGM Flow"),
+					boolDesc("GAltSE",                               "Alternative SE"),
+					intDesc ("GAltSEflow",    "GAltSEflowMaxNum",    "Alternative SE Flow"),
+					boolDesc("GAltVoice",                            "Alternative Voice"),
+					boolDesc("GAltVoicePriority",                    "Alternative Voice Priority"),
+					intDesc ("GCensor",       "GCensorMaxNum",       "Voice Matching Level"),
+					intDesc ("GEffectExtend", "GEffectExtendMaxNum", "Effect Level"),
+					"Voice Volume = " + BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue().ToString(),
+					$"OP Movies = {videoOpeningDescription} ({videoOpeningValue})",
+					artsetDescription,
+					"\n[Restore Game Settings]",
+					settingLoaderDesc,
+					"\n[Status]",
+					hotkeyDesc + nvlAdvDesc + canSaveDesc + canInputDesc
+				});
+				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
+			}
+			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
+			{
+				string textToDraw = string.Join("\n", new string[] {
+					"[Vanilla Hotkey]",
+					"Enter,Return,RightArrow,PageDown : Advance Text",
+					"LeftArrow,Pageup : See Backlog",
+					"ESC : Open Menu",
+					"Ctrl : Hold Skip Mode",
+					"A : Auto Mode",
+					"S : Toggle Skip Mode",
+					"F : FullScreen",
+					"Space : Hide Text",
+					"L : Swap Language",
+					"P : Swap Sprites",
+					"\n[MOD Hotkey]",
+					"F1 : ADV-NVL MODE",
+					"F2 : Voice Matching Level",
+					"F3 : Effect Level",
+					"F5 : QuickSave",
+					"F7 : QuickLoad",
+					"F10 : Setting Monitor",
+					"M : Increase Voice Volume",
+					"N : Decrease Voice Volume",
+					"1 : Alternative BGM",
+					"2 : Alternative BGM Flow",
+					"3 : Alternative SE",
+					"4 : Alternative SE Flow",
+					"5 : Alternative Voice",
+					"6 : Alternative Voice Priority",
+					"7 : Lip-Sync",
+					"LShift + F9 : Restore Settings",
+					"LShift + M : Voice Volume MAX",
+					"LShift + N : Voice Volume MIN"
+				});
+				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
+			}
+			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 3)
+			{
+				string textToDraw = "[MOD Global Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
+					{
+						"GADVMode",
+						"GLinemodeSp",
+						"GCensor",
+						"GEffectExtend",
+						"GAltBGM",
+						"GAltSE",
+						"GAltBGMflow",
+						"GAltSEflow",
+						"GAltVoice",
+						"GAltVoicePriority",
+						"GCensorMaxNum",
+						"GEffectExtendMaxNum",
+						"GAltBGMflowMaxNum",
+						"GAltSEflowMaxNum",
+						"GMOD_SETTING_LOADER",
+						"GFlagForTest1",
+						"GFlagForTest2",
+						"GFlagForTest3",
+						"GMOD_DEBUG_MODE",
+						"GLipSync",
+						"GVideoOpening"
+					}
+					.Select(flag => flag + " = " + BurikoMemory.Instance.GetGlobalFlag(flag).IntValue().ToString())
+					.ToArray()
+				);
+				textToDraw += "\n\n[MOD Local Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
+					{
+						"NVL_in_ADV",
+						"DisableModHotkey",
+						"LFlagMonitor"
+					}
+					.Select(flag => flag + " = " + (getOptionalLocalFlag(flag)?.IntValue().ToString() ?? "disable"))
+					.ToArray()
+				);
+				textToDraw += "\n\n[GameStatus]\n";
+				textToDraw += string.Join("\n", new string[] {
+					"CanInput = " + (gameSystem.CanInput ? "true" : "false"),
+					"CanSave = " + (gameSystem.CanSave ? "true" : "false"),
+				});
+				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
+			}
+			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 4)
+			{
+				string textToDraw = "[Vanilla Global Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
+					{
+						"GFlag_FirstPlay",
+						"GFlag_GameClear",
+						"GQsaveNum",
+						"GOnikakushiDay",
+						"GMessageSpeed",
+						"GAutoSpeed",
+						"GAutoAdvSpeed",
+						"GUsePrompts",
+						"GSlowSkip",
+						"GSkipUnread",
+						"GClickDuringAuto",
+						"GRightClickMenu",
+						"GWindowOpacity",
+						"GVoiceVolume",
+						"GBGMVolume",
+						"GSEVolume",
+						"GCutVoiceOnClick",
+						"GUseSystemSound",
+						"GLanguage",
+						"GVChie",
+						"GVEiji",
+						"GVKana",
+						"GVKira",
+						"GVMast",
+						"GVMura",
+						"GVRiho",
+						"GVRmn_",
+						"GVSari",
+						"GVTika",
+						"GVYayo",
+						"GVOther",
+						"GArtStyle",
+						"GHideButtons"
+					}
+					.Select(flag => flag + " = " + BurikoMemory.Instance.GetGlobalFlag(flag).IntValue().ToString())
+					.ToArray()
+				);
+				textToDraw += "\n\n[Vanilla Local Flags]\n";
+				textToDraw += string.Join("\n",
+					new string[]
+					{
+						"LOCALWORK_NO_RESULT",
+						"TipsMode",
+						"ChapterNumber",
+						"LOnikakushiDay",
+						"LTextFade"
+					}
+					.Select(flag => flag + " = " + (getOptionalLocalFlag(flag)?.IntValue().ToString() ?? "disable"))
+					.ToArray()
+				);
+				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
+			}
+		}
+
+		public void MODDebugFontSizeChanger()
+		{
+			new MODMainUIController().DebugFontChangerSettingStore();
 		}
 	}
 }
