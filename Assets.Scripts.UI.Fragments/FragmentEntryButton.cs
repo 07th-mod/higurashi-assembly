@@ -49,7 +49,7 @@ namespace Assets.Scripts.UI.Fragments
 			{
 				overlaySprite.gameObject.SetActive(value: false);
 			}
-			if (uISpriteData != null) //TODO find out desired behavior for removed condition && AssetManager.Instance.UseNewArt
+			if (uISpriteData != null && AssetManager.Instance.UseNewArt)
 			{
 				button.normalSprite = $"k_{fragment.Id}na_normal";
 				button.hoverSprite = $"k_{fragment.Id}na_hover";
