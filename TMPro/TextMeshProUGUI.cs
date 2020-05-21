@@ -20,11 +20,33 @@ namespace TMPro
 			SetCharArray
 		}
 
-		private enum AutoLayoutPhase
-		{
-			Horizontal,
-			Vertical
-		}
+		public Texture texture;
+
+		private float m_flexibleHeight;
+
+		private float m_flexibleWidth;
+
+		private float m_minHeight;
+
+		private float m_minWidth;
+
+		private float m_preferredWidth = 9999f;
+
+		private float m_preferredHeight = 9999f;
+
+		private float m_renderedWidth;
+
+		private float m_renderedHeight;
+
+		private int m_layoutPriority;
+
+		private bool m_isRebuildingLayout;
+
+		private bool m_isLayoutDirty;
+
+		private AutoLayoutPhase m_LayoutPhase;
+
+		private bool m_currentAutoSizeMode;
 
 		[SerializeField]
 		private string m_text;
@@ -400,34 +422,6 @@ namespace TMPro
 		private int m_recursiveCount;
 
 		private int loopCountA;
-
-		public Texture texture;
-
-		private float m_flexibleHeight;
-
-		private float m_flexibleWidth;
-
-		private float m_minHeight;
-
-		private float m_minWidth;
-
-		private float m_preferredWidth = 9999f;
-
-		private float m_preferredHeight = 9999f;
-
-		private float m_renderedWidth;
-
-		private float m_renderedHeight;
-
-		private int m_layoutPriority;
-
-		private bool m_isRebuildingLayout;
-
-		private bool m_isLayoutDirty;
-
-		private AutoLayoutPhase m_LayoutPhase;
-
-		private bool m_currentAutoSizeMode;
 
 		public string text
 		{
@@ -4587,281 +4581,6 @@ namespace TMPro
 			default:
 				return false;
 			}
-		}
-
-		private float GetPreferredWidth()
-		{
-			TextOverflowModes overflowMode = m_overflowMode;
-			m_overflowMode = TextOverflowModes.Overflow;
-			m_renderMode = TextRenderFlags.GetPreferredSizes;
-			GenerateTextMesh();
-			m_renderMode = TextRenderFlags.Render;
-			m_overflowMode = overflowMode;
-			Debug.Log("GetPreferredWidth() Called. Returning width of " + m_preferredWidth);
-			return m_preferredWidth;
-		}
-
-		private float GetPreferredHeight()
-		{
-			TextOverflowModes overflowMode = m_overflowMode;
-			m_overflowMode = TextOverflowModes.Overflow;
-			m_renderMode = TextRenderFlags.GetPreferredSizes;
-			GenerateTextMesh();
-			m_renderMode = TextRenderFlags.Render;
-			m_overflowMode = overflowMode;
-			Debug.Log("GetPreferredHeight() Called. Returning height of " + m_preferredHeight);
-			return m_preferredHeight;
-		}
-
-		public void CalculateLayoutInputHorizontal()
-		{
-			if (base.gameObject.activeInHierarchy)
-			{
-				IsRectTransformDriven = true;
-				m_currentAutoSizeMode = m_enableAutoSizing;
-				m_LayoutPhase = AutoLayoutPhase.Horizontal;
-				m_isRebuildingLayout = true;
-				m_minWidth = 0f;
-				m_flexibleWidth = 0f;
-				m_renderMode = TextRenderFlags.GetPreferredSizes;
-				if (m_enableAutoSizing)
-				{
-					m_fontSize = m_fontSizeMax;
-				}
-				m_marginWidth = float.PositiveInfinity;
-				m_marginHeight = float.PositiveInfinity;
-				if (isInputParsingRequired || m_isTextTruncated)
-				{
-					ParseInputText();
-				}
-				GenerateTextMesh();
-				m_renderMode = TextRenderFlags.Render;
-				m_preferredWidth = m_renderedWidth;
-				ComputeMarginSize();
-				m_isLayoutDirty = true;
-			}
-		}
-
-		public void CalculateLayoutInputVertical()
-		{
-			if (base.gameObject.activeInHierarchy)
-			{
-				IsRectTransformDriven = true;
-				m_LayoutPhase = AutoLayoutPhase.Vertical;
-				m_isRebuildingLayout = true;
-				m_minHeight = 0f;
-				m_flexibleHeight = 0f;
-				m_renderMode = TextRenderFlags.GetPreferredSizes;
-				if (m_enableAutoSizing)
-				{
-					m_currentAutoSizeMode = true;
-					m_enableAutoSizing = false;
-				}
-				m_marginHeight = float.PositiveInfinity;
-				GenerateTextMesh();
-				m_enableAutoSizing = m_currentAutoSizeMode;
-				m_renderMode = TextRenderFlags.Render;
-				ComputeMarginSize();
-				m_preferredHeight = m_renderedHeight;
-				m_isLayoutDirty = true;
-				m_isCalculateSizeRequired = false;
-			}
-		}
-
-		public override void RecalculateClipping()
-		{
-			base.RecalculateClipping();
-		}
-
-		public override void RecalculateMasking()
-		{
-			if (m_fontAsset == null || !m_isAwake)
-			{
-				return;
-			}
-			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
-			if (m_stencilID == 0)
-			{
-				if (m_maskingMaterial != null)
-				{
-					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
-					m_maskingMaterial = null;
-					m_sharedMaterial = m_baseMaterial;
-				}
-				else if (m_fontMaterial != null)
-				{
-					m_sharedMaterial = MaterialManager.SetStencil(m_fontMaterial, 0);
-				}
-				else
-				{
-					m_sharedMaterial = m_baseMaterial;
-				}
-			}
-			else
-			{
-				ShaderUtilities.GetShaderPropertyIDs();
-				if (m_fontMaterial != null)
-				{
-					m_sharedMaterial = MaterialManager.SetStencil(m_fontMaterial, m_stencilID);
-				}
-				else if (m_maskingMaterial == null)
-				{
-					m_maskingMaterial = MaterialManager.GetStencilMaterial(m_baseMaterial, m_stencilID);
-					m_sharedMaterial = m_maskingMaterial;
-				}
-				else if (m_maskingMaterial.GetInt(ShaderUtilities.ID_StencilID) != m_stencilID || m_isNewBaseMaterial)
-				{
-					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
-					m_maskingMaterial = MaterialManager.GetStencilMaterial(m_baseMaterial, m_stencilID);
-					m_sharedMaterial = m_maskingMaterial;
-				}
-				if (m_isMaskingEnabled)
-				{
-					EnableMasking();
-				}
-			}
-			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
-			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
-		}
-
-		protected override void UpdateGeometry()
-		{
-		}
-
-		protected override void UpdateMaterial()
-		{
-		}
-
-		public void UpdateMeshPadding()
-		{
-			m_padding = ShaderUtilities.GetPadding(new Material[1]
-			{
-				m_uiRenderer.GetMaterial()
-			}, m_enableExtraPadding, m_isUsingBold);
-			m_havePropertiesChanged = true;
-		}
-
-		public void ForceMeshUpdate()
-		{
-			OnPreRenderCanvas();
-		}
-
-		public void UpdateFontAsset()
-		{
-			LoadFontAsset();
-		}
-
-		public TMP_TextInfo GetTextInfo(string text)
-		{
-			StringToCharArray(text, ref m_char_buffer);
-			m_renderMode = TextRenderFlags.DontRender;
-			GenerateTextMesh();
-			m_renderMode = TextRenderFlags.Render;
-			return textInfo;
-		}
-
-		public void SetText(string text, float arg0)
-		{
-			SetText(text, arg0, 255f, 255f);
-		}
-
-		public void SetText(string text, float arg0, float arg1)
-		{
-			SetText(text, arg0, arg1, 255f);
-		}
-
-		public void SetText(string text, float arg0, float arg1, float arg2)
-		{
-			if (text == old_text && arg0 == old_arg0 && arg1 == old_arg1 && arg2 == old_arg2)
-			{
-				return;
-			}
-			old_text = text;
-			old_arg1 = 255f;
-			old_arg2 = 255f;
-			int precision = 0;
-			int index = 0;
-			for (int i = 0; i < text.Length; i++)
-			{
-				char c = text[i];
-				if (c == '{')
-				{
-					if (text[i + 2] == ':')
-					{
-						precision = text[i + 3] - 48;
-					}
-					switch (text[i + 1] - 48)
-					{
-					case 0:
-						old_arg0 = arg0;
-						AddFloatToCharArray(arg0, ref index, precision);
-						break;
-					case 1:
-						old_arg1 = arg1;
-						AddFloatToCharArray(arg1, ref index, precision);
-						break;
-					case 2:
-						old_arg2 = arg2;
-						AddFloatToCharArray(arg2, ref index, precision);
-						break;
-					}
-					i = ((text[i + 2] != ':') ? (i + 2) : (i + 4));
-				}
-				else
-				{
-					m_input_CharArray[index] = c;
-					index++;
-				}
-			}
-			m_input_CharArray[index] = '\0';
-			m_charArray_Length = index;
-			m_inputSource = TextInputSources.SetText;
-			isInputParsingRequired = true;
-			m_havePropertiesChanged = true;
-		}
-
-		public void SetCharArray(char[] charArray)
-		{
-			if (charArray == null || charArray.Length == 0)
-			{
-				return;
-			}
-			if (m_char_buffer.Length <= charArray.Length)
-			{
-				int num = Mathf.NextPowerOfTwo(charArray.Length + 1);
-				m_char_buffer = new int[num];
-			}
-			int num2 = 0;
-			for (int i = 0; i < charArray.Length; i++)
-			{
-				if (charArray[i] == '\\' && i < charArray.Length - 1)
-				{
-					switch (charArray[i + 1])
-					{
-					case 'n':
-						m_char_buffer[num2] = 10;
-						i++;
-						num2++;
-						continue;
-					case 'r':
-						m_char_buffer[num2] = 13;
-						i++;
-						num2++;
-						continue;
-					case 't':
-						m_char_buffer[num2] = 9;
-						i++;
-						num2++;
-						continue;
-					}
-				}
-				m_char_buffer[num2] = charArray[i];
-				num2++;
-			}
-			m_char_buffer[num2] = 0;
-			m_inputSource = TextInputSources.SetCharArray;
-			m_havePropertiesChanged = true;
-			isInputParsingRequired = true;
 		}
 	}
 }

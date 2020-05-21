@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JArray : JContainer, IList<JToken>, ICollection<JToken>, IEnumerable<JToken>, IEnumerable
+	public class JArray : JContainer, IList<JToken>, IEnumerable, ICollection<JToken>, IEnumerable<JToken>
 	{
 		private IList<JToken> _values = new List<JToken>();
 
