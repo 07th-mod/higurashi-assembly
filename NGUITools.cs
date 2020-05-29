@@ -43,7 +43,7 @@ public static class NGUITools
 		}
 	}
 
-	public static bool fileAccess => Application.platform != RuntimePlatform.WindowsWebPlayer && Application.platform != RuntimePlatform.OSXWebPlayer;
+	public static bool fileAccess => true;
 
 	public static string clipboard
 	{

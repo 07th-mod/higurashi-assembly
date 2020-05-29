@@ -1066,15 +1066,15 @@ public class UIWidget : UIRect
 			float x = num + (float)mWidth;
 			float y = num2 + (float)mHeight;
 			Transform cachedTransform = base.cachedTransform;
-			Vector3 v = cachedTransform.TransformPoint(num, num2, 0f);
-			Vector3 v2 = cachedTransform.TransformPoint(x, y, 0f);
-			v = panel.worldToLocal.MultiplyPoint3x4(v);
-			v2 = panel.worldToLocal.MultiplyPoint3x4(v2);
-			if (Vector3.SqrMagnitude(mOldV0 - v) > 1E-06f || Vector3.SqrMagnitude(mOldV1 - v2) > 1E-06f)
+			Vector3 point = cachedTransform.TransformPoint(num, num2, 0f);
+			Vector3 point2 = cachedTransform.TransformPoint(x, y, 0f);
+			point = panel.worldToLocal.MultiplyPoint3x4(point);
+			point2 = panel.worldToLocal.MultiplyPoint3x4(point2);
+			if (Vector3.SqrMagnitude(mOldV0 - point) > 1E-06f || Vector3.SqrMagnitude(mOldV1 - point2) > 1E-06f)
 			{
 				mMoved = true;
-				mOldV0 = v;
-				mOldV1 = v2;
+				mOldV0 = point;
+				mOldV1 = point2;
 			}
 		}
 		if (mMoved && onChange != null)
