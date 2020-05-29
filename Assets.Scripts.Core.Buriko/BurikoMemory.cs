@@ -460,7 +460,7 @@ namespace Assets.Scripts.Core.Buriko
 					burikoObject = new BurikoVector();
 					break;
 				default:
-					throw new InvalidDataException("Cannot populate Buriko Object of type " + text);
+					throw new Exception("Cannot populate Buriko Object of type " + text);
 				}
 				burikoObject.DeSerialize(ms);
 				memorylist.Add(key, new BurikoMemoryEntry(scope, burikoObject));

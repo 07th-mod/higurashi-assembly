@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Newtonsoft.Json.Linq
 {
-	public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyChanged, ICustomTypeDescriptor, Newtonsoft.Json.ObservableSupport.INotifyPropertyChanging, ICollection<KeyValuePair<string, JToken>>, IEnumerable<KeyValuePair<string, JToken>>, IEnumerable
+	public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyChanged, ICustomTypeDescriptor, INotifyPropertyChanging, IEnumerable, ICollection<KeyValuePair<string, JToken>>, IEnumerable<KeyValuePair<string, JToken>>
 	{
 		private class JPropertKeyedCollection : KeyedCollection<string, JToken>
 		{
@@ -117,7 +117,7 @@ namespace Newtonsoft.Json.Linq
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public event Newtonsoft.Json.ObservableSupport.PropertyChangingEventHandler PropertyChanging;
+		public event PropertyChangingEventHandler PropertyChanging;
 
 		public JObject()
 		{
@@ -381,7 +381,7 @@ namespace Newtonsoft.Json.Linq
 		{
 			if (this.PropertyChanging != null)
 			{
-				this.PropertyChanging(this, new Newtonsoft.Json.ObservableSupport.PropertyChangingEventArgs(propertyName));
+				this.PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
 			}
 		}
 
