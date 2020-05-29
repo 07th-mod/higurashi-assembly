@@ -1,0 +1,2406 @@
+diff a/TMPro/TextMeshProUGUI.cs b/TMPro/TextMeshProUGUI.cs	(rejected hunks)
+@@ -13,6 +13,12 @@ namespace TMPro
+ 	[AddComponentMenu("UI/TextMeshPro Text", 12)]
+ 	public class TextMeshProUGUI : MaskableGraphic, ILayoutElement
+ 	{
++		private enum AutoLayoutPhase
++		{
++			Horizontal,
++			Vertical
++		}
++
+ 		private enum TextInputSources
+ 		{
+ 			Text,
+@@ -1136,1206 +1136,1481 @@ namespace TMPro
+ 
+ 		public InlineGraphicManager inlineGraphicManager => m_inlineGraphics;
+ 
+-		protected override void Awake()
++		private float GetPreferredWidth()
+ 		{
+-			m_isAwake = true;
+-			m_canvas = (GetComponentInParent(typeof(Canvas)) as Canvas);
+-			m_rectTransform = base.gameObject.GetComponent<RectTransform>();
+-			if (m_rectTransform == null)
+-			{
+-				m_rectTransform = base.gameObject.AddComponent<RectTransform>();
+-			}
+-			m_uiRenderer = GetComponent<CanvasRenderer>();
+-			if (m_uiRenderer == null)
+-			{
+-				m_uiRenderer = base.gameObject.AddComponent<CanvasRenderer>();
+-			}
+-			if (m_mesh == null)
+-			{
+-				m_mesh = new Mesh();
+-				m_mesh.hideFlags = HideFlags.HideAndDontSave;
+-			}
+-			if (m_settings == null)
+-			{
+-				m_settings = TMP_Settings.LoadDefaultSettings();
+-			}
+-			if (m_settings != null)
+-			{
+-			}
+-			LoadFontAsset();
+-			TMP_StyleSheet.LoadDefaultStyleSheet();
+-			m_char_buffer = new int[m_max_characters];
+-			m_cached_GlyphInfo = new GlyphInfo();
+-			m_isFirstAllocation = true;
+-			m_textInfo = new TMP_TextInfo();
+-			m_textInfo.meshInfo.mesh = m_mesh;
+-			if (m_fontAsset == null)
+-			{
+-				Debug.LogWarning("Please assign a Font Asset to this " + base.transform.name + " gameobject.", this);
+-				return;
+-			}
+-			if (m_fontSizeMin == 0f)
+-			{
+-				m_fontSizeMin = m_fontSize / 2f;
+-			}
+-			if (m_fontSizeMax == 0f)
+-			{
+-				m_fontSizeMax = m_fontSize * 2f;
+-			}
+-			isInputParsingRequired = true;
+-			m_havePropertiesChanged = true;
+-			m_rectTransformDimensionsChanged = true;
+-			ForceMeshUpdate();
++			TextOverflowModes overflowMode = m_overflowMode;
++			m_overflowMode = TextOverflowModes.Overflow;
++			m_renderMode = TextRenderFlags.GetPreferredSizes;
++			GenerateTextMesh();
++			m_renderMode = TextRenderFlags.Render;
++			m_overflowMode = overflowMode;
++			Debug.Log("GetPreferredWidth() Called. Returning width of " + m_preferredWidth);
++			return m_preferredWidth;
+ 		}
+ 
+-		protected override void OnEnable()
++		private float GetPreferredHeight()
+ 		{
+-			if (!m_isRegisteredForEvents)
+-			{
+-				TMPro_EventManager.WILL_RENDER_CANVASES.Add(OnPreRenderCanvas);
+-				m_isRegisteredForEvents = true;
+-			}
+-			GraphicRegistry.RegisterGraphicForCanvas(base.canvas, this);
+-			if (m_canvas == null)
+-			{
+-				m_canvas = (GetComponentInParent(typeof(Canvas)) as Canvas);
+-			}
+-			if (m_uiRenderer.GetMaterial() == null)
++			TextOverflowModes overflowMode = m_overflowMode;
++			m_overflowMode = TextOverflowModes.Overflow;
++			m_renderMode = TextRenderFlags.GetPreferredSizes;
++			GenerateTextMesh();
++			m_renderMode = TextRenderFlags.Render;
++			m_overflowMode = overflowMode;
++			Debug.Log("GetPreferredHeight() Called. Returning height of " + m_preferredHeight);
++			return m_preferredHeight;
++		}
++
++		public void CalculateLayoutInputHorizontal()
++		{
++			if (base.gameObject.activeInHierarchy)
+ 			{
+-				if (m_sharedMaterial != null)
++				IsRectTransformDriven = true;
++				m_currentAutoSizeMode = m_enableAutoSizing;
++				m_LayoutPhase = AutoLayoutPhase.Horizontal;
++				m_isRebuildingLayout = true;
++				m_minWidth = 0f;
++				m_flexibleWidth = 0f;
++				m_renderMode = TextRenderFlags.GetPreferredSizes;
++				if (m_enableAutoSizing)
+ 				{
+-					m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++					m_fontSize = m_fontSizeMax;
+ 				}
+-				else
++				m_marginWidth = float.PositiveInfinity;
++				m_marginHeight = float.PositiveInfinity;
++				if (isInputParsingRequired || m_isTextTruncated)
+ 				{
+-					m_isNewBaseMaterial = true;
+-					fontSharedMaterial = m_baseMaterial;
+-					RecalculateMasking();
++					ParseInputText();
+ 				}
+-				m_havePropertiesChanged = true;
+-				m_rectTransformDimensionsChanged = true;
++				GenerateTextMesh();
++				m_renderMode = TextRenderFlags.Render;
++				m_preferredWidth = m_renderedWidth;
++				ComputeMarginSize();
++				m_isLayoutDirty = true;
+ 			}
+-			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
+-			RecalculateClipping();
+-		}
+-
+-		protected override void OnDisable()
+-		{
+-			GraphicRegistry.UnregisterGraphicForCanvas(base.canvas, this);
+-			m_uiRenderer.Clear();
+-			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
+-			RecalculateClipping();
+ 		}
+ 
+-		protected override void OnDestroy()
++		public void CalculateLayoutInputVertical()
+ 		{
+-			GraphicRegistry.UnregisterGraphicForCanvas(base.canvas, this);
+-			if (m_maskingMaterial != null)
+-			{
+-				MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
+-				m_maskingMaterial = null;
+-			}
+-			if (m_fontMaterial != null)
++			if (base.gameObject.activeInHierarchy)
+ 			{
+-				UnityEngine.Object.DestroyImmediate(m_fontMaterial);
++				IsRectTransformDriven = true;
++				m_LayoutPhase = AutoLayoutPhase.Vertical;
++				m_isRebuildingLayout = true;
++				m_minHeight = 0f;
++				m_flexibleHeight = 0f;
++				m_renderMode = TextRenderFlags.GetPreferredSizes;
++				if (m_enableAutoSizing)
++				{
++					m_currentAutoSizeMode = true;
++					m_enableAutoSizing = false;
++				}
++				m_marginHeight = float.PositiveInfinity;
++				GenerateTextMesh();
++				m_enableAutoSizing = m_currentAutoSizeMode;
++				m_renderMode = TextRenderFlags.Render;
++				ComputeMarginSize();
++				m_preferredHeight = m_renderedHeight;
++				m_isLayoutDirty = true;
++				m_isCalculateSizeRequired = false;
+ 			}
+-			TMPro_EventManager.WILL_RENDER_CANVASES.Remove(OnPreRenderCanvas);
+-			m_isRegisteredForEvents = false;
+ 		}
+ 
+-		protected override void OnTransformParentChanged()
++		public override void RecalculateClipping()
+ 		{
+-			int stencilID = m_stencilID;
+-			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
+-			if (stencilID != m_stencilID)
+-			{
+-				RecalculateMasking();
+-			}
+-			RecalculateClipping();
+-			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
+-			m_havePropertiesChanged = true;
++			base.RecalculateClipping();
+ 		}
+ 
+-		private void LoadFontAsset()
++		public override void RecalculateMasking()
+ 		{
+-			ShaderUtilities.GetShaderPropertyIDs();
+-			if (m_fontAsset == null)
++			if (m_fontAsset == null || !m_isAwake)
+ 			{
+-				if (m_settings == null)
++				return;
++			}
++			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
++			if (m_stencilID == 0)
++			{
++				if (m_maskingMaterial != null)
+ 				{
+-					m_settings = TMP_Settings.LoadDefaultSettings();
++					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++					m_maskingMaterial = null;
++					m_sharedMaterial = m_baseMaterial;
+ 				}
+-				if (m_settings != null && m_settings.fontAsset != null)
++				else if (m_fontMaterial != null)
+ 				{
+-					m_fontAsset = m_settings.fontAsset;
++					m_sharedMaterial = MaterialManager.SetStencil(m_fontMaterial, 0);
+ 				}
+ 				else
+ 				{
+-					m_fontAsset = (Resources.Load("Fonts & Materials/ARIAL SDF", typeof(TextMeshProFont)) as TextMeshProFont);
++					m_sharedMaterial = m_baseMaterial;
+ 				}
+-				if (m_fontAsset == null)
+-				{
+-					Debug.LogWarning("The ARIAL SDF Font Asset was not found. There is no Font Asset assigned to " + base.gameObject.name + ".", this);
+-					return;
+-				}
+-				if (m_fontAsset.characterDictionary == null)
+-				{
+-					Debug.Log("Dictionary is Null!");
+-				}
+-				m_baseMaterial = m_fontAsset.material;
+-				m_sharedMaterial = m_baseMaterial;
+-				m_isNewBaseMaterial = true;
+ 			}
+ 			else
+ 			{
+-				if (m_fontAsset.characterDictionary == null)
+-				{
+-					m_fontAsset.ReadFontDefinition();
+-				}
+-				m_sharedMaterial = m_baseMaterial;
+-				m_isNewBaseMaterial = true;
+-				if (m_sharedMaterial == null || m_sharedMaterial.mainTexture == null || m_fontAsset.atlas.GetInstanceID() != m_sharedMaterial.mainTexture.GetInstanceID())
+-				{
+-					m_sharedMaterial = m_fontAsset.material;
+-					m_baseMaterial = m_sharedMaterial;
+-					m_isNewBaseMaterial = true;
+-				}
+-			}
+-			if (!m_fontAsset.characterDictionary.TryGetValue(95, out m_cached_Underline_GlyphInfo))
+-			{
+-				Debug.LogWarning("Underscore character wasn't found in the current Font Asset. No characters assigned for Underline.", this);
+-			}
+-			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
+-			if (m_stencilID == 0)
+-			{
+-				if (m_maskingMaterial != null)
++				ShaderUtilities.GetShaderPropertyIDs();
++				if (m_fontMaterial != null)
+ 				{
+-					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
+-					m_maskingMaterial = null;
++					m_sharedMaterial = MaterialManager.SetStencil(m_fontMaterial, m_stencilID);
+ 				}
+-				m_sharedMaterial = m_baseMaterial;
+-			}
+-			else
+-			{
+-				if (m_maskingMaterial == null)
++				else if (m_maskingMaterial == null)
+ 				{
+ 					m_maskingMaterial = MaterialManager.GetStencilMaterial(m_baseMaterial, m_stencilID);
++					m_sharedMaterial = m_maskingMaterial;
+ 				}
+ 				else if (m_maskingMaterial.GetInt(ShaderUtilities.ID_StencilID) != m_stencilID || m_isNewBaseMaterial)
+ 				{
+ 					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
+ 					m_maskingMaterial = MaterialManager.GetStencilMaterial(m_baseMaterial, m_stencilID);
++					m_sharedMaterial = m_maskingMaterial;
++				}
++				if (m_isMaskingEnabled)
++				{
++					EnableMasking();
+ 				}
+-				m_sharedMaterial = m_maskingMaterial;
+-			}
+-			m_isNewBaseMaterial = false;
+-			SetShaderDepth();
+-			if (m_uiRenderer == null)
+-			{
+-				m_uiRenderer = GetComponent<CanvasRenderer>();
+ 			}
+ 			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+ 			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
+ 		}
+ 
+-		private void ScheduleUpdate()
++		protected override void UpdateGeometry()
+ 		{
+ 		}
+ 
+-		private void UpdateEnvMapMatrix()
++		protected override void UpdateMaterial()
+ 		{
+-			if (m_sharedMaterial.HasProperty(ShaderUtilities.ID_EnvMap) && !(m_sharedMaterial.GetTexture(ShaderUtilities.ID_EnvMap) == null))
+-			{
+-				Debug.Log("Updating Env Matrix...");
+-				Vector3 euler = m_sharedMaterial.GetVector(ShaderUtilities.ID_EnvMatrixRotation);
+-				m_EnvMapMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(euler), Vector3.one);
+-				m_sharedMaterial.SetMatrix(ShaderUtilities.ID_EnvMatrix, m_EnvMapMatrix);
+-			}
+ 		}
+ 
+-		private void EnableMasking()
++		public void UpdateMeshPadding()
+ 		{
+-			if (m_fontMaterial == null)
+-			{
+-				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
+-				m_uiRenderer.SetMaterial(m_fontMaterial, m_sharedMaterial.mainTexture);
+-			}
+-			m_sharedMaterial = m_fontMaterial;
+-			if (m_sharedMaterial.HasProperty(ShaderUtilities.ID_ClipRect))
++			m_padding = ShaderUtilities.GetPadding(new Material[1]
+ 			{
+-				m_sharedMaterial.EnableKeyword(ShaderUtilities.Keyword_MASK_SOFT);
+-				m_sharedMaterial.DisableKeyword(ShaderUtilities.Keyword_MASK_HARD);
+-				m_sharedMaterial.DisableKeyword(ShaderUtilities.Keyword_MASK_TEX);
+-				UpdateMask();
+-			}
+-			m_isMaskingEnabled = true;
++				m_uiRenderer.GetMaterial()
++			}, m_enableExtraPadding, m_isUsingBold);
++			m_havePropertiesChanged = true;
+ 		}
+ 
+-		private void DisableMasking()
++		public void ForceMeshUpdate()
+ 		{
+-			if (m_fontMaterial != null)
++			OnPreRenderCanvas();
++		}
++
++		public void UpdateFontAsset()
++		{
++			LoadFontAsset();
++		}
++
++		public TMP_TextInfo GetTextInfo(string text)
++		{
++			StringToCharArray(text, ref m_char_buffer);
++			m_renderMode = TextRenderFlags.DontRender;
++			GenerateTextMesh();
++			m_renderMode = TextRenderFlags.Render;
++			return textInfo;
++		}
++
++		public void SetText(string text, float arg0)
++		{
++			SetText(text, arg0, 255f, 255f);
++		}
++
++		public void SetText(string text, float arg0, float arg1)
++		{
++			SetText(text, arg0, arg1, 255f);
++		}
++
++		public void SetText(string text, float arg0, float arg1, float arg2)
++		{
++			if (text == old_text && arg0 == old_arg0 && arg1 == old_arg1 && arg2 == old_arg2)
+ 			{
+-				if (m_stencilID > 0)
++				return;
++			}
++			old_text = text;
++			old_arg1 = 255f;
++			old_arg2 = 255f;
++			int precision = 0;
++			int index = 0;
++			for (int i = 0; i < text.Length; i++)
++			{
++				char c = text[i];
++				if (c == '{')
+ 				{
+-					m_sharedMaterial = m_maskingMaterial;
++					if (text[i + 2] == ':')
++					{
++						precision = text[i + 3] - 48;
++					}
++					switch (text[i + 1] - 48)
++					{
++					case 0:
++						old_arg0 = arg0;
++						AddFloatToCharArray(arg0, ref index, precision);
++						break;
++					case 1:
++						old_arg1 = arg1;
++						AddFloatToCharArray(arg1, ref index, precision);
++						break;
++					case 2:
++						old_arg2 = arg2;
++						AddFloatToCharArray(arg2, ref index, precision);
++						break;
++					}
++					i = ((text[i + 2] != ':') ? (i + 2) : (i + 4));
+ 				}
+ 				else
+ 				{
+-					m_sharedMaterial = m_baseMaterial;
++					m_input_CharArray[index] = c;
++					index++;
+ 				}
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+-				UnityEngine.Object.DestroyImmediate(m_fontMaterial);
+ 			}
+-			m_isMaskingEnabled = false;
++			m_input_CharArray[index] = '\0';
++			m_charArray_Length = index;
++			m_inputSource = TextInputSources.SetText;
++			isInputParsingRequired = true;
++			m_havePropertiesChanged = true;
+ 		}
+ 
+-		private void UpdateMask()
++		public void SetCharArray(char[] charArray)
+ 		{
+-			Debug.Log("Updating Mask...");
+-			if (m_rectTransform != null)
++			if (charArray == null || charArray.Length == 0)
+ 			{
+-				if (!ShaderUtilities.isInitialized)
++				return;
++			}
++			if (m_char_buffer.Length <= charArray.Length)
++			{
++				int num = Mathf.NextPowerOfTwo(charArray.Length + 1);
++				m_char_buffer = new int[num];
++			}
++			int num2 = 0;
++			for (int i = 0; i < charArray.Length; i++)
++			{
++				if (charArray[i] == '\\' && i < charArray.Length - 1)
+ 				{
+-					ShaderUtilities.GetShaderPropertyIDs();
++					switch (charArray[i + 1])
++					{
++					case 'n':
++						m_char_buffer[num2] = 10;
++						i++;
++						num2++;
++						continue;
++					case 'r':
++						m_char_buffer[num2] = 13;
++						i++;
++						num2++;
++						continue;
++					case 't':
++						m_char_buffer[num2] = 9;
++						i++;
++						num2++;
++						continue;
++					}
+ 				}
+-				m_isScrollRegionSet = true;
+-				float num = Mathf.Min(Mathf.Min(m_margin.x, m_margin.z), m_sharedMaterial.GetFloat(ShaderUtilities.ID_MaskSoftnessX));
+-				float num2 = Mathf.Min(Mathf.Min(m_margin.y, m_margin.w), m_sharedMaterial.GetFloat(ShaderUtilities.ID_MaskSoftnessY));
+-				num = ((!(num > 0f)) ? 0f : num);
+-				num2 = ((!(num2 > 0f)) ? 0f : num2);
+-				float z = (m_rectTransform.rect.width - Mathf.Max(m_margin.x, 0f) - Mathf.Max(m_margin.z, 0f)) / 2f + num;
+-				float w = (m_rectTransform.rect.height - Mathf.Max(m_margin.y, 0f) - Mathf.Max(m_margin.w, 0f)) / 2f + num2;
+-				Vector3 localPosition = m_rectTransform.localPosition;
+-				Vector2 pivot = m_rectTransform.pivot;
+-				float x = (0.5f - pivot.x) * m_rectTransform.rect.width + (Mathf.Max(m_margin.x, 0f) - Mathf.Max(m_margin.z, 0f)) / 2f;
+-				Vector2 pivot2 = m_rectTransform.pivot;
+-				Vector2 vector = localPosition + new Vector3(x, (0.5f - pivot2.y) * m_rectTransform.rect.height + (0f - Mathf.Max(m_margin.y, 0f) + Mathf.Max(m_margin.w, 0f)) / 2f);
+-				Vector4 value = new Vector4(vector.x, vector.y, z, w);
+-				m_sharedMaterial.SetVector(ShaderUtilities.ID_ClipRect, value);
++				m_char_buffer[num2] = charArray[i];
++				num2++;
+ 			}
++			m_char_buffer[num2] = 0;
++			m_inputSource = TextInputSources.SetCharArray;
++			m_havePropertiesChanged = true;
++			isInputParsingRequired = true;
+ 		}
+ 
+-		private void SetFontMaterial(Material mat)
++		protected override void Awake()
+ 		{
+-			ShaderUtilities.GetShaderPropertyIDs();
+-			if (m_uiRenderer == null)
++			m_isAwake = true;
++			m_canvas = (GetComponentInParent(typeof(Canvas)) as Canvas);
++			m_rectTransform = base.gameObject.GetComponent<RectTransform>();
++			if (m_rectTransform == null)
+ 			{
+-				m_uiRenderer = GetComponent<CanvasRenderer>();
++				m_rectTransform = base.gameObject.AddComponent<RectTransform>();
+ 			}
+-			if (m_fontMaterial != null)
++			m_uiRenderer = GetComponent<CanvasRenderer>();
++			if (m_uiRenderer == null)
+ 			{
+-				UnityEngine.Object.DestroyImmediate(m_fontMaterial);
++				m_uiRenderer = base.gameObject.AddComponent<CanvasRenderer>();
+ 			}
+-			if (m_maskingMaterial != null)
++			if (m_mesh == null)
+ 			{
+-				MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
+-				m_maskingMaterial = null;
++				m_mesh = new Mesh();
++				m_mesh.hideFlags = HideFlags.HideAndDontSave;
+ 			}
+-			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
+-			m_fontMaterial = CreateMaterialInstance(mat);
+-			if (m_stencilID > 0)
++			if (m_settings == null)
+ 			{
+-				m_fontMaterial = MaterialManager.SetStencil(m_fontMaterial, m_stencilID);
++				m_settings = TMP_Settings.LoadDefaultSettings();
+ 			}
+-			m_sharedMaterial = m_fontMaterial;
+-			SetShaderDepth();
+-			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+-			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
+-		}
+-
+-		private void SetSharedFontMaterial(Material mat)
+-		{
+-			ShaderUtilities.GetShaderPropertyIDs();
+-			if (m_uiRenderer == null)
++			if (m_settings != null)
+ 			{
+-				m_uiRenderer = GetComponent<CanvasRenderer>();
+ 			}
+-			if (mat == null)
++			LoadFontAsset();
++			TMP_StyleSheet.LoadDefaultStyleSheet();
++			m_char_buffer = new int[m_max_characters];
++			m_cached_GlyphInfo = new GlyphInfo();
++			m_isFirstAllocation = true;
++			m_textInfo = new TMP_TextInfo();
++			m_textInfo.meshInfo.mesh = m_mesh;
++			if (m_fontAsset == null)
+ 			{
+-				mat = m_baseMaterial;
+-				m_isNewBaseMaterial = true;
++				Debug.LogWarning("Please assign a Font Asset to this " + base.transform.name + " gameobject.", this);
++				return;
+ 			}
+-			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
+-			if (m_stencilID == 0)
++			if (m_fontSizeMin == 0f)
+ 			{
+-				if (m_maskingMaterial != null)
+-				{
+-					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
+-					m_maskingMaterial = null;
+-				}
+-				m_baseMaterial = mat;
++				m_fontSizeMin = m_fontSize / 2f;
+ 			}
+-			else
++			if (m_fontSizeMax == 0f)
+ 			{
+-				if (m_maskingMaterial == null)
+-				{
+-					m_maskingMaterial = MaterialManager.GetStencilMaterial(mat, m_stencilID);
+-				}
+-				else if (m_maskingMaterial.GetInt(ShaderUtilities.ID_StencilID) != m_stencilID || m_isNewBaseMaterial)
+-				{
+-					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
+-					m_maskingMaterial = MaterialManager.GetStencilMaterial(mat, m_stencilID);
+-				}
+-				mat = m_maskingMaterial;
++				m_fontSizeMax = m_fontSize * 2f;
+ 			}
+-			m_isNewBaseMaterial = false;
+-			m_sharedMaterial = mat;
+-			SetShaderDepth();
+-			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+-			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
+-		}
+-
+-		private void SetFontBaseMaterial(Material mat)
+-		{
+-			Debug.Log("Changing Base Material from [" + ((!(m_lastBaseMaterial == null)) ? m_lastBaseMaterial.name : "Null") + "] to [" + mat.name + "].");
+-			m_baseMaterial = mat;
+-			m_lastBaseMaterial = mat;
++			isInputParsingRequired = true;
++			m_havePropertiesChanged = true;
++			m_rectTransformDimensionsChanged = true;
++			ForceMeshUpdate();
+ 		}
+ 
+-		private void SetOutlineThickness(float thickness)
++		protected override void OnEnable()
+ 		{
+-			if (m_fontMaterial != null && m_sharedMaterial.GetInstanceID() != m_fontMaterial.GetInstanceID())
++			if (!m_isRegisteredForEvents)
+ 			{
+-				m_sharedMaterial = m_fontMaterial;
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++				TMPro_EventManager.WILL_RENDER_CANVASES.Add(OnPreRenderCanvas);
++				m_isRegisteredForEvents = true;
+ 			}
+-			else if (m_fontMaterial == null)
++			GraphicRegistry.RegisterGraphicForCanvas(base.canvas, this);
++			if (m_canvas == null)
+ 			{
+-				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
+-				m_sharedMaterial = m_fontMaterial;
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++				m_canvas = (GetComponentInParent(typeof(Canvas)) as Canvas);
+ 			}
+-			thickness = Mathf.Clamp01(thickness);
+-			m_sharedMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, thickness);
+-			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
++			if (m_uiRenderer.GetMaterial() == null)
++			{
++				if (m_sharedMaterial != null)
++				{
++					m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++				}
++				else
++				{
++					m_isNewBaseMaterial = true;
++					fontSharedMaterial = m_baseMaterial;
++					RecalculateMasking();
++				}
++				m_havePropertiesChanged = true;
++				m_rectTransformDimensionsChanged = true;
++			}
++			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
++			RecalculateClipping();
+ 		}
+ 
+-		private void SetFaceColor(Color32 color)
++		protected override void OnDisable()
+ 		{
+-			if (m_fontMaterial != null && m_sharedMaterial.GetInstanceID() != m_fontMaterial.GetInstanceID())
+-			{
+-				m_sharedMaterial = m_fontMaterial;
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+-			}
+-			else if (m_fontMaterial == null)
+-			{
+-				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
+-				m_sharedMaterial = m_fontMaterial;
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+-			}
+-			m_sharedMaterial.SetColor(ShaderUtilities.ID_FaceColor, color);
++			GraphicRegistry.UnregisterGraphicForCanvas(base.canvas, this);
++			m_uiRenderer.Clear();
++			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
++			RecalculateClipping();
+ 		}
+ 
+-		private void SetOutlineColor(Color32 color)
++		protected override void OnDestroy()
+ 		{
+-			if (m_fontMaterial != null && m_sharedMaterial.GetInstanceID() != m_fontMaterial.GetInstanceID())
++			GraphicRegistry.UnregisterGraphicForCanvas(base.canvas, this);
++			if (m_maskingMaterial != null)
+ 			{
+-				m_sharedMaterial = m_fontMaterial;
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++				MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++				m_maskingMaterial = null;
+ 			}
+-			else if (m_fontMaterial == null)
++			if (m_fontMaterial != null)
+ 			{
+-				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
+-				m_sharedMaterial = m_fontMaterial;
+-				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++				UnityEngine.Object.DestroyImmediate(m_fontMaterial);
+ 			}
+-			m_sharedMaterial.SetColor(ShaderUtilities.ID_OutlineColor, color);
++			TMPro_EventManager.WILL_RENDER_CANVASES.Remove(OnPreRenderCanvas);
++			m_isRegisteredForEvents = false;
+ 		}
+ 
+-		private Material CreateMaterialInstance(Material source)
++		protected override void OnTransformParentChanged()
+ 		{
+-			Material material = new Material(source);
+-			material.shaderKeywords = source.shaderKeywords;
+-			material.hideFlags = HideFlags.DontSave;
+-			material.name += " (Instance)";
+-			return material;
++			int stencilID = m_stencilID;
++			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
++			if (stencilID != m_stencilID)
++			{
++				RecalculateMasking();
++			}
++			RecalculateClipping();
++			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
++			m_havePropertiesChanged = true;
+ 		}
+ 
+-		private void SetShaderDepth()
++		private void LoadFontAsset()
+ 		{
+-			if (!(m_canvas == null) && !(m_sharedMaterial == null))
++			ShaderUtilities.GetShaderPropertyIDs();
++			if (m_fontAsset == null)
+ 			{
+-				if (m_canvas.renderMode == RenderMode.ScreenSpaceOverlay || m_isOverlay)
++				if (m_settings == null)
+ 				{
+-					m_sharedMaterial.SetFloat(ShaderUtilities.ShaderTag_ZTestMode, 0f);
++					m_settings = TMP_Settings.LoadDefaultSettings();
++				}
++				if (m_settings != null && m_settings.fontAsset != null)
++				{
++					m_fontAsset = m_settings.fontAsset;
+ 				}
+ 				else
+ 				{
+-					m_sharedMaterial.SetFloat(ShaderUtilities.ShaderTag_ZTestMode, 4f);
++					m_fontAsset = (Resources.Load("Fonts & Materials/ARIAL SDF", typeof(TextMeshProFont)) as TextMeshProFont);
++				}
++				if (m_fontAsset == null)
++				{
++					Debug.LogWarning("The ARIAL SDF Font Asset was not found. There is no Font Asset assigned to " + base.gameObject.name + ".", this);
++					return;
++				}
++				if (m_fontAsset.characterDictionary == null)
++				{
++					Debug.Log("Dictionary is Null!");
+ 				}
++				m_baseMaterial = m_fontAsset.material;
++				m_sharedMaterial = m_baseMaterial;
++				m_isNewBaseMaterial = true;
+ 			}
+-		}
+-
+-		private void SetCulling()
+-		{
+-			if (m_isCullingEnabled)
++			else
+ 			{
+-				m_uiRenderer.GetMaterial().SetFloat("_CullMode", 2f);
++				if (m_fontAsset.characterDictionary == null)
++				{
++					m_fontAsset.ReadFontDefinition();
++				}
++				m_sharedMaterial = m_baseMaterial;
++				m_isNewBaseMaterial = true;
++				if (m_sharedMaterial == null || m_sharedMaterial.mainTexture == null || m_fontAsset.atlas.GetInstanceID() != m_sharedMaterial.mainTexture.GetInstanceID())
++				{
++					m_sharedMaterial = m_fontAsset.material;
++					m_baseMaterial = m_sharedMaterial;
++					m_isNewBaseMaterial = true;
++				}
+ 			}
+-			else
++			if (!m_fontAsset.characterDictionary.TryGetValue(95, out m_cached_Underline_GlyphInfo))
+ 			{
+-				m_uiRenderer.GetMaterial().SetFloat("_CullMode", 0f);
++				Debug.LogWarning("Underscore character wasn't found in the current Font Asset. No characters assigned for Underline.", this);
+ 			}
+-		}
+-
+-		private void SetPerspectiveCorrection()
+-		{
+-			if (m_isOrthographic)
++			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
++			if (m_stencilID == 0)
+ 			{
+-				m_sharedMaterial.SetFloat(ShaderUtilities.ID_PerspectiveFilter, 0f);
++				if (m_maskingMaterial != null)
++				{
++					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++					m_maskingMaterial = null;
++				}
++				m_sharedMaterial = m_baseMaterial;
+ 			}
+ 			else
+ 			{
+-				m_sharedMaterial.SetFloat(ShaderUtilities.ID_PerspectiveFilter, 0.875f);
++				if (m_maskingMaterial == null)
++				{
++					m_maskingMaterial = MaterialManager.GetStencilMaterial(m_baseMaterial, m_stencilID);
++				}
++				else if (m_maskingMaterial.GetInt(ShaderUtilities.ID_StencilID) != m_stencilID || m_isNewBaseMaterial)
++				{
++					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++					m_maskingMaterial = MaterialManager.GetStencilMaterial(m_baseMaterial, m_stencilID);
++				}
++				m_sharedMaterial = m_maskingMaterial;
++			}
++			m_isNewBaseMaterial = false;
++			SetShaderDepth();
++			if (m_uiRenderer == null)
++			{
++				m_uiRenderer = GetComponent<CanvasRenderer>();
+ 			}
++			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
+ 		}
+ 
+-		private void SetMeshArrays(int size)
++		private void ScheduleUpdate()
+ 		{
+-			m_textInfo.meshInfo.ResizeMeshInfo(size);
+-			m_uiRenderer.SetMesh(m_textInfo.meshInfo.mesh);
+ 		}
+ 
+-		private void AddIntToCharArray(int number, ref int index, int precision)
++		private void UpdateEnvMapMatrix()
+ 		{
+-			if (number < 0)
+-			{
+-				m_input_CharArray[index++] = '-';
+-				number = -number;
+-			}
+-			int num = index;
+-			do
+-			{
+-				m_input_CharArray[num++] = (char)(number % 10 + 48);
+-				number /= 10;
+-			}
+-			while (number > 0);
+-			int num2 = num;
+-			while (index + 1 < num)
++			if (m_sharedMaterial.HasProperty(ShaderUtilities.ID_EnvMap) && !(m_sharedMaterial.GetTexture(ShaderUtilities.ID_EnvMap) == null))
+ 			{
+-				num--;
+-				char c = m_input_CharArray[index];
+-				m_input_CharArray[index] = m_input_CharArray[num];
+-				m_input_CharArray[num] = c;
+-				index++;
++				Debug.Log("Updating Env Matrix...");
++				Vector3 euler = m_sharedMaterial.GetVector(ShaderUtilities.ID_EnvMatrixRotation);
++				m_EnvMapMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(euler), Vector3.one);
++				m_sharedMaterial.SetMatrix(ShaderUtilities.ID_EnvMatrix, m_EnvMapMatrix);
+ 			}
+-			index = num2;
+ 		}
+ 
+-		private void AddFloatToCharArray(float number, ref int index, int precision)
++		private void EnableMasking()
+ 		{
+-			if (number < 0f)
++			if (m_fontMaterial == null)
+ 			{
+-				m_input_CharArray[index++] = '-';
+-				number = 0f - number;
++				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
++				m_uiRenderer.SetMaterial(m_fontMaterial, m_sharedMaterial.mainTexture);
+ 			}
+-			number += k_Power[Mathf.Min(9, precision)];
+-			int num = (int)number;
+-			AddIntToCharArray(num, ref index, precision);
+-			if (precision > 0)
++			m_sharedMaterial = m_fontMaterial;
++			if (m_sharedMaterial.HasProperty(ShaderUtilities.ID_ClipRect))
+ 			{
+-				m_input_CharArray[index++] = '.';
+-				number -= (float)num;
+-				for (int i = 0; i < precision; i++)
+-				{
+-					number *= 10f;
+-					int num2 = (int)number;
+-					m_input_CharArray[index++] = (char)(num2 + 48);
+-					number -= (float)num2;
+-				}
++				m_sharedMaterial.EnableKeyword(ShaderUtilities.Keyword_MASK_SOFT);
++				m_sharedMaterial.DisableKeyword(ShaderUtilities.Keyword_MASK_HARD);
++				m_sharedMaterial.DisableKeyword(ShaderUtilities.Keyword_MASK_TEX);
++				UpdateMask();
+ 			}
++			m_isMaskingEnabled = true;
+ 		}
+ 
+-		private void StringToCharArray(string text, ref int[] chars)
++		private void DisableMasking()
+ 		{
+-			if (text == null)
+-			{
+-				chars[0] = 0;
+-				return;
+-			}
+-			if (chars.Length <= text.Length)
+-			{
+-				int num = (text.Length <= 1024) ? Mathf.NextPowerOfTwo(text.Length + 1) : (text.Length + 256);
+-				chars = new int[num];
+-			}
+-			int num2 = 0;
+-			for (int i = 0; i < text.Length; i++)
++			if (m_fontMaterial != null)
+ 			{
+-				if (m_parseCtrlCharacters && text[i] == '\\' && text.Length > i + 1)
++				if (m_stencilID > 0)
+ 				{
+-					switch (text[i + 1])
+-					{
+-					case 'U':
+-						if (text.Length > i + 9)
+-						{
+-							chars[num2] = GetUTF32(i + 2);
+-							i += 9;
+-							num2++;
+-							continue;
+-						}
+-						break;
+-					case '\\':
+-						if (text.Length <= i + 2)
+-						{
+-							break;
+-						}
+-						chars[num2] = text[i + 1];
+-						chars[num2 + 1] = text[i + 2];
+-						i += 2;
+-						num2 += 2;
+-						continue;
+-					case 'n':
+-						chars[num2] = 10;
+-						i++;
+-						num2++;
+-						continue;
+-					case 'r':
+-						chars[num2] = 13;
+-						i++;
+-						num2++;
+-						continue;
+-					case 't':
+-						chars[num2] = 9;
+-						i++;
+-						num2++;
+-						continue;
+-					case 'u':
+-						if (text.Length > i + 5)
+-						{
+-							chars[num2] = (ushort)GetUTF16(i + 2);
+-							i += 5;
+-							num2++;
+-							continue;
+-						}
+-						break;
+-					}
++					m_sharedMaterial = m_maskingMaterial;
+ 				}
+-				if (char.IsHighSurrogate(text[i]) && char.IsLowSurrogate(text[i + 1]))
++				else
+ 				{
+-					chars[num2] = char.ConvertToUtf32(text[i], text[i + 1]);
+-					i++;
+-					num2++;
++					m_sharedMaterial = m_baseMaterial;
+ 				}
+-				else
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++				UnityEngine.Object.DestroyImmediate(m_fontMaterial);
++			}
++			m_isMaskingEnabled = false;
++		}
++
++		private void UpdateMask()
++		{
++			Debug.Log("Updating Mask...");
++			if (m_rectTransform != null)
++			{
++				if (!ShaderUtilities.isInitialized)
+ 				{
+-					chars[num2] = text[i];
+-					num2++;
++					ShaderUtilities.GetShaderPropertyIDs();
+ 				}
++				m_isScrollRegionSet = true;
++				float num = Mathf.Min(Mathf.Min(m_margin.x, m_margin.z), m_sharedMaterial.GetFloat(ShaderUtilities.ID_MaskSoftnessX));
++				float num2 = Mathf.Min(Mathf.Min(m_margin.y, m_margin.w), m_sharedMaterial.GetFloat(ShaderUtilities.ID_MaskSoftnessY));
++				num = ((!(num > 0f)) ? 0f : num);
++				num2 = ((!(num2 > 0f)) ? 0f : num2);
++				float z = (m_rectTransform.rect.width - Mathf.Max(m_margin.x, 0f) - Mathf.Max(m_margin.z, 0f)) / 2f + num;
++				float w = (m_rectTransform.rect.height - Mathf.Max(m_margin.y, 0f) - Mathf.Max(m_margin.w, 0f)) / 2f + num2;
++				Vector3 localPosition = m_rectTransform.localPosition;
++				Vector2 pivot = m_rectTransform.pivot;
++				float x = (0.5f - pivot.x) * m_rectTransform.rect.width + (Mathf.Max(m_margin.x, 0f) - Mathf.Max(m_margin.z, 0f)) / 2f;
++				Vector2 pivot2 = m_rectTransform.pivot;
++				Vector2 vector = localPosition + new Vector3(x, (0.5f - pivot2.y) * m_rectTransform.rect.height + (0f - Mathf.Max(m_margin.y, 0f) + Mathf.Max(m_margin.w, 0f)) / 2f);
++				Vector4 value = new Vector4(vector.x, vector.y, z, w);
++				m_sharedMaterial.SetVector(ShaderUtilities.ID_ClipRect, value);
+ 			}
+-			chars[num2] = 0;
+ 		}
+ 
+-		private void SetTextArrayToCharArray(char[] charArray, ref int[] charBuffer)
++		private void SetFontMaterial(Material mat)
+ 		{
+-			if (charArray == null || m_charArray_Length == 0)
++			ShaderUtilities.GetShaderPropertyIDs();
++			if (m_uiRenderer == null)
+ 			{
+-				return;
++				m_uiRenderer = GetComponent<CanvasRenderer>();
+ 			}
+-			if (charBuffer.Length <= m_charArray_Length)
++			if (m_fontMaterial != null)
+ 			{
+-				int num = (m_charArray_Length <= 1024) ? Mathf.NextPowerOfTwo(m_charArray_Length + 1) : (m_charArray_Length + 256);
+-				charBuffer = new int[num];
++				UnityEngine.Object.DestroyImmediate(m_fontMaterial);
+ 			}
+-			int num2 = 0;
+-			for (int i = 0; i < m_charArray_Length; i++)
++			if (m_maskingMaterial != null)
+ 			{
+-				if (char.IsHighSurrogate(charArray[i]) && char.IsLowSurrogate(charArray[i + 1]))
+-				{
+-					charBuffer[num2] = char.ConvertToUtf32(charArray[i], charArray[i + 1]);
+-					i++;
+-					num2++;
+-				}
+-				else
+-				{
+-					charBuffer[num2] = charArray[i];
+-					num2++;
+-				}
++				MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++				m_maskingMaterial = null;
+ 			}
+-			charBuffer[num2] = 0;
++			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
++			m_fontMaterial = CreateMaterialInstance(mat);
++			if (m_stencilID > 0)
++			{
++				m_fontMaterial = MaterialManager.SetStencil(m_fontMaterial, m_stencilID);
++			}
++			m_sharedMaterial = m_fontMaterial;
++			SetShaderDepth();
++			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
+ 		}
+ 
+-		private int GetArraySizes(int[] chars)
++		private void SetSharedFontMaterial(Material mat)
+ 		{
+-			int num = 0;
+-			int num2 = 0;
+-			int endIndex = 0;
+-			m_isUsingBold = false;
+-			m_isParsingText = false;
+-			m_VisibleCharacters.Clear();
+-			for (int i = 0; chars[i] != 0; i++)
++			ShaderUtilities.GetShaderPropertyIDs();
++			if (m_uiRenderer == null)
+ 			{
+-				int num3 = chars[i];
+-				if (m_isRichText && num3 == 60 && ValidateHtmlTag(chars, i + 1, out endIndex))
+-				{
+-					i = endIndex;
+-					if ((m_style & FontStyles.Underline) == FontStyles.Underline)
+-					{
+-						num += 3;
+-					}
+-					if ((m_style & FontStyles.Bold) == FontStyles.Bold)
+-					{
+-						m_isUsingBold = true;
+-					}
+-				}
+-				else
++				m_uiRenderer = GetComponent<CanvasRenderer>();
++			}
++			if (mat == null)
++			{
++				mat = m_baseMaterial;
++				m_isNewBaseMaterial = true;
++			}
++			m_stencilID = MaterialManager.GetStencilID(base.gameObject);
++			if (m_stencilID == 0)
++			{
++				if (m_maskingMaterial != null)
+ 				{
+-					if (num3 != 9 && num3 != 10 && num3 != 13 && num3 != 32 && num3 != 160)
+-					{
+-						num++;
+-					}
+-					m_VisibleCharacters.Add((char)num3);
+-					num2++;
++					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++					m_maskingMaterial = null;
+ 				}
++				m_baseMaterial = mat;
+ 			}
+-			return num2;
+-		}
+-
+-		private int SetArraySizes(int[] chars)
+-		{
+-			int num = 0;
+-			int num2 = 0;
+-			int endIndex = 0;
+-			int num3 = 0;
+-			m_isUsingBold = false;
+-			m_isParsingText = false;
+-			m_isSprite = false;
+-			m_fontIndex = 0;
+-			m_VisibleCharacters.Clear();
+-			for (int i = 0; chars[i] != 0; i++)
++			else
+ 			{
+-				int num4 = chars[i];
+-				if (m_isRichText && num4 == 60 && ValidateHtmlTag(chars, i + 1, out endIndex))
++				if (m_maskingMaterial == null)
+ 				{
+-					i = endIndex;
+-					if ((m_style & FontStyles.Underline) == FontStyles.Underline)
+-					{
+-						num += 3;
+-					}
+-					if ((m_style & FontStyles.Bold) == FontStyles.Bold)
+-					{
+-						m_isUsingBold = true;
+-					}
+-					if (m_isSprite)
+-					{
+-						num3++;
+-						num2++;
+-						m_VisibleCharacters.Add((char)(57344 + m_spriteIndex));
+-						m_isSprite = false;
+-					}
++					m_maskingMaterial = MaterialManager.GetStencilMaterial(mat, m_stencilID);
+ 				}
+-				else
++				else if (m_maskingMaterial.GetInt(ShaderUtilities.ID_StencilID) != m_stencilID || m_isNewBaseMaterial)
+ 				{
+-					if (num4 != 9 && num4 != 10 && num4 != 13 && num4 != 32 && num4 != 160)
+-					{
+-						num++;
+-					}
+-					m_VisibleCharacters.Add((char)num4);
+-					num2++;
++					MaterialManager.ReleaseStencilMaterial(m_maskingMaterial);
++					m_maskingMaterial = MaterialManager.GetStencilMaterial(mat, m_stencilID);
+ 				}
++				mat = m_maskingMaterial;
+ 			}
+-			if (num3 > 0)
+-			{
+-				if (m_inlineGraphics == null)
+-				{
+-					m_inlineGraphics = (GetComponent<InlineGraphicManager>() ?? base.gameObject.AddComponent<InlineGraphicManager>());
+-				}
+-				m_inlineGraphics.AllocatedVertexBuffers(num3);
+-			}
+-			else if (m_inlineGraphics != null)
+-			{
+-				m_inlineGraphics.ClearUIVertex();
+-			}
+-			m_spriteCount = num3;
+-			if (m_textInfo.characterInfo == null || num2 > m_textInfo.characterInfo.Length)
+-			{
+-				m_textInfo.characterInfo = new TMP_CharacterInfo[(num2 <= 1024) ? Mathf.NextPowerOfTwo(num2) : (num2 + 256)];
+-			}
+-			if (m_textInfo.meshInfo.vertices == null)
++			m_isNewBaseMaterial = false;
++			m_sharedMaterial = mat;
++			SetShaderDepth();
++			m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
++		}
++
++		private void SetFontBaseMaterial(Material mat)
++		{
++			Debug.Log("Changing Base Material from [" + ((!(m_lastBaseMaterial == null)) ? m_lastBaseMaterial.name : "Null") + "] to [" + mat.name + "].");
++			m_baseMaterial = mat;
++			m_lastBaseMaterial = mat;
++		}
++
++		private void SetOutlineThickness(float thickness)
++		{
++			if (m_fontMaterial != null && m_sharedMaterial.GetInstanceID() != m_fontMaterial.GetInstanceID())
+ 			{
+-				m_textInfo.meshInfo = new TMP_MeshInfo(m_mesh, num);
++				m_sharedMaterial = m_fontMaterial;
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+ 			}
+-			if (num * 4 > m_textInfo.meshInfo.vertices.Length)
++			else if (m_fontMaterial == null)
+ 			{
+-				if (m_isFirstAllocation)
+-				{
+-					SetMeshArrays(num);
+-					m_isFirstAllocation = false;
+-				}
+-				else
+-				{
+-					SetMeshArrays((num <= 1024) ? Mathf.NextPowerOfTwo(num) : (num + 256));
+-				}
++				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
++				m_sharedMaterial = m_fontMaterial;
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+ 			}
+-			return num2;
++			thickness = Mathf.Clamp01(thickness);
++			m_sharedMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, thickness);
++			m_padding = ShaderUtilities.GetPadding(m_sharedMaterial, m_enableExtraPadding, m_isUsingBold);
+ 		}
+ 
+-		private void MarkLayoutForRebuild()
++		private void SetFaceColor(Color32 color)
+ 		{
+-			if (m_rectTransform == null)
++			if (m_fontMaterial != null && m_sharedMaterial.GetInstanceID() != m_fontMaterial.GetInstanceID())
+ 			{
+-				m_rectTransform = GetComponent<RectTransform>();
++				m_sharedMaterial = m_fontMaterial;
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+ 			}
+-			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
+-		}
+-
+-		private void ParseInputText()
+-		{
+-			isInputParsingRequired = false;
+-			switch (m_inputSource)
++			else if (m_fontMaterial == null)
+ 			{
+-			case TextInputSources.Text:
+-				StringToCharArray(m_text, ref m_char_buffer);
+-				break;
+-			case TextInputSources.SetText:
+-				SetTextArrayToCharArray(m_input_CharArray, ref m_char_buffer);
+-				break;
++				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
++				m_sharedMaterial = m_fontMaterial;
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+ 			}
++			m_sharedMaterial.SetColor(ShaderUtilities.ID_FaceColor, color);
+ 		}
+ 
+-		private void ComputeMarginSize()
++		private void SetOutlineColor(Color32 color)
+ 		{
+-			if (m_rectTransform != null)
++			if (m_fontMaterial != null && m_sharedMaterial.GetInstanceID() != m_fontMaterial.GetInstanceID())
+ 			{
+-				m_marginWidth = m_rectTransform.rect.width - m_margin.x - m_margin.z;
+-				m_marginHeight = m_rectTransform.rect.height - m_margin.y - m_margin.w;
++				m_sharedMaterial = m_fontMaterial;
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
++			}
++			else if (m_fontMaterial == null)
++			{
++				m_fontMaterial = CreateMaterialInstance(m_sharedMaterial);
++				m_sharedMaterial = m_fontMaterial;
++				m_uiRenderer.SetMaterial(m_sharedMaterial, m_sharedMaterial.mainTexture);
+ 			}
++			m_sharedMaterial.SetColor(ShaderUtilities.ID_OutlineColor, color);
+ 		}
+ 
+-		protected override void OnDidApplyAnimationProperties()
++		private Material CreateMaterialInstance(Material source)
+ 		{
+-			m_havePropertiesChanged = true;
++			Material material = new Material(source);
++			material.shaderKeywords = source.shaderKeywords;
++			material.hideFlags = HideFlags.DontSave;
++			material.name += " (Instance)";
++			return material;
+ 		}
+ 
+-		protected override void OnRectTransformDimensionsChange()
++		private void SetShaderDepth()
+ 		{
+-			SetShaderDepth();
+-			if (base.gameObject.activeInHierarchy)
++			if (!(m_canvas == null) && !(m_sharedMaterial == null))
+ 			{
+-				ComputeMarginSize();
+-				if (m_rectTransform != null)
+-				{
+-					m_rectTransform.hasChanged = true;
+-				}
+-				else
+-				{
+-					m_rectTransform = GetComponent<RectTransform>();
+-					m_rectTransform.hasChanged = true;
+-				}
+-				if (m_isRebuildingLayout)
++				if (m_canvas.renderMode == RenderMode.ScreenSpaceOverlay || m_isOverlay)
+ 				{
+-					m_isLayoutDirty = true;
++					m_sharedMaterial.SetFloat(ShaderUtilities.ShaderTag_ZTestMode, 0f);
+ 				}
+ 				else
+ 				{
+-					m_havePropertiesChanged = true;
++					m_sharedMaterial.SetFloat(ShaderUtilities.ShaderTag_ZTestMode, 4f);
+ 				}
+ 			}
+ 		}
+ 
+-		private void OnPreRenderCanvas()
++		private void SetCulling()
+ 		{
+-			if (!base.isActiveAndEnabled || m_fontAsset == null)
+-			{
+-				return;
+-			}
+-			loopCountA = 0;
+-			if (m_rectTransform.hasChanged || m_marginsHaveChanged)
++			if (m_isCullingEnabled)
+ 			{
+-				if (m_inlineGraphics != null)
+-				{
+-					m_inlineGraphics.UpdatePivot(m_rectTransform.pivot);
+-				}
+-				if (m_rectTransformDimensionsChanged || m_marginsHaveChanged)
+-				{
+-					ComputeMarginSize();
+-					if (m_marginsHaveChanged)
+-					{
+-						m_isScrollRegionSet = false;
+-					}
+-					m_rectTransformDimensionsChanged = false;
+-					m_marginsHaveChanged = false;
+-					m_isCalculateSizeRequired = true;
+-					m_havePropertiesChanged = true;
+-				}
+-				if (m_isMaskingEnabled)
+-				{
+-					UpdateMask();
+-				}
+-				m_rectTransform.hasChanged = false;
+-				Vector3 lossyScale = m_rectTransform.lossyScale;
+-				if (lossyScale != m_previousLossyScale)
+-				{
+-					if (!m_havePropertiesChanged && m_previousLossyScale.z != 0f && m_text != string.Empty)
+-					{
+-						UpdateSDFScale(m_previousLossyScale.z, lossyScale.z);
+-					}
+-					else
+-					{
+-						m_havePropertiesChanged = true;
+-					}
+-					m_previousLossyScale = lossyScale;
+-				}
++				m_uiRenderer.GetMaterial().SetFloat("_CullMode", 2f);
+ 			}
+-			if (!m_havePropertiesChanged && !m_fontAsset.propertiesChanged && !m_isLayoutDirty)
++			else
+ 			{
+-				return;
++				m_uiRenderer.GetMaterial().SetFloat("_CullMode", 0f);
+ 			}
+-			if (m_canvas == null)
++		}
++
++		private void SetPerspectiveCorrection()
++		{
++			if (m_isOrthographic)
+ 			{
+-				m_canvas = GetComponentInParent<Canvas>();
++				m_sharedMaterial.SetFloat(ShaderUtilities.ID_PerspectiveFilter, 0f);
+ 			}
+-			if (m_canvas == null)
++			else
+ 			{
+-				return;
++				m_sharedMaterial.SetFloat(ShaderUtilities.ID_PerspectiveFilter, 0.875f);
+ 			}
+-			if (hasFontAssetChanged || m_fontAsset.propertiesChanged)
++		}
++
++		private void SetMeshArrays(int size)
++		{
++			m_textInfo.meshInfo.ResizeMeshInfo(size);
++			m_uiRenderer.SetMesh(m_textInfo.meshInfo.mesh);
++		}
++
++		private void AddIntToCharArray(int number, ref int index, int precision)
++		{
++			if (number < 0)
+ 			{
+-				LoadFontAsset();
+-				hasFontAssetChanged = false;
+-				if (m_fontAsset == null || m_uiRenderer.GetMaterial() == null)
+-				{
+-					return;
+-				}
+-				m_fontAsset.propertiesChanged = false;
++				m_input_CharArray[index++] = '-';
++				number = -number;
+ 			}
+-			if (isInputParsingRequired || m_isTextTruncated)
++			int num = index;
++			do
+ 			{
+-				ParseInputText();
++				m_input_CharArray[num++] = (char)(number % 10 + 48);
++				number /= 10;
+ 			}
+-			if (m_enableAutoSizing)
++			while (number > 0);
++			int num2 = num;
++			while (index + 1 < num)
+ 			{
+-				m_fontSize = Mathf.Clamp(m_fontSize, m_fontSizeMin, m_fontSizeMax);
++				num--;
++				char c = m_input_CharArray[index];
++				m_input_CharArray[index] = m_input_CharArray[num];
++				m_input_CharArray[num] = c;
++				index++;
+ 			}
+-			m_maxFontSize = m_fontSizeMax;
+-			m_minFontSize = m_fontSizeMin;
+-			m_lineSpacingDelta = 0f;
+-			m_charWidthAdjDelta = 0f;
+-			m_recursiveCount = 0;
+-			m_isCharacterWrappingEnabled = false;
+-			m_isTextTruncated = false;
+-			m_isLayoutDirty = false;
+-			GenerateTextMesh();
+-			m_havePropertiesChanged = false;
++			index = num2;
+ 		}
+ 
+-		private void GenerateTextMesh()
++		private void AddFloatToCharArray(float number, ref int index, int precision)
+ 		{
+-			if (m_fontAsset.characterDictionary == null)
+-			{
+-				Debug.Log("Can't Generate Mesh! No Font Asset has been assigned to Object ID: " + GetInstanceID());
+-				return;
+-			}
+-			if (m_textInfo != null)
++			if (number < 0f)
+ 			{
+-				m_textInfo.Clear();
++				m_input_CharArray[index++] = '-';
++				number = 0f - number;
+ 			}
+-			if (m_char_buffer == null || m_char_buffer.Length == 0 || m_char_buffer[0] == 0)
++			number += k_Power[Mathf.Min(9, precision)];
++			int num = (int)number;
++			AddIntToCharArray(num, ref index, precision);
++			if (precision > 0)
+ 			{
+-				m_uiRenderer.SetMesh(null);
+-				if (m_inlineGraphics != null)
++				m_input_CharArray[index++] = '.';
++				number -= (float)num;
++				for (int i = 0; i < precision; i++)
+ 				{
+-					m_inlineGraphics.ClearUIVertex();
++					number *= 10f;
++					int num2 = (int)number;
++					m_input_CharArray[index++] = (char)(num2 + 48);
++					number -= (float)num2;
+ 				}
+-				m_preferredWidth = 0f;
+-				m_preferredHeight = 0f;
+-				m_renderedWidth = 0f;
+-				m_renderedHeight = 0f;
+-				LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
+-				return;
+-			}
+-			m_currentFontAsset = m_fontAsset;
+-			m_currentMaterial = m_sharedMaterial;
+-			int num = SetArraySizes(m_char_buffer);
+-			m_fontScale = m_fontSize / m_currentFontAsset.fontInfo.PointSize;
+-			float num2 = m_maxFontScale = m_fontScale;
+-			float num3 = 0f;
+-			float num4 = 1f;
+-			m_currentFontSize = m_fontSize;
+-			float num5 = 0f;
+-			int num6 = 0;
+-			m_style = m_fontStyle;
+-			m_lineJustification = m_textAlignment;
+-			if (checkPaddingRequired)
+-			{
+-				checkPaddingRequired = false;
+-				m_padding = ShaderUtilities.GetPadding(m_uiRenderer.GetMaterial(), m_enableExtraPadding, m_isUsingBold);
+-				m_isMaskingEnabled = ShaderUtilities.IsMaskingEnabled(m_sharedMaterial);
+ 			}
+-			float num7 = 0f;
+-			float num8 = 1f;
+-			m_baselineOffset = 0f;
+-			bool flag = false;
+-			Vector3 start = Vector3.zero;
+-			Vector3 zero = Vector3.zero;
+-			bool flag2 = false;
+-			Vector3 start2 = Vector3.zero;
+-			Vector3 zero2 = Vector3.zero;
+-			m_fontColor32 = m_fontColor;
+-			m_htmlColor = m_fontColor32;
+-			m_colorStackIndex = 0;
+-			Array.Clear(m_colorStack, 0, m_colorStack.Length);
+-			m_styleStackIndex = 0;
+-			Array.Clear(m_styleStack, 0, m_styleStack.Length);
+-			m_lineOffset = 0f;
+-			m_lineHeight = 0f;
+-			m_cSpacing = 0f;
+-			m_monoSpacing = 0f;
+-			float num9 = 0f;
+-			m_xAdvance = 0f;
+-			m_maxXAdvance = 0f;
+-			tag_LineIndent = 0f;
+-			tag_Indent = 0f;
+-			tag_NoParsing = false;
+-			m_isIgnoringAlignment = false;
+-			m_characterCount = 0;
+-			m_visibleCharacterCount = 0;
+-			m_visibleSpriteCount = 0;
+-			m_firstCharacterOfLine = 0;
+-			m_lastCharacterOfLine = 0;
+-			m_firstVisibleCharacterOfLine = 0;
+-			m_lastVisibleCharacterOfLine = 0;
+-			m_lineNumber = 0;
+-			bool flag3 = true;
+-			m_pageNumber = 0;
+-			int num10 = Mathf.Clamp(m_pageToDisplay - 1, 0, m_textInfo.pageInfo.Length - 1);
+-			int num11 = 0;
+-			m_rectTransform.GetLocalCorners(m_rectCorners);
+-			Vector4 margin = m_margin;
+-			float marginWidth = m_marginWidth;
+-			float marginHeight = m_marginHeight;
+-			m_marginLeft = 0f;
+-			m_marginRight = 0f;
+-			m_width = -1f;
+-			m_renderedWidth = 0f;
+-			m_renderedHeight = 0f;
+-			bool flag4 = true;
+-			bool flag5 = false;
+-			m_SavedLineState = default(WordWrapState);
+-			m_SavedWordWrapState = default(WordWrapState);
+-			int num12 = 0;
+-			m_meshExtents = new Extents(k_InfinityVector, -k_InfinityVector);
+-			if (m_textInfo.lineInfo == null)
++		}
++
++		private void StringToCharArray(string text, ref int[] chars)
++		{
++			if (text == null)
+ 			{
+-				m_textInfo.lineInfo = new TMP_LineInfo[2];
++				chars[0] = 0;
++				return;
+ 			}
+-			for (int i = 0; i < m_textInfo.lineInfo.Length; i++)
++			if (chars.Length <= text.Length)
+ 			{
+-				m_textInfo.lineInfo[i] = default(TMP_LineInfo);
+-				m_textInfo.lineInfo[i].lineExtents = new Extents(k_InfinityVector, -k_InfinityVector);
+-				m_textInfo.lineInfo[i].ascender = 0f - k_InfinityVector.x;
+-				m_textInfo.lineInfo[i].descender = k_InfinityVector.x;
++				int num = (text.Length <= 1024) ? Mathf.NextPowerOfTwo(text.Length + 1) : (text.Length + 256);
++				chars = new int[num];
+ 			}
+-			m_maxAscender = 0f;
+-			m_maxDescender = 0f;
+-			float num13 = 0f;
+-			float num14 = 0f;
+-			bool flag6 = false;
+-			m_isNewPage = false;
+-			loopCountA++;
+-			int endIndex = 0;
+-			for (int j = 0; m_char_buffer[j] != 0; j++)
++			int num2 = 0;
++			for (int i = 0; i < text.Length; i++)
+ 			{
+-				num6 = m_char_buffer[j];
+-				m_isSprite = false;
+-				num4 = 1f;
+-				if (m_isRichText && num6 == 60)
++				if (m_parseCtrlCharacters && text[i] == '\\' && text.Length > i + 1)
+ 				{
+-					m_isParsingText = true;
+-					if (ValidateHtmlTag(m_char_buffer, j + 1, out endIndex))
++					switch (text[i + 1])
+ 					{
+-						j = endIndex;
+-						if (m_isRecalculateScaleRequired)
++					case 'U':
++						if (text.Length > i + 9)
+ 						{
+-							m_fontScale = m_currentFontSize / m_currentFontAsset.fontInfo.PointSize;
+-							m_isRecalculateScaleRequired = false;
++							chars[num2] = GetUTF32(i + 2);
++							i += 9;
++							num2++;
++							continue;
+ 						}
+-						if (!m_isSprite)
++						break;
++					case '\\':
++						if (text.Length <= i + 2)
++						{
++							break;
++						}
++						chars[num2] = text[i + 1];
++						chars[num2 + 1] = text[i + 2];
++						i += 2;
++						num2 += 2;
++						continue;
++					case 'n':
++						chars[num2] = 10;
++						i++;
++						num2++;
++						continue;
++					case 'r':
++						chars[num2] = 13;
++						i++;
++						num2++;
++						continue;
++					case 't':
++						chars[num2] = 9;
++						i++;
++						num2++;
++						continue;
++					case 'u':
++						if (text.Length > i + 5)
+ 						{
++							chars[num2] = (ushort)GetUTF16(i + 2);
++							i += 5;
++							num2++;
+ 							continue;
+ 						}
++						break;
+ 					}
+ 				}
+-				m_isParsingText = false;
+-				bool flag7 = false;
+-				if ((m_style & FontStyles.UpperCase) == FontStyles.UpperCase)
++				if (char.IsHighSurrogate(text[i]) && char.IsLowSurrogate(text[i + 1]))
+ 				{
+-					if (char.IsLower((char)num6))
+-					{
+-						num6 = char.ToUpper((char)num6);
+-					}
++					chars[num2] = char.ConvertToUtf32(text[i], text[i + 1]);
++					i++;
++					num2++;
+ 				}
+-				else if ((m_style & FontStyles.LowerCase) == FontStyles.LowerCase)
++				else
+ 				{
+-					if (char.IsUpper((char)num6))
+-					{
+-						num6 = char.ToLower((char)num6);
+-					}
++					chars[num2] = text[i];
++					num2++;
+ 				}
+-				else if ((m_fontStyle & FontStyles.SmallCaps) == FontStyles.SmallCaps || (m_style & FontStyles.SmallCaps) == FontStyles.SmallCaps)
++			}
++			chars[num2] = 0;
++		}
++
++		private void SetTextArrayToCharArray(char[] charArray, ref int[] charBuffer)
++		{
++			if (charArray == null || m_charArray_Length == 0)
++			{
++				return;
++			}
++			if (charBuffer.Length <= m_charArray_Length)
++			{
++				int num = (m_charArray_Length <= 1024) ? Mathf.NextPowerOfTwo(m_charArray_Length + 1) : (m_charArray_Length + 256);
++				charBuffer = new int[num];
++			}
++			int num2 = 0;
++			for (int i = 0; i < m_charArray_Length; i++)
++			{
++				if (char.IsHighSurrogate(charArray[i]) && char.IsLowSurrogate(charArray[i + 1]))
+ 				{
+-					if (char.IsLower((char)num6))
++					charBuffer[num2] = char.ConvertToUtf32(charArray[i], charArray[i + 1]);
++					i++;
++					num2++;
++				}
++				else
++				{
++					charBuffer[num2] = charArray[i];
++					num2++;
++				}
++			}
++			charBuffer[num2] = 0;
++		}
++
++		private int GetArraySizes(int[] chars)
++		{
++			int num = 0;
++			int num2 = 0;
++			int endIndex = 0;
++			m_isUsingBold = false;
++			m_isParsingText = false;
++			m_VisibleCharacters.Clear();
++			for (int i = 0; chars[i] != 0; i++)
++			{
++				int num3 = chars[i];
++				if (m_isRichText && num3 == 60 && ValidateHtmlTag(chars, i + 1, out endIndex))
++				{
++					i = endIndex;
++					if ((m_style & FontStyles.Underline) == FontStyles.Underline)
+ 					{
+-						m_fontScale = m_currentFontSize * 0.8f / m_currentFontAsset.fontInfo.PointSize;
+-						num6 = char.ToUpper((char)num6);
++						num += 3;
+ 					}
+-					else
++					if ((m_style & FontStyles.Bold) == FontStyles.Bold)
+ 					{
+-						m_fontScale = m_currentFontSize / m_currentFontAsset.fontInfo.PointSize;
++						m_isUsingBold = true;
+ 					}
+ 				}
+-				if (m_isSprite)
++				else
+ 				{
+-					SpriteInfo sprite = m_inlineGraphics.GetSprite(m_spriteIndex);
+-					if (sprite == null)
++					if (num3 != 9 && num3 != 10 && num3 != 13 && num3 != 32 && num3 != 160)
+ 					{
+-						continue;
++						num++;
+ 					}
+-					num6 = 57344 + m_spriteIndex;
+-					m_cached_GlyphInfo = new GlyphInfo();
+-					m_cached_GlyphInfo.x = sprite.x;
+-					m_cached_GlyphInfo.y = sprite.y;
+-					m_cached_GlyphInfo.width = sprite.width;
+-					m_cached_GlyphInfo.height = sprite.height;
+-					m_cached_GlyphInfo.xOffset = sprite.pivot.x + sprite.xOffset;
+-					m_cached_GlyphInfo.yOffset = sprite.pivot.y + sprite.yOffset;
+-					num4 = m_fontAsset.fontInfo.Ascender / sprite.height * sprite.scale;
+-					m_cached_GlyphInfo.xAdvance = sprite.xAdvance * num4;
+-					m_textInfo.characterInfo[m_characterCount].type = TMP_CharacterType.Sprite;
++					m_VisibleCharacters.Add((char)num3);
++					num2++;
+ 				}
+-				else
++			}
++			return num2;
++		}
++
++		private int SetArraySizes(int[] chars)
++		{
++			int num = 0;
++			int num2 = 0;
++			int endIndex = 0;
++			int num3 = 0;
++			m_isUsingBold = false;
++			m_isParsingText = false;
++			m_isSprite = false;
++			m_fontIndex = 0;
++			m_VisibleCharacters.Clear();
++			for (int i = 0; chars[i] != 0; i++)
++			{
++				int num4 = chars[i];
++				if (m_isRichText && num4 == 60 && ValidateHtmlTag(chars, i + 1, out endIndex))
+ 				{
+-					m_currentFontAsset.characterDictionary.TryGetValue(num6, out m_cached_GlyphInfo);
+-					if (m_cached_GlyphInfo == null)
++					i = endIndex;
++					if ((m_style & FontStyles.Underline) == FontStyles.Underline)
+ 					{
+-						if (char.IsLower((char)num6))
+-						{
+-							if (m_currentFontAsset.characterDictionary.TryGetValue(char.ToUpper((char)num6), out m_cached_GlyphInfo))
+-							{
+-								num6 = char.ToUpper((char)num6);
+-							}
+-						}
+-						else if (char.IsUpper((char)num6) && m_currentFontAsset.characterDictionary.TryGetValue(char.ToLower((char)num6), out m_cached_GlyphInfo))
+-						{
+-							num6 = char.ToLower((char)num6);
+-						}
+-						if (m_cached_GlyphInfo == null)
+-						{
+-							m_currentFontAsset.characterDictionary.TryGetValue(88, out m_cached_GlyphInfo);
+-							if (m_cached_GlyphInfo == null)
+-							{
+-								Debug.LogWarning("Character with ASCII value of " + num6 + " was not found in the Font Asset Glyph Table.", this);
+-								continue;
+-							}
+-							Debug.LogWarning("Character with ASCII value of " + num6 + " was not found in the Font Asset Glyph Table.", this);
+-							num6 = 88;
+-							flag7 = true;
+-						}
++						num += 3;
++					}
++					if ((m_style & FontStyles.Bold) == FontStyles.Bold)
++					{
++						m_isUsingBold = true;
++					}
++					if (m_isSprite)
++					{
++						num3++;
++						num2++;
++						m_VisibleCharacters.Add((char)(57344 + m_spriteIndex));
++						m_isSprite = false;
+ 					}
+-					m_textInfo.characterInfo[m_characterCount].type = TMP_CharacterType.Character;
+ 				}
+-				m_textInfo.characterInfo[m_characterCount].character = (char)num6;
+-				m_textInfo.characterInfo[m_characterCount].pointSize = m_currentFontSize;
+-				m_textInfo.characterInfo[m_characterCount].color = m_htmlColor;
+-				m_textInfo.characterInfo[m_characterCount].style = m_style;
+-				m_textInfo.characterInfo[m_characterCount].index = (short)j;
+-				if (m_enableKerning && m_characterCount >= 1)
++				else
+ 				{
+-					int character = m_textInfo.characterInfo[m_characterCount - 1].character;
+-					KerningPairKey kerningPairKey = new KerningPairKey(character, num6);
+-					m_currentFontAsset.kerningDictionary.TryGetValue(kerningPairKey.key, out KerningPair value);
+-					if (value != null)
++					if (num4 != 9 && num4 != 10 && num4 != 13 && num4 != 32 && num4 != 160)
+ 					{
+-						m_xAdvance += value.XadvanceOffset * m_fontScale;
++						num++;
+ 					}
++					m_VisibleCharacters.Add((char)num4);
++					num2++;
+ 				}
+-				float num15 = 0f;
+-				if (m_monoSpacing != 0f)
++			}
++			if (num3 > 0)
++			{
++				if (m_inlineGraphics == null)
+ 				{
+-					num15 = (m_monoSpacing / 2f - (m_cached_GlyphInfo.width / 2f + m_cached_GlyphInfo.xOffset) * m_fontScale) * (1f - m_charWidthAdjDelta);
+-					m_xAdvance += num15;
++					m_inlineGraphics = (GetComponent<InlineGraphicManager>() ?? base.gameObject.AddComponent<InlineGraphicManager>());
+ 				}
+-				if ((m_style & FontStyles.Bold) == FontStyles.Bold || (m_fontStyle & FontStyles.Bold) == FontStyles.Bold)
++				m_inlineGraphics.AllocatedVertexBuffers(num3);
++			}
++			else if (m_inlineGraphics != null)
++			{
++				m_inlineGraphics.ClearUIVertex();
++			}
++			m_spriteCount = num3;
++			if (m_textInfo.characterInfo == null || num2 > m_textInfo.characterInfo.Length)
++			{
++				m_textInfo.characterInfo = new TMP_CharacterInfo[(num2 <= 1024) ? Mathf.NextPowerOfTwo(num2) : (num2 + 256)];
++			}
++			if (m_textInfo.meshInfo.vertices == null)
++			{
++				m_textInfo.meshInfo = new TMP_MeshInfo(m_mesh, num);
++			}
++			if (num * 4 > m_textInfo.meshInfo.vertices.Length)
++			{
++				if (m_isFirstAllocation)
+ 				{
+-					num7 = m_currentFontAsset.BoldStyle * 2f;
+-					num8 = 1f + m_currentFontAsset.boldSpacing * 0.01f;
++					SetMeshArrays(num);
++					m_isFirstAllocation = false;
+ 				}
+ 				else
+ 				{
+-					num7 = m_currentFontAsset.NormalStyle * 2f;
+-					num8 = 1f;
++					SetMeshArrays((num <= 1024) ? Mathf.NextPowerOfTwo(num) : (num + 256));
+ 				}
+-				float num16 = (!m_isSprite) ? m_padding : 0f;
+-				Vector3 topLeft = new Vector3(m_xAdvance + (m_cached_GlyphInfo.xOffset - num16 - num7) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), (m_cached_GlyphInfo.yOffset + num16) * m_fontScale * num4 - m_lineOffset + m_baselineOffset, 0f);
+-				Vector3 bottomLeft = new Vector3(topLeft.x, topLeft.y - (m_cached_GlyphInfo.height + num16 * 2f) * m_fontScale * num4, 0f);
+-				Vector3 topRight = new Vector3(bottomLeft.x + (m_cached_GlyphInfo.width + num16 * 2f + num7 * 2f) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), topLeft.y, 0f);
+-				Vector3 bottomRight = new Vector3(topRight.x, bottomLeft.y, 0f);
+-				if ((m_style & FontStyles.Italic) == FontStyles.Italic || (m_fontStyle & FontStyles.Italic) == FontStyles.Italic)
++			}
++			return num2;
++		}
++
++		private void MarkLayoutForRebuild()
++		{
++			if (m_rectTransform == null)
++			{
++				m_rectTransform = GetComponent<RectTransform>();
++			}
++			LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
++		}
++
++		private void ParseInputText()
++		{
++			isInputParsingRequired = false;
++			switch (m_inputSource)
++			{
++			case TextInputSources.Text:
++				StringToCharArray(m_text, ref m_char_buffer);
++				break;
++			case TextInputSources.SetText:
++				SetTextArrayToCharArray(m_input_CharArray, ref m_char_buffer);
++				break;
++			}
++		}
++
++		private void ComputeMarginSize()
++		{
++			if (m_rectTransform != null)
++			{
++				m_marginWidth = m_rectTransform.rect.width - m_margin.x - m_margin.z;
++				m_marginHeight = m_rectTransform.rect.height - m_margin.y - m_margin.w;
++			}
++		}
++
++		protected override void OnDidApplyAnimationProperties()
++		{
++			m_havePropertiesChanged = true;
++		}
++
++		protected override void OnRectTransformDimensionsChange()
++		{
++			SetShaderDepth();
++			if (base.gameObject.activeInHierarchy)
++			{
++				ComputeMarginSize();
++				if (m_rectTransform != null)
+ 				{
+-					float num17 = (float)(int)m_currentFontAsset.ItalicStyle * 0.01f;
+-					Vector3 vector = new Vector3(num17 * ((m_cached_GlyphInfo.yOffset + num16 + num7) * m_fontScale * num4), 0f, 0f);
+-					Vector3 vector2 = new Vector3(num17 * ((m_cached_GlyphInfo.yOffset - m_cached_GlyphInfo.height - num16 - num7) * m_fontScale * num4), 0f, 0f);
+-					topLeft += vector;
+-					bottomLeft += vector2;
+-					topRight += vector;
+-					bottomRight += vector2;
++					m_rectTransform.hasChanged = true;
+ 				}
+-				m_textInfo.characterInfo[m_characterCount].bottomLeft = bottomLeft;
+-				m_textInfo.characterInfo[m_characterCount].topLeft = topLeft;
+-				m_textInfo.characterInfo[m_characterCount].topRight = topRight;
+-				m_textInfo.characterInfo[m_characterCount].bottomRight = bottomRight;
+-				m_textInfo.characterInfo[m_characterCount].baseLine = 0f - m_lineOffset + m_baselineOffset;
+-				m_textInfo.characterInfo[m_characterCount].scale = m_fontScale;
+-				float num18 = m_fontAsset.fontInfo.Ascender * m_fontScale + m_baselineOffset;
+-				if ((num6 == 10 || num6 == 13) && m_characterCount > m_firstVisibleCharacterOfLine)
++				else
+ 				{
+-					num18 = m_baselineOffset;
++					m_rectTransform = GetComponent<RectTransform>();
++					m_rectTransform.hasChanged = true;
+ 				}
+-				float num19 = m_fontAsset.fontInfo.Descender * m_fontScale - m_lineOffset + m_baselineOffset;
+-				if (m_isSprite)
++				if (m_isRebuildingLayout)
+ 				{
+-					num18 = Mathf.Max(num18, topLeft.y - num16 * m_fontScale * num4);
+-					num19 = Mathf.Min(num19, bottomRight.y - num16 * m_fontScale * num4);
++					m_isLayoutDirty = true;
+ 				}
+-				if (m_lineNumber == 0)
++				else
+ 				{
+-					m_maxAscender = ((!(m_maxAscender > num18)) ? num18 : m_maxAscender);
++					m_havePropertiesChanged = true;
+ 				}
+-				if (m_lineOffset == 0f)
++			}
++		}
++
++		private void OnPreRenderCanvas()
++		{
++			if (!base.isActiveAndEnabled || m_fontAsset == null)
++			{
++				return;
++			}
++			loopCountA = 0;
++			if (m_rectTransform.hasChanged || m_marginsHaveChanged)
++			{
++				if (m_inlineGraphics != null)
+ 				{
+-					num13 = ((!(num13 > num18)) ? num18 : num13);
++					m_inlineGraphics.UpdatePivot(m_rectTransform.pivot);
+ 				}
+-				if (m_baselineOffset == 0f)
++				if (m_rectTransformDimensionsChanged || m_marginsHaveChanged)
+ 				{
+-					m_maxFontScale = Mathf.Max(m_maxFontScale, m_fontScale);
++					ComputeMarginSize();
++					if (m_marginsHaveChanged)
++					{
++						m_isScrollRegionSet = false;
++					}
++					m_rectTransformDimensionsChanged = false;
++					m_marginsHaveChanged = false;
++					m_isCalculateSizeRequired = true;
++					m_havePropertiesChanged = true;
+ 				}
+-				m_textInfo.characterInfo[m_characterCount].isVisible = false;
+-				if ((num6 != 10 && num6 != 13 && num6 != 32 && num6 != 160) || m_isSprite)
++				if (m_isMaskingEnabled)
+ 				{
+-					m_textInfo.characterInfo[m_characterCount].isVisible = true;
+-					float num20 = (m_width == -1f) ? (marginWidth + 0.0001f - m_marginLeft - m_marginRight) : Mathf.Min(marginWidth + 0.0001f - m_marginLeft - m_marginRight, m_width);
+-					m_textInfo.lineInfo[m_lineNumber].width = num20;
+-					m_textInfo.lineInfo[m_lineNumber].marginLeft = m_marginLeft;
+-					if (m_xAdvance + m_cached_GlyphInfo.xAdvance * (1f - m_charWidthAdjDelta) * m_fontScale > num20)
++					UpdateMask();
++				}
++				m_rectTransform.hasChanged = false;
++				Vector3 lossyScale = m_rectTransform.lossyScale;
++				if (lossyScale != m_previousLossyScale)
++				{
++					if (!m_havePropertiesChanged && m_previousLossyScale.z != 0f && m_text != string.Empty)
+ 					{
+-						num11 = m_characterCount - 1;
+-						if (enableWordWrapping && m_characterCount != m_firstCharacterOfLine)
+-						{
+-							if (num12 == m_SavedWordWrapState.previous_WordBreak || flag4)
+-							{
+-								if (m_enableAutoSizing && m_fontSize > m_fontSizeMin)
+-								{
+-									if (m_charWidthAdjDelta < m_charWidthMaxAdj / 100f)
+-									{
+-										loopCountA = 0;
+-										m_charWidthAdjDelta += 0.01f;
+-										GenerateTextMesh();
+-										return;
+-									}
+-									m_maxFontSize = m_fontSize;
+-									m_fontSize -= Mathf.Max((m_fontSize - m_minFontSize) / 2f, 0.05f);
+-									m_fontSize = (float)(int)(Mathf.Max(m_fontSize, m_fontSizeMin) * 20f + 0.5f) / 20f;
+-									if (loopCountA <= 20)
+-									{
++						UpdateSDFScale(m_previousLossyScale.z, lossyScale.z);
++					}
++					else
++					{
++						m_havePropertiesChanged = true;
++					}
++					m_previousLossyScale = lossyScale;
++				}
++			}
++			if (!m_havePropertiesChanged && !m_fontAsset.propertiesChanged && !m_isLayoutDirty)
++			{
++				return;
++			}
++			if (m_canvas == null)
++			{
++				m_canvas = GetComponentInParent<Canvas>();
++			}
++			if (m_canvas == null)
++			{
++				return;
++			}
++			if (hasFontAssetChanged || m_fontAsset.propertiesChanged)
++			{
++				LoadFontAsset();
++				hasFontAssetChanged = false;
++				if (m_fontAsset == null || m_uiRenderer.GetMaterial() == null)
++				{
++					return;
++				}
++				m_fontAsset.propertiesChanged = false;
++			}
++			if (isInputParsingRequired || m_isTextTruncated)
++			{
++				ParseInputText();
++			}
++			if (m_enableAutoSizing)
++			{
++				m_fontSize = Mathf.Clamp(m_fontSize, m_fontSizeMin, m_fontSizeMax);
++			}
++			m_maxFontSize = m_fontSizeMax;
++			m_minFontSize = m_fontSizeMin;
++			m_lineSpacingDelta = 0f;
++			m_charWidthAdjDelta = 0f;
++			m_recursiveCount = 0;
++			m_isCharacterWrappingEnabled = false;
++			m_isTextTruncated = false;
++			m_isLayoutDirty = false;
++			GenerateTextMesh();
++			m_havePropertiesChanged = false;
++		}
++
++		private void GenerateTextMesh()
++		{
++			if (m_fontAsset.characterDictionary == null)
++			{
++				Debug.Log("Can't Generate Mesh! No Font Asset has been assigned to Object ID: " + GetInstanceID());
++				return;
++			}
++			if (m_textInfo != null)
++			{
++				m_textInfo.Clear();
++			}
++			if (m_char_buffer == null || m_char_buffer.Length == 0 || m_char_buffer[0] == 0)
++			{
++				m_uiRenderer.SetMesh(null);
++				if (m_inlineGraphics != null)
++				{
++					m_inlineGraphics.ClearUIVertex();
++				}
++				m_preferredWidth = 0f;
++				m_preferredHeight = 0f;
++				m_renderedWidth = 0f;
++				m_renderedHeight = 0f;
++				LayoutRebuilder.MarkLayoutForRebuild(m_rectTransform);
++				return;
++			}
++			m_currentFontAsset = m_fontAsset;
++			m_currentMaterial = m_sharedMaterial;
++			int num = SetArraySizes(m_char_buffer);
++			m_fontScale = m_fontSize / m_currentFontAsset.fontInfo.PointSize;
++			float num2 = m_maxFontScale = m_fontScale;
++			float num3 = 0f;
++			float num4 = 1f;
++			m_currentFontSize = m_fontSize;
++			float num5 = 0f;
++			int num6 = 0;
++			m_style = m_fontStyle;
++			m_lineJustification = m_textAlignment;
++			if (checkPaddingRequired)
++			{
++				checkPaddingRequired = false;
++				m_padding = ShaderUtilities.GetPadding(m_uiRenderer.GetMaterial(), m_enableExtraPadding, m_isUsingBold);
++				m_isMaskingEnabled = ShaderUtilities.IsMaskingEnabled(m_sharedMaterial);
++			}
++			float num7 = 0f;
++			float num8 = 1f;
++			m_baselineOffset = 0f;
++			bool flag = false;
++			Vector3 start = Vector3.zero;
++			Vector3 zero = Vector3.zero;
++			bool flag2 = false;
++			Vector3 start2 = Vector3.zero;
++			Vector3 zero2 = Vector3.zero;
++			m_fontColor32 = m_fontColor;
++			m_htmlColor = m_fontColor32;
++			m_colorStackIndex = 0;
++			Array.Clear(m_colorStack, 0, m_colorStack.Length);
++			m_styleStackIndex = 0;
++			Array.Clear(m_styleStack, 0, m_styleStack.Length);
++			m_lineOffset = 0f;
++			m_lineHeight = 0f;
++			m_cSpacing = 0f;
++			m_monoSpacing = 0f;
++			float num9 = 0f;
++			m_xAdvance = 0f;
++			m_maxXAdvance = 0f;
++			tag_LineIndent = 0f;
++			tag_Indent = 0f;
++			tag_NoParsing = false;
++			m_isIgnoringAlignment = false;
++			m_characterCount = 0;
++			m_visibleCharacterCount = 0;
++			m_visibleSpriteCount = 0;
++			m_firstCharacterOfLine = 0;
++			m_lastCharacterOfLine = 0;
++			m_firstVisibleCharacterOfLine = 0;
++			m_lastVisibleCharacterOfLine = 0;
++			m_lineNumber = 0;
++			bool flag3 = true;
++			m_pageNumber = 0;
++			int num10 = Mathf.Clamp(m_pageToDisplay - 1, 0, m_textInfo.pageInfo.Length - 1);
++			int num11 = 0;
++			m_rectTransform.GetLocalCorners(m_rectCorners);
++			Vector4 margin = m_margin;
++			float marginWidth = m_marginWidth;
++			float marginHeight = m_marginHeight;
++			m_marginLeft = 0f;
++			m_marginRight = 0f;
++			m_width = -1f;
++			m_renderedWidth = 0f;
++			m_renderedHeight = 0f;
++			bool flag4 = true;
++			bool flag5 = false;
++			m_SavedLineState = default(WordWrapState);
++			m_SavedWordWrapState = default(WordWrapState);
++			int num12 = 0;
++			m_meshExtents = new Extents(k_InfinityVector, -k_InfinityVector);
++			if (m_textInfo.lineInfo == null)
++			{
++				m_textInfo.lineInfo = new TMP_LineInfo[2];
++			}
++			for (int i = 0; i < m_textInfo.lineInfo.Length; i++)
++			{
++				m_textInfo.lineInfo[i] = default(TMP_LineInfo);
++				m_textInfo.lineInfo[i].lineExtents = new Extents(k_InfinityVector, -k_InfinityVector);
++				m_textInfo.lineInfo[i].ascender = 0f - k_InfinityVector.x;
++				m_textInfo.lineInfo[i].descender = k_InfinityVector.x;
++			}
++			m_maxAscender = 0f;
++			m_maxDescender = 0f;
++			float num13 = 0f;
++			float num14 = 0f;
++			bool flag6 = false;
++			m_isNewPage = false;
++			loopCountA++;
++			int endIndex = 0;
++			for (int j = 0; m_char_buffer[j] != 0; j++)
++			{
++				num6 = m_char_buffer[j];
++				m_isSprite = false;
++				num4 = 1f;
++				if (m_isRichText && num6 == 60)
++				{
++					m_isParsingText = true;
++					if (ValidateHtmlTag(m_char_buffer, j + 1, out endIndex))
++					{
++						j = endIndex;
++						if (m_isRecalculateScaleRequired)
++						{
++							m_fontScale = m_currentFontSize / m_currentFontAsset.fontInfo.PointSize;
++							m_isRecalculateScaleRequired = false;
++						}
++						if (!m_isSprite)
++						{
++							continue;
++						}
++					}
++				}
++				m_isParsingText = false;
++				bool flag7 = false;
++				if ((m_style & FontStyles.UpperCase) == FontStyles.UpperCase)
++				{
++					if (char.IsLower((char)num6))
++					{
++						num6 = char.ToUpper((char)num6);
++					}
++				}
++				else if ((m_style & FontStyles.LowerCase) == FontStyles.LowerCase)
++				{
++					if (char.IsUpper((char)num6))
++					{
++						num6 = char.ToLower((char)num6);
++					}
++				}
++				else if ((m_fontStyle & FontStyles.SmallCaps) == FontStyles.SmallCaps || (m_style & FontStyles.SmallCaps) == FontStyles.SmallCaps)
++				{
++					if (char.IsLower((char)num6))
++					{
++						m_fontScale = m_currentFontSize * 0.8f / m_currentFontAsset.fontInfo.PointSize;
++						num6 = char.ToUpper((char)num6);
++					}
++					else
++					{
++						m_fontScale = m_currentFontSize / m_currentFontAsset.fontInfo.PointSize;
++					}
++				}
++				if (m_isSprite)
++				{
++					SpriteInfo sprite = m_inlineGraphics.GetSprite(m_spriteIndex);
++					if (sprite == null)
++					{
++						continue;
++					}
++					num6 = 57344 + m_spriteIndex;
++					m_cached_GlyphInfo = new GlyphInfo();
++					m_cached_GlyphInfo.x = sprite.x;
++					m_cached_GlyphInfo.y = sprite.y;
++					m_cached_GlyphInfo.width = sprite.width;
++					m_cached_GlyphInfo.height = sprite.height;
++					m_cached_GlyphInfo.xOffset = sprite.pivot.x + sprite.xOffset;
++					m_cached_GlyphInfo.yOffset = sprite.pivot.y + sprite.yOffset;
++					num4 = m_fontAsset.fontInfo.Ascender / sprite.height * sprite.scale;
++					m_cached_GlyphInfo.xAdvance = sprite.xAdvance * num4;
++					m_textInfo.characterInfo[m_characterCount].type = TMP_CharacterType.Sprite;
++				}
++				else
++				{
++					m_currentFontAsset.characterDictionary.TryGetValue(num6, out m_cached_GlyphInfo);
++					if (m_cached_GlyphInfo == null)
++					{
++						if (char.IsLower((char)num6))
++						{
++							if (m_currentFontAsset.characterDictionary.TryGetValue(char.ToUpper((char)num6), out m_cached_GlyphInfo))
++							{
++								num6 = char.ToUpper((char)num6);
++							}
++						}
++						else if (char.IsUpper((char)num6) && m_currentFontAsset.characterDictionary.TryGetValue(char.ToLower((char)num6), out m_cached_GlyphInfo))
++						{
++							num6 = char.ToLower((char)num6);
++						}
++						if (m_cached_GlyphInfo == null)
++						{
++							m_currentFontAsset.characterDictionary.TryGetValue(88, out m_cached_GlyphInfo);
++							if (m_cached_GlyphInfo == null)
++							{
++								Debug.LogWarning("Character with ASCII value of " + num6 + " was not found in the Font Asset Glyph Table.", this);
++								continue;
++							}
++							Debug.LogWarning("Character with ASCII value of " + num6 + " was not found in the Font Asset Glyph Table.", this);
++							num6 = 88;
++							flag7 = true;
++						}
++					}
++					m_textInfo.characterInfo[m_characterCount].type = TMP_CharacterType.Character;
++				}
++				m_textInfo.characterInfo[m_characterCount].character = (char)num6;
++				m_textInfo.characterInfo[m_characterCount].pointSize = m_currentFontSize;
++				m_textInfo.characterInfo[m_characterCount].color = m_htmlColor;
++				m_textInfo.characterInfo[m_characterCount].style = m_style;
++				m_textInfo.characterInfo[m_characterCount].index = (short)j;
++				if (m_enableKerning && m_characterCount >= 1)
++				{
++					int character = m_textInfo.characterInfo[m_characterCount - 1].character;
++					KerningPairKey kerningPairKey = new KerningPairKey(character, num6);
++					m_currentFontAsset.kerningDictionary.TryGetValue(kerningPairKey.key, out KerningPair value);
++					if (value != null)
++					{
++						m_xAdvance += value.XadvanceOffset * m_fontScale;
++					}
++				}
++				float num15 = 0f;
++				if (m_monoSpacing != 0f)
++				{
++					num15 = (m_monoSpacing / 2f - (m_cached_GlyphInfo.width / 2f + m_cached_GlyphInfo.xOffset) * m_fontScale) * (1f - m_charWidthAdjDelta);
++					m_xAdvance += num15;
++				}
++				if ((m_style & FontStyles.Bold) == FontStyles.Bold || (m_fontStyle & FontStyles.Bold) == FontStyles.Bold)
++				{
++					num7 = m_currentFontAsset.BoldStyle * 2f;
++					num8 = 1f + m_currentFontAsset.boldSpacing * 0.01f;
++				}
++				else
++				{
++					num7 = m_currentFontAsset.NormalStyle * 2f;
++					num8 = 1f;
++				}
++				float num16 = (!m_isSprite) ? m_padding : 0f;
++				Vector3 topLeft = new Vector3(m_xAdvance + (m_cached_GlyphInfo.xOffset - num16 - num7) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), (m_cached_GlyphInfo.yOffset + num16) * m_fontScale * num4 - m_lineOffset + m_baselineOffset, 0f);
++				Vector3 bottomLeft = new Vector3(topLeft.x, topLeft.y - (m_cached_GlyphInfo.height + num16 * 2f) * m_fontScale * num4, 0f);
++				Vector3 topRight = new Vector3(bottomLeft.x + (m_cached_GlyphInfo.width + num16 * 2f + num7 * 2f) * m_fontScale * num4 * (1f - m_charWidthAdjDelta), topLeft.y, 0f);
++				Vector3 bottomRight = new Vector3(topRight.x, bottomLeft.y, 0f);
++				if ((m_style & FontStyles.Italic) == FontStyles.Italic || (m_fontStyle & FontStyles.Italic) == FontStyles.Italic)
++				{
++					float num17 = (float)(int)m_currentFontAsset.ItalicStyle * 0.01f;
++					Vector3 vector = new Vector3(num17 * ((m_cached_GlyphInfo.yOffset + num16 + num7) * m_fontScale * num4), 0f, 0f);
++					Vector3 vector2 = new Vector3(num17 * ((m_cached_GlyphInfo.yOffset - m_cached_GlyphInfo.height - num16 - num7) * m_fontScale * num4), 0f, 0f);
++					topLeft += vector;
++					bottomLeft += vector2;
++					topRight += vector;
++					bottomRight += vector2;
++				}
++				m_textInfo.characterInfo[m_characterCount].bottomLeft = bottomLeft;
++				m_textInfo.characterInfo[m_characterCount].topLeft = topLeft;
++				m_textInfo.characterInfo[m_characterCount].topRight = topRight;
++				m_textInfo.characterInfo[m_characterCount].bottomRight = bottomRight;
++				m_textInfo.characterInfo[m_characterCount].baseLine = 0f - m_lineOffset + m_baselineOffset;
++				m_textInfo.characterInfo[m_characterCount].scale = m_fontScale;
++				float num18 = m_fontAsset.fontInfo.Ascender * m_fontScale + m_baselineOffset;
++				if ((num6 == 10 || num6 == 13) && m_characterCount > m_firstVisibleCharacterOfLine)
++				{
++					num18 = m_baselineOffset;
++				}
++				float num19 = m_fontAsset.fontInfo.Descender * m_fontScale - m_lineOffset + m_baselineOffset;
++				if (m_isSprite)
++				{
++					num18 = Mathf.Max(num18, topLeft.y - num16 * m_fontScale * num4);
++					num19 = Mathf.Min(num19, bottomRight.y - num16 * m_fontScale * num4);
++				}
++				if (m_lineNumber == 0)
++				{
++					m_maxAscender = ((!(m_maxAscender > num18)) ? num18 : m_maxAscender);
++				}
++				if (m_lineOffset == 0f)
++				{
++					num13 = ((!(num13 > num18)) ? num18 : num13);
++				}
++				if (m_baselineOffset == 0f)
++				{
++					m_maxFontScale = Mathf.Max(m_maxFontScale, m_fontScale);
++				}
++				m_textInfo.characterInfo[m_characterCount].isVisible = false;
++				if ((num6 != 10 && num6 != 13 && num6 != 32 && num6 != 160) || m_isSprite)
++				{
++					m_textInfo.characterInfo[m_characterCount].isVisible = true;
++					float num20 = (m_width == -1f) ? (marginWidth + 0.0001f - m_marginLeft - m_marginRight) : Mathf.Min(marginWidth + 0.0001f - m_marginLeft - m_marginRight, m_width);
++					m_textInfo.lineInfo[m_lineNumber].width = num20;
++					m_textInfo.lineInfo[m_lineNumber].marginLeft = m_marginLeft;
++					if (m_xAdvance + m_cached_GlyphInfo.xAdvance * (1f - m_charWidthAdjDelta) * m_fontScale > num20)
++					{
++						num11 = m_characterCount - 1;
++						if (enableWordWrapping && m_characterCount != m_firstCharacterOfLine)
++						{
++							if (num12 == m_SavedWordWrapState.previous_WordBreak || flag4)
++							{
++								if (m_enableAutoSizing && m_fontSize > m_fontSizeMin)
++								{
++									if (m_charWidthAdjDelta < m_charWidthMaxAdj / 100f)
++									{
++										loopCountA = 0;
++										m_charWidthAdjDelta += 0.01f;
++										GenerateTextMesh();
++										return;
++									}
++									m_maxFontSize = m_fontSize;
++									m_fontSize -= Mathf.Max((m_fontSize - m_minFontSize) / 2f, 0.05f);
++									m_fontSize = (float)(int)(Mathf.Max(m_fontSize, m_fontSizeMin) * 20f + 0.5f) / 20f;
++									if (loopCountA <= 20)
++									{
+ 										GenerateTextMesh();
+ 									}
+ 									return;

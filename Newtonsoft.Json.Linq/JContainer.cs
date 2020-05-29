@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Linq
 {
-	public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingList, ICollection<JToken>, IEnumerable<JToken>, IEnumerable, IList, ICollection
+	public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingList, IEnumerable, ICollection<JToken>, IEnumerable<JToken>, ICollection, IList
 	{
 		private class JTokenReferenceEqualityComparer : IEqualityComparer<JToken>
 		{
@@ -186,7 +186,7 @@ namespace Newtonsoft.Json.Linq
 
 		public event ListChangedEventHandler ListChanged;
 
-		public event Newtonsoft.Json.ObservableSupport.AddingNewEventHandler AddingNew;
+		public event AddingNewEventHandler AddingNew;
 
 		internal JContainer()
 		{
@@ -209,7 +209,7 @@ namespace Newtonsoft.Json.Linq
 			}
 		}
 
-		protected virtual void OnAddingNew(Newtonsoft.Json.ObservableSupport.AddingNewEventArgs e)
+		protected virtual void OnAddingNew(AddingNewEventArgs e)
 		{
 			this.AddingNew?.Invoke(this, e);
 		}
@@ -827,7 +827,7 @@ namespace Newtonsoft.Json.Linq
 
 		object IBindingList.AddNew()
 		{
-			Newtonsoft.Json.ObservableSupport.AddingNewEventArgs addingNewEventArgs = new Newtonsoft.Json.ObservableSupport.AddingNewEventArgs();
+			AddingNewEventArgs addingNewEventArgs = new AddingNewEventArgs();
 			OnAddingNew(addingNewEventArgs);
 			if (addingNewEventArgs.NewObject == null)
 			{

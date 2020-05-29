@@ -1062,6 +1062,152 @@ namespace TMPro
 
 		public Mesh mesh => m_mesh;
 
+		public void SetMask(MaskingTypes type, Vector4 maskCoords)
+		{
+			SetMask(type);
+			SetMaskCoordinates(maskCoords);
+		}
+
+		public void SetMask(MaskingTypes type, Vector4 maskCoords, float softnessX, float softnessY)
+		{
+			SetMask(type);
+			SetMaskCoordinates(maskCoords, softnessX, softnessY);
+		}
+
+		public void UpdateMeshPadding()
+		{
+			m_padding = ShaderUtilities.GetPadding(m_renderer.sharedMaterials, m_enableExtraPadding, m_isUsingBold);
+			m_havePropertiesChanged = true;
+		}
+
+		public void ForceMeshUpdate()
+		{
+			m_havePropertiesChanged = true;
+			OnWillRenderObject();
+		}
+
+		public void UpdateFontAsset()
+		{
+			LoadFontAsset();
+		}
+
+		public TMP_TextInfo GetTextInfo(string text)
+		{
+			StringToCharArray(text, ref m_char_buffer);
+			m_renderMode = TextRenderFlags.DontRender;
+			GenerateTextMesh();
+			m_renderMode = TextRenderFlags.Render;
+			return textInfo;
+		}
+
+		public void SetText(string text, float arg0)
+		{
+			SetText(text, arg0, 255f, 255f);
+		}
+
+		public void SetText(string text, float arg0, float arg1)
+		{
+			SetText(text, arg0, arg1, 255f);
+		}
+
+		public void SetText(string text, float arg0, float arg1, float arg2)
+		{
+			if (text == old_text && arg0 == old_arg0 && arg1 == old_arg1 && arg2 == old_arg2)
+			{
+				return;
+			}
+			if (m_input_CharArray.Length < text.Length)
+			{
+				m_input_CharArray = new char[Mathf.NextPowerOfTwo(text.Length + 1)];
+			}
+			old_text = text;
+			old_arg1 = 255f;
+			old_arg2 = 255f;
+			int precision = 0;
+			int index = 0;
+			for (int i = 0; i < text.Length; i++)
+			{
+				char c = text[i];
+				if (c == '{')
+				{
+					if (text[i + 2] == ':')
+					{
+						precision = text[i + 3] - 48;
+					}
+					switch (text[i + 1] - 48)
+					{
+					case 0:
+						old_arg0 = arg0;
+						AddFloatToCharArray(arg0, ref index, precision);
+						break;
+					case 1:
+						old_arg1 = arg1;
+						AddFloatToCharArray(arg1, ref index, precision);
+						break;
+					case 2:
+						old_arg2 = arg2;
+						AddFloatToCharArray(arg2, ref index, precision);
+						break;
+					}
+					i = ((text[i + 2] != ':') ? (i + 2) : (i + 4));
+				}
+				else
+				{
+					m_input_CharArray[index] = c;
+					index++;
+				}
+			}
+			m_input_CharArray[index] = '\0';
+			m_charArray_Length = index;
+			m_inputSource = TextInputSources.SetText;
+			isInputParsingRequired = true;
+			m_havePropertiesChanged = true;
+		}
+
+		public void SetCharArray(char[] charArray)
+		{
+			if (charArray == null || charArray.Length == 0)
+			{
+				return;
+			}
+			if (m_char_buffer.Length <= charArray.Length)
+			{
+				int num = Mathf.NextPowerOfTwo(charArray.Length + 1);
+				m_char_buffer = new int[num];
+			}
+			int num2 = 0;
+			for (int i = 0; i < charArray.Length; i++)
+			{
+				if (charArray[i] == '\\' && i < charArray.Length - 1)
+				{
+					switch (charArray[i + 1])
+					{
+					case 'n':
+						m_char_buffer[num2] = 10;
+						i++;
+						num2++;
+						continue;
+					case 'r':
+						m_char_buffer[num2] = 13;
+						i++;
+						num2++;
+						continue;
+					case 't':
+						m_char_buffer[num2] = 9;
+						i++;
+						num2++;
+						continue;
+					}
+				}
+				m_char_buffer[num2] = charArray[i];
+				num2++;
+			}
+			m_char_buffer[num2] = 0;
+			m_inputSource = TextInputSources.SetCharArray;
+			m_havePropertiesChanged = true;
+			isInputParsingRequired = true;
+		}
+
 		private void Awake()
 		{
 			if (m_fontColor == Color.white && m_fontColor32 != Color.white)
@@ -4244,152 +4390,6 @@ namespace TMPro
 			default:
 				return false;
 			}
-		}
-
-		public void SetMask(MaskingTypes type, Vector4 maskCoords)
-		{
-			SetMask(type);
-			SetMaskCoordinates(maskCoords);
-		}
-
-		public void SetMask(MaskingTypes type, Vector4 maskCoords, float softnessX, float softnessY)
-		{
-			SetMask(type);
-			SetMaskCoordinates(maskCoords, softnessX, softnessY);
-		}
-
-		public void UpdateMeshPadding()
-		{
-			m_padding = ShaderUtilities.GetPadding(m_renderer.sharedMaterials, m_enableExtraPadding, m_isUsingBold);
-			m_havePropertiesChanged = true;
-		}
-
-		public void ForceMeshUpdate()
-		{
-			m_havePropertiesChanged = true;
-			OnWillRenderObject();
-		}
-
-		public void UpdateFontAsset()
-		{
-			LoadFontAsset();
-		}
-
-		public TMP_TextInfo GetTextInfo(string text)
-		{
-			StringToCharArray(text, ref m_char_buffer);
-			m_renderMode = TextRenderFlags.DontRender;
-			GenerateTextMesh();
-			m_renderMode = TextRenderFlags.Render;
-			return textInfo;
-		}
-
-		public void SetText(string text, float arg0)
-		{
-			SetText(text, arg0, 255f, 255f);
-		}
-
-		public void SetText(string text, float arg0, float arg1)
-		{
-			SetText(text, arg0, arg1, 255f);
-		}
-
-		public void SetText(string text, float arg0, float arg1, float arg2)
-		{
-			if (text == old_text && arg0 == old_arg0 && arg1 == old_arg1 && arg2 == old_arg2)
-			{
-				return;
-			}
-			if (m_input_CharArray.Length < text.Length)
-			{
-				m_input_CharArray = new char[Mathf.NextPowerOfTwo(text.Length + 1)];
-			}
-			old_text = text;
-			old_arg1 = 255f;
-			old_arg2 = 255f;
-			int precision = 0;
-			int index = 0;
-			for (int i = 0; i < text.Length; i++)
-			{
-				char c = text[i];
-				if (c == '{')
-				{
-					if (text[i + 2] == ':')
-					{
-						precision = text[i + 3] - 48;
-					}
-					switch (text[i + 1] - 48)
-					{
-					case 0:
-						old_arg0 = arg0;
-						AddFloatToCharArray(arg0, ref index, precision);
-						break;
-					case 1:
-						old_arg1 = arg1;
-						AddFloatToCharArray(arg1, ref index, precision);
-						break;
-					case 2:
-						old_arg2 = arg2;
-						AddFloatToCharArray(arg2, ref index, precision);
-						break;
-					}
-					i = ((text[i + 2] != ':') ? (i + 2) : (i + 4));
-				}
-				else
-				{
-					m_input_CharArray[index] = c;
-					index++;
-				}
-			}
-			m_input_CharArray[index] = '\0';
-			m_charArray_Length = index;
-			m_inputSource = TextInputSources.SetText;
-			isInputParsingRequired = true;
-			m_havePropertiesChanged = true;
-		}
-
-		public void SetCharArray(char[] charArray)
-		{
-			if (charArray == null || charArray.Length == 0)
-			{
-				return;
-			}
-			if (m_char_buffer.Length <= charArray.Length)
-			{
-				int num = Mathf.NextPowerOfTwo(charArray.Length + 1);
-				m_char_buffer = new int[num];
-			}
-			int num2 = 0;
-			for (int i = 0; i < charArray.Length; i++)
-			{
-				if (charArray[i] == '\\' && i < charArray.Length - 1)
-				{
-					switch (charArray[i + 1])
-					{
-					case 'n':
-						m_char_buffer[num2] = 10;
-						i++;
-						num2++;
-						continue;
-					case 'r':
-						m_char_buffer[num2] = 13;
-						i++;
-						num2++;
-						continue;
-					case 't':
-						m_char_buffer[num2] = 9;
-						i++;
-						num2++;
-						continue;
-					}
-				}
-				m_char_buffer[num2] = charArray[i];
-				num2++;
-			}
-			m_char_buffer[num2] = 0;
-			m_inputSource = TextInputSources.SetCharArray;
-			m_havePropertiesChanged = true;
-			isInputParsingRequired = true;
 		}
 	}
 }
