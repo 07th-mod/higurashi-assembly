@@ -179,6 +179,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				while (layer2.FadingOut)
 				{
@@ -212,6 +213,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ChangeBustshot(int layer, string textureName, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			if (!layer2.IsInUse)
 			{
@@ -222,6 +224,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			while (layer2.FadingOut)
 			{
@@ -238,6 +241,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				while (layer2.FadingOut)
 				{
@@ -281,6 +285,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveBustshot(int layer, string textureName, int x, int y, int z, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			Vector3 localPosition = layer2.transform.localPosition;
 			int x2 = (int)localPosition.x;
@@ -309,6 +314,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeSpriteWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			layer2.FadeLayerWithMask(mask, style, wait, isblocking);
 		}
@@ -317,6 +323,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				UpdateLayerMask(layer2, priority);
 				Vector2? vector = null;
@@ -333,6 +340,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeSprite(int layer, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer ifInUse = GetIfInUse(layer);
 			if (ifInUse != null)
 			{
@@ -344,6 +352,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				if (layer2.IsInUse)
 				{
@@ -528,12 +537,14 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ShakeBustshot(int layer, float speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			Shaker.ShakeObject(layer2.gameObject, speed, level, attenuation, vector, loopcount, isblocking);
 		}
 
 		public void StopBustshotShake(int layer)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Shaker component = GetLayer(layer).GetComponent<Shaker>();
 			if (component != null)
 			{
@@ -650,6 +661,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void HideAllLayers(float time)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateIdsForAll();
 			for (int i = 0; i < 32; i++)
 			{
 				if (layers[i] != null && layers[i].IsInUse)
