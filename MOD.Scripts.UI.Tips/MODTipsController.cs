@@ -16,7 +16,7 @@ namespace MOD.Scripts.UI.Tips
 
 		/// <summary>
 		/// This returns the current modded tips for the arc, if present.
-		/// If no tips.json file is present or is malformed, returns an empty list
+		/// If no tips.json file is present or is malformed, gracefully falls back to the vanilla tips
 		/// Otherwise, it returns the tips associated with the current value of the "GArc" flag, which is 0 by default.
 		/// <seealso cref="TipsData.Tips"/>
 		/// </summary>
@@ -60,7 +60,7 @@ namespace MOD.Scripts.UI.Tips
 					fixedTips.TryGetValue(arc, out List<TipsDataEntry> value);
 					return value ?? new List<TipsDataEntry>();
 				}
-				return new List<TipsDataEntry>();
+				return TipsData.Tips;
 			}
 		}
 	}

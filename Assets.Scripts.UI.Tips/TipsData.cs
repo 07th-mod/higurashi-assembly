@@ -3,8 +3,6 @@ using Assets.Scripts.Core.Buriko;
 using MOD.Scripts.Core;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Tips
@@ -12,20 +10,20 @@ namespace Assets.Scripts.UI.Tips
 	public static class TipsData
 	{
 		/// <summary>
-		/// This returns the current tips for the arc.
-		/// Prioritizes mod system's tips, falling back to built-in tips.
+		/// This returns the BUILT-IN tips for the arc.
+		/// In previous arcs this was a hard-coded list. It's now lazily loaded from StreamingAssets/Data/tips.txt
 		/// <seealso cref="MODTipsController.Tips"/>
 		/// </summary>
 		public static List<TipsDataEntry> Tips
 		{
 			get
 			{
-				var modTips = MODSystem.instance.modTipsController.Tips;
-				if (modTips != null && modTips.Any())
+				if (BuiltInTips.Count == 0)
 				{
-					return modTips;
+					string value = AssetManager.Instance.LoadTextDataString("tips.txt");
+					BuiltInTips = JsonConvert.DeserializeObject<List<TipsDataEntry>>(value);
 				}
-				return LoadBuiltInTips();
+				return BuiltInTips;
 			}
 		}
 
@@ -33,20 +31,6 @@ namespace Assets.Scripts.UI.Tips
 		/// Tips that came with the game
 		/// </summary>
 		private static List<TipsDataEntry> BuiltInTips = new List<TipsDataEntry>();
-
-		/// <summary>
-		/// Initialize and load tips
-		/// </summary>
-		/// <returns></returns>
-		private static List<TipsDataEntry> LoadBuiltInTips()
-		{
-			if (BuiltInTips.Count == 0)
-			{
-				string value = AssetManager.Instance.LoadTextDataString("tips.txt");
-				BuiltInTips = JsonConvert.DeserializeObject<List<TipsDataEntry>>(value);
-			}
-			return BuiltInTips;
-		}
 
 		public static TipsDataGroup GetVisibleTips(bool onlyNew, bool global)
 		{
