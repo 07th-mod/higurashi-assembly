@@ -2938,6 +2938,9 @@ namespace Assets.Scripts.Core.Buriko
 				case "none":
 					filter = MODSceneController.Filter.Identity;
 					break;
+				case "grayscale":
+					filter = MODSceneController.Filter.Grayscale;
+					break;
 				case "flashback":
 					filter = MODSceneController.Filter.Flashback;
 					break;
