@@ -15,6 +15,7 @@ namespace MOD.Scripts.Core.Scene
 		public struct Filter
 		{
 			public static readonly Filter Identity = new Filter(256, 0, 0, 0, 256, 0, 0, 0, 256, 256);
+			public static readonly Filter Grayscale = new Filter(55, 185, 18, 55, 185, 18, 55, 185, 18, 256);
 			public static readonly Filter Flashback = new Filter(117, 127, 39, 58, 171, 20, 69, 107, 40, 256); // 77 47 4 preserving luminosity
 			public static readonly Filter Night = new Filter(222, 0, 0, 0, 222, 0, 0, 0, 256, 256);
 			public static readonly Filter Sunset = new Filter(250, 0, 0, 0, 210, 0, 0, 0, 180, 256);
