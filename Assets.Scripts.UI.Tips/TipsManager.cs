@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
@@ -105,8 +106,16 @@ namespace Assets.Scripts.UI.Tips
 			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 			lTDescr.onComplete = delegate
 			{
-				GameSystem.Instance.AudioController.PlayAudio("msys14.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f);
+				if (BurikoMemory.Instance.GetFlag("LConsoleArc").IntValue() == 12)
+				{
+					GameSystem.Instance.AudioController.PlayAudio("hm11_94.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f);
+				}
+				else
+				{
+					GameSystem.Instance.AudioController.PlayAudio("msys14.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f, 0f);
+				}
 			};
+
 			switch (tipstype)
 			{
 			case 0:
@@ -133,6 +142,10 @@ namespace Assets.Scripts.UI.Tips
 			{
 				a.Setup(this);
 			});
+			if (BurikoMemory.Instance.GetFlag("LConsoleArc").IntValue() == 12)
+			{
+				GameSystem.Instance.SceneController.DrawScene("background/fure2", 0.2f);
+			}
 		}
 
 		public void Hide(Action onFinish)
