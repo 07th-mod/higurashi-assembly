@@ -33,6 +33,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public bool ShouldSerializeArtsets = false;
 
 		private Texture2D windowTexture;
+		private Texture2D dummyTexture;
 
 		private string assetPath = Application.streamingAssetsPath;
 
@@ -252,7 +253,14 @@ namespace Assets.Scripts.Core.AssetManagement
 			if (path == null)
 			{
 				Logger.LogWarning("Could not find texture asset " + textureName.ToLower() + " in " + CurrentArtset.nameEN);
-				return null;
+				// When returning null here, most functions won't crash, but this call chain does crash:
+				// OperationDrawSpriteWithFiltering() -> DrawSpriteWithFiltering() -> DrawLayerWithMask()
+				// Returning a dummy texture instead of null prevents these crashes
+				if (dummyTexture == null)
+				{
+					dummyTexture = new Texture2D(0, 0, TextureFormat.ARGB32, mipmap: true);
+				}
+				return dummyTexture;
 			}
 			byte[] array = File.ReadAllBytes(path);
 			if (array == null || array.Length == 0)
