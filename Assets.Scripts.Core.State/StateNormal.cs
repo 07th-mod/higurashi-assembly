@@ -209,6 +209,7 @@ namespace Assets.Scripts.Core.State
 					}
 					if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
 					{
+						GameSystem.Instance.MainUIController.ShowToast($"Can't toggle now - try later", maybeSound: null);
 						return false;
 					}
 					GameSystem.Instance.MainUIController.MODResetLayerBackground();
@@ -227,21 +228,14 @@ namespace Assets.Scripts.Core.State
 					{
 						return false;
 					}
-					int num4 = BurikoMemory.Instance.GetGlobalFlag("GCensor").IntValue();
-					int num5 = BurikoMemory.Instance.GetGlobalFlag("GCensorMaxNum").IntValue();
-					if (num4 < num5 && num4 >= 0)
-					{
-						num4++;
-						string str3 = num4.ToString();
-						string str4 = ".ogg";
-						string filename2 = "switchsound/" + str3 + str4;
-						GameSystem.Instance.AudioController.PlaySystemSound(filename2);
-						BurikoMemory.Instance.SetGlobalFlag("GCensor", num4);
-						return true;
-					}
-					num4 = 0;
-					BurikoMemory.Instance.SetGlobalFlag("GCensor", num4);
-					GameSystem.Instance.AudioController.PlaySystemSound("switchsound/0.ogg");
+					int censorNum = BurikoMemory.Instance.GetGlobalFlag("GCensor").IntValue();
+					int maxCensorNum = BurikoMemory.Instance.GetGlobalFlag("GCensorMaxNum").IntValue();
+					censorNum = (censorNum + 1) % (maxCensorNum + 1); //cycle from 0 to maxCensorNum
+					BurikoMemory.Instance.SetGlobalFlag("GCensor", censorNum);
+					GameSystem.Instance.MainUIController.ShowToast(
+						$"Censorship Level: {censorNum}{(censorNum == 2 ? " (default)" : "")}",
+						numberedSound: censorNum
+					);
 				}
 				if (Input.GetKeyDown(KeyCode.F3))
 				{
@@ -521,14 +515,11 @@ namespace Assets.Scripts.Core.State
 					{
 						return false;
 					}
-					if (BurikoMemory.Instance.GetGlobalFlag("GLipSync").IntValue() == 1)
-					{
-						BurikoMemory.Instance.SetGlobalFlag("GLipSync", 0);
-						GameSystem.Instance.AudioController.PlaySystemSound("switchsound/disable.ogg");
-						return true;
-					}
-					BurikoMemory.Instance.SetGlobalFlag("GLipSync", 1);
-					GameSystem.Instance.AudioController.PlaySystemSound("switchsound/enable.ogg");
+
+					// Toggle lipsync between 0 and 1
+					int newLipSync = (BurikoMemory.Instance.GetGlobalFlag("GLipSync").IntValue() + 1) % 2;
+					BurikoMemory.Instance.SetGlobalFlag("GLipSync", newLipSync);
+					GameSystem.Instance.MainUIController.ShowToast($"Lip Sync: {(newLipSync == 1 ? "ON": "OFF")}");
 				}
 				if (Input.GetKeyDown(KeyCode.M))
 				{
