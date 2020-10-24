@@ -163,16 +163,7 @@ namespace Assets.Scripts.Core.State
 						{
 							return false;
 						}
-						int num2 = BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue();
-						if (num2 == 100)
-						{
-							return true;
-						}
-						num2 = 100;
-						float voiceVolume = (float)num2 / 100f;
-						BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", num2);
-						GameSystem.Instance.AudioController.VoiceVolume = voiceVolume;
-						GameSystem.Instance.AudioController.RefreshLayerVolumes();
+						AdjustVoiceVolumeAbsolute(100);
 						return true;
 					}
 					if (Input.GetKeyDown(KeyCode.N))
@@ -189,11 +180,7 @@ namespace Assets.Scripts.Core.State
 						{
 							return true;
 						}
-						int num3 = 0;
-						float voiceVolume2 = (float)num3 / 100f;
-						BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", num3);
-						GameSystem.Instance.AudioController.VoiceVolume = voiceVolume2;
-						GameSystem.Instance.AudioController.RefreshLayerVolumes();
+						AdjustVoiceVolumeAbsolute(0);
 						return true;
 					}
 				}
@@ -531,16 +518,9 @@ namespace Assets.Scripts.Core.State
 					{
 						return false;
 					}
-					int num13 = BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue();
-					if (num13 == 100)
-					{
-						return true;
-					}
-					num13 = ((num13 > 95 || num13 < 0) ? 50 : (num13 + 5));
-					float voiceVolume3 = (float)num13 / 100f;
-					BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", num13);
-					GameSystem.Instance.AudioController.VoiceVolume = voiceVolume3;
-					GameSystem.Instance.AudioController.RefreshLayerVolumes();
+
+					AdjustVoiceVolumeRelative(5);
+
 					return true;
 				}
 				if (!Input.GetKeyDown(KeyCode.N))
@@ -611,6 +591,9 @@ namespace Assets.Scripts.Core.State
 					}
 					return true;
 				}
+
+				// The below section of code is executed if the N key is pressed.
+				// TODO: lift the body of the `if (!Input.GetKeyDown(KeyCode.N))` statement outside so it is less confusing.
 				if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
 				{
 					return false;
@@ -624,11 +607,9 @@ namespace Assets.Scripts.Core.State
 				{
 					return true;
 				}
-				num16 = ((num16 < 5 || num16 > 100) ? 50 : (num16 - 5));
-				float voiceVolume4 = (float)num16 / 100f;
-				BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", num16);
-				GameSystem.Instance.AudioController.VoiceVolume = voiceVolume4;
-				GameSystem.Instance.AudioController.RefreshLayerVolumes();
+
+				AdjustVoiceVolumeRelative(-5);
+
 				return true;
 			}
 			if (!gameSystem.MessageBoxVisible && gameSystem.GameState == GameState.Normal)
@@ -660,6 +641,26 @@ namespace Assets.Scripts.Core.State
 		public GameState GetStateType()
 		{
 			return GameState.Normal;
+		}
+
+		private void AdjustVoiceVolumeRelative(int difference)
+		{
+			// Maintaining volume within limits is done in AdjustVoiceVolumeAbsolute()
+			AdjustVoiceVolumeAbsolute(BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue() + difference);
+		}
+
+		private void AdjustVoiceVolumeAbsolute(int uncheckedNewVolume)
+		{
+			int newVolume = Mathf.Clamp(uncheckedNewVolume, 0, 100);
+
+			BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", newVolume);
+			GameSystem.Instance.AudioController.VoiceVolume = (float)newVolume / 100f;
+			GameSystem.Instance.AudioController.RefreshLayerVolumes();
+
+			// Play a sample voice file so the user can get feedback on the set volume
+			// For some reason the script uses "256" as the default volume, which gets divided by 128 to become 2.0f,
+			// so to keep in line with the script, the test volume is set to "2.0f"
+			GameSystem.Instance.AudioController.PlayVoice("voice_test.ogg", 3, 2.0f);
 		}
 	}
 }
