@@ -441,6 +441,19 @@ namespace Assets.Scripts.UI
 
 		private void Update()
 		{
+			if (Input.GetKeyDown(KeyCode.F11))
+			{
+				// Loop "GVideoOpening" over the values 1-3.
+				// 0 is skipped as it represents "value not set"
+				int newVideoOpening = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue() + 1;
+				if (newVideoOpening > 3)
+				{
+					newVideoOpening = 1;
+				}
+				BurikoMemory.Instance.SetGlobalFlag("GVideoOpening", newVideoOpening);
+				GameSystem.Instance.MainUIController.ShowToast($"OP Video: {VideoOpeningDescription(newVideoOpening)} ({newVideoOpening})");
+			}
+
 			// Update the toast countdown timer, making sure it doesn't go below 0
 			toastNotificationTimer = Math.Max(0, toastNotificationTimer - Time.deltaTime);
 			if (gameSystem == null)
@@ -637,7 +650,6 @@ namespace Assets.Scripts.UI
 				string canSaveDesc = gameSystem.CanSave ? "" : "You can't save now\n";
 				string canInputDesc = gameSystem.CanInput ? "" : "Game avoid any input now\n";
 				var videoOpeningValue = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue();
-				var videoOpeningDescription = videoOpeningValue == 0 ? "Unset" : videoOpeningValue == 1 ? "Disabled" : videoOpeningValue == 2 ? "In-game" : videoOpeningValue == 3 ? "At launch + in-game" : "Unknown";
 				var artsetDescription = "Art = " + GameSystem.Instance.ChooseJapaneseEnglish(
 					japanese: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameJP,
 					english: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameEN
@@ -655,7 +667,7 @@ namespace Assets.Scripts.UI
 					intDesc ("GCensor",       "GCensorMaxNum",       "Voice Matching Level"),
 					intDesc ("GEffectExtend", "GEffectExtendMaxNum", "Effect Level"),
 					"Voice Volume = " + BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue().ToString(),
-					$"OP Movies = {videoOpeningDescription} ({videoOpeningValue})",
+					$"OP Movies = {VideoOpeningDescription(videoOpeningValue)} ({videoOpeningValue})",
 					artsetDescription,
 					"\n[Restore Game Settings]",
 					settingLoaderDesc,
@@ -685,6 +697,7 @@ namespace Assets.Scripts.UI
 					"F5 : QuickSave",
 					"F7 : QuickLoad",
 					"F10 : Setting Monitor",
+					"F11 : OP Movies",
 					"M : Increase Voice Volume",
 					"N : Decrease Voice Volume",
 					"1 : Alternative BGM",
@@ -901,6 +914,23 @@ namespace Assets.Scripts.UI
 			}
 
 			ShowToast(toastText, sound, toastDuration);
+		}
+
+		public static string VideoOpeningDescription(int videoOpeningValue)
+		{
+			switch(videoOpeningValue)
+			{
+				case 0:
+					return "Unset";
+				case 1:
+					return "Disabled";
+				case 2:
+					return "In-game";
+				case 3:
+					return "At launch + in-game";
+			}
+
+			return "Unknown";
 		}
 	}
 }
