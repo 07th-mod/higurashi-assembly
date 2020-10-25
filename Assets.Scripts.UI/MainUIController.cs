@@ -70,6 +70,13 @@ namespace Assets.Scripts.UI
 			Pluck5,
 		}
 
+		private enum WindowFilterType
+		{
+			Normal,
+			ADV,
+			NVLInADV,
+		}
+
 		public void UpdateGuiPosition(int x, int y)
 		{
 			unscaledPosition = new Vector3((float)x, (float)y, 0f);
@@ -493,6 +500,32 @@ namespace Assets.Scripts.UI
 			}
 		}
 
+		private void TryRedrawTextWindowBackground(WindowFilterType filterType)
+		{
+			MainUIController ui = GameSystem.Instance.MainUIController;
+
+			// If this function is called from the main menu, the bgLayers might be null
+			if (ui.bgLayer == null || ui.bgLayer2 == null)
+			{
+				return;
+			}
+
+			string windowFilterTextureName = "windo_filter";
+			if (filterType == WindowFilterType.ADV)
+			{
+				windowFilterTextureName = "windo_filter_adv";
+			}
+			else if (filterType == WindowFilterType.NVLInADV)
+			{
+				windowFilterTextureName = "windo_filter_nvladv";
+			}
+
+			ui.bgLayer.ReleaseTextures();
+			ui.bgLayer2.ReleaseTextures();
+			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+			ui.bgLayer2.DrawLayer(windowFilterTextureName, 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+		}
+
 		/// <summary>
 		/// Toggles, then saves ADV/NVL mode.
 		/// </summary>
@@ -513,10 +546,7 @@ namespace Assets.Scripts.UI
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				TryRedrawTextWindowBackground(WindowFilterType.ADV);
 				mODMainUIController.ADVModeSettingStore();
 				GameSystem.Instance.MainUIController.ShowToast($"Textbox: ADV Mode", isEnable: true);
 			}
@@ -524,10 +554,7 @@ namespace Assets.Scripts.UI
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				TryRedrawTextWindowBackground(WindowFilterType.Normal);
 				mODMainUIController.NVLModeSettingStore();
 				GameSystem.Instance.MainUIController.ShowToast($"Textbox: NVL Mode", isEnable: false);
 			}
@@ -540,10 +567,7 @@ namespace Assets.Scripts.UI
 			{
 				MODMainUIController mODMainUIController = new MODMainUIController();
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_nvladv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_nvladv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				TryRedrawTextWindowBackground(WindowFilterType.NVLInADV);
 				mODMainUIController.NVLADVModeSettingStore();
 			}
 		}
@@ -555,10 +579,7 @@ namespace Assets.Scripts.UI
 			{
 				MODMainUIController mODMainUIController = new MODMainUIController();
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				TryRedrawTextWindowBackground(WindowFilterType.ADV);
 				mODMainUIController.ADVModeSettingStore();
 			}
 		}
