@@ -1120,6 +1120,9 @@ namespace Assets.Scripts.UI
 				{
 					////// Switch to Console / 16:9 Mode
 
+					//TODO: Enable CG and save setting
+					BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
+
 					//TODO: Change game aspect ratio to 16:9
 					gameSystem.UpdateAspectRatio(16.0f / 9.0f);
 
@@ -1146,14 +1149,15 @@ namespace Assets.Scripts.UI
 					//TODO: Set ADV mode (take settings from init file), Save setting
 					MODSetAndSaveADV(setADVMode: true);
 
-					//TODO: Enable CG and save setting
-
 					//TODO: Optional - disable image stretching 16:9
 					GameSystem.Instance.MainUIController.ShowToast($"Enabled Console Mode");
 				}
 				else
 				{
 					////// Switch to Ryukishi / 4:3 Mode
+
+					//TODO: Disable CG and save settings (displayed CGs would be cut off)
+					BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
 
 					//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
 					MODSetAndSaveADV(setADVMode: false);
@@ -1182,8 +1186,6 @@ namespace Assets.Scripts.UI
 
 					//TODO: Change game aspect ration to 4:3
 					gameSystem.UpdateAspectRatio(4.0f / 3.0f);
-
-					//TODO: Disable CG and save settings (displayed CGs would be cut off)
 
 					//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
 					GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
