@@ -493,21 +493,23 @@ namespace Assets.Scripts.UI
 			}
 		}
 
-		public void MODResetLayerBackground()
+		/// <summary>
+		/// Toggles, then saves ADV/NVL mode.
+		/// </summary>
+		public void MODToggleAndSaveADVMode()
+		{
+			bool isADVMode = BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1;
+			MODSetAndSaveADV(setADVMode: !isADVMode);
+		}
+
+		/// <summary>
+		/// Sets and saves NVL/ADV mode
+		/// </summary>
+		/// <param name="setADVMode">If True, sets and saves ADV mode. If False, sets and saves NVL mode</param>
+		public void MODSetAndSaveADV(bool setADVMode)
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				mODMainUIController.NVLModeSettingStore();
-				GameSystem.Instance.MainUIController.ShowToast($"Textbox: NVL Mode", isEnable: false);
-			}
-			else
+			if (setADVMode)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
@@ -517,6 +519,17 @@ namespace Assets.Scripts.UI
 				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter_adv", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 				mODMainUIController.ADVModeSettingStore();
 				GameSystem.Instance.MainUIController.ShowToast($"Textbox: ADV Mode", isEnable: true);
+			}
+			else
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
+				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer2.ReleaseTextures();
+				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				GameSystem.Instance.MainUIController.bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+				mODMainUIController.NVLModeSettingStore();
+				GameSystem.Instance.MainUIController.ShowToast($"Textbox: NVL Mode", isEnable: false);
 			}
 		}
 
@@ -1045,7 +1058,7 @@ namespace Assets.Scripts.UI
 				}
 				else
 				{
-					GameSystem.Instance.MainUIController.MODResetLayerBackground();
+					GameSystem.Instance.MainUIController.MODToggleAndSaveADVMode();
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.F2))
@@ -1097,6 +1110,84 @@ namespace Assets.Scripts.UI
 				// 0 is skipped as it represents "value not set"
 				int newVideoOpening = IncrementFlagWithRolloverAndSave("GVideoOpening", 1, 3);
 				GameSystem.Instance.MainUIController.ShowToast($"OP Video: {VideoOpeningDescription(newVideoOpening)} ({newVideoOpening})");
+			}
+			if(Input.GetKeyDown(KeyCode.Alpha9))
+			{
+				// TODO: need to consider how these settings will be restored on startup
+				// as may interfere with other settings!
+				// Instead of just one setting, might be better to have multiple flags toggled when you press this one button.
+				if(BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 0)
+				{
+					////// Switch to Console / 16:9 Mode
+
+					//TODO: Change game aspect ratio to 16:9
+					gameSystem.UpdateAspectRatio(16.0f / 9.0f);
+
+					//TODO: Restore UI for 16:9, Save setting (see note about GUI position in 'else' statement below)
+					gameSystem.MainUIController.UpdateGuiPosition(170, 0);
+
+					//TODO: Restore textbox size for 16:9
+					MODMainUIController mODMainUIController = new MODMainUIController();
+					mODMainUIController.NVLModeSettingLoad(
+						"",   //name
+						-170,    //posx
+						-10,  //posy
+						1240, //sizex
+						720,  //sizey
+						60,   //mleft
+						30,   //mtop
+						50,   //mright
+						30,   //mbottom
+						1,    //font
+						0,    //cspace
+						8,    //lspace
+						34);  //fsize
+
+					//TODO: Set ADV mode (take settings from init file), Save setting
+					MODSetAndSaveADV(setADVMode: true);
+
+					//TODO: Enable CG and save setting
+
+					//TODO: Optional - disable image stretching 16:9
+					GameSystem.Instance.MainUIController.ShowToast($"Enabled Console Mode");
+				}
+				else
+				{
+					////// Switch to Ryukishi / 4:3 Mode
+
+					//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
+					MODSetAndSaveADV(setADVMode: false);
+
+					//TODO: Shift UI for 4:3, save setting
+					// NOTE: The textbox location seems tied to the Gui position (as in, the text/textbox is parented to the GUI)
+					// This means that when we change the Gui position from (170, 0) to (0, 0), you don't need the -170 offset that we use in our mod
+					gameSystem.MainUIController.UpdateGuiPosition(0, 0);
+
+					//TODO: Squish textbox
+					MODMainUIController mODMainUIController = new MODMainUIController();
+					mODMainUIController.NVLModeSettingLoad(
+						"",   //name
+						0,    //posx
+						-10,  //posy
+						1024, //sizex
+						768,  //sizey
+						60,   //mleft
+						30,   //mtop
+						50,   //mright
+						30,   //mbottom
+						1,    //font
+						0,    //cspace
+						8,    //lspace
+						34);  //fsize
+
+					//TODO: Change game aspect ration to 4:3
+					gameSystem.UpdateAspectRatio(4.0f / 3.0f);
+
+					//TODO: Disable CG and save settings (displayed CGs would be cut off)
+
+					//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
+					GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
+				}
 			}
 			if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
 			{
