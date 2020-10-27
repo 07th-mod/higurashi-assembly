@@ -584,6 +584,10 @@ namespace Assets.Scripts.UI
 			}
 		}
 
+		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
+		// https://forum.unity.com/threads/gui-that-hidden-bastard.257383/
+		// https://answers.unity.com/questions/259870/performance-of-an-empty-ongui-fixedupdate.html
+		// Consider moving this to its own class, then disabling it if there is nothing to be drawn.
 		public void OnGUI()
 		{
 			// This sets up the style of the toast notification (mostly to make the font bigger and the text anchor location)
@@ -979,9 +983,22 @@ namespace Assets.Scripts.UI
 			GameSystem.Instance.AudioController.PlayVoice("voice_test.ogg", 3, 2.0f);
 		}
 
-		private int IncrementFlagWithRolloverAndSave(string flagName, string maxFlagName)
+		// Variant for global flags, using another variable as max limit
+		private int IncrementGlobalFlagWithRollover(string flagName, string maxFlagName)
 		{
-			return IncrementFlagWithRolloverAndSave(flagName, 0, BurikoMemory.Instance.GetGlobalFlag(maxFlagName).IntValue());
+			return _IncrementFlagWithRollover(flagName, 0, BurikoMemory.Instance.GetGlobalFlag(maxFlagName).IntValue(), isLocalFlag: false);
+		}
+
+		// Variant for global flags, using literal limits
+		private int IncrementGlobalFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive)
+		{
+			return _IncrementFlagWithRollover(flagName, minValueInclusive, maxValueInclusive, isLocalFlag: false);
+		}
+
+		// Variant for local flags
+		private int IncrementLocalFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive)
+		{
+			return _IncrementFlagWithRollover(flagName, minValueInclusive, maxValueInclusive, isLocalFlag: true);
 		}
 
 		/// <summary>
@@ -992,14 +1009,24 @@ namespace Assets.Scripts.UI
 		/// <param name="minValueInclusive">This is the minvalue the flag can be allowed to have before it rolls over, inclusive.</param>
 		/// <param name="maxValueInclusive">This is the max value the flag can be allowed to have before it rolls over, inclusive.</param>
 		/// <returns></returns>
-		private int IncrementFlagWithRolloverAndSave(string flagName, int minValueInclusive, int maxValueInclusive)
+		private int _IncrementFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive, bool isLocalFlag)
 		{
-			int newValue = BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue() + 1;
+			int initialValue = isLocalFlag ? BurikoMemory.Instance.GetFlag(flagName).IntValue() : BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
+
+			int newValue = initialValue + 1;
 			if (newValue > maxValueInclusive)
 			{
 				newValue = minValueInclusive;
 			}
-			BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
+
+			if (isLocalFlag)
+			{
+				BurikoMemory.Instance.SetFlag(flagName, newValue);
+			}
+			else
+			{
+				BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
+			}
 
 			return newValue;
 		}
@@ -1012,259 +1039,386 @@ namespace Assets.Scripts.UI
 			return newValue == 1;
 		}
 
-		public bool ModInputHandler()
+		private bool ModInputHandlingAllowed()
 		{
 			if (!gameSystem.IsInitialized || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
 			{
-				return true;
+				return false;
 			}
 
 			// Don't allow mod options on any wait, except "WaitForInput"
 			// Note: if this is removed, it mostly still works, but if changing art style during
 			// an animation, some things may bug out until the next scene.
-			foreach(Wait w in gameSystem.WaitList)
+			foreach (Wait w in gameSystem.WaitList)
 			{
-				if(w.Type != WaitTypes.WaitForInput)
+				if (w.Type != WaitTypes.WaitForInput)
 				{
-					return true;
+					return false;
 				}
 			}
 
-			// Handle Shift-keys
-			// NOTE: If shift is held, the 'normal' keys without modifiers won't trigger
+			return true;
+		}
+
+		enum Action
+		{
+			ToggleADV,
+			CensorshipLevel,
+			EffectLevel,
+			FlagMonitor,
+			OpeningVideo,
+			RyukishiMode,
+			DebugFontSize,
+			AltBGM,
+			AltBGMFlow,
+			AltSE,
+			AltSEFlow,
+			AltVoice,
+			AltVoicePriority,
+			LipSync,
+			VoiceVolumeUp,
+			VoiceVolumeDown,
+			VoiceVolumeMax,
+			VoiceVolumeMin,
+			ToggleArtStyle,
+			DebugMode,
+			RestoreSettings,
+		}
+
+		private Action? GetUserAction()
+		{
+			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
-				// Enable debug mode, which shows an extra 2 panels of info in the flag menu
-				// Note that if your debug mode is 0, there is no way to enable debug mode unless you manually set the flag value in the game script
 				if (Input.GetKeyDown(KeyCode.F10))
 				{
-					if (BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0)
-					{
-						return false;
-					}
-
-					int debugMode = IncrementFlagWithRolloverAndSave("GMOD_DEBUG_MODE", 1, 2);
-					GameSystem.Instance.MainUIController.ShowToast($"Debug Mode: {debugMode}", numberedSound: debugMode);
+					return Action.DebugMode;
 				}
-
-				// Restore game settings
-				if (Input.GetKeyDown(KeyCode.F9))
+				else if (Input.GetKeyDown(KeyCode.F9))
 				{
-					int restoreGameSettingsNum = IncrementFlagWithRolloverAndSave("GMOD_SETTING_LOADER", 0, 3);
-					GameSystem.Instance.MainUIController.ShowToast($"Reset Settings: {restoreGameSettingsNum} (see F10 menu)", numberedSound: restoreGameSettingsNum);
+					return Action.RestoreSettings;
 				}
-
-				// Shift-M = set volume to max
-				if (Input.GetKeyDown(KeyCode.M))
+				else if (Input.GetKeyDown(KeyCode.M))
 				{
-					AdjustVoiceVolumeAbsolute(100);
+					return Action.VoiceVolumeMax;
 				}
-
-				// Shift-N = set volume to min
-				if (Input.GetKeyDown(KeyCode.N))
+				else if (Input.GetKeyDown(KeyCode.N))
 				{
-					AdjustVoiceVolumeAbsolute(0);
+					return Action.VoiceVolumeMin;
 				}
-
-				// Prevent shift keys also triggering non-shift keys by returning early
-				return true;
 			}
 
-			// Handle non-shift keys
 			if (Input.GetKeyDown(KeyCode.F1))
 			{
-				if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
-				{
-					GameSystem.Instance.MainUIController.ShowToast($"Can't toggle now - try later", maybeSound: null);
-				}
-				else
-				{
-					GameSystem.Instance.MainUIController.MODToggleAndSaveADVMode();
-				}
+				return Action.ToggleADV;
 			}
-			if (Input.GetKeyDown(KeyCode.F2))
+			else if (Input.GetKeyDown(KeyCode.F2))
 			{
-				int newCensorNum = IncrementFlagWithRolloverAndSave("GCensor", "GCensorMaxNum");
-				GameSystem.Instance.MainUIController.ShowToast(
-					$"Censorship Level: {newCensorNum}{(newCensorNum == 2 ? " (default)" : "")}",
-					numberedSound: newCensorNum
-				);
+				return Action.CensorshipLevel;
 			}
-			if (Input.GetKeyDown(KeyCode.F3))
+			else if (Input.GetKeyDown(KeyCode.F3))
 			{
-				int effectLevel = IncrementFlagWithRolloverAndSave("GEffectExtend", "GEffectExtendMaxNum");
-				GameSystem.Instance.MainUIController.ShowToast($"Effect Level: {effectLevel} (Not Used)", numberedSound: effectLevel);
+				return Action.EffectLevel;
 			}
-			if (Input.GetKeyDown(KeyCode.F10))
+			else if (Input.GetKeyDown(KeyCode.F10))
 			{
-				if (BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() != 1 && BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() != 2)
-				{
-					if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 0)
+				return Action.FlagMonitor;
+			}
+			else if (Input.GetKeyDown(KeyCode.F11))
+			{
+				return Action.OpeningVideo;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
+			{
+				return Action.DebugFontSize;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+			{
+				return Action.AltBGM;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+			{
+				return Action.AltBGMFlow;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+			{
+				return Action.AltSE;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+			{
+				return Action.AltSEFlow;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
+			{
+				return Action.AltVoice;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
+			{
+				return Action.AltVoicePriority;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7))
+			{
+				return Action.LipSync;
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
+			{
+				return Action.RyukishiMode;
+			}
+			else if (Input.GetKeyDown(KeyCode.M))
+			{
+				return Action.VoiceVolumeUp;
+			}
+			else if (Input.GetKeyDown(KeyCode.P))
+			{
+				return Action.ToggleArtStyle;
+			}
+			else if (Input.GetKeyDown(KeyCode.N))
+			{
+				return Action.VoiceVolumeDown;
+			}
+
+			return null;
+		}
+
+		private void ModHandleUserAction(Action action)
+		{
+			switch (action)
+			{
+				case Action.ToggleADV:
+					if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
 					{
-						BurikoMemory.Instance.SetFlag("LFlagMonitor", 1);
-						return true;
+						GameSystem.Instance.MainUIController.ShowToast($"Can't toggle now - try later", maybeSound: null);
 					}
-					if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 1)
+					else
 					{
-						BurikoMemory.Instance.SetFlag("LFlagMonitor", 2);
-						return true;
+						GameSystem.Instance.MainUIController.MODToggleAndSaveADVMode();
 					}
-					BurikoMemory.Instance.SetFlag("LFlagMonitor", 0);
-					return true;
-				}
-				int num8 = BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue();
-				if (num8 < 4)
-				{
-					num8++;
-					BurikoMemory.Instance.SetFlag("LFlagMonitor", num8);
-					return true;
-				}
-				if (num8 >= 4 || num8 < 0)
-				{
-					BurikoMemory.Instance.SetFlag("LFlagMonitor", 0);
-					return true;
-				}
-			}
-			if (Input.GetKeyDown(KeyCode.F11))
-			{
-				// Loop "GVideoOpening" over the values 1-3.
-				// 0 is skipped as it represents "value not set"
-				int newVideoOpening = IncrementFlagWithRolloverAndSave("GVideoOpening", 1, 3);
-				GameSystem.Instance.MainUIController.ShowToast($"OP Video: {VideoOpeningDescription(newVideoOpening)} ({newVideoOpening})");
-			}
-			if(Input.GetKeyDown(KeyCode.Alpha9))
-			{
-				// TODO: need to consider how these settings will be restored on startup
-				// as may interfere with other settings!
-				// Instead of just one setting, might be better to have multiple flags toggled when you press this one button.
-				if(BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 0)
-				{
-					////// Switch to Console / 16:9 Mode
+					break;
 
-					//TODO: Enable CG and save setting
-					BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
+				case Action.CensorshipLevel:
+					{
+						int newCensorNum = IncrementGlobalFlagWithRollover("GCensor", "GCensorMaxNum");
+						GameSystem.Instance.MainUIController.ShowToast(
+							$"Censorship Level: {newCensorNum}{(newCensorNum == 2 ? " (default)" : "")}",
+							numberedSound: newCensorNum
+						);
+					}
+					break;
 
-					//TODO: Change game aspect ratio to 16:9
-					gameSystem.UpdateAspectRatio(16.0f / 9.0f);
+				case Action.EffectLevel:
+					{
+						int effectLevel = IncrementGlobalFlagWithRollover("GEffectExtend", "GEffectExtendMaxNum");
+						GameSystem.Instance.MainUIController.ShowToast($"Effect Level: {effectLevel} (Not Used)", numberedSound: effectLevel);
+					}
+					break;
 
-					//TODO: Restore UI for 16:9, Save setting (see note about GUI position in 'else' statement below)
-					gameSystem.MainUIController.UpdateGuiPosition(170, 0);
+				case Action.FlagMonitor:
+					IncrementLocalFlagWithRollover("LFlagMonitor", 0, BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4);
+					break;
 
-					//TODO: Restore textbox size for 16:9
-					MODMainUIController mODMainUIController = new MODMainUIController();
-					mODMainUIController.NVLModeSettingLoad(
-						"",   //name
-						-170,    //posx
-						-10,  //posy
-						1240, //sizex
-						720,  //sizey
-						60,   //mleft
-						30,   //mtop
-						50,   //mright
-						30,   //mbottom
-						1,    //font
-						0,    //cspace
-						8,    //lspace
-						34);  //fsize
+				case Action.OpeningVideo:
+					{
+						// Loop "GVideoOpening" over the values 1-3.
+						// 0 is skipped as it represents "value not set"
+						int newVideoOpening = IncrementGlobalFlagWithRollover("GVideoOpening", 1, 3);
+						GameSystem.Instance.MainUIController.ShowToast($"OP Video: {VideoOpeningDescription(newVideoOpening)} ({newVideoOpening})");
+					}
+					break;
 
-					//TODO: Set ADV mode (take settings from init file), Save setting
-					MODSetAndSaveADV(setADVMode: true);
+				case Action.RyukishiMode:
+					{
+						// TODO: need to consider how these settings will be restored on startup
+						// as may interfere with other settings!
+						// Instead of just one setting, might be better to have multiple flags toggled when you press this one button.
+						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 0)
+						{
+							////// Switch to Console / 16:9 Mode
 
-					//TODO: Optional - disable image stretching 16:9
-					GameSystem.Instance.MainUIController.ShowToast($"Enabled Console Mode");
-				}
-				else
-				{
-					////// Switch to Ryukishi / 4:3 Mode
+							//TODO: Enable CG and save setting
+							BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 
-					//TODO: Disable CG and save settings (displayed CGs would be cut off)
-					BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
+							//TODO: Change game aspect ratio to 16:9
+							gameSystem.UpdateAspectRatio(16.0f / 9.0f);
 
-					//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
-					MODSetAndSaveADV(setADVMode: false);
+							//TODO: Restore UI for 16:9, Save setting (see note about GUI position in 'else' statement below)
+							gameSystem.MainUIController.UpdateGuiPosition(170, 0);
 
-					//TODO: Shift UI for 4:3, save setting
-					// NOTE: The textbox location seems tied to the Gui position (as in, the text/textbox is parented to the GUI)
-					// This means that when we change the Gui position from (170, 0) to (0, 0), you don't need the -170 offset that we use in our mod
-					gameSystem.MainUIController.UpdateGuiPosition(0, 0);
+							//TODO: Restore textbox size for 16:9
+							MODMainUIController mODMainUIController = new MODMainUIController();
+							mODMainUIController.NVLModeSettingLoad(
+								"",   //name
+								-170,    //posx
+								-10,  //posy
+								1240, //sizex
+								720,  //sizey
+								60,   //mleft
+								30,   //mtop
+								50,   //mright
+								30,   //mbottom
+								1,    //font
+								0,    //cspace
+								8,    //lspace
+								34);  //fsize
 
-					//TODO: Squish textbox
-					MODMainUIController mODMainUIController = new MODMainUIController();
-					mODMainUIController.NVLModeSettingLoad(
-						"",   //name
-						0,    //posx
-						-10,  //posy
-						1024, //sizex
-						768,  //sizey
-						60,   //mleft
-						30,   //mtop
-						50,   //mright
-						30,   //mbottom
-						1,    //font
-						0,    //cspace
-						8,    //lspace
-						34);  //fsize
+							//TODO: Set ADV mode (take settings from init file), Save setting
+							MODSetAndSaveADV(setADVMode: true);
 
-					//TODO: Change game aspect ration to 4:3
-					gameSystem.UpdateAspectRatio(4.0f / 3.0f);
+							//TODO: Optional - disable image stretching 16:9
+							GameSystem.Instance.MainUIController.ShowToast($"Enabled Console Mode");
+						}
+						else
+						{
+							////// Switch to Ryukishi / 4:3 Mode
 
-					//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
-					GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
-				}
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
-			{
-				if (BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 1 || BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2)
-				{
+							//TODO: Disable CG and save settings (displayed CGs would be cut off)
+							BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
+
+							//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
+							MODSetAndSaveADV(setADVMode: false);
+
+							//TODO: Shift UI for 4:3, save setting
+							// NOTE: The textbox location seems tied to the Gui position (as in, the text/textbox is parented to the GUI)
+							// This means that when we change the Gui position from (170, 0) to (0, 0), you don't need the -170 offset that we use in our mod
+							gameSystem.MainUIController.UpdateGuiPosition(0, 0);
+
+							//TODO: Squish textbox
+							MODMainUIController mODMainUIController = new MODMainUIController();
+							mODMainUIController.NVLModeSettingLoad(
+								"",   //name
+								0,    //posx
+								-10,  //posy
+								1024, //sizex
+								768,  //sizey
+								60,   //mleft
+								30,   //mtop
+								50,   //mright
+								30,   //mbottom
+								1,    //font
+								0,    //cspace
+								8,    //lspace
+								34);  //fsize
+
+							//TODO: Change game aspect ration to 4:3
+							gameSystem.UpdateAspectRatio(4.0f / 3.0f);
+
+							//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
+							GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
+						}
+					}
+					break;
+
+				case Action.DebugFontSize when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 1 || BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2:
 					GameSystem.Instance.MainUIController.MODDebugFontSizeChanger();
+					break;
+
+				case Action.AltBGM:
+					{
+						bool altBGMEnabled = ToggleFlagAndSave("GAltBGM");
+						GameSystem.Instance.MainUIController.ShowToast($"Alt BGM: {(altBGMEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altBGMEnabled);
+					}
+					break;
+
+				case Action.AltBGMFlow:
+					{
+						int newAltBGMFlow = IncrementGlobalFlagWithRollover("GAltBGMflow", "GAltBGMflowMaxNum");
+						GameSystem.Instance.MainUIController.ShowToast($"Alt BGM Flow: {newAltBGMFlow} (Not Used)", numberedSound: newAltBGMFlow);
+					}
+					break;
+
+				case Action.AltSE:
+					{
+						bool seIsEnabled = ToggleFlagAndSave("GAltSE");
+						GameSystem.Instance.MainUIController.ShowToast($"Alt SE: {(seIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: seIsEnabled);
+					}
+					break;
+
+				case Action.AltSEFlow:
+					{
+						int newAltSEFlow = IncrementGlobalFlagWithRollover("GAltSEflow", "GAltSEflowMaxNum");
+						GameSystem.Instance.MainUIController.ShowToast($"Alt SE Flow: {newAltSEFlow} (Not Used)", numberedSound: newAltSEFlow);
+					}
+					break;
+
+				case Action.AltVoice:
+					{
+						bool altVoiceIsEnabled = ToggleFlagAndSave("GAltVoice");
+						GameSystem.Instance.MainUIController.ShowToast($"Alt Voice: {(altVoiceIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altVoiceIsEnabled);
+					}
+					break;
+
+				case Action.AltVoicePriority:
+					{
+						bool altVoicePriorityIsEnabled = ToggleFlagAndSave("GAltVoicePriority");
+						GameSystem.Instance.MainUIController.ShowToast($"Alt Priority: {(altVoicePriorityIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altVoicePriorityIsEnabled);
+					}
+					break;
+
+				case Action.LipSync:
+					{
+						bool lipSyncIsEnabled = ToggleFlagAndSave("GLipSync");
+						GameSystem.Instance.MainUIController.ShowToast($"Lip Sync: {(lipSyncIsEnabled ? "ON" : "OFF")}", isEnable: lipSyncIsEnabled);
+					}
+					break;
+
+				case Action.VoiceVolumeUp:
+					AdjustVoiceVolumeRelative(5);
+					break;
+
+				case Action.VoiceVolumeDown:
+					AdjustVoiceVolumeRelative(-5);
+					break;
+
+				case Action.VoiceVolumeMax:
+					AdjustVoiceVolumeAbsolute(100);
+					break;
+
+				case Action.VoiceVolumeMin:
+					AdjustVoiceVolumeAbsolute(0);
+					break;
+
+				case Action.ToggleArtStyle:
+					MOD.Scripts.Core.MODSystem.instance.modTextureController.ToggleArtStyle();
+					break;
+
+				// Enable debug mode, which shows an extra 2 panels of info in the flag menu
+				// Note that if your debug mode is 0, there is no way to enable debug mode unless you manually set the flag value in the game script
+				case Action.DebugMode when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() != 0:
+					{
+						int debugMode = IncrementGlobalFlagWithRollover("GMOD_DEBUG_MODE", 1, 2);
+						GameSystem.Instance.MainUIController.ShowToast($"Debug Mode: {debugMode}", numberedSound: debugMode);
+					}
+					break;
+
+				// Restore game settings
+				case Action.RestoreSettings:
+					{
+						int restoreGameSettingsNum = IncrementGlobalFlagWithRollover("GMOD_SETTING_LOADER", 0, 3);
+						GameSystem.Instance.MainUIController.ShowToast($"Reset Settings: {restoreGameSettingsNum} (see F10 menu)", numberedSound: restoreGameSettingsNum);
+					}
+					break;
+
+				default:
+					Logger.Log($"Warning: Unknown mod action {action} was requested to be executed");
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Handles mod inputs. Call from Update function.
+		/// </summary>
+		/// <returns>Currently the return value is not used for anything</returns>
+		public bool ModInputHandler()
+		{
+			if(GetUserAction() is Action action)
+			{
+				if (!ModInputHandlingAllowed())
+				{
+					GameSystem.Instance.MainUIController.ShowToast($"Please let animation finish first");
 				}
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-			{
-				bool altBGMEnabled = ToggleFlagAndSave("GAltBGM");
-				GameSystem.Instance.MainUIController.ShowToast($"Alt BGM: {(altBGMEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altBGMEnabled);
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-			{
-				int newAltBGMFlow = IncrementFlagWithRolloverAndSave("GAltBGMflow", "GAltBGMflowMaxNum");
-				GameSystem.Instance.MainUIController.ShowToast($"Alt BGM Flow: {newAltBGMFlow} (Not Used)", numberedSound: newAltBGMFlow);
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-			{
-				bool seIsEnabled = ToggleFlagAndSave("GAltSE");
-				GameSystem.Instance.MainUIController.ShowToast($"Alt SE: {(seIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: seIsEnabled);
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
-			{
-				int newAltBGMFlow = IncrementFlagWithRolloverAndSave("GAltSEflow", "GAltSEflowMaxNum");
-				GameSystem.Instance.MainUIController.ShowToast($"Alt SE Flow: {newAltBGMFlow} (Not Used)", numberedSound: newAltBGMFlow);
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
-			{
-				bool altVoiceIsEnabled = ToggleFlagAndSave("GAltVoice");
-				GameSystem.Instance.MainUIController.ShowToast($"Alt Voice: {(altVoiceIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altVoiceIsEnabled);
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
-			{
-				bool altVoicePriorityIsEnabled = ToggleFlagAndSave("GAltVoicePriority");
-				GameSystem.Instance.MainUIController.ShowToast($"Alt Priority: {(altVoicePriorityIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altVoicePriorityIsEnabled);
-			}
-			if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7))
-			{
-				bool lipSyncIsEnabled = ToggleFlagAndSave("GLipSync");
-				GameSystem.Instance.MainUIController.ShowToast($"Lip Sync: {(lipSyncIsEnabled ? "ON" : "OFF")}", isEnable: lipSyncIsEnabled);
-			}
-			if (Input.GetKeyDown(KeyCode.M))
-			{
-				AdjustVoiceVolumeRelative(5);
-			}
-			if (Input.GetKeyDown(KeyCode.P))
-			{
-				MOD.Scripts.Core.MODSystem.instance.modTextureController.ToggleArtStyle();
-			}
-			if (Input.GetKeyDown(KeyCode.N))
-			{
-				AdjustVoiceVolumeRelative(-5);
+				else
+				{
+					ModHandleUserAction(action);
+				}
 			}
 
 			return true;
