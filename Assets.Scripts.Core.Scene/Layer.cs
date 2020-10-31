@@ -327,8 +327,10 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool ryukishiClamp, int finalXOffset)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, int finalXOffset)
 		{
+			bool ryukishiClamp = Buriko.BurikoMemory.Instance.GetGlobalFlag("GClampSprite43").IntValue() == 1;
+
 			if (mesh == null ||
 				!Mathf.Approximately((float)width / height, aspectRatio) ||
 				this.alignment != alignment ||
@@ -372,7 +374,6 @@ namespace Assets.Scripts.Core.Scene
 				width: texture2D.width, height: texture2D.height,
 				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
 				origin: origin,
-				ryukishiClamp: isBustshot,
 				finalXOffset: x
 			);
 			SetRange(startRange);
@@ -447,7 +448,6 @@ namespace Assets.Scripts.Core.Scene
 						width: texture2D.width, height: texture2D.height,
 						alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
 						origin: origin,
-						ryukishiClamp: isBustshot,
 						finalXOffset: x
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
@@ -675,7 +675,7 @@ namespace Assets.Scripts.Core.Scene
 				{
 					SetPrimaryTexture(texture2D);
 					//TODO: this function call doesn't know if it is a bustshot
-					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin, ryukishiClamp: false, finalXOffset: (int) base.transform.localPosition.x);
+					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin, finalXOffset: (int) base.transform.localPosition.x);
 				}
 			}
 		}
@@ -822,7 +822,6 @@ namespace Assets.Scripts.Core.Scene
 					width: tex2d.width, height: tex2d.height,
 					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
 					origin: origin,
-					ryukishiClamp: isBustshot,
 					finalXOffset: x
 				);
 				if (primary != null)

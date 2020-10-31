@@ -1234,11 +1234,14 @@ namespace Assets.Scripts.UI
 						{
 							////// Switch to Console / 16:9 Mode
 
-							//TODO: Enable CG and save setting
+							// Disable clamping sprites to 4:3
+							BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 0);
+
+							// Enable CGs
 							BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 
 							//TODO: Change game aspect ratio to 16:9
-							gameSystem.UpdateAspectRatio(16.0f / 9.0f);
+							//gameSystem.UpdateAspectRatio(16.0f / 9.0f);
 
 							//TODO: Restore UI for 16:9, Save setting (see note about GUI position in 'else' statement below)
 							gameSystem.MainUIController.UpdateGuiPosition(170, 0);
@@ -1260,7 +1263,7 @@ namespace Assets.Scripts.UI
 								8,    //lspace
 								34);  //fsize
 
-							//TODO: Set ADV mode (take settings from init file), Save setting
+							// Set ADV mode (take settings from init file), Save setting
 							MODSetAndSaveADV(setADVMode: true);
 
 							//TODO: Optional - disable image stretching 16:9
@@ -1270,7 +1273,10 @@ namespace Assets.Scripts.UI
 						{
 							////// Switch to Ryukishi / 4:3 Mode
 
-							//TODO: Disable CG and save settings (displayed CGs would be cut off)
+							// Enable clamping sprites to 4:3
+							BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 1);
+
+							// Disable CGs (displayed CGs would be cut off). Can press Shift-9 to forcibly show CGs
 							BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
 
 							//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
@@ -1298,8 +1304,8 @@ namespace Assets.Scripts.UI
 								8,    //lspace
 								34);  //fsize
 
-							//TODO: Change game aspect ration to 4:3
-							gameSystem.UpdateAspectRatio(4.0f / 3.0f);
+							// Change game aspect ration to 4:3
+							//gameSystem.UpdateAspectRatio(4.0f / 3.0f);
 
 							//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
 							GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
