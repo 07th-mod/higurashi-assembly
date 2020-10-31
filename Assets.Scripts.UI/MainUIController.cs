@@ -1068,6 +1068,7 @@ namespace Assets.Scripts.UI
 			FlagMonitor,
 			OpeningVideo,
 			RyukishiMode,
+			ForceShowCG,
 			DebugFontSize,
 			AltBGM,
 			AltBGMFlow,
@@ -1105,6 +1106,10 @@ namespace Assets.Scripts.UI
 				else if (Input.GetKeyDown(KeyCode.N))
 				{
 					return Action.VoiceVolumeMin;
+				}
+				else if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
+				{
+					return Action.ForceShowCG;
 				}
 			}
 
@@ -1228,6 +1233,14 @@ namespace Assets.Scripts.UI
 				case Action.RyukishiMode:
 					ModToggleRyukishiMode();
 					break;
+
+				case Action.ForceShowCG:
+					{
+						bool cgIsHidden = ToggleFlagAndSave("GHideCG");
+						GameSystem.Instance.MainUIController.ShowToast($"Hide CG: {(cgIsHidden ? "ON" : "OFF")}", isEnable: cgIsHidden);
+					}
+					break;
+
 
 				case Action.DebugFontSize when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 1 || BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2:
 					GameSystem.Instance.MainUIController.MODDebugFontSizeChanger();
