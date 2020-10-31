@@ -329,7 +329,7 @@ namespace Assets.Scripts.Core.Scene
 
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, int finalXOffset)
 		{
-			bool ryukishiClamp = Buriko.BurikoMemory.Instance.GetGlobalFlag("GClampSprite43").IntValue() == 1;
+			bool ryukishiClamp = Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1;
 
 			if (mesh == null ||
 				!Mathf.Approximately((float)width / height, aspectRatio) ||

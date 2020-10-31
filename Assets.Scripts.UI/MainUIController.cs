@@ -1369,7 +1369,7 @@ namespace Assets.Scripts.UI
 				////// Switch to Console / 16:9 Mode
 
 				// Disable clamping sprites to 4:3
-				BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 0);
+				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 
 				// Enable CGs
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
@@ -1407,10 +1407,10 @@ namespace Assets.Scripts.UI
 			{
 				////// Switch to Ryukishi / 4:3 Mode
 
-				// The following things depend on GClampSprite43:
+				// The following things depend on GRyukishiMode:
 				// - Sprites are clamped to 4:3
 				// - UI position is set to (0,0) with UpdateGuiPosition()
-				BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 1);
+				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 1);
 
 
 				// Disable CGs (displayed CGs would be cut off). Can press Shift-9 to forcibly show CGs
