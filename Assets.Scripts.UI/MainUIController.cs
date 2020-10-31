@@ -1226,91 +1226,7 @@ namespace Assets.Scripts.UI
 					break;
 
 				case Action.RyukishiMode:
-					{
-						// TODO: need to consider how these settings will be restored on startup
-						// as may interfere with other settings!
-						// Instead of just one setting, might be better to have multiple flags toggled when you press this one button.
-						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 0)
-						{
-							////// Switch to Console / 16:9 Mode
-
-							// Disable clamping sprites to 4:3
-							BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 0);
-
-							// Enable CGs
-							BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
-
-							//TODO: Change game aspect ratio to 16:9
-							//gameSystem.UpdateAspectRatio(16.0f / 9.0f);
-
-							//TODO: Restore UI for 16:9, Save setting (see note about GUI position in 'else' statement below)
-							gameSystem.MainUIController.UpdateGuiPosition(170, 0);
-
-							//TODO: Restore textbox size for 16:9
-							MODMainUIController mODMainUIController = new MODMainUIController();
-							mODMainUIController.NVLModeSettingLoad(
-								"",   //name
-								-170,    //posx
-								-10,  //posy
-								1240, //sizex
-								720,  //sizey
-								60,   //mleft
-								30,   //mtop
-								50,   //mright
-								30,   //mbottom
-								1,    //font
-								0,    //cspace
-								8,    //lspace
-								34);  //fsize
-
-							// Set ADV mode (take settings from init file), Save setting
-							MODSetAndSaveADV(setADVMode: true);
-
-							//TODO: Optional - disable image stretching 16:9
-							GameSystem.Instance.MainUIController.ShowToast($"Enabled Console Mode");
-						}
-						else
-						{
-							////// Switch to Ryukishi / 4:3 Mode
-
-							// Enable clamping sprites to 4:3
-							BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 1);
-
-							// Disable CGs (displayed CGs would be cut off). Can press Shift-9 to forcibly show CGs
-							BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
-
-							//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
-							MODSetAndSaveADV(setADVMode: false);
-
-							//TODO: Shift UI for 4:3, save setting
-							// NOTE: The textbox location seems tied to the Gui position (as in, the text/textbox is parented to the GUI)
-							// This means that when we change the Gui position from (170, 0) to (0, 0), you don't need the -170 offset that we use in our mod
-							gameSystem.MainUIController.UpdateGuiPosition(0, 0);
-
-							//TODO: Squish textbox
-							MODMainUIController mODMainUIController = new MODMainUIController();
-							mODMainUIController.NVLModeSettingLoad(
-								"",   //name
-								0,    //posx
-								-10,  //posy
-								1024, //sizex
-								768,  //sizey
-								60,   //mleft
-								30,   //mtop
-								50,   //mright
-								30,   //mbottom
-								1,    //font
-								0,    //cspace
-								8,    //lspace
-								34);  //fsize
-
-							// Change game aspect ration to 4:3
-							//gameSystem.UpdateAspectRatio(4.0f / 3.0f);
-
-							//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
-							GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
-						}
-					}
+					ModToggleRyukishiMode();
 					break;
 
 				case Action.DebugFontSize when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 1 || BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2:
@@ -1428,6 +1344,103 @@ namespace Assets.Scripts.UI
 			}
 
 			return true;
+		}
+
+		public void ModToggleRyukishiMode()
+		{
+			// TODO: need to consider how these settings will be restored on startup
+			// as may interfere with other settings!
+			// Instead of just one setting, might be better to have multiple flags toggled when you press this one button.
+			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 0)
+			{
+				////// Switch to Console / 16:9 Mode
+
+				// Disable clamping sprites to 4:3
+				BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 0);
+
+				// Enable CGs
+				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
+
+				//TODO: Change game aspect ratio to 16:9
+				//gameSystem.UpdateAspectRatio(16.0f / 9.0f);
+
+				//TODO: Restore UI for 16:9, Save setting (see note about GUI position in 'else' statement below)
+				gameSystem.MainUIController.UpdateGuiPosition(170, 0);
+
+				//TODO: Restore textbox size for 16:9
+				MODMainUIController mODMainUIController = new MODMainUIController();
+				mODMainUIController.NVLModeSettingLoad(
+					"",   //name
+					-170,    //posx
+					-10,  //posy
+					1240, //sizex
+					720,  //sizey
+					60,   //mleft
+					30,   //mtop
+					50,   //mright
+					30,   //mbottom
+					1,    //font
+					0,    //cspace
+					8,    //lspace
+					34);  //fsize
+
+				// Set ADV mode (take settings from init file), Save setting
+				MODSetAndSaveADV(setADVMode: true);
+
+				//TODO: Optional - disable image stretching 16:9
+				GameSystem.Instance.MainUIController.ShowToast($"Enabled Console Mode");
+			}
+			else
+			{
+				////// Switch to Ryukishi / 4:3 Mode
+
+				// The following things depend on GClampSprite43:
+				// - Sprites are clamped to 4:3
+				// - UI position is set to (0,0) with UpdateGuiPosition()
+				BurikoMemory.Instance.SetGlobalFlag("GClampSprite43", 1);
+
+
+				// Disable CGs (displayed CGs would be cut off). Can press Shift-9 to forcibly show CGs
+				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
+
+				//TODO: Force NVL mode for 4:3 (may need to add another option in the init.txt file), save setting
+				MODSetAndSaveADV(setADVMode: false);
+
+				//TODO: Shift UI for 4:3, save setting
+				gameSystem.MainUIController.UpdateGuiPosition(0, 0);
+
+				//TODO: Squish textbox
+				// NOTE: The textbox location seems tied to the aspect ratio
+				// This means that:
+				//   - when the Gui position is (170, 0) and the aspect is 16:9,
+				//     you set the textbox posx to -170 (this is how the mod is by default)
+				//
+				//   - when the Gui position is (  0, 0) and the aspect is 16:9,
+				//     you set the textbox posx to -170 (this is how I've setup ryukishi mode)
+				//   - when the Gui position is (  0, 0) and the aspect is 4:3,
+				//     you set the textbox posx to 0 (this is the original game's setting)
+				MODMainUIController mODMainUIController = new MODMainUIController();
+				mODMainUIController.NVLModeSettingLoad(
+					"",   //name
+					-170, //posx
+					-10,  //posy
+					1024, //sizex
+					768,  //sizey
+					60,   //mleft
+					30,   //mtop
+					50,   //mright
+					30,   //mbottom
+					1,    //font
+					0,    //cspace
+					8,    //lspace
+					34);  //fsize
+
+				// Change game aspect ration to 4:3
+				//gameSystem.UpdateAspectRatio(4.0f / 3.0f);
+
+				//TODO: Optional - stretch backgrounds to 16:9 if wrong resolution? entirely optional though, maybe do later, Save setting
+				GameSystem.Instance.MainUIController.ShowToast($"Enabled Ryukishi Mode");
+			}
 		}
 
 	}
