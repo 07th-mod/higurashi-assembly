@@ -724,7 +724,7 @@ namespace Assets.Scripts.UI
 					english: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameEN
 				);
 				string textToDraw = string.Join("\n", new string[] {
-					"[MOD SETTINGS]",
+					"[MOD SETTINGS] (Press F10 to toggle)",
 					boolDesc("GADVMode",                             "ADV-MODE"),
 					boolDesc("GLipSync",                             "Lip-Sync"),
 					boolDesc("GAltBGM",                              "Alternative BGM"),
@@ -766,7 +766,7 @@ namespace Assets.Scripts.UI
 					"F5 : QuickSave",
 					"F7 : QuickLoad",
 					"F10 : Setting Monitor",
-					"F11 : OP Movies",
+					"SHIFT-F11 : OP Movies",
 					"M : Increase Voice Volume",
 					"N : Decrease Voice Volume",
 					"1 : Alternative BGM (Not Used)",
@@ -1138,6 +1138,10 @@ namespace Assets.Scripts.UI
 				{
 					return Action.RestoreSettings;
 				}
+				else if (Input.GetKeyDown(KeyCode.F11))
+				{
+					return Action.OpeningVideo;
+				}
 				else if (Input.GetKeyDown(KeyCode.M))
 				{
 					return Action.VoiceVolumeMax;
@@ -1171,10 +1175,6 @@ namespace Assets.Scripts.UI
 			else if (Input.GetKeyDown(KeyCode.F10))
 			{
 				return Action.FlagMonitor;
-			}
-			else if (Input.GetKeyDown(KeyCode.F11))
-			{
-				return Action.OpeningVideo;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
 			{
