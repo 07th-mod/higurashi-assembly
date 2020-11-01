@@ -327,9 +327,9 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, int finalXOffset)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset)
 		{
-			bool ryukishiClamp = Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1;
+			bool ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1;
 
 			if (mesh == null ||
 				!Mathf.Approximately((float)width / height, aspectRatio) ||
@@ -374,6 +374,7 @@ namespace Assets.Scripts.Core.Scene
 				width: texture2D.width, height: texture2D.height,
 				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
 				origin: origin,
+				isBustShot: isBustshot,
 				finalXOffset: x
 			);
 			SetRange(startRange);
@@ -448,6 +449,7 @@ namespace Assets.Scripts.Core.Scene
 						width: texture2D.width, height: texture2D.height,
 						alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
 						origin: origin,
+						isBustShot: isBustshot,
 						finalXOffset: x
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
@@ -674,8 +676,7 @@ namespace Assets.Scripts.Core.Scene
 				else
 				{
 					SetPrimaryTexture(texture2D);
-					//TODO: this function call doesn't know if it is a bustshot
-					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin, finalXOffset: (int) base.transform.localPosition.x);
+					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin, isBustShot: cachedIsBustShot, finalXOffset: (int) base.transform.localPosition.x);
 				}
 			}
 		}
@@ -822,6 +823,7 @@ namespace Assets.Scripts.Core.Scene
 					width: tex2d.width, height: tex2d.height,
 					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
 					origin: origin,
+					isBustShot: isBustshot,
 					finalXOffset: x
 				);
 				if (primary != null)
