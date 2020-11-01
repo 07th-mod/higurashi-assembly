@@ -1122,6 +1122,7 @@ namespace Assets.Scripts.UI
 			ToggleArtStyle,
 			DebugMode,
 			RestoreSettings,
+			StretchBackgrounds,
 		}
 
 		private Action? GetUserAction()
@@ -1148,6 +1149,10 @@ namespace Assets.Scripts.UI
 				else if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
 				{
 					return Action.ForceShowCG;
+				}
+				else if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
+				{
+					return Action.StretchBackgrounds;
 				}
 			}
 
@@ -1359,6 +1364,14 @@ namespace Assets.Scripts.UI
 					{
 						int restoreGameSettingsNum = IncrementGlobalFlagWithRollover("GMOD_SETTING_LOADER", 0, 3);
 						GameSystem.Instance.MainUIController.ShowToast($"Reset Settings: {restoreGameSettingsNum} (see F10 menu)", numberedSound: restoreGameSettingsNum);
+					}
+					break;
+
+				case Action.StretchBackgrounds:
+					{
+						bool shouldStretchBackgrounds = ToggleFlagAndSave("GStretchBackgrounds");
+						GameSystem.Instance.SceneController.ReloadAllImages();
+						GameSystem.Instance.MainUIController.ShowToast($"Background Stretching: {(shouldStretchBackgrounds ? "ON" : "OFF")}", isEnable: shouldStretchBackgrounds);
 					}
 					break;
 
