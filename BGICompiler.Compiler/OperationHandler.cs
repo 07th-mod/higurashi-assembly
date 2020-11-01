@@ -171,6 +171,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModSetLayerFilter", new OpType(BurikoOperations.ModSetLayerFilter, "iis"));
 			paramLookup.Add("ModAddArtset", new OpType(BurikoOperations.ModAddArtset, "sss"));
 			paramLookup.Add("ModClearArtsets", new OpType(BurikoOperations.ModClearArtsets, string.Empty));
+			paramLookup.Add("ModRyukishiModeSettingLoad", new OpType(BurikoOperations.ModRyukishiModeSettingLoad, "siiiiiiiiiiii"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

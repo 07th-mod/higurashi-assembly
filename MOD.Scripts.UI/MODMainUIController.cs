@@ -84,6 +84,22 @@ namespace MOD.Scripts.UI
 
 		private static int NVLADVModeFontID;
 
+		// Ryukishi Mode Settings, with default values
+		private static string RyukishiModeNameFormat = "";
+		private static int RyukishiModeWindowPosX = 0;
+		private static int RyukishiModeWindowPosY = 10;
+		private static int RyukishiModeWindowSizeX = 1024;
+		private static int RyukishiModeWindowSizeY = 768;
+		private static int RyukishiModeWindowMarginLeft = 60;
+		private static int RyukishiModeWindowMarginTop = 30;
+		private static int RyukishiModeWindowMarginRight = 50;
+		private static int RyukishiModeWindowMarginBottom = 30;
+		private static int RyukishiModeFontID = 1;
+		private static int RyukishiModeCharSpacing = 0;
+		private static int RyukishiModeLineSpacing = 8;
+		private static int RyukishiModeFontSize = 34;
+
+
 		public void ADVModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
 		{
 			ADVModeNameFormat = name;
@@ -143,6 +159,30 @@ namespace MOD.Scripts.UI
 			NVLADVModeCharSpacing = cspace;
 			NVLADVModeLineSpacing = lspace;
 			NVLADVModeFontSize = fsize;
+		}
+
+		public void RyukishiModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
+		{
+			RyukishiModeNameFormat = name;
+			RyukishiModeWindowPosX = posx;
+			RyukishiModeWindowPosY = posy;
+			RyukishiModeWindowSizeX = sizex;
+			RyukishiModeWindowSizeY = sizey;
+			RyukishiModeWindowMarginLeft = mleft;
+			RyukishiModeWindowMarginTop = mtop;
+			RyukishiModeWindowMarginRight = mright;
+			RyukishiModeWindowMarginBottom = mbottom;
+			RyukishiModeFontID = font;
+			RyukishiModeCharSpacing = cspace;
+			RyukishiModeLineSpacing = lspace;
+			RyukishiModeFontSize = fsize;
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				// Set NVL Line Mode
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
+				RyukishiModeSettingStore();
+			}
 		}
 
 		public void ADVModeSettingStore()
@@ -218,6 +258,31 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.MainUIController.SetCharSpacing(nVLADVModeCharSpacing);
 			GameSystem.Instance.MainUIController.SetLineSpacing(nVLADVModeLineSpacing);
 			GameSystem.Instance.MainUIController.SetFontSize(nVLADVModeFontSize);
+		}
+
+		public void RyukishiModeSettingStore()
+		{
+			string ryukishiModeNameFormat = RyukishiModeNameFormat;
+			int ryukishiModeWindowPosX = RyukishiModeWindowPosX;
+			int ryukishiModeWindowPosY = RyukishiModeWindowPosY;
+			int ryukishiModeWindowSizeX = RyukishiModeWindowSizeX;
+			int ryukishiModeWindowSizeY = RyukishiModeWindowSizeY;
+			int ryukishiModeWindowMarginLeft = RyukishiModeWindowMarginLeft;
+			int ryukishiModeWindowMarginTop = RyukishiModeWindowMarginTop;
+			int ryukishiModeWindowMarginRight = RyukishiModeWindowMarginRight;
+			int ryukishiModeWindowMarginBottom = RyukishiModeWindowMarginBottom;
+			int ryukishiModeFontID = RyukishiModeFontID;
+			int ryukishiModeCharSpacing = RyukishiModeCharSpacing;
+			int ryukishiModeLineSpacing = RyukishiModeLineSpacing;
+			int ryukishiModeFontSize = RyukishiModeFontSize;
+			GameSystem.Instance.TextController.NameFormat = ryukishiModeNameFormat;
+			GameSystem.Instance.MainUIController.SetWindowPos(ryukishiModeWindowPosX, ryukishiModeWindowPosY);
+			GameSystem.Instance.MainUIController.SetWindowSize(ryukishiModeWindowSizeX, ryukishiModeWindowSizeY);
+			GameSystem.Instance.MainUIController.SetWindowMargins(ryukishiModeWindowMarginLeft, ryukishiModeWindowMarginTop, ryukishiModeWindowMarginRight, ryukishiModeWindowMarginBottom);
+			GameSystem.Instance.MainUIController.ChangeFontId(ryukishiModeFontID);
+			GameSystem.Instance.MainUIController.SetCharSpacing(ryukishiModeCharSpacing);
+			GameSystem.Instance.MainUIController.SetLineSpacing(ryukishiModeLineSpacing);
+			GameSystem.Instance.MainUIController.SetFontSize(ryukishiModeFontSize);
 		}
 
 		public void DebugFontChangerSettingStore()
