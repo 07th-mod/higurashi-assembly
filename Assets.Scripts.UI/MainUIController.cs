@@ -75,6 +75,7 @@ namespace Assets.Scripts.UI
 			Normal,
 			ADV,
 			NVLInADV,
+			OG,
 		}
 
 		public enum ModSetting
@@ -526,6 +527,10 @@ namespace Assets.Scripts.UI
 			{
 				windowFilterTextureName = "windo_filter_nvladv";
 			}
+			else if (filterType == WindowFilterType.OG)
+			{
+				windowFilterTextureName = "windo_filter_og";
+			}
 
 			ui.bgLayer.ReleaseTextures();
 			ui.bgLayer2.ReleaseTextures();
@@ -587,7 +592,7 @@ namespace Assets.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
-				TryRedrawTextWindowBackground(WindowFilterType.Normal);
+				TryRedrawTextWindowBackground(WindowFilterType.OG);
 				mODMainUIController.RyukishiGuiPositionStore();
 				mODMainUIController.RyukishiModeSettingStore();
 				GameSystem.Instance.MainUIController.ShowToast($"Set OG Mode", isEnable: false);
