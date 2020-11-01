@@ -1868,12 +1868,23 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		// This has been modified so that we can save the 'default' UI position
 		private BurikoVariable OperationSetGuiPosition()
 		{
 			SetOperationType("SetGUIPosition");
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
-			gameSystem.MainUIController.UpdateGuiPosition(x, y);
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			mODMainUIController.WideGuiPositionLoad(x, y);
+			return BurikoVariable.Null;
+		}
+		private BurikoVariable OperationSetRyukishiGuiPosition()
+		{
+			SetOperationType("ModRyukishiGuiPositionLoad");
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			mODMainUIController.RyukishiGuiPositionLoad(x, y);
 			return BurikoVariable.Null;
 		}
 
@@ -2170,6 +2181,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODClearArtsets();
 			case BurikoOperations.ModRyukishiModeSettingLoad:
 				return OperationMODRyukishiModeSettingLoad();
+			case BurikoOperations.ModRyukishiSetGuiPosition:
+				return OperationSetRyukishiGuiPosition();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;

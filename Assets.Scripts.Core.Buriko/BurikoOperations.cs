@@ -144,5 +144,6 @@ namespace Assets.Scripts.Core.Buriko
 		ModAddArtset,
 		ModClearArtsets,
 		ModRyukishiModeSettingLoad,
+		ModRyukishiSetGuiPosition,
 	}
 }

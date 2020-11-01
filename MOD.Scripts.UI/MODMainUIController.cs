@@ -99,6 +99,41 @@ namespace MOD.Scripts.UI
 		private static int RyukishiModeLineSpacing = 8;
 		private static int RyukishiModeFontSize = 34;
 
+		// Wide Mode/Ryukishi Mode Window Settings, with default values
+		private static int WideModeGuiPosX = 0;
+		private static int WideModeGuiPosY = 0;
+		private static int RyukishiModeGuiPosX = 0;
+		private static int RyukishiModeGuiPosY = 0;
+
+		public void WideGuiPositionLoad(int posx, int posy)
+		{
+			WideModeGuiPosX = posx;
+			WideModeGuiPosY = posy;
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 1)
+			{
+				WideGuiPositionStore();
+			}
+		}
+
+		public void RyukishiGuiPositionLoad(int posx, int posy)
+		{
+			RyukishiModeGuiPosX = posx;
+			RyukishiModeGuiPosY = posy;
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				RyukishiModeSettingStore();
+			}
+		}
+
+		public void WideGuiPositionStore()
+		{
+			GameSystem.Instance.MainUIController.UpdateGuiPosition(WideModeGuiPosX, WideModeGuiPosY);
+		}
+
+		public void RyukishiGuiPositionStore()
+		{
+			GameSystem.Instance.MainUIController.UpdateGuiPosition(RyukishiModeGuiPosX, RyukishiModeGuiPosY);
+		}
 
 		public void ADVModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
 		{
