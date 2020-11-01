@@ -743,7 +743,7 @@ namespace Assets.Scripts.UI
 					"\n[Status]",
 					hotkeyDesc + nvlAdvDesc + canSaveDesc + canInputDesc
 				});
-				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
@@ -780,7 +780,7 @@ namespace Assets.Scripts.UI
 					"LShift + M : Voice Volume MAX",
 					"LShift + N : Voice Volume MIN"
 				});
-				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 3)
 			{
@@ -829,7 +829,7 @@ namespace Assets.Scripts.UI
 					"CanInput = " + (gameSystem.CanInput ? "true" : "false"),
 					"CanSave = " + (gameSystem.CanSave ? "true" : "false"),
 				});
-				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 4)
 			{
@@ -887,7 +887,7 @@ namespace Assets.Scripts.UI
 					.Select(flag => flag + " = " + (getOptionalLocalFlag(flag)?.IntValue().ToString() ?? "disable"))
 					.ToArray()
 				);
-				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}
 
 			if(toastNotificationTimer > 0)
@@ -1400,6 +1400,15 @@ namespace Assets.Scripts.UI
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		/// This looks the same as a TextArea, but you can't click on it
+		/// WARNING: Only call this function from OnGUI()
+		/// </summary>
+		private static void GUIUnclickableTextArea(Rect rect, string text)
+		{
+			GUI.Label(rect, text, GUI.skin.textArea);
 		}
 	}
 }
