@@ -1,6 +1,7 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.Scene;
+using MOD.Scripts.Core.State;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
@@ -1257,7 +1258,18 @@ namespace Assets.Scripts.UI
 					break;
 
 				case Action.FlagMonitor:
-					IncrementLocalFlagWithRollover("LFlagMonitor", 0, BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4);
+					{
+						int maxFlagMonitorValue = BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4;
+						int flagMonitorEnabled = IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
+						if(flagMonitorEnabled == 0)
+						{
+							EnableGameInput();
+						}
+						else
+						{
+							DisableGameInput();
+						}
+					}
 					break;
 
 				case Action.OpeningVideo:
@@ -1410,5 +1422,50 @@ namespace Assets.Scripts.UI
 		{
 			GUI.Label(rect, text, GUI.skin.textArea);
 		}
+
+		// These functions disable input to the game, while still letting
+		// the mod menu receive inputs.
+		public void DisableGameInput()
+		{
+			if (gameSystem.GameState != GameState.MODDisableInput)
+			{
+				ModChangeState(new MODStateDisableInput());
+				gameSystem.HideUIControls();
+			}
+		}
+
+		public void EnableGameInput()
+		{
+			if (gameSystem.GameState == GameState.MODDisableInput)
+			{
+				gameSystem.PopStateStack();
+				gameSystem.ShowUIControls();
+			}
+		}
+
+		// This is a modified version of GameSystem.OnApplicationQuit()
+		public void ModChangeState(Core.State.IGameState newState)
+		{
+			if (gameSystem.GameState == GameState.ConfigScreen)
+			{
+				gameSystem.RegisterAction(delegate
+				{
+					gameSystem.LeaveConfigScreen(delegate
+					{
+						gameSystem.PushStateObject(newState);
+					});
+				});
+				gameSystem.ExecuteActions();
+			}
+			else
+			{
+				gameSystem.RegisterAction(delegate
+				{
+					gameSystem.PushStateObject(newState);
+				});
+				gameSystem.ExecuteActions();
+			}
+		}
+
 	}
 }

@@ -230,6 +230,7 @@
     <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
+    <Compile Include="MOD.Scripts.Core.State\MODStateDisableInput.cs" />
     <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
     <Compile Include="MOD.Scripts.Core.TextWindow\MODTextController.cs" />
     <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
