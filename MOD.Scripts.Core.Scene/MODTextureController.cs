@@ -53,7 +53,7 @@ namespace MOD.Scripts.Core.Scene
 			BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.CurrentArtsetIndex);
 			RestoreTextures();
 			GameSystem.Instance.SceneController.ReloadAllImages();
-			GameSystem.Instance.MainUIController.ShowToast($"Art Style: {AssetManager.Instance.CurrentArtset.nameEN}");
+			UI.MODToaster.Show($"Art Style: {AssetManager.Instance.CurrentArtset.nameEN}");
 		}
 	}
 }

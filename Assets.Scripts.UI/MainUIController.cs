@@ -53,38 +53,9 @@ namespace Assets.Scripts.UI
 		private Vector3 unscaledPosition;
 
 		// While this timer is > 0, the current toast will be displayed (in seconds)
-		private float toastNotificationTimer;
-		private string toastText = "Example Toast Notification";
-		private GUIStyle labelStyle;
-
-		public enum Sound
-		{
-			Click,
-			LoudBang,
-			Disable,
-			Enable,
-			Pluck0,
-			Pluck1,
-			Pluck2,
-			Pluck3,
-			Pluck4,
-			Pluck5,
-		}
-
-		private enum WindowFilterType
-		{
-			Normal,
-			ADV,
-			NVLInADV,
-			OG,
-		}
-
-		public enum ModSetting
-		{
-			NVL,
-			ADV,
-			OG,
-		}
+		private MODStyleManager styleManager;
+		public MODMenu modMenu;
+		private MODToaster toaster;
 
 		public void UpdateGuiPosition(int x, int y)
 		{
@@ -462,11 +433,18 @@ namespace Assets.Scripts.UI
 				gameSystem = GameSystem.Instance;
 			}
 
-			// Update the toast countdown timer, making sure it doesn't go below 0
-			toastNotificationTimer = Math.Max(0, toastNotificationTimer - Time.deltaTime);
+			if (toaster != null)
+			{
+				toaster.Update();
+			}
+
+			if (modMenu != null)
+			{
+				modMenu.Update();
+			}
 
 			// Handle mod keyboard shortcuts
-			ModInputHandler();
+			MODKeyboardShortcuts.ModInputHandler();
 
 			int num = 402;
 			int num2 = 402;
@@ -509,7 +487,7 @@ namespace Assets.Scripts.UI
 			}
 		}
 
-		private void TryRedrawTextWindowBackground(WindowFilterType filterType)
+		public void TryRedrawTextWindowBackground(string windowFilterTextureName)
 		{
 			MainUIController ui = GameSystem.Instance.MainUIController;
 
@@ -519,109 +497,10 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			string windowFilterTextureName = "windo_filter";
-			if (filterType == WindowFilterType.ADV)
-			{
-				windowFilterTextureName = "windo_filter_adv";
-			}
-			else if (filterType == WindowFilterType.NVLInADV)
-			{
-				windowFilterTextureName = "windo_filter_nvladv";
-			}
-			else if (filterType == WindowFilterType.OG)
-			{
-				windowFilterTextureName = "windo_filter_og";
-			}
-
 			ui.bgLayer.ReleaseTextures();
 			ui.bgLayer2.ReleaseTextures();
-			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-			ui.bgLayer2.DrawLayer(windowFilterTextureName, 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-		}
-
-		/// <summary>
-		/// Cycles and saves ADV->NVL->OG->ADV...
-		/// </summary>
-		public void MODToggleAndSaveADVMode()
-		{
-			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
-			{
-				MODSetAndSaveADV(ModSetting.ADV);
-			}
-			else if(BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				MODSetAndSaveADV(ModSetting.NVL);
-			}
-			else
-			{
-				MODSetAndSaveADV(ModSetting.OG);
-			}
-		}
-
-		/// <summary>
-		/// Sets and saves NVL/ADV mode
-		/// </summary>
-		/// <param name="setADVMode">If True, sets and saves ADV mode. If False, sets and saves NVL mode</param>
-		public void MODSetAndSaveADV(ModSetting setting)
-		{
-			MODMainUIController mODMainUIController = new MODMainUIController();
-			if (setting == ModSetting.ADV)
-			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
-				TryRedrawTextWindowBackground(WindowFilterType.ADV);
-				mODMainUIController.WideGuiPositionStore();
-				mODMainUIController.ADVModeSettingStore();
-				GameSystem.Instance.MainUIController.ShowToast($"Set ADV Mode", isEnable: true);
-			}
-			else if(setting == ModSetting.NVL)
-			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
-				TryRedrawTextWindowBackground(WindowFilterType.Normal);
-				mODMainUIController.WideGuiPositionStore();
-				mODMainUIController.NVLModeSettingStore();
-				GameSystem.Instance.MainUIController.ShowToast($"Set NVL Mode", isEnable: false);
-			}
-			else if(setting == ModSetting.OG)
-			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 1);
-				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
-				TryRedrawTextWindowBackground(WindowFilterType.OG);
-				mODMainUIController.RyukishiGuiPositionStore();
-				mODMainUIController.RyukishiModeSettingStore();
-				GameSystem.Instance.MainUIController.ShowToast($"Set OG Mode", isEnable: false);
-			}
-		}
-
-		public void MODenableNVLModeINADVMode()
-		{
-			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 1);
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				MODMainUIController mODMainUIController = new MODMainUIController();
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				TryRedrawTextWindowBackground(WindowFilterType.NVLInADV);
-				mODMainUIController.NVLADVModeSettingStore();
-			}
-		}
-
-		public void MODdisableNVLModeINADVMode()
-		{
-			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 0);
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				MODMainUIController mODMainUIController = new MODMainUIController();
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				TryRedrawTextWindowBackground(WindowFilterType.ADV);
-				mODMainUIController.ADVModeSettingStore();
-			}
+			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+			ui.bgLayer2.DrawLayer(windowFilterTextureName, 0, 0, 0, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 
 		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
@@ -630,31 +509,23 @@ namespace Assets.Scripts.UI
 		// Consider moving this to its own class, then disabling it if there is nothing to be drawn.
 		public void OnGUI()
 		{
-			// This sets up the style of the toast notification (mostly to make the font bigger and the text anchor location)
-			// From what I've read, The GUIStyle must be initialized in OnGUI(), otherwise
-			// GUI.skin.label will not be defined, so please do not move this part elsewhere without testing it.
-			if(labelStyle == null)
+			if(this.styleManager == null)
 			{
-				labelStyle = new GUIStyle(GUI.skin.box) //Copy the default style for 'box' as a base
-				{
-					alignment = TextAnchor.UpperCenter,
-					fontSize = 40,
-					fontStyle = FontStyle.Bold,
-				};
-				int width = 1;
-				int height = 1;
-				Color[] pix = new Color[width * height];
-				for(int i = 0; i < pix.Length; i++)
-				{
-					pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.8f);
-				}
-				Texture2D result = new Texture2D(width, height);
-				result.SetPixels(pix);
-				result.Apply();
-				labelStyle.normal.background = result;
-
-				labelStyle.normal.textColor = Color.white;
+				this.styleManager = new MODStyleManager();
 			}
+
+			if (this.toaster == null)
+			{
+				this.toaster = new MODToaster(this.styleManager);
+			}
+
+			if (this.modMenu == null)
+			{
+				this.modMenu = new MODMenu(this.gameSystem, this.styleManager);
+			}
+
+			modMenu.OnGUIFragment();
+			toaster.OnGUIFragment();
 
 			// Helper Functions for processing flags
 			string boolDesc(string flag, string name)
@@ -737,7 +608,7 @@ namespace Assets.Scripts.UI
 					intDesc ("GCensor",       "GCensorMaxNum",       "Voice Matching Level"),
 					intDesc ("GEffectExtend", "GEffectExtendMaxNum", "Effect Level"),
 					"Voice Volume = " + BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue().ToString(),
-					$"OP Movies = {VideoOpeningDescription(videoOpeningValue)} ({videoOpeningValue})",
+					$"OP Movies = {MODActions.VideoOpeningDescription(videoOpeningValue)} ({videoOpeningValue})",
 					artsetDescription,
 					"\n[Restore Game Settings]",
 					settingLoaderDesc,
@@ -767,7 +638,6 @@ namespace Assets.Scripts.UI
 					"F5 : QuickSave",
 					"F7 : QuickLoad",
 					"F10 : Setting Monitor",
-					"SHIFT-F11 : OP Movies",
 					"M : Increase Voice Volume",
 					"N : Decrease Voice Volume",
 					"1 : Alternative BGM (Not Used)",
@@ -891,527 +761,11 @@ namespace Assets.Scripts.UI
 				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}
 
-			if(toastNotificationTimer > 0)
-			{
-				// This scrolls the toast notification off the window when it's nearly finished
-				float toastYPosition = Math.Min(50f, 200f * toastNotificationTimer - 50f);
-				float toastWidth = 700f;
-				float toastXPosition = (Screen.width - toastWidth) / 2.0f;
-				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, 700f, 200f));
-				GUILayout.Box(toastText, labelStyle);
-				GUILayout.EndArea();
-			}
 		}
 
-		public void MODDebugFontSizeChanger()
+		void OnApplicationQuit()
 		{
-			new MODMainUIController().DebugFontChangerSettingStore();
-		}
-
-		private string GetSoundPathFromEnum(Sound sound)
-		{
-			switch (sound)
-			{
-				case Sound.Click:
-					return "wa_038.ogg";
-				case Sound.LoudBang:
-					return "wa_040.ogg";
-				case Sound.Disable:
-					return "switchsound/disable.ogg";
-				case Sound.Enable:
-					return "switchsound/enable.ogg";
-				case Sound.Pluck0:
-					return "switchsound/0.ogg";
-				case Sound.Pluck1:
-					return "switchsound/1.ogg";
-				case Sound.Pluck2:
-					return "switchsound/2.ogg";
-				case Sound.Pluck3:
-					return "switchsound/3.ogg";
-				case Sound.Pluck4:
-					return "switchsound/4.ogg";
-				case Sound.Pluck5:
-					return "switchsound/5.ogg";
-			}
-
-			return "wa_038.ogg";
-		}
-
-		/// <summary>
-		/// Displays a toast notification. It will appear ontop of everything else on the screen.
-		/// </summary>
-		/// <param name="toastText">The text to display in the toast</param>
-		/// <param name="toastDuration">The duration the toast will be shown for.
-		/// The toast will slide off the screen for the last part of this duration.</param>
-		public void ShowToast(string toastText, Sound? maybeSound = Sound.Click, float toastDuration = 3)
-		{
-			this.toastText = toastText;
-			this.toastNotificationTimer = toastDuration;
-			if (maybeSound is Sound sound)
-			{
-				GameSystem.Instance.AudioController.PlaySystemSound(GetSoundPathFromEnum(sound));
-			}
-		}
-
-		public void ShowToast(string toastText, bool isEnable, float toastDuration = 3)
-		{
-			ShowToast(toastText, isEnable ? Sound.Enable : Sound.Disable, toastDuration);
-		}
-
-		public void ShowToast(string toastText, int numberedSound, float toastDuration = 3)
-		{
-			Sound sound = Sound.Click;
-			switch (numberedSound)
-			{
-				case 0:
-					sound = Sound.Pluck0;
-					break;
-				case 1:
-					sound = Sound.Pluck1;
-					break;
-				case 2:
-					sound = Sound.Pluck2;
-					break;
-				case 3:
-					sound = Sound.Pluck3;
-					break;
-				case 4:
-					sound = Sound.Pluck4;
-					break;
-				case 5:
-					sound = Sound.Pluck5;
-					break;
-			}
-
-			ShowToast(toastText, sound, toastDuration);
-		}
-
-		public static string VideoOpeningDescription(int videoOpeningValue)
-		{
-			switch(videoOpeningValue)
-			{
-				case 0:
-					return "Unset";
-				case 1:
-					return "Disabled";
-				case 2:
-					return "In-game";
-				case 3:
-					return "At launch + in-game";
-			}
-
-			return "Unknown";
-		}
-
-		private void AdjustVoiceVolumeRelative(int difference)
-		{
-			// Maintaining volume within limits is done in AdjustVoiceVolumeAbsolute()
-			AdjustVoiceVolumeAbsolute(BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue() + difference);
-		}
-
-		private void AdjustVoiceVolumeAbsolute(int uncheckedNewVolume)
-		{
-			int newVolume = Mathf.Clamp(uncheckedNewVolume, 0, 100);
-
-			BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", newVolume);
-			GameSystem.Instance.AudioController.VoiceVolume = (float)newVolume / 100f;
-			GameSystem.Instance.AudioController.RefreshLayerVolumes();
-
-			// Play a sample voice file so the user can get feedback on the set volume
-			// For some reason the script uses "256" as the default volume, which gets divided by 128 to become 2.0f,
-			// so to keep in line with the script, the test volume is set to "2.0f"
-			GameSystem.Instance.AudioController.PlayVoice("voice_test.ogg", 3, 2.0f);
-		}
-
-		// Variant for global flags, using another variable as max limit
-		private int IncrementGlobalFlagWithRollover(string flagName, string maxFlagName)
-		{
-			return _IncrementFlagWithRollover(flagName, 0, BurikoMemory.Instance.GetGlobalFlag(maxFlagName).IntValue(), isLocalFlag: false);
-		}
-
-		// Variant for global flags, using literal limits
-		private int IncrementGlobalFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive)
-		{
-			return _IncrementFlagWithRollover(flagName, minValueInclusive, maxValueInclusive, isLocalFlag: false);
-		}
-
-		// Variant for local flags
-		private int IncrementLocalFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive)
-		{
-			return _IncrementFlagWithRollover(flagName, minValueInclusive, maxValueInclusive, isLocalFlag: true);
-		}
-
-		/// <summary>
-		/// Increment a flag with rollover (from GetGlobalFlag())
-		/// If min/max set to (3,6), it will loop over the values 3,4,5,6
-		/// </summary>
-		/// <param name="flagName">the name of the global flag, eg. "GVoiceVolume"</param>
-		/// <param name="minValueInclusive">This is the minvalue the flag can be allowed to have before it rolls over, inclusive.</param>
-		/// <param name="maxValueInclusive">This is the max value the flag can be allowed to have before it rolls over, inclusive.</param>
-		/// <returns></returns>
-		private int _IncrementFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive, bool isLocalFlag)
-		{
-			int initialValue = isLocalFlag ? BurikoMemory.Instance.GetFlag(flagName).IntValue() : BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
-
-			int newValue = initialValue + 1;
-			if (newValue > maxValueInclusive)
-			{
-				newValue = minValueInclusive;
-			}
-
-			if (isLocalFlag)
-			{
-				BurikoMemory.Instance.SetFlag(flagName, newValue);
-			}
-			else
-			{
-				BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
-			}
-
-			return newValue;
-		}
-
-		private bool ToggleFlagAndSave(string flagName)
-		{
-			int newValue = (BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue() + 1) % 2;
-			BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
-
-			return newValue == 1;
-		}
-
-		private bool ModInputHandlingAllowed()
-		{
-			if (!gameSystem.IsInitialized || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
-			{
-				return false;
-			}
-
-			// Don't allow mod options on any wait, except "WaitForInput"
-			// Note: if this is removed, it mostly still works, but if changing art style during
-			// an animation, some things may bug out until the next scene.
-			foreach (Wait w in gameSystem.WaitList)
-			{
-				if (w.Type != WaitTypes.WaitForInput)
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		enum Action
-		{
-			ToggleADV,
-			CensorshipLevel,
-			EffectLevel,
-			FlagMonitor,
-			OpeningVideo,
-			ForceShowCG,
-			DebugFontSize,
-			AltBGM,
-			AltBGMFlow,
-			AltSE,
-			AltSEFlow,
-			AltVoice,
-			AltVoicePriority,
-			LipSync,
-			VoiceVolumeUp,
-			VoiceVolumeDown,
-			VoiceVolumeMax,
-			VoiceVolumeMin,
-			ToggleArtStyle,
-			DebugMode,
-			RestoreSettings,
-			StretchBackgrounds,
-		}
-
-		private Action? GetUserAction()
-		{
-			// These take priority over the non-shift key buttons
-			if (Input.GetKey(KeyCode.LeftShift))
-			{
-				if (Input.GetKeyDown(KeyCode.F10))
-				{
-					return Action.DebugMode;
-				}
-				else if (Input.GetKeyDown(KeyCode.F9))
-				{
-					return Action.RestoreSettings;
-				}
-				else if (Input.GetKeyDown(KeyCode.F11))
-				{
-					return Action.OpeningVideo;
-				}
-				else if (Input.GetKeyDown(KeyCode.M))
-				{
-					return Action.VoiceVolumeMax;
-				}
-				else if (Input.GetKeyDown(KeyCode.N))
-				{
-					return Action.VoiceVolumeMin;
-				}
-				else if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
-				{
-					return Action.ForceShowCG;
-				}
-				else if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
-				{
-					return Action.StretchBackgrounds;
-				}
-			}
-
-			if (Input.GetKeyDown(KeyCode.F1))
-			{
-				return Action.ToggleADV;
-			}
-			else if (Input.GetKeyDown(KeyCode.F2))
-			{
-				return Action.CensorshipLevel;
-			}
-			else if (Input.GetKeyDown(KeyCode.F3))
-			{
-				return Action.EffectLevel;
-			}
-			else if (Input.GetKeyDown(KeyCode.F10))
-			{
-				return Action.FlagMonitor;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
-			{
-				return Action.DebugFontSize;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-			{
-				return Action.AltBGM;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-			{
-				return Action.AltBGMFlow;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-			{
-				return Action.AltSE;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
-			{
-				return Action.AltSEFlow;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
-			{
-				return Action.AltVoice;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
-			{
-				return Action.AltVoicePriority;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7))
-			{
-				return Action.LipSync;
-			}
-			else if (Input.GetKeyDown(KeyCode.M))
-			{
-				return Action.VoiceVolumeUp;
-			}
-			else if (Input.GetKeyDown(KeyCode.P))
-			{
-				return Action.ToggleArtStyle;
-			}
-			else if (Input.GetKeyDown(KeyCode.N))
-			{
-				return Action.VoiceVolumeDown;
-			}
-
-			return null;
-		}
-
-		private void ModHandleUserAction(Action action)
-		{
-			switch (action)
-			{
-				case Action.ToggleADV:
-					if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
-					{
-						GameSystem.Instance.MainUIController.ShowToast($"Can't toggle now - try later", maybeSound: null);
-					}
-					else
-					{
-						GameSystem.Instance.MainUIController.MODToggleAndSaveADVMode();
-					}
-					break;
-
-				case Action.CensorshipLevel:
-					{
-						int newCensorNum = IncrementGlobalFlagWithRollover("GCensor", "GCensorMaxNum");
-						GameSystem.Instance.MainUIController.ShowToast(
-							$"Censorship Level: {newCensorNum}{(newCensorNum == 2 ? " (default)" : "")}",
-							numberedSound: newCensorNum
-						);
-					}
-					break;
-
-				case Action.EffectLevel:
-					{
-						int effectLevel = IncrementGlobalFlagWithRollover("GEffectExtend", "GEffectExtendMaxNum");
-						GameSystem.Instance.MainUIController.ShowToast($"Effect Level: {effectLevel} (Not Used)", numberedSound: effectLevel);
-					}
-					break;
-
-				case Action.FlagMonitor:
-					{
-						int maxFlagMonitorValue = BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4;
-						int flagMonitorEnabled = IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
-						if(flagMonitorEnabled == 0)
-						{
-							EnableGameInput();
-						}
-						else
-						{
-							DisableGameInput();
-						}
-					}
-					break;
-
-				case Action.OpeningVideo:
-					{
-						// Loop "GVideoOpening" over the values 1-3.
-						// 0 is skipped as it represents "value not set"
-						int newVideoOpening = IncrementGlobalFlagWithRollover("GVideoOpening", 1, 3);
-						GameSystem.Instance.MainUIController.ShowToast($"OP Video: {VideoOpeningDescription(newVideoOpening)} ({newVideoOpening})");
-					}
-					break;
-
-				case Action.ForceShowCG:
-					{
-						bool cgIsHidden = ToggleFlagAndSave("GHideCG");
-						GameSystem.Instance.MainUIController.ShowToast($"Hide CG: {(cgIsHidden ? "ON" : "OFF")}", isEnable: cgIsHidden);
-					}
-					break;
-
-
-				case Action.DebugFontSize when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 1 || BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2:
-					GameSystem.Instance.MainUIController.MODDebugFontSizeChanger();
-					break;
-
-				case Action.AltBGM:
-					{
-						bool altBGMEnabled = ToggleFlagAndSave("GAltBGM");
-						GameSystem.Instance.MainUIController.ShowToast($"Alt BGM: {(altBGMEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altBGMEnabled);
-					}
-					break;
-
-				case Action.AltBGMFlow:
-					{
-						int newAltBGMFlow = IncrementGlobalFlagWithRollover("GAltBGMflow", "GAltBGMflowMaxNum");
-						GameSystem.Instance.MainUIController.ShowToast($"Alt BGM Flow: {newAltBGMFlow} (Not Used)", numberedSound: newAltBGMFlow);
-					}
-					break;
-
-				case Action.AltSE:
-					{
-						bool seIsEnabled = ToggleFlagAndSave("GAltSE");
-						GameSystem.Instance.MainUIController.ShowToast($"Alt SE: {(seIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: seIsEnabled);
-					}
-					break;
-
-				case Action.AltSEFlow:
-					{
-						int newAltSEFlow = IncrementGlobalFlagWithRollover("GAltSEflow", "GAltSEflowMaxNum");
-						GameSystem.Instance.MainUIController.ShowToast($"Alt SE Flow: {newAltSEFlow} (Not Used)", numberedSound: newAltSEFlow);
-					}
-					break;
-
-				case Action.AltVoice:
-					{
-						bool altVoiceIsEnabled = ToggleFlagAndSave("GAltVoice");
-						GameSystem.Instance.MainUIController.ShowToast($"Alt Voice: {(altVoiceIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altVoiceIsEnabled);
-					}
-					break;
-
-				case Action.AltVoicePriority:
-					{
-						bool altVoicePriorityIsEnabled = ToggleFlagAndSave("GAltVoicePriority");
-						GameSystem.Instance.MainUIController.ShowToast($"Alt Priority: {(altVoicePriorityIsEnabled ? "ON" : "OFF")} (Not Used)", isEnable: altVoicePriorityIsEnabled);
-					}
-					break;
-
-				case Action.LipSync:
-					{
-						bool lipSyncIsEnabled = ToggleFlagAndSave("GLipSync");
-						GameSystem.Instance.MainUIController.ShowToast($"Lip Sync: {(lipSyncIsEnabled ? "ON" : "OFF")}", isEnable: lipSyncIsEnabled);
-					}
-					break;
-
-				case Action.VoiceVolumeUp:
-					AdjustVoiceVolumeRelative(5);
-					break;
-
-				case Action.VoiceVolumeDown:
-					AdjustVoiceVolumeRelative(-5);
-					break;
-
-				case Action.VoiceVolumeMax:
-					AdjustVoiceVolumeAbsolute(100);
-					break;
-
-				case Action.VoiceVolumeMin:
-					AdjustVoiceVolumeAbsolute(0);
-					break;
-
-				case Action.ToggleArtStyle:
-					MOD.Scripts.Core.MODSystem.instance.modTextureController.ToggleArtStyle();
-					break;
-
-				// Enable debug mode, which shows an extra 2 panels of info in the flag menu
-				// Note that if your debug mode is 0, there is no way to enable debug mode unless you manually set the flag value in the game script
-				case Action.DebugMode when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() != 0:
-					{
-						int debugMode = IncrementGlobalFlagWithRollover("GMOD_DEBUG_MODE", 1, 2);
-						GameSystem.Instance.MainUIController.ShowToast($"Debug Mode: {debugMode}", numberedSound: debugMode);
-					}
-					break;
-
-				// Restore game settings
-				case Action.RestoreSettings:
-					{
-						int restoreGameSettingsNum = IncrementGlobalFlagWithRollover("GMOD_SETTING_LOADER", 0, 3);
-						GameSystem.Instance.MainUIController.ShowToast($"Reset Settings: {restoreGameSettingsNum} (see F10 menu)", numberedSound: restoreGameSettingsNum);
-					}
-					break;
-
-				case Action.StretchBackgrounds:
-					{
-						bool shouldStretchBackgrounds = ToggleFlagAndSave("GStretchBackgrounds");
-						GameSystem.Instance.SceneController.ReloadAllImages();
-						GameSystem.Instance.MainUIController.ShowToast($"Background Stretching: {(shouldStretchBackgrounds ? "ON" : "OFF")}", isEnable: shouldStretchBackgrounds);
-					}
-					break;
-
-				default:
-					Logger.Log($"Warning: Unknown mod action {action} was requested to be executed");
-					break;
-			}
-		}
-
-		/// <summary>
-		/// Handles mod inputs. Call from Update function.
-		/// </summary>
-		/// <returns>Currently the return value is not used for anything</returns>
-		public bool ModInputHandler()
-		{
-			if(GetUserAction() is Action action)
-			{
-				if (!ModInputHandlingAllowed())
-				{
-					GameSystem.Instance.MainUIController.ShowToast($"Please let animation finish first");
-				}
-				else
-				{
-					ModHandleUserAction(action);
-				}
-			}
-
-			return true;
+			this.modMenu.Hide();
 		}
 
 		/// <summary>
@@ -1421,50 +775,6 @@ namespace Assets.Scripts.UI
 		private static void GUIUnclickableTextArea(Rect rect, string text)
 		{
 			GUI.Label(rect, text, GUI.skin.textArea);
-		}
-
-		// These functions disable input to the game, while still letting
-		// the mod menu receive inputs.
-		public void DisableGameInput()
-		{
-			if (gameSystem.GameState != GameState.MODDisableInput)
-			{
-				ModChangeState(new MODStateDisableInput());
-				gameSystem.HideUIControls();
-			}
-		}
-
-		public void EnableGameInput()
-		{
-			if (gameSystem.GameState == GameState.MODDisableInput)
-			{
-				gameSystem.PopStateStack();
-				gameSystem.ShowUIControls();
-			}
-		}
-
-		// This is a modified version of GameSystem.OnApplicationQuit()
-		public void ModChangeState(Core.State.IGameState newState)
-		{
-			if (gameSystem.GameState == GameState.ConfigScreen)
-			{
-				gameSystem.RegisterAction(delegate
-				{
-					gameSystem.LeaveConfigScreen(delegate
-					{
-						gameSystem.PushStateObject(newState);
-					});
-				});
-				gameSystem.ExecuteActions();
-			}
-			else
-			{
-				gameSystem.RegisterAction(delegate
-				{
-					gameSystem.PushStateObject(newState);
-				});
-				gameSystem.ExecuteActions();
-			}
 		}
 
 	}

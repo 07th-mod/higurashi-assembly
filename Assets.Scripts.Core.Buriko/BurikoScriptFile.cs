@@ -2318,14 +2318,14 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationMODenableNVLModeInADVMode()
 		{
 			SetOperationType("ModEnableNVLModeInADVMode");
-			gameSystem.MainUIController.MODenableNVLModeINADVMode();
+			MODActions.EnableNVLModeINADVMode();
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationMODdisableNVLModeInADVMode()
 		{
 			SetOperationType("ModDisableNVLModeInADVMode");
-			gameSystem.MainUIController.MODdisableNVLModeINADVMode();
+			MODActions.DisableNVLModeINADVMode();
 			return BurikoVariable.Null;
 		}
 
