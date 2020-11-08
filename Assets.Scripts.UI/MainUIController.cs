@@ -515,8 +515,15 @@ namespace Assets.Scripts.UI
 		// https://forum.unity.com/threads/gui-that-hidden-bastard.257383/
 		// https://answers.unity.com/questions/259870/performance-of-an-empty-ongui-fixedupdate.html
 		// Consider moving this to its own class, then disabling it if there is nothing to be drawn.
+		// NOTE: this function can be called before Update() if CTRL (skip) down during game startup
 		public void OnGUI()
 		{
+			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
+			if(this.gameSystem == null)
+			{
+				return;
+			}
+
 			if(this.styleManager == null)
 			{
 				this.styleManager = new MODStyleManager();
