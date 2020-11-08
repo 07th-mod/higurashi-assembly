@@ -141,6 +141,14 @@ Sets the script censorship level
 			defaultToolTipTimer.Update();
 		}
 
+		public void LateUpdate()
+		{
+			if (Input.GetMouseButtonDown(1))
+			{
+				this.Hide();
+			}
+		}
+
 		private void OnGUIPresetsFragment()
 		{
 			GUILayout.Label("Load ADV/NVL/Original Presets");

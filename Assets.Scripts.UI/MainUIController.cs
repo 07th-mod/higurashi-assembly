@@ -487,6 +487,14 @@ namespace Assets.Scripts.UI
 			}
 		}
 
+		public void LateUpdate()
+		{
+			if (modMenu != null)
+			{
+				modMenu.LateUpdate();
+			}
+		}
+
 		public void TryRedrawTextWindowBackground(string windowFilterTextureName)
 		{
 			MainUIController ui = GameSystem.Instance.MainUIController;
