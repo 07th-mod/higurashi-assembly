@@ -39,7 +39,6 @@ namespace MOD.Scripts.UI
 			EffectLevel,
 			FlagMonitor,
 			OpeningVideo,
-			ForceShowCG,
 			DebugFontSize,
 			AltBGM,
 			AltBGMFlow,
@@ -55,7 +54,6 @@ namespace MOD.Scripts.UI
 			ToggleArtStyle,
 			DebugMode,
 			RestoreSettings,
-			StretchBackgrounds,
 		}
 
 		private static Action? GetUserAction()
@@ -82,14 +80,6 @@ namespace MOD.Scripts.UI
 				else if (Input.GetKeyDown(KeyCode.N))
 				{
 					return Action.VoiceVolumeMin;
-				}
-				else if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
-				{
-					return Action.ForceShowCG;
-				}
-				else if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
-				{
-					return Action.StretchBackgrounds;
 				}
 			}
 
@@ -208,14 +198,6 @@ namespace MOD.Scripts.UI
 					}
 					break;
 
-				case Action.ForceShowCG:
-					{
-						bool cgIsHidden = MODActions.ToggleFlagAndSave("GHideCG");
-						MODToaster.Show($"Hide CG: {(cgIsHidden ? "ON" : "OFF")}", isEnable: cgIsHidden);
-					}
-					break;
-
-
 				case Action.DebugFontSize when BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 1 || BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 2:
 					MODActions.DebugFontSizeChanger();
 					break;
@@ -303,14 +285,6 @@ namespace MOD.Scripts.UI
 					{
 						int restoreGameSettingsNum = MODActions.IncrementGlobalFlagWithRollover("GMOD_SETTING_LOADER", 0, 3);
 						MODToaster.Show($"Reset Settings: {restoreGameSettingsNum} (see F10 menu)", numberedSound: restoreGameSettingsNum);
-					}
-					break;
-
-				case Action.StretchBackgrounds:
-					{
-						bool shouldStretchBackgrounds = MODActions.ToggleFlagAndSave("GStretchBackgrounds");
-						GameSystem.Instance.SceneController.ReloadAllImages();
-						MODToaster.Show($"Background Stretching: {(shouldStretchBackgrounds ? "ON" : "OFF")}", isEnable: shouldStretchBackgrounds);
 					}
 					break;
 
