@@ -52,11 +52,11 @@ namespace MOD.Scripts.UI
 	public class MODMenu
 	{
 		private readonly MODStyleManager styleManager;
+		private readonly MODRadio radioADVNVLOriginal;
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
 		private readonly MODRadio radioOpenings;
 		private readonly MODRadio radioHideCG;
-		private readonly MODRadio radioStretchBackgrounds;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
 		private readonly GameSystem gameSystem;
@@ -99,6 +99,24 @@ LShift + N : Voice Volume MIN";
 			this.visible = false;
 			this.defaultToolTipTimer = new MODSimpleTimer();
 
+			this.radioADVNVLOriginal = new MODRadio("Set ADV/NVL/Original Mode", new GUIContent[]
+			{
+				new GUIContent("ADV", "This preset:\n" +
+				"- Makes text show at the bottom of the screen in a textbox\n" +
+				"- Shows the name of the current character on the textbox\n" +
+				"- Uses the console sprites and backgrounds\n" +
+				"- Displays in 16:9 widescreen\n\n"),
+				new GUIContent("NVL", "This preset:\n" +
+				"- Makes text show across the whole screen\n" +
+				"- Uses the console sprites and backgrounds\n" +
+				"- Displays in 16:9 widescreen\n\n"),
+				new GUIContent("Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+				"- Displays in 4:3 'standard' aspect\n" +
+				"- CGs are disabled\n" +
+				"- Switches to original sprites and backgrounds\n\n"),
+				new GUIContent("Original Stretched", "Same as Original/Ryukishi mode, but backgrounds are stretched to fill the screen")
+			}, styleManager, itemsPerRow: 2);
+
 			string baseCensorshipDescription = @"
 
 Sets the script censorship level
@@ -107,7 +125,6 @@ Sets the script censorship level
   - 5: Full PS3 script fully voiced (most censored)
   - 2: Default - most balanced option
   - 0: Original PC Script with voices where it fits (least uncensored), but uncensored scenes may be missing voices";
-
 
 			this.radioCensorshipLevel = new MODRadio("Voice Matching Level", new GUIContent[] {
 				new GUIContent("0", "Censorship level 0 - Equivalent to PC" + baseCensorshipDescription),
@@ -137,16 +154,11 @@ Sets the script censorship level
 				new GUIContent("Hide CGs", "Disables all CGs (mainly for use with the Original/Ryukishi preset)"),
 			}, styleManager);
 
-			this.radioStretchBackgrounds = new MODRadio("Stretch Backgrounds", new GUIContent[]
-			{
-				new GUIContent("Normal Backgrounds", "Displays backgrounds at their original aspect ratio"),
-				new GUIContent("Stretch Backgrounds", "Stretches backgrounds to the game's 16:9 aspect ratio (mainly for use with the Original/Ryukishi backgrounds)"),
-			}, styleManager);
-
 			this.radioArtSet = new MODRadio("Choose Art Set", new GUIContent[] {
 				new GUIContent("Console", "Use the Console sprites and backgrounds"),
 				new GUIContent("Remake", "Use Mangagmer's remake sprites with Console backgrounds"),
-				new GUIContent("Original/Remake", "USe Original/Ryukishi sprites and backgrounds"),
+				new GUIContent("Original/Remake", "Use Original/Ryukishi sprites and backgrounds\n" +
+				"Warning: Most users should just enable Original/Ryukishi mode at the top of this menu!"),
 			}, styleManager);
 
 			this.radioBackgrounds = new MODRadio("Override Backgrounds", new GUIContent[]{
@@ -169,34 +181,27 @@ Sets the script censorship level
 			}
 		}
 
-		private void OnGUIPresetsFragment()
+		private int GetModeFromFlags()
 		{
-			GUILayout.Label("Load ADV/NVL/Original Presets");
-
-			GUILayout.BeginHorizontal();
-			if (GUILayout.Button(new GUIContent("ADV", "This preset:\n" +
-				"- Makes text show at the bottom of the screen in a textbox\n" +
-				"- Shows the name of the current character on the textbox\n" +
-				"- Uses the console sprites and backgrounds\n" +
-				"- Displays in 16:9 widescreen\n\n")))
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
 			{
-				MODActions.SetAndSaveADV(MODActions.ModPreset.ADV);
+				if(BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1)
+				{
+					return 3;
+				}
+				else
+				{
+					return 2;
+				}
 			}
-			else if (GUILayout.Button(new GUIContent("NVL", "This preset:\n" +
-				"- Makes text show across the whole screen\n" +
-				"- Uses the console sprites and backgrounds\n" +
-				"- Displays in 16:9 widescreen\n\n")))
+			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
-				MODActions.SetAndSaveADV(MODActions.ModPreset.NVL);
+				return 0;
 			}
-			else if (GUILayout.Button(new GUIContent("Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
-				"- Displays in 4:3 'standard' aspect\n" +
-				"- CGs are disabled\n" +
-				"- Switches to original sprites and backgrounds\n\n")))
+			else
 			{
-				MODActions.SetAndSaveADV(MODActions.ModPreset.OG);
+				return 1;
 			}
-			GUILayout.EndHorizontal();
 		}
 
 		private void OnGUIRestoreSettings()
@@ -254,7 +259,29 @@ Sets the script censorship level
 
 				// Radio buttons
 				GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modGUIStyle);
-					this.OnGUIPresetsFragment();
+					if(this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
+					{
+						if (newMode == 0)
+						{
+							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV);
+						}
+						else if (newMode == 1)
+						{
+							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL);
+						}
+						else if (newMode == 2)
+						{
+							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, stretch: false);
+						}
+						else if (newMode == 3)
+						{
+							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, stretch: true);
+						}
+						else
+						{
+							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV);
+						}
+					}
 
 					if(this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
 					{
@@ -271,15 +298,15 @@ Sets the script censorship level
 						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 					};
 
+					GUILayout.BeginHorizontal();
+					GUILayout.FlexibleSpace();
+					GUILayout.Label("---------------- Advanced Options ----------------");
+					GUILayout.FlexibleSpace();
+					GUILayout.EndHorizontal();
+
 					if(this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 					{
 						SetGlobal("GHideCG", hideCG);
-					};
-
-					if(this.radioStretchBackgrounds.OnGUIFragment(GetGlobal("GStretchBackgrounds")) is int stretchBackgrounds)
-					{
-						SetGlobal("GStretchBackgrounds", stretchBackgrounds);
-						GameSystem.Instance.SceneController.ReloadAllImages();
 					};
 
 					if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
