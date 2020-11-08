@@ -38,6 +38,7 @@ namespace MOD.Scripts.UI
 			CensorshipLevel,
 			EffectLevel,
 			FlagMonitor,
+			ModMenu,
 			OpeningVideo,
 			DebugFontSize,
 			AltBGM,
@@ -61,17 +62,21 @@ namespace MOD.Scripts.UI
 			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
-				if (Input.GetKeyDown(KeyCode.F10))
-				{
-					return Action.DebugMode;
-				}
-				else if (Input.GetKeyDown(KeyCode.F9))
+				if (Input.GetKeyDown(KeyCode.F9))
 				{
 					return Action.RestoreSettings;
+				}
+				else if (Input.GetKeyDown(KeyCode.F10))
+				{
+					return Action.FlagMonitor;
 				}
 				else if (Input.GetKeyDown(KeyCode.F11))
 				{
 					return Action.OpeningVideo;
+				}
+				else if (Input.GetKeyDown(KeyCode.F12))
+				{
+					return Action.DebugMode;
 				}
 				else if (Input.GetKeyDown(KeyCode.M))
 				{
@@ -97,7 +102,7 @@ namespace MOD.Scripts.UI
 			}
 			else if (Input.GetKeyDown(KeyCode.F10))
 			{
-				return Action.FlagMonitor;
+				return Action.ModMenu;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
 			{
@@ -175,8 +180,12 @@ namespace MOD.Scripts.UI
 				case Action.FlagMonitor:
 					{
 						int maxFlagMonitorValue = BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4;
-						int flagMonitorEnabled = MODActions.IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
+						MODActions.IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
+					}
+					break;
 
+				case Action.ModMenu:
+					{
 						MODMenu menu = GameSystem.Instance.MainUIController.modMenu;
 						if (menu.visible)
 						{

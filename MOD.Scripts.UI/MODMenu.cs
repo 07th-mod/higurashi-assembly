@@ -258,8 +258,10 @@ Sets the script censorship level
 				float exitButtonHeight = toolTipWidth * .05f;
 
 				// Radio buttons
-				GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modGUIStyle);
-					if(this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
+				{
+					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modGUIStyle);
+
+					if (this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
 					{
 						if (newMode == 0)
 						{
@@ -283,17 +285,17 @@ Sets the script censorship level
 						}
 					}
 
-					if(this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
+					if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
 					{
 						SetGlobal("GCensor", censorLevel);
 					};
 
-					if(this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
+					if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 					{
 						SetGlobal("GLipSync", lipSyncEnabled);
 					};
 
-					if(this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
+					if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
 					{
 						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 					};
@@ -304,7 +306,7 @@ Sets the script censorship level
 					GUILayout.FlexibleSpace();
 					GUILayout.EndHorizontal();
 
-					if(this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
+					if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 					{
 						SetGlobal("GHideCG", hideCG);
 					};
@@ -320,10 +322,12 @@ Sets the script censorship level
 						GameSystem.Instance.SceneController.ReloadAllImages();
 					}
 
-				//TODO: reset settings
-				GUILayout.Space(5);
-				OnGUIRestoreSettings();
-				GUILayout.EndArea();
+					//TODO: reset settings
+					GUILayout.Space(5);
+					OnGUIRestoreSettings();
+
+					GUILayout.EndArea();
+				}
 
 				// Descriptions for each button are shown on hover, like a tooltip
 				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modGUIStyle);
