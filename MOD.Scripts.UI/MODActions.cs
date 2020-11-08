@@ -102,7 +102,7 @@ namespace MOD.Scripts.UI
 				TryRedrawTextWindowBackground(WindowFilterType.Normal);
 				mODMainUIController.WideGuiPositionStore();
 				mODMainUIController.NVLModeSettingStore();
-				Core.MODSystem.instance.modTextureController.SetArtStyle(1);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(0);
 				MODToaster.Show($"Set NVL Mode", isEnable: false);
 			}
 			else if (setting == ModPreset.OG)
