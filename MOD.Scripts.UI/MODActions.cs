@@ -69,7 +69,7 @@ namespace MOD.Scripts.UI
 		/// </summary>
 		/// <param name="setADVMode">If True, sets and saves ADV mode. If False, sets and saves NVL mode</param>
 		/// <returns>True if set and displayed, false if in a NVL_in_ADV region and value might not be applied immediately</returns>
-		public static void SetAndSaveADV(ModPreset setting, bool stretch = false)
+		public static void SetAndSaveADV(ModPreset setting)
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
 			if (setting == ModPreset.ADV)
@@ -111,7 +111,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
-				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", stretch ? 1 : 0);
+				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
 				TryRedrawTextWindowBackground(WindowFilterType.OG);
 				mODMainUIController.RyukishiGuiPositionStore();
 				mODMainUIController.RyukishiModeSettingStore();

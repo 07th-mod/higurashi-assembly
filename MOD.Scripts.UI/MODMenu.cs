@@ -113,9 +113,8 @@ LShift + N : Voice Volume MIN";
 				new GUIContent("Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
 				"- Displays in 4:3 'standard' aspect\n" +
 				"- CGs are disabled\n" +
-				"- Switches to original sprites and backgrounds\n\n"),
-				new GUIContent("Original Stretched", "Same as Original/Ryukishi mode, but backgrounds are stretched to fill the screen")
-			}, styleManager, itemsPerRow: 2);
+				"- Switches to original sprites and backgrounds\n\n")
+			}, styleManager);
 
 			string baseCensorshipDescription = @"
 
@@ -148,7 +147,7 @@ Sets the script censorship level
 				new GUIContent("Launch + In-Game", "Opening videos will play just after game launches, and also during the story"),
 			}, styleManager);
 
-			this.radioHideCG = new MODRadio("CG Show/Hide", new GUIContent[]
+			this.radioHideCG = new MODRadio("Show/Hide CGs", new GUIContent[]
 			{
 				new GUIContent("Show CGs", "Shows CGs (You probably want this enabled for Console ADV/NVL mode)"),
 				new GUIContent("Hide CGs", "Disables all CGs (mainly for use with the Original/Ryukishi preset)"),
@@ -161,11 +160,12 @@ Sets the script censorship level
 				"Warning: Most users should just enable Original/Ryukishi mode at the top of this menu!"),
 			}, styleManager);
 
-			this.radioBackgrounds = new MODRadio("Override Backgrounds", new GUIContent[]{
-				new GUIContent("Use Artset", "Use the default sprites on the given artset"),
-				new GUIContent("Force Console", "Force Console backgrounds, regardless of the artset"),
-				new GUIContent("Force Original", "Force Original/Ryukishi backgrounds, regardless of the artset"),
-			}, styleManager);
+			this.radioBackgrounds = new MODRadio("Override Art Set Backgrounds", new GUIContent[]{
+				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
+				new GUIContent("Console BGs", "Force Console backgrounds, regardless of the artset"),
+				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
+				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset"),
+			}, styleManager, itemsPerRow: 2);
 		}
 
 		public void Update()
@@ -185,14 +185,7 @@ Sets the script censorship level
 		{
 			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
 			{
-				if(BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1)
-				{
-					return 3;
-				}
-				else
-				{
-					return 2;
-				}
+				return 2;
 			}
 			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
@@ -261,6 +254,12 @@ Sets the script censorship level
 				{
 					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modGUIStyle);
 
+					GUILayout.BeginHorizontal();
+					GUILayout.FlexibleSpace();
+					GUILayout.Label("Mod Options Menu");
+					GUILayout.FlexibleSpace();
+					GUILayout.EndHorizontal();
+
 					if (this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
 					{
 						if (newMode == 0)
@@ -273,11 +272,7 @@ Sets the script censorship level
 						}
 						else if (newMode == 2)
 						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, stretch: false);
-						}
-						else if (newMode == 3)
-						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, stretch: true);
+							MODActions.SetAndSaveADV(MODActions.ModPreset.OG);
 						}
 						else
 						{
@@ -300,9 +295,10 @@ Sets the script censorship level
 						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 					};
 
+					GUILayout.Space(10);
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
-					GUILayout.Label("---------------- Advanced Options ----------------");
+					GUILayout.Label("Advanced Options");
 					GUILayout.FlexibleSpace();
 					GUILayout.EndHorizontal();
 
@@ -313,17 +309,36 @@ Sets the script censorship level
 
 					if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
 					{
+						SetGlobal("GStretchBackgrounds", 0);
 						Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle);
 					}
 
-					if (this.radioBackgrounds.OnGUIFragment(GetGlobal("GBackgroundSet")) is int backgroundSet)
 					{
-						SetGlobal("GBackgroundSet", backgroundSet);
-						GameSystem.Instance.SceneController.ReloadAllImages();
+						int currentBackground = GetGlobal("GBackgroundSet");
+						if(currentBackground == 2)
+						{
+							if (GetGlobal("GStretchBackgrounds") == 1)
+							{
+								currentBackground = 3;
+							}
+						}
+						if(this.radioBackgrounds.OnGUIFragment(currentBackground) is int background)
+						{
+							if(background == 3)
+							{
+								SetGlobal("GStretchBackgrounds", 1);
+								SetGlobal("GBackgroundSet", 2);
+							}
+							else
+							{
+								SetGlobal("GStretchBackgrounds", 0);
+								SetGlobal("GBackgroundSet", background);
+							}
+							GameSystem.Instance.SceneController.ReloadAllImages();
+						}
 					}
 
-					//TODO: reset settings
-					GUILayout.Space(5);
+					GUILayout.Space(10);
 					OnGUIRestoreSettings();
 
 					GUILayout.EndArea();
