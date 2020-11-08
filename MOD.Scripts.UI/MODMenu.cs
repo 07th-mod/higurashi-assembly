@@ -131,10 +131,8 @@ Sets the script censorship level
 
 			this.radioStretchBackgrounds = new MODRadio("Stretch Backgrounds", new GUIContent[]
 			{
-				new GUIContent("Normal Backgrounds", "NOTE: This only starts working on the next background transition!\n" +
-				"Displays backgrounds at their original aspect ratio"),
-				new GUIContent("Stretch Backgrounds", "NOTE: This only starts working on the next background transition!\n" +
-				"Stretches backgrounds to the game's 16:9 aspect ratio (mainly for use with the Original/Ryukishi backgrounds)"),
+				new GUIContent("Normal Backgrounds", "Displays backgrounds at their original aspect ratio"),
+				new GUIContent("Stretch Backgrounds", "Stretches backgrounds to the game's 16:9 aspect ratio (mainly for use with the Original/Ryukishi backgrounds)"),
 			}, styleManager);
 		}
 
@@ -253,6 +251,7 @@ Sets the script censorship level
 					if(this.radioStretchBackgrounds.OnGUIFragment(GetGlobal("GStretchBackgrounds")) is int stretchBackgrounds)
 					{
 						SetGlobal("GStretchBackgrounds", stretchBackgrounds);
+						GameSystem.Instance.SceneController.ReloadAllImages();
 					};
 
 					//TODO: reset settings
