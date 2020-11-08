@@ -328,13 +328,13 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string newPrimaryName)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
 		{
 			bool ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1;
 			bool stretchToFit = false;
-			if (newPrimaryName != null)
+			if (texturePath != null)
 			{
-				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && newPrimaryName.Contains("background/");
+				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
 			}
 
 			if (mesh == null ||
@@ -366,7 +366,7 @@ namespace Assets.Scripts.Core.Scene
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
 		{
 			cachedIsBustShot = isBustshot;
-			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
+			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
 			Texture2D maskTexture = AssetManager.Instance.LoadTexture(maskName);
 			material.shader = shaderMasked;
 			SetPrimaryTexture(texture2D);
@@ -384,7 +384,7 @@ namespace Assets.Scripts.Core.Scene
 				origin: origin,
 				isBustShot: isBustshot,
 				finalXOffset: x,
-				newPrimaryName: textureName
+				texturePath: texturePath
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
@@ -432,7 +432,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + textureName);
@@ -460,7 +460,7 @@ namespace Assets.Scripts.Core.Scene
 						origin: origin,
 						isBustShot: isBustshot,
 						finalXOffset: x,
-						newPrimaryName: textureName
+						texturePath: texturePath
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
 					if (primary != null)
@@ -678,7 +678,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, PrimaryName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, PrimaryName, out string texturePath);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + PrimaryName);
@@ -693,7 +693,7 @@ namespace Assets.Scripts.Core.Scene
 						origin,
 						isBustShot: cachedIsBustShot,
 						finalXOffset: (int) base.transform.localPosition.x,
-						newPrimaryName: PrimaryName
+						texturePath: texturePath
 					);
 				}
 			}
@@ -851,7 +851,7 @@ namespace Assets.Scripts.Core.Scene
 					origin: origin,
 					isBustShot: isBustshot,
 					finalXOffset: x,
-					newPrimaryName: textureName
+					texturePath: null
 				);
 				if (primary != null)
 				{

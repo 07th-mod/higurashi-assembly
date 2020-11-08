@@ -33,6 +33,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public bool ShouldSerializeArtsets = false;
 
 		private Texture2D windowTexture;
+		private string windowTexturePath = string.Empty;
 		private Texture2D dummyTexture;
 
 		private string assetPath = Application.streamingAssetsPath;
@@ -240,8 +241,14 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadTexture(string textureName)
 		{
+			return LoadTexture(textureName, out _);
+		}
+
+		public Texture2D LoadTexture(string textureName, out string texturePath)
+		{
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
+				texturePath = windowTexturePath;
 				return windowTexture;
 			}
 			string path = null;
@@ -260,6 +267,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				{
 					dummyTexture = new Texture2D(0, 0, TextureFormat.ARGB32, mipmap: true);
 				}
+				texturePath = "dummy_texture";
 				return dummyTexture;
 			}
 			byte[] array = File.ReadAllBytes(path);
@@ -281,7 +289,9 @@ namespace Assets.Scripts.Core.AssetManagement
 			if (textureName == "windo_filter")
 			{
 				windowTexture = texture2D;
+				windowTexturePath = path;
 			}
+			texturePath = path;
 			return texture2D;
 		}
 
