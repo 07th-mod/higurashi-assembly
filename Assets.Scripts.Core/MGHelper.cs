@@ -55,12 +55,8 @@ namespace Assets.Scripts.Core
 					float ratio = newX / vertices[i].x;
 					vertices[i].x = newX;
 
-					// Adjust UV X coordinates proportinally by how much we adjusted each vector
-					// TODO: this is more complicated than I thought, as need to make sure that 
-					// the resultant image appears in the same place.
+					// Adjust UV X coordinates proportionally by how much we adjusted each vector
 					uv[i].x = scaleFromOrigin(uv[i].x, ratio);
-
-					Logger.Log($"newX: {newX} ratio: {ratio} uv[{i}].x: {uv[i].x}");
 				}
 			}
 		}
