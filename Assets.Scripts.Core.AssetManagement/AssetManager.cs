@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
 {
+
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find a cg
 	/// </summary>
@@ -23,6 +25,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			this.paths = paths;
 		}
 	}
+
 	public class AssetManager {
 		private static AssetManager _instance;
 
@@ -84,9 +87,27 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// <returns>A path to an on-disk asset or null</returns>
 		public string PathToAssetWithName(string name, PathCascadeList artset)
 		{
-			foreach (var path in artset.paths)
+			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
+
+			// If force og backgrounds is enabled, always check OGBackgrounds first.
+			if (backgroundSetIndex == 2)
 			{
-				string filePath = Path.Combine(Path.Combine(assetPath, path), name);
+				string filePath = Path.Combine(Path.Combine(assetPath, "OGBackgrounds"), name);
+				if (File.Exists(filePath))
+				{
+					return filePath;
+				}
+			}
+
+			foreach (var artSetPath in artset.paths)
+			{
+				// If force console backgrounds is enabled, don't check OGBackgrounds
+				if (backgroundSetIndex == 1 && artSetPath == "OGBackgrounds")
+				{
+					continue;
+				}
+
+				string filePath = Path.Combine(Path.Combine(assetPath, artSetPath), name);
 				if (File.Exists(filePath))
 				{
 					return filePath;
@@ -252,11 +273,18 @@ namespace Assets.Scripts.Core.AssetManagement
 				return windowTexture;
 			}
 			string path = null;
-			if (!GameSystem.Instance.UseEnglishText)
+
+			// Load path from current artset
+			if (path == null && !GameSystem.Instance.UseEnglishText)
 			{
 				path = PathToAssetWithName(textureName.ToLower() + "_j.png", CurrentArtset);
 			}
-			path = path ?? PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
+
+			if (path == null)
+			{
+				path = PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
+			}
+
 			if (path == null)
 			{
 				Logger.LogWarning("Could not find texture asset " + textureName.ToLower() + " in " + CurrentArtset.nameEN);

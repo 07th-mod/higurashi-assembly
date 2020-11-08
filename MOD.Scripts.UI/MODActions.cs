@@ -89,6 +89,7 @@ namespace MOD.Scripts.UI
 					feedbackString += "\nIn NVL region - changes won't be displayed until later";
 					toastDuration = 5;
 				}
+				Core.MODSystem.instance.modTextureController.SetArtStyle(0);
 				MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration);
 			}
 			else if (setting == ModPreset.NVL)
@@ -101,6 +102,7 @@ namespace MOD.Scripts.UI
 				TryRedrawTextWindowBackground(WindowFilterType.Normal);
 				mODMainUIController.WideGuiPositionStore();
 				mODMainUIController.NVLModeSettingStore();
+				Core.MODSystem.instance.modTextureController.SetArtStyle(1);
 				MODToaster.Show($"Set NVL Mode", isEnable: false);
 			}
 			else if (setting == ModPreset.OG)
@@ -113,6 +115,7 @@ namespace MOD.Scripts.UI
 				TryRedrawTextWindowBackground(WindowFilterType.OG);
 				mODMainUIController.RyukishiGuiPositionStore();
 				mODMainUIController.RyukishiModeSettingStore();
+				Core.MODSystem.instance.modTextureController.SetArtStyle(2);
 				MODToaster.Show($"Set OG Mode", isEnable: false);
 			}
 
