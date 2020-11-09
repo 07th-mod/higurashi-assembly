@@ -47,6 +47,11 @@ namespace MOD.Scripts.UI
 
 			return null;
 		}
+
+		public void SetContents(GUIContent[] content)
+		{
+			this.radioContents = content;
+		}
 	}
 
 	public class MODMenu
@@ -91,6 +96,13 @@ N : Decrease Voice Volume
 LShift + F9 : Restore Settings
 LShift + M : Voice Volume MAX
 LShift + N : Voice Volume MIN";
+
+		GUIContent[] defaultArtsetDescriptions = new GUIContent[] {
+			new GUIContent("Console", "Use the Console sprites and backgrounds"),
+			new GUIContent("Remake", "Use Mangagmer's remake sprites with Console backgrounds"),
+			new GUIContent("Original/Remake", "Use Original/Ryukishi sprites and backgrounds\n" +
+			"Warning: Most users should just enable Original/Ryukishi mode at the top of this menu!"),
+		};
 
 		public MODMenu(GameSystem gameSystem, MODStyleManager styleManager)
 		{
@@ -153,12 +165,7 @@ Sets the script censorship level
 				new GUIContent("Hide CGs", "Disables all CGs (mainly for use with the Original/Ryukishi preset)"),
 			}, styleManager);
 
-			this.radioArtSet = new MODRadio("Choose Art Set", new GUIContent[] {
-				new GUIContent("Console", "Use the Console sprites and backgrounds"),
-				new GUIContent("Remake", "Use Mangagmer's remake sprites with Console backgrounds"),
-				new GUIContent("Original/Remake", "Use Original/Ryukishi sprites and backgrounds\n" +
-				"Warning: Most users should just enable Original/Ryukishi mode at the top of this menu!"),
-			}, styleManager);
+			this.radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, styleManager, itemsPerRow: 3);
 
 			this.radioBackgrounds = new MODRadio("Override Art Set Backgrounds", new GUIContent[]{
 				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
@@ -384,6 +391,18 @@ Sets the script censorship level
 
 		public void Show()
 		{
+			// Update the artset radio buttons/descriptions, as these are set by ModAddArtset() calls in init.txt at runtime
+			// Technically only need to do this once after init.txt has been called, but it's easier to just do it each time menu is opened
+			GUIContent[] descriptions = Core.MODSystem.instance.modTextureController.GetArtStyleDescriptions();
+			for(int i = 0; i < descriptions.Count(); i++)
+			{
+				if(i < this.defaultArtsetDescriptions.Count())
+				{
+					descriptions[i] = this.defaultArtsetDescriptions[i];
+				}
+			}
+			this.radioArtSet.SetContents(descriptions);
+
 			this.visible = true;
 			DisableGameInput();
 		}
