@@ -3,6 +3,8 @@ using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -242,6 +244,78 @@ namespace MOD.Scripts.UI
 			}
 
 			return "Unknown";
+		}
+
+		/// <summary>
+		/// Returns the log folder where logs are kept - does not include the log filename
+		/// </summary>
+		/// <returns></returns>
+		public static string GetLogFolder()
+		{
+			switch (MODUtility.GetPlatform())
+			{
+				case MODUtility.Platform.Windows:
+				default:
+					if(MODUtility.IsUnity2000())
+					{
+						// Higurashi Ep8 uses Unity 2017, which uses a folder in Appdata (similar to linux)
+						// eg. C:\Users\[YOUR_USERNAME]\AppData\LocalLow\MangaGamer\Higurashi When They Cry - Ch.8 Matsuribayashi, where log file would be output_log.txt
+						return MODUtility.CombinePaths(Environment.GetEnvironmentVariable("AppData"), "..", "LocalLow", Application.companyName, Application.productName);
+					}
+					else
+					{
+						// Higurashi 1-7 use the "HigurashiEp01_Data", which is one folder above the streamingAssets folder
+						// eg. C:\games\Steam\steamapps\common\Higurashi When They Cry\HigurashiEp01_Data, where log file would be output_log.txt
+						return MODUtility.CombinePaths(Application.streamingAssetsPath, "..");
+					}
+
+				//eg. ~/Library/Logs/Unity, where log file would be Player.log
+				case MODUtility.Platform.MacOS:
+					return "~/Library/Logs/Unity";
+
+				//eg. ~/.config/unity3d/MangaGamer/GameName, where log file would be Player.log
+				case MODUtility.Platform.Linux:
+					return MODUtility.CombinePaths("~/.config/unity3d", Application.companyName, Application.productName);
+			}
+		}
+
+		// Shows the folder containing the log files in the native file browser
+		// The log file will either be called "output_log.txt" or "Player.log"
+		public static void ShowLogFolder()
+		{
+			ShowFile(GetLogFolder());
+		}
+
+		public static void ShowSaveFolder()
+		{
+			ShowFile(MGHelper.GetSavePath());
+		}
+
+		//NOTE: paths might not open properly on windows if they contain backslashes
+		public static void ShowFile(string path)
+		{
+			try
+			{
+				switch (MODUtility.GetPlatform())
+				{
+					case MODUtility.Platform.Windows:
+					default:
+						Process.Start("explorer", path);
+						break;
+
+					case MODUtility.Platform.MacOS:
+						Process.Start("open", path);
+						break;
+
+					case MODUtility.Platform.Linux:
+						Process.Start("xdg-open", path);
+						break;
+				}
+			}
+			catch(Exception e)
+			{
+				Assets.Scripts.Core.Logger.Log($"Failed to open {path}:\n{e}");
+			}
 		}
 	}
 }
