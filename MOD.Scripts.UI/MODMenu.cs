@@ -247,7 +247,7 @@ Sets the script censorship level
 				float areaWidth = 400;
 				float toolTipWidth = 350;
 				float totalAreaWidth = areaWidth + toolTipWidth;
-				float areaHeight = 550;
+				float areaHeight = 600;
 
 				float areaPosX = Screen.width / 2 - totalAreaWidth / 2;
 				float areaPosY = Screen.height / 2 - areaHeight / 2;
@@ -347,6 +347,32 @@ Sets the script censorship level
 
 					GUILayout.Space(10);
 					OnGUIRestoreSettings();
+
+					GUILayout.Label("Save and Log Files");
+					{
+						GUILayout.BeginHorizontal();
+						if (GUILayout.Button(new GUIContent("Show output_log.txt / Player.log",
+							"This button shows the location of the 'ouput_log.txt' or 'Player.log' files\n\n" +
+							"- This file is called 'output_log.txt' on Windows and 'Player.log' on MacOS/Linux\n" +
+							"- This file records errors that occur during gameplay, and during game startup\n" +
+							"- This file helps when the game fails start, for example\n" +
+							"  - a corrupted save file\n" +
+							"  - the wrong UI (sharedassets0.assets) file\n" +
+							"- Note that each time the game starts up, the current log file is replaced")))
+						{
+							MODActions.ShowLogFolder();
+						}
+
+						if (GUILayout.Button(new GUIContent("Show Saves", "Clearing your save files can fix some issues with game startup, and resets all mod flags.\n\n" +
+							"- NOTE: Steam sync will restore your saves if you manually delete them! Therefore, remember to disable steam sync, otherwise your saves will magically reappear!\n" +
+							"- The 'global.dat' file stores your global unlock process and mod flags\n" +
+							"- The 'qsaveX.dat' and 'saveXXX.dat' files contain individual save files. Note that these becoming corrupted can break your game\n" +
+							"- It's recommended to take a backup of all your saves before you modify them")))
+						{
+							MODActions.ShowSaveFolder();
+						}
+						GUILayout.EndHorizontal();
+					}
 
 					GUILayout.EndArea();
 				}
