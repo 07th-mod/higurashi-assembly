@@ -67,6 +67,8 @@ namespace MOD.Scripts.UI
 		private readonly GameSystem gameSystem;
 		public bool visible;
 		private MODSimpleTimer defaultToolTipTimer;
+		private MODSimpleTimer startupWatchdogTimer;
+		private bool startupFailed;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -97,6 +99,15 @@ LShift + F9 : Restore Settings
 LShift + M : Voice Volume MAX
 LShift + N : Voice Volume MIN";
 
+		string startupFailureToolTip = @"It looks like there was a problem starting up
+
+Please send the developers your log file (output_log.txt or Player.log).
+
+If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).
+
+Use the buttons under 'Save and Log files' on the bottom left to show your save and log files.
+If they do not not work, click the button below to open the support page";
+
 		GUIContent[] defaultArtsetDescriptions = new GUIContent[] {
 			new GUIContent("Console", "Use the Console sprites and backgrounds"),
 			new GUIContent("Remake", "Use Mangagmer's remake sprites with Console backgrounds"),
@@ -110,6 +121,8 @@ LShift + N : Voice Volume MIN";
 			this.styleManager = styleManager;
 			this.visible = false;
 			this.defaultToolTipTimer = new MODSimpleTimer();
+			this.startupWatchdogTimer = new MODSimpleTimer();
+			this.startupFailed = false;
 
 			this.radioADVNVLOriginal = new MODRadio("Set ADV/NVL/Original Mode", new GUIContent[]
 			{
@@ -173,11 +186,15 @@ Sets the script censorship level
 				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
 				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset"),
 			}, styleManager, itemsPerRow: 2);
+
+			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
+			this.startupWatchdogTimer.Start(5.0f);
 		}
 
 		public void Update()
 		{
 			defaultToolTipTimer.Update();
+			startupWatchdogTimer.Update();
 		}
 
 		public void LateUpdate()
@@ -242,6 +259,16 @@ Sets the script censorship level
 		/// </summary>
 		public void OnGUIFragment()
 		{
+			if(this.startupWatchdogTimer.Finished())
+			{
+				this.startupWatchdogTimer.Cancel();
+				if (!BurikoScriptSystem.Instance.FlowWasReached)
+				{
+					this.startupFailed = true;
+					this.Show();
+				}
+			}
+
 			if (this.visible)
 			{
 				float areaWidth = 400;
@@ -255,7 +282,7 @@ Sets the script censorship level
 				float toolTipPosX = areaPosX + areaWidth;
 
 				float exitButtonWidth = toolTipWidth * .1f;
-				float exitButtonHeight = toolTipWidth * .05f;
+				float exitButtonHeight = areaHeight * .05f;
 
 				// Radio buttons
 				{
@@ -371,22 +398,39 @@ Sets the script censorship level
 						{
 							MODActions.ShowSaveFolder();
 						}
+
 						GUILayout.EndHorizontal();
 					}
+
+					if (GUILayout.Button(new GUIContent("Open Support Page: 07th-mod.com/wiki/Higurashi/support", "If you have problems with the game, the information on this site may help.\n\n" +
+						"There are also instructions on reporting bugs, as well as a link to our Discord server to contact us directly")))
+					{
+						Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
+					}
+
 
 					GUILayout.EndArea();
 				}
 
 				// Descriptions for each button are shown on hover, like a tooltip
 				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modGUIStyle);
-				GUILayout.Space(exitButtonHeight);
+				GUILayout.Space(Mathf.Round(exitButtonHeight)); //Round as non-integer space may cause blurred text
 
+				GUIStyle toolTipStyle = GUI.skin.label;
 				string displayedToolTip;
 				if (GUI.tooltip == String.Empty)
 				{
-					if (defaultToolTipTimer.Finished())
+					if (defaultToolTipTimer.timeLeft == 0)
 					{
-						displayedToolTip = defaultTooltip;
+						if(this.startupFailed)
+						{
+							displayedToolTip = startupFailureToolTip;
+							toolTipStyle = styleManager.errorLabelStyle;
+						}
+						else
+						{
+							displayedToolTip = defaultTooltip;
+						}
 					}
 					else
 					{
@@ -402,7 +446,7 @@ Sets the script censorship level
 				// MUST pass in MinHeight option, otherwise Unity will get confused and assume
 				// label is one line high on first draw, and subsquent changes will truncate
 				// label to one line even if it is multiple lines tall.
-				GUILayout.Label(displayedToolTip, GUILayout.MinHeight(areaHeight));
+				GUILayout.Label(displayedToolTip, toolTipStyle, GUILayout.MinHeight(areaHeight));
 				GUILayout.EndArea();
 
 				// Exit button

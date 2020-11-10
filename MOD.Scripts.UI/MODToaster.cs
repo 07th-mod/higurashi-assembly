@@ -32,7 +32,7 @@ namespace MOD.Scripts.UI
 
 		public void OnGUIFragment()
 		{
-			if (!toastNotificationTimer.Finished())
+			if (toastNotificationTimer.Running())
 			{
 				// This scrolls the toast notification off the window when it's nearly finished
 				float toastYPosition = Math.Min(50f, 200f * toastNotificationTimer.timeLeft - 50f);

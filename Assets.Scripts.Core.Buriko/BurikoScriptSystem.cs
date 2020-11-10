@@ -30,6 +30,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		private readonly string[] tempSnapshotText = new string[2];
 
+		public bool FlowWasReached { get; private set; }
+
 		public static BurikoScriptSystem Instance
 		{
 			get;
@@ -90,6 +92,11 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void CallScript(string scriptname, string blockname = "main")
 		{
+			if(scriptname == "flow")
+			{
+				FlowWasReached = true;
+			}
+
 			Logger.Log($"{currentScript.Filename}: calling script {scriptname} (block {blockname})");
 			callStack.Push(new BurikoStackEntry(currentScript, currentScript.Position, currentScript.LineNum));
 			scriptname = scriptname.ToLower();

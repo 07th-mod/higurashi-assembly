@@ -11,6 +11,7 @@ namespace MOD.Scripts.UI
 		public GUIStyle smallLabelStyle;
 		public GUIStyle modGUIStyle;
 		public GUIStyle modSelectorStyle;
+		public GUIStyle errorLabelStyle;
 		public Texture2D modGUIBackgroundTexture;
 
 		/// <summary>
@@ -57,6 +58,12 @@ namespace MOD.Scripts.UI
 				{
 					fontSize = 20,
 				};
+			}
+
+			if (errorLabelStyle == null)
+			{
+				errorLabelStyle = new GUIStyle(GUI.skin.label);
+				errorLabelStyle.normal.textColor = Color.red;
 			}
 		}
 
