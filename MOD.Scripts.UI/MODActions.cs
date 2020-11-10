@@ -294,21 +294,22 @@ namespace MOD.Scripts.UI
 		//NOTE: paths might not open properly on windows if they contain backslashes
 		public static void ShowFile(string path)
 		{
+			Assets.Scripts.Core.Logger.Log($"MOD ShowFile(): Showing [{path}]");
 			try
 			{
 				switch (MODUtility.GetPlatform())
 				{
 					case MODUtility.Platform.Windows:
 					default:
-						Process.Start("explorer", path);
+						Process.Start("explorer", path.Replace('/', '\\'));
 						break;
 
 					case MODUtility.Platform.MacOS:
-						Process.Start("open", path);
+						Process.Start("open", path.Replace('\\', '/'));
 						break;
 
 					case MODUtility.Platform.Linux:
-						Process.Start("xdg-open", path);
+						Process.Start("xdg-open", path.Replace('\\', '/'));
 						break;
 				}
 			}
