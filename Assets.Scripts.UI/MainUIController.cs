@@ -164,6 +164,7 @@ namespace Assets.Scripts.UI
 				}
 				else
 				{
+					bool isRyukishiMode = BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1;
 					if (bgLayer == null)
 					{
 						bgLayer = LayerPool.ActivateLayer();
@@ -172,7 +173,7 @@ namespace Assets.Scripts.UI
 					bgLayer.SetPriority(62);
 					bgLayer.name = "Window Background 1";
 					bgLayer.IsStatic = true;
-					bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					bgLayer.DrawLayer(isRyukishiMode ? "windo_filter_nvladv" : "windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 					if (bgLayer2 == null)
 					{
 						bgLayer2 = LayerPool.ActivateLayer();
@@ -181,7 +182,7 @@ namespace Assets.Scripts.UI
 					bgLayer2.SetPriority(62);
 					bgLayer2.name = "Window Background 2";
 					bgLayer2.IsStatic = true;
-					bgLayer2.DrawLayer("windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					bgLayer2.DrawLayer(isRyukishiMode ? "windo_filter_nvladv" : "windo_filter", 0, 0, 0, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
 			}
 		}

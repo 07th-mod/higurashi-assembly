@@ -40,7 +40,7 @@ namespace MOD.Scripts.UI
 			}
 			else if (filterType == WindowFilterType.OG)
 			{
-				windowFilterTextureName = "windo_filter_og";
+				windowFilterTextureName = "windo_filter_nvladv";
 			}
 
 			GameSystem.Instance.MainUIController.TryRedrawTextWindowBackground(windowFilterTextureName);
