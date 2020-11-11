@@ -13,6 +13,7 @@ namespace MOD.Scripts.UI
 {
 	class MODRadio
 	{
+		public static bool anyRadioPressed;
 		string label;
 		private GUIContent[] radioContents;
 		MODStyleManager styleManager;
@@ -42,6 +43,7 @@ namespace MOD.Scripts.UI
 			int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.modSelectorStyle);
 			if (i != displayedRadio)
 			{
+				MODRadio.anyRadioPressed = true;
 				return i;
 			}
 
@@ -71,6 +73,7 @@ namespace MOD.Scripts.UI
 		private bool startupFailed;
 		private string screenWidthString;
 		private string screenHeightString;
+		private bool anyButtonPressed;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -236,17 +239,17 @@ Sets the script censorship level
 			GUILayout.BeginHorizontal();
 			if (GetGlobal("GMOD_SETTING_LOADER") == 3)
 			{
-				if (GUILayout.Button(new GUIContent("ADV defaults", "This restores flags to the defaults for NVL mode\n" +
+				if (Button(new GUIContent("ADV defaults", "This restores flags to the defaults for NVL mode\n" +
 					"NOTE: Requires you to relaunch the game 2 times to come into effect")))
 				{
 					SetGlobal("GMOD_SETTING_LOADER", 0);
 				}
-				else if (GUILayout.Button(new GUIContent("NVL defaults", "This restores flags to the defaults for NVL mode\n" +
+				else if (Button(new GUIContent("NVL defaults", "This restores flags to the defaults for NVL mode\n" +
 					"NOTE: Requires you to relaunch the game 2 times to come into effect")))
 				{
 					SetGlobal("GMOD_SETTING_LOADER", 1);
 				}
-				else if (GUILayout.Button(new GUIContent("Vanilla Defaults", "This restores flags to the same settings as the unmodded game.\n" +
+				else if (Button(new GUIContent("Vanilla Defaults", "This restores flags to the same settings as the unmodded game.\n" +
 					"NOTE: Requires a relaunch to come into effect. After this, uninstall the mod.")))
 				{
 					SetGlobal("GMOD_SETTING_LOADER", 2);
@@ -254,7 +257,7 @@ Sets the script censorship level
 			}
 			else
 			{
-				if (GUILayout.Button(new GUIContent("Cancel Pending Restore", "Click this to stop restoring defaults on next game launch")))
+				if (Button(new GUIContent("Cancel Pending Restore", "Click this to stop restoring defaults on next game launch")))
 				{
 					SetGlobal("GMOD_SETTING_LOADER", 3);
 				}
@@ -379,7 +382,7 @@ Sets the script censorship level
 					GUILayout.Label("Save and Log Files");
 					{
 						GUILayout.BeginHorizontal();
-						if (GUILayout.Button(new GUIContent("Show output_log.txt / Player.log",
+						if (Button(new GUIContent("Show output_log.txt / Player.log",
 							"This button shows the location of the 'ouput_log.txt' or 'Player.log' files\n\n" +
 							"- This file is called 'output_log.txt' on Windows and 'Player.log' on MacOS/Linux\n" +
 							"- This file records errors that occur during gameplay, and during game startup\n" +
@@ -391,7 +394,7 @@ Sets the script censorship level
 							MODActions.ShowLogFolder();
 						}
 
-						if (GUILayout.Button(new GUIContent("Show Saves", "Clearing your save files can fix some issues with game startup, and resets all mod flags.\n\n" +
+						if (Button(new GUIContent("Show Saves", "Clearing your save files can fix some issues with game startup, and resets all mod flags.\n\n" +
 							"- NOTE: Steam sync will restore your saves if you manually delete them! Therefore, remember to disable steam sync, otherwise your saves will magically reappear!\n" +
 							"- The 'global.dat' file stores your global unlock process and mod flags\n" +
 							"- The 'qsaveX.dat' and 'saveXXX.dat' files contain individual save files. Note that these becoming corrupted can break your game\n" +
@@ -403,7 +406,7 @@ Sets the script censorship level
 						GUILayout.EndHorizontal();
 					}
 
-					if (GUILayout.Button(new GUIContent("Open Support Page: 07th-mod.com/wiki/Higurashi/support", "If you have problems with the game, the information on this site may help.\n\n" +
+					if (Button(new GUIContent("Open Support Page: 07th-mod.com/wiki/Higurashi/support", "If you have problems with the game, the information on this site may help.\n\n" +
 						"There are also instructions on reporting bugs, as well as a link to our Discord server to contact us directly")))
 					{
 						Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
@@ -414,7 +417,7 @@ Sets the script censorship level
 						GUILayout.Label("Custom Resolution");
 						screenWidthString = GUILayout.TextField(screenWidthString);
 						screenHeightString = GUILayout.TextField(screenHeightString);
-						if(GUILayout.Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.")))
+						if(Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.")))
 						{
 							if(int.TryParse(screenWidthString, out int new_width))
 							{
@@ -496,11 +499,18 @@ Sets the script censorship level
 
 				// Exit button
 				GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth, areaPosY, exitButtonWidth, exitButtonHeight));
-					if(GUILayout.Button("X"))
+					if(Button(new GUIContent("X", "Close the Mod menu")))
 					{
 						this.Hide();
 					}
 				GUILayout.EndArea();
+
+				if(MODRadio.anyRadioPressed || anyButtonPressed)
+				{
+					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(GUISound.Click));
+					MODRadio.anyRadioPressed = false;
+					anyButtonPressed = false;
+				}
 			}
 		}
 
@@ -580,6 +590,19 @@ Sets the script censorship level
 					gameSystem.PushStateObject(newState);
 				});
 				gameSystem.ExecuteActions();
+			}
+		}
+
+		private bool Button(GUIContent guiContent)
+		{
+			if(GUILayout.Button(guiContent))
+			{
+				anyButtonPressed = true;
+				return true;
+			}
+			else
+			{
+				return false;
 			}
 		}
 
