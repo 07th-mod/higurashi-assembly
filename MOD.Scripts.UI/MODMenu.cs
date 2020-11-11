@@ -168,8 +168,12 @@ Sets the script censorship level
 			this.radioOpenings = new MODRadio("Opening Movies", new GUIContent[]
 			{
 				new GUIContent("Disabled", "Disables all opening videos"),
-				new GUIContent("In-Game Only", "Enables opening videos which play during the story"),
-				new GUIContent("Launch + In-Game", "Opening videos will play just after game launches, and also during the story"),
+				new GUIContent("Enabled", "Enables opening videos\n\n" +
+				"NOTE: Once the opening video plays the first time, will automatically switch to 'Launch + In-Game'\n\n" +
+				"We have setup openings this way to avoid spoilers."),
+				new GUIContent("Launch + In-Game", "WARNING: There is usually no need to set this manually.\n\n" +
+				"If openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\n" +
+				"That is, after the opening is played the first time, from then on openings will play every time the game launches"),
 			}, styleManager);
 
 			this.radioHideCG = new MODRadio("Show/Hide CGs", new GUIContent[]
