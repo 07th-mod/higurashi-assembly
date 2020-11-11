@@ -105,6 +105,23 @@ namespace MOD.Scripts.UI
 		private static int RyukishiModeGuiPosX = 0;
 		private static int RyukishiModeGuiPosY = 0;
 
+		private void StoreRyukishiModeIfFlagSet()
+		{
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2); // Set NVL Line Mode
+				RyukishiModeSettingStore();
+			}
+		}
+
+		private void StoreRyukishiGuiPositionIfFlagSet()
+		{
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				RyukishiModeSettingStore();
+			}
+		}
+
 		public void WideGuiPositionLoad(int posx, int posy)
 		{
 			WideModeGuiPosX = posx;
@@ -113,16 +130,16 @@ namespace MOD.Scripts.UI
 			{
 				WideGuiPositionStore();
 			}
+
+			// This ensures scripts without a "ModRyukishiSetGuiPosition" will still initialize using the default values. Can be moved elsewhere (must be before reaching normal gameplay)
+			StoreRyukishiGuiPositionIfFlagSet();
 		}
 
 		public void RyukishiGuiPositionLoad(int posx, int posy)
 		{
 			RyukishiModeGuiPosX = posx;
 			RyukishiModeGuiPosY = posy;
-			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
-			{
-				RyukishiModeSettingStore();
-			}
+			StoreRyukishiGuiPositionIfFlagSet();
 		}
 
 		public void WideGuiPositionStore()
@@ -177,6 +194,9 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				NVLModeSettingStore();
 			}
+
+			// This ensures scripts without a "ModRyukishiModeSettingLoad" will still initialize using the default values. Can be moved elsewhere (must be before reaching normal gameplay)
+			StoreRyukishiModeIfFlagSet();
 		}
 
 		public void NVLADVModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
@@ -212,12 +232,7 @@ namespace MOD.Scripts.UI
 			RyukishiModeLineSpacing = lspace;
 			RyukishiModeFontSize = fsize;
 
-			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
-			{
-				// Set NVL Line Mode
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				RyukishiModeSettingStore();
-			}
+			StoreRyukishiModeIfFlagSet();
 		}
 
 		public void ADVModeSettingStore()
