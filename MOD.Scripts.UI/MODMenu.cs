@@ -69,6 +69,8 @@ namespace MOD.Scripts.UI
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
 		private bool startupFailed;
+		private string screenWidthString;
+		private string screenHeightString;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -80,7 +82,7 @@ ESC : Open Menu
 Ctrl : Hold Skip Mode
 A : Auto Mode
 S : Toggle Skip Mode
-F : FullScreen
+F, Alt-Enter : FullScreen
 Space : Hide Text
 L : Swap Language
 P : Swap Sprites
@@ -123,6 +125,8 @@ If they do not not work, click the button below to open the support page";
 			this.defaultToolTipTimer = new MODSimpleTimer();
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
+			this.screenWidthString = String.Empty;
+			this.screenHeightString = String.Empty;
 
 			this.radioADVNVLOriginal = new MODRadio("Set ADV/NVL/Original Mode", new GUIContent[]
 			{
@@ -292,12 +296,6 @@ Sets the script censorship level
 				{
 					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modGUIStyle);
 
-					GUILayout.BeginHorizontal();
-					GUILayout.FlexibleSpace();
-					GUILayout.Label("Mod Options Menu");
-					GUILayout.FlexibleSpace();
-					GUILayout.EndHorizontal();
-
 					if (this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
 					{
 						if (newMode == 0)
@@ -333,7 +331,6 @@ Sets the script censorship level
 						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 					};
 
-					GUILayout.Space(10);
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("Advanced Options");
@@ -412,13 +409,57 @@ Sets the script censorship level
 						Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
 					}
 
+					{
+						GUILayout.BeginHorizontal();
+						GUILayout.Label("Custom Resolution");
+						screenWidthString = GUILayout.TextField(screenWidthString);
+						screenHeightString = GUILayout.TextField(screenHeightString);
+						if(GUILayout.Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.")))
+						{
+							if(int.TryParse(screenWidthString, out int new_width))
+							{
+								if(int.TryParse(screenHeightString, out int new_height))
+								{
+									if(new_width < 800)
+									{
+										MODToaster.Show("Width too small - must be at least 800 pixels");
+										new_width = 800;
+									}
+									else if(new_width > 15360)
+									{
+										MODToaster.Show("Width too big - must be at least 15360 pixels");
+										new_width = 15360;
+									}
+									if (new_height < 650)
+									{
+										MODToaster.Show("Height too small - must be at least 650 pixels");
+										new_height = 650;
+									}
+									else if(new_height > 8640)
+									{
+										MODToaster.Show("Height too large - must be at least 8640 pixels");
+										new_height = 8640;
+									}
+									screenWidthString = $"{new_width}";
+									screenHeightString = $"{new_height}";
+									Screen.SetResolution(new_width, new_height, Screen.fullScreen);
+								}
+							}
+						}
+						GUILayout.EndHorizontal();
+					}
+
 
 					GUILayout.EndArea();
 				}
 
 				// Descriptions for each button are shown on hover, like a tooltip
 				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modGUIStyle);
-				GUILayout.Space(Mathf.Round(exitButtonHeight)); //Round as non-integer space may cause blurred text
+				GUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				GUILayout.Label("Mod Options Menu");
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
 
 				GUIStyle toolTipStyle = GUI.skin.label;
 				string displayedToolTip;
@@ -476,6 +517,9 @@ Sets the script censorship level
 				}
 			}
 			this.radioArtSet.SetContents(descriptions);
+
+			this.screenWidthString = $"{Screen.width}";
+			this.screenHeightString = $"{Screen.height}";
 
 			this.visible = true;
 			DisableGameInput();
