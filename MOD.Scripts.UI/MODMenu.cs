@@ -195,7 +195,8 @@ Sets the script censorship level
 				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
 				new GUIContent("Console BGs", "Force Console backgrounds, regardless of the artset"),
 				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
-				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset"),
+				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset\n\n" +
+				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
 			}, styleManager, itemsPerRow: 2);
 
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
