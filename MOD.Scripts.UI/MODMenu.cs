@@ -303,6 +303,7 @@ Sets the script censorship level
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
 					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
 
+					HeadingLabel("Basic Options");
 
 					if (this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
 					{
@@ -339,11 +340,7 @@ Sets the script censorship level
 						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 					};
 
-					GUILayout.BeginHorizontal();
-					GUILayout.FlexibleSpace();
-					Label("Advanced Options");
-					GUILayout.FlexibleSpace();
-					GUILayout.EndHorizontal();
+					HeadingLabel("Advanced Options");
 
 					if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 					{
@@ -424,13 +421,16 @@ Sets the script censorship level
 						if (Button(new GUIContent("720p", "Set resolution to 1280 x 720"))) { SetAndSaveResolution(720); }
 						if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
 						if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
-						if (Button(new GUIContent("Full", "Toggle Fullscreen")))
+						if (gameSystem.IsFullscreen)
 						{
-							if (gameSystem.IsFullscreen)
+							if (Button(new GUIContent("Windowed", "Toggle Fullscreen")))
 							{
 								GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
 							}
-							else
+						}
+						else
+						{
+							if (Button(new GUIContent("Fullscreen", "Toggle Fullscreen")))
 							{
 								gameSystem.GoFullscreen();
 							}
@@ -468,11 +468,8 @@ Sets the script censorship level
 
 				// Descriptions for each button are shown on hover, like a tooltip
 				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modMenuAreaStyle);
-				GUILayout.BeginHorizontal();
-				GUILayout.FlexibleSpace();
-				Label("Mod Options Menu");
-				GUILayout.FlexibleSpace();
-				GUILayout.EndHorizontal();
+				HeadingLabel("Mod Options Menu");
+				GUILayout.Space(10);
 
 				GUIStyle toolTipStyle = styleManager.Group.label;
 				string displayedToolTip;
@@ -619,6 +616,11 @@ Sets the script censorship level
 		private void Label(string label)
 		{
 			GUILayout.Label(label, styleManager.Group.label);
+		}
+
+		private void HeadingLabel(string label)
+		{
+			GUILayout.Label(label, styleManager.Group.headingLabel);
 		}
 
 		private int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();

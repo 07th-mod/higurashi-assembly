@@ -15,6 +15,7 @@ namespace MOD.Scripts.UI
 			public GUIStyle errorLabel;
 			public GUIStyle button;
 			public GUIStyle label;             //Used for normal Label widgets
+			public GUIStyle headingLabel;
 		}
 
 		// Styles used for Toasts
@@ -72,9 +73,9 @@ namespace MOD.Scripts.UI
 			);
 
 			style720 = GenerateWidgetStyles(
-				menuWidth: 1200,
+				menuWidth: 1000,
 				menuHeight: 660,
-				guiScale: 1f,
+				guiScale: 1.1f,
 				margin: new RectOffset(1, 1, 1, 1),
 				padding: new RectOffset(1, 1, 1, 1)
 			);
@@ -138,12 +139,19 @@ namespace MOD.Scripts.UI
 				padding = padding,
 			};
 
+			// Heading text style
+			GUIStyle headingLabelStyle = new GUIStyle(labelStyle)
+			{
+				fontStyle = FontStyle.Bold,
+				alignment = TextAnchor.LowerCenter,
+			};
+			headingLabelStyle.padding.top *= 5;
+
 			// Menu selection grid/radio
 			GUIStyle modMenuSelectionGrid = new GUIStyle(GUI.skin.button) //Copy the default style for 'box' as a base
 			{
 				//alignment = TextAnchor.UpperCenter,
 				fontSize = Mathf.RoundToInt(guiScale * baseFontSize),
-				//fontStyle = FontStyle.Bold,
 			};
 			modMenuSelectionGrid.onHover.textColor = Color.green;
 			modMenuSelectionGrid.onNormal.textColor = Color.green; // Color of a selected option
@@ -161,6 +169,7 @@ namespace MOD.Scripts.UI
 				errorLabel = errorLabelStyle,
 				button = buttonStyle,
 				label = labelStyle,
+				headingLabel = headingLabelStyle,
 			};
 		}
 	}
