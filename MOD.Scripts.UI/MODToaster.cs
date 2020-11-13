@@ -39,7 +39,7 @@ namespace MOD.Scripts.UI
 				float toastWidth = 700f;
 				float toastXPosition = (Screen.width - toastWidth) / 2.0f;
 				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, 700f, 200f));
-				GUILayout.Box(toastText, toastText.Length > 30 ? styleManager.smallLabelStyle : styleManager.labelStyle);
+				GUILayout.Box(toastText, toastText.Length > 30 ? styleManager.smallToastLabelStyle : styleManager.bigToastLabelStyle);
 				GUILayout.EndArea();
 			}
 		}

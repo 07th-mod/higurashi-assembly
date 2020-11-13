@@ -39,8 +39,8 @@ namespace MOD.Scripts.UI
 		/// <returns>If radio did not change value, null is returned, otherwise the new value is returned.</returns>
 		public int? OnGUIFragment(int displayedRadio)
 		{
-			GUILayout.Label(this.label);
-			int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.modSelectorStyle);
+			GUILayout.Label(this.label, styleManager.Group.label);
+			int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.Group.modMenuSelectionGrid);
 			if (i != displayedRadio)
 			{
 				MODRadio.anyRadioPressed = true;
@@ -71,9 +71,9 @@ namespace MOD.Scripts.UI
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
 		private bool startupFailed;
-		private string screenWidthString;
 		private string screenHeightString;
 		private bool anyButtonPressed;
+		Vector2 scrollPosition;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -128,7 +128,6 @@ If they do not not work, click the button below to open the support page";
 			this.defaultToolTipTimer = new MODSimpleTimer();
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
-			this.screenWidthString = String.Empty;
 			this.screenHeightString = String.Empty;
 
 			this.radioADVNVLOriginal = new MODRadio("Set ADV/NVL/Original Mode", new GUIContent[]
@@ -235,7 +234,7 @@ Sets the script censorship level
 
 		private void OnGUIRestoreSettings()
 		{
-			GUILayout.Label($"Restore Settings {(GetGlobal("GMOD_SETTING_LOADER") == 3 ? "" : ": <Restart Pending>")}");
+			Label($"Restore Settings {(GetGlobal("GMOD_SETTING_LOADER") == 3 ? "" : ": <Restart Pending>")}");
 
 			GUILayout.BeginHorizontal();
 			if (GetGlobal("GMOD_SETTING_LOADER") == 3)
@@ -283,10 +282,12 @@ Sets the script censorship level
 
 			if (this.visible)
 			{
-				float areaWidth = 400;
-				float toolTipWidth = 350;
-				float totalAreaWidth = areaWidth + toolTipWidth;
-				float areaHeight = 600;
+				float totalAreaWidth = styleManager.Group.menuWidth; // areaWidth + toolTipWidth;
+
+				float areaWidth = Mathf.Round(totalAreaWidth * 9/16);
+				float toolTipWidth = Mathf.Round(totalAreaWidth * 7/16);
+
+				float areaHeight = styleManager.Group.menuHeight;
 
 				float areaPosX = Screen.width / 2 - totalAreaWidth / 2;
 				float areaPosY = Screen.height / 2 - areaHeight / 2;
@@ -298,7 +299,10 @@ Sets the script censorship level
 
 				// Radio buttons
 				{
-					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modGUIStyle);
+					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
+					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
+
 
 					if (this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
 					{
@@ -337,7 +341,7 @@ Sets the script censorship level
 
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
-					GUILayout.Label("Advanced Options");
+					Label("Advanced Options");
 					GUILayout.FlexibleSpace();
 					GUILayout.EndHorizontal();
 
@@ -380,7 +384,7 @@ Sets the script censorship level
 					GUILayout.Space(10);
 					OnGUIRestoreSettings();
 
-					GUILayout.Label("Save and Log Files");
+					Label("Save and Log Files");
 					{
 						GUILayout.BeginHorizontal();
 						if (Button(new GUIContent("Show output_log.txt / Player.log",
@@ -413,59 +417,64 @@ Sets the script censorship level
 						Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
 					}
 
+					Label("Resolution Settings");
 					{
 						GUILayout.BeginHorizontal();
-						GUILayout.Label("Custom Resolution");
-						screenWidthString = GUILayout.TextField(screenWidthString);
-						screenHeightString = GUILayout.TextField(screenHeightString);
-						if(Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.")))
+						if (Button(new GUIContent("480p", "Set resolution to 853 x 480"))) { SetAndSaveResolution(480); }
+						if (Button(new GUIContent("720p", "Set resolution to 1280 x 720"))) { SetAndSaveResolution(720); }
+						if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
+						if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
+						if (Button(new GUIContent("Full", "Toggle Fullscreen")))
 						{
-							if(int.TryParse(screenWidthString, out int new_width))
+							if (gameSystem.IsFullscreen)
 							{
-								if(int.TryParse(screenHeightString, out int new_height))
+								GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
+							}
+							else
+							{
+								gameSystem.GoFullscreen();
+							}
+						}
+
+						screenHeightString = GUILayout.TextField(screenHeightString);
+						if(Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.\n\n" +
+							"Height set automatically to maintain 16:9 aspect ratio.")))
+						{
+							if(int.TryParse(screenHeightString, out int new_height))
+							{
+								if(new_height < 480)
 								{
-									if(new_width < 800)
-									{
-										MODToaster.Show("Width too small - must be at least 800 pixels");
-										new_width = 800;
-									}
-									else if(new_width > 15360)
-									{
-										MODToaster.Show("Width too big - must be at least 15360 pixels");
-										new_width = 15360;
-									}
-									if (new_height < 650)
-									{
-										MODToaster.Show("Height too small - must be at least 650 pixels");
-										new_height = 650;
-									}
-									else if(new_height > 8640)
-									{
-										MODToaster.Show("Height too large - must be at least 8640 pixels");
-										new_height = 8640;
-									}
-									screenWidthString = $"{new_width}";
-									screenHeightString = $"{new_height}";
-									Screen.SetResolution(new_width, new_height, Screen.fullScreen);
+									MODToaster.Show("Height too small - must be at least 480 pixels");
+									new_height = 480;
 								}
+								else if(new_height > 15360)
+								{
+									MODToaster.Show("Height too big - must be less than 15360 pixels");
+									new_height = 15360;
+								}
+								screenHeightString = $"{new_height}";
+								int new_width = Mathf.RoundToInt(new_height * 16f / 9f);
+								Screen.SetResolution(new_width, new_height, Screen.fullScreen);
+								PlayerPrefs.SetInt("width", new_width);
+								PlayerPrefs.SetInt("height", new_height);
 							}
 						}
 						GUILayout.EndHorizontal();
 					}
 
-
+					GUILayout.EndScrollView();
 					GUILayout.EndArea();
 				}
 
 				// Descriptions for each button are shown on hover, like a tooltip
-				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modGUIStyle);
+				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modMenuAreaStyle);
 				GUILayout.BeginHorizontal();
 				GUILayout.FlexibleSpace();
-				GUILayout.Label("Mod Options Menu");
+				Label("Mod Options Menu");
 				GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 
-				GUIStyle toolTipStyle = GUI.skin.label;
+				GUIStyle toolTipStyle = styleManager.Group.label;
 				string displayedToolTip;
 				if (GUI.tooltip == String.Empty)
 				{
@@ -474,7 +483,7 @@ Sets the script censorship level
 						if(this.startupFailed)
 						{
 							displayedToolTip = startupFailureToolTip;
-							toolTipStyle = styleManager.errorLabelStyle;
+							toolTipStyle = styleManager.Group.errorLabel;
 						}
 						else
 						{
@@ -529,7 +538,7 @@ Sets the script censorship level
 			}
 			this.radioArtSet.SetContents(descriptions);
 
-			this.screenWidthString = $"{Screen.width}";
+			this.screenHeightString = $"{Screen.width}";
 			this.screenHeightString = $"{Screen.height}";
 
 			this.visible = true;
@@ -596,7 +605,7 @@ Sets the script censorship level
 
 		private bool Button(GUIContent guiContent)
 		{
-			if(GUILayout.Button(guiContent))
+			if(GUILayout.Button(guiContent, styleManager.Group.button))
 			{
 				anyButtonPressed = true;
 				return true;
@@ -607,7 +616,31 @@ Sets the script censorship level
 			}
 		}
 
+		private void Label(string label)
+		{
+			GUILayout.Label(label, styleManager.Group.label);
+		}
+
 		private int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
 		private void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);
+
+		private void SetAndSaveResolution(int height)
+		{
+			if (height < 480)
+			{
+				MODToaster.Show("Height too small - must be at least 480 pixels");
+				height = 480;
+			}
+			else if (height > 15360)
+			{
+				MODToaster.Show("Height too big - must be less than 15360 pixels");
+				height = 15360;
+			}
+			screenHeightString = $"{height}";
+			int width = Mathf.RoundToInt(height * 16f / 9f);
+			Screen.SetResolution(width, height, Screen.fullScreen);
+			PlayerPrefs.SetInt("width", width);
+			PlayerPrefs.SetInt("height", height);
+		}
 	}
 }
