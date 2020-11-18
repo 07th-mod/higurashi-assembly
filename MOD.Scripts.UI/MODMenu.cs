@@ -74,6 +74,7 @@ namespace MOD.Scripts.UI
 		private string screenHeightString;
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
+		private static Vector2 emergencyMenuScrollPosition;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -382,37 +383,7 @@ Sets the script censorship level
 					OnGUIRestoreSettings();
 
 					Label("Save and Log Files");
-					{
-						GUILayout.BeginHorizontal();
-						if (Button(new GUIContent("Show output_log.txt / Player.log",
-							"This button shows the location of the 'ouput_log.txt' or 'Player.log' files\n\n" +
-							"- This file is called 'output_log.txt' on Windows and 'Player.log' on MacOS/Linux\n" +
-							"- This file records errors that occur during gameplay, and during game startup\n" +
-							"- This file helps when the game fails start, for example\n" +
-							"  - a corrupted save file\n" +
-							"  - the wrong UI (sharedassets0.assets) file\n" +
-							"- Note that each time the game starts up, the current log file is replaced")))
-						{
-							MODActions.ShowLogFolder();
-						}
-
-						if (Button(new GUIContent("Show Saves", "Clearing your save files can fix some issues with game startup, and resets all mod flags.\n\n" +
-							"- NOTE: Steam sync will restore your saves if you manually delete them! Therefore, remember to disable steam sync, otherwise your saves will magically reappear!\n" +
-							"- The 'global.dat' file stores your global unlock process and mod flags\n" +
-							"- The 'qsaveX.dat' and 'saveXXX.dat' files contain individual save files. Note that these becoming corrupted can break your game\n" +
-							"- It's recommended to take a backup of all your saves before you modify them")))
-						{
-							MODActions.ShowSaveFolder();
-						}
-
-						GUILayout.EndHorizontal();
-					}
-
-					if (Button(new GUIContent("Open Support Page: 07th-mod.com/wiki/Higurashi/support", "If you have problems with the game, the information on this site may help.\n\n" +
-						"There are also instructions on reporting bugs, as well as a link to our Discord server to contact us directly")))
-					{
-						Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
-					}
+					ShowSupportButtons(content => Button(content));
 
 					Label("Resolution Settings");
 					{
@@ -644,5 +615,61 @@ Sets the script censorship level
 			PlayerPrefs.SetInt("width", width);
 			PlayerPrefs.SetInt("height", height);
 		}
+
+		/// <summary>
+		/// This function draws an emergency mod menu in case of a critcal game error
+		/// (for example, corrupted game save)
+		///
+		/// Please do null checks/try catch for gamesystem etc. if used in this function as it may be called
+		/// during an error condition where gamesystem and other core system parts are not initialized yet
+		/// </summary>
+		/// <param name="errorMessage"></param>
+		public static void EmergencyModMenu(string shortErrorMessage, string longErrorMessage)
+		{
+			emergencyMenuScrollPosition = GUILayout.BeginScrollView(emergencyMenuScrollPosition);
+			GUILayout.Label(shortErrorMessage);
+			GUILayout.Label(longErrorMessage);
+
+			ShowSupportButtons(content => GUILayout.Button(content));
+
+			GUILayout.Label(GUI.tooltip == "" ? "Please hover over a button for more information" : GUI.tooltip, GUI.skin.textArea, GUILayout.MinHeight(210));
+
+			GUILayout.EndScrollView();
+		}
+
+		private static void ShowSupportButtons(Func<GUIContent, bool> buttonRenderer)
+		{
+			{
+				GUILayout.BeginHorizontal();
+				if (buttonRenderer(new GUIContent("Show output_log.txt / Player.log",
+					"This button shows the location of the 'ouput_log.txt' or 'Player.log' files\n\n" +
+					"- This file is called 'output_log.txt' on Windows and 'Player.log' on MacOS/Linux\n" +
+					"- This file records errors that occur during gameplay, and during game startup\n" +
+					"- This file helps when the game fails start, for example\n" +
+					"  - a corrupted save file\n" +
+					"  - the wrong UI (sharedassets0.assets) file\n" +
+					"- Note that each time the game starts up, the current log file is replaced")))
+				{
+					MODActions.ShowLogFolder();
+				}
+
+				if (buttonRenderer(new GUIContent("Show Saves", "Clearing your save files can fix some issues with game startup, and resets all mod flags.\n\n" +
+					"- WARNING: Steam sync will restore your saves if you manually delete them! Therefore, remember to disable steam sync, otherwise your saves will magically reappear!\n" +
+					"- The 'global.dat' file stores your global unlock process and mod flags\n" +
+					"- The 'qsaveX.dat' and 'saveXXX.dat' files contain individual save files. Note that these becoming corrupted can break your game\n" +
+					"- It's recommended to take a backup of all your saves before you modify them")))
+				{
+					MODActions.ShowSaveFolder();
+				}
+				GUILayout.EndHorizontal();
+			}
+
+			if (buttonRenderer(new GUIContent("Open Support Page: 07th-mod.com/wiki/Higurashi/support", "If you have problems with the game, the information on this site may help.\n\n" +
+				"There are also instructions on reporting bugs, as well as a link to our Discord server to contact us directly")))
+			{
+				Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
+			}
+		}
+
 	}
 }

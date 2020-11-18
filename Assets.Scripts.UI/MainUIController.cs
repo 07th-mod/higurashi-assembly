@@ -519,6 +519,12 @@ namespace Assets.Scripts.UI
 		// NOTE: this function can be called before Update() if CTRL (skip) down during game startup
 		public void OnGUI()
 		{
+			if(BurikoSaveManager.lastSaveError != null)
+			{
+				MODMenu.EmergencyModMenu("Error loading save file! Please backup your saves, DISABLE STEAM SYNC, then delete the following save file:", BurikoSaveManager.lastSaveError);
+				return;
+			}
+
 			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
 			if(this.gameSystem == null)
 			{
