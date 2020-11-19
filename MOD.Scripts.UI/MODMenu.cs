@@ -332,19 +332,19 @@ Sets the script censorship level
 					{
 						if (newMode == 0)
 						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV);
+							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 						}
 						else if (newMode == 1)
 						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL);
+							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
 						}
 						else if (newMode == 2)
 						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.OG);
+							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
 						}
 						else
 						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV);
+							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 						}
 					}
 
@@ -373,7 +373,7 @@ Sets the script censorship level
 					if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
 					{
 						SetGlobal("GStretchBackgrounds", 0);
-						Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle);
+						Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
 					}
 
 					{

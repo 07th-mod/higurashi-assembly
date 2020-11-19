@@ -56,7 +56,7 @@ namespace MOD.Scripts.Core.Scene
 			SetArtStyle(AssetManager.Instance.CurrentArtsetIndex);
 		}
 
-		public void SetArtStyle(int artSetIndex)
+		public void SetArtStyle(int artSetIndex, bool showInfoToast = true)
 		{
 			if(artSetIndex >= 0 && artSetIndex < AssetManager.Instance.ArtsetCount)
 			{
@@ -65,7 +65,7 @@ namespace MOD.Scripts.Core.Scene
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				RestoreTextures();
 				GameSystem.Instance.SceneController.ReloadAllImages();
-				UI.MODToaster.Show($"Art Style: {AssetManager.Instance.CurrentArtset.nameEN}");
+				if (showInfoToast) { UI.MODToaster.Show($"Art Style: {AssetManager.Instance.CurrentArtset.nameEN}"); }
 			}
 		}
 

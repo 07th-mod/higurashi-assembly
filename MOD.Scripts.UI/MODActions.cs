@@ -70,8 +70,10 @@ namespace MOD.Scripts.UI
 		/// Sets and saves NVL/ADV mode
 		/// </summary>
 		/// <param name="setADVMode">If True, sets and saves ADV mode. If False, sets and saves NVL mode</param>
+		/// <param name="showInfoToast">If True, always shows a toast indicting the NVL/ADV status.
+		/// If False, will only show toast if there is a warning (like you are in a nvl_in_adv region)</param>
 		/// <returns>True if set and displayed, false if in a NVL_in_ADV region and value might not be applied immediately</returns>
-		public static void SetAndSaveADV(ModPreset setting)
+		public static void SetAndSaveADV(ModPreset setting, bool showInfoToast = true)
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
 			if (setting == ModPreset.ADV)
@@ -86,13 +88,14 @@ namespace MOD.Scripts.UI
 				mODMainUIController.ADVModeSettingStore();
 				string feedbackString = $"Set ADV Mode";
 				int toastDuration = 3;
-				if(BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+				Core.MODSystem.instance.modTextureController.SetArtStyle(0, showInfoToast);
+				bool is_nvl_in_adv_region = BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1;
+				if (is_nvl_in_adv_region)
 				{
 					feedbackString += "\nIn NVL region - changes won't be displayed until later";
 					toastDuration = 5;
 				}
-				Core.MODSystem.instance.modTextureController.SetArtStyle(0);
-				MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration);
+				if (is_nvl_in_adv_region || showInfoToast) { MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration); }
 			}
 			else if (setting == ModPreset.NVL)
 			{
@@ -104,8 +107,8 @@ namespace MOD.Scripts.UI
 				TryRedrawTextWindowBackground(WindowFilterType.Normal);
 				mODMainUIController.WideGuiPositionStore();
 				mODMainUIController.NVLModeSettingStore();
-				Core.MODSystem.instance.modTextureController.SetArtStyle(0);
-				MODToaster.Show($"Set NVL Mode", isEnable: false);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(0, showInfoToast);
+				if (showInfoToast) { MODToaster.Show($"Set NVL Mode", isEnable: false); }
 			}
 			else if (setting == ModPreset.OG)
 			{
@@ -117,12 +120,9 @@ namespace MOD.Scripts.UI
 				TryRedrawTextWindowBackground(WindowFilterType.OG);
 				mODMainUIController.RyukishiGuiPositionStore();
 				mODMainUIController.RyukishiModeSettingStore();
-				Core.MODSystem.instance.modTextureController.SetArtStyle(2);
-				MODToaster.Show($"Set OG Mode", isEnable: false);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(2, showInfoToast);
+				if (showInfoToast) { MODToaster.Show($"Set OG Mode", isEnable: false); }
 			}
-
-			// Return false if in a NVL_in_ADV region to tell users that value might not be applied immediately
-			//return BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 0;
 		}
 
 		public static void EnableNVLModeINADVMode()
