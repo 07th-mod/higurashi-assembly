@@ -98,7 +98,7 @@ F2 : Voice Matching Level
 F3 : Effect Level (Not Used)
 F5 : QuickSave
 F7 : QuickLoad
-F10 : Setting Monitor
+F10 : Mod Menu
 M : Increase Voice Volume
 N : Decrease Voice Volume
 7 : Lip-Sync
@@ -283,7 +283,30 @@ Sets the script censorship level
 				}
 			}
 
-			if(visible && !lastMenuVisibleStatus)
+			// Button to open the Mod Menu on the Config Screen
+			if (gameSystem.GameState == GameState.ConfigScreen)
+			{
+				if (gameSystem.ConfigManager() != null)
+				{
+					// Temporarily override the global tint color to get a fade in effect which matches the config screen fade-in
+					// This value is not saved by Unity (it resets to the default value each frame)
+					GUI.color = new Color(1.0f, 1.0f, 1.0f, gameSystem.ConfigManager().PanelAlpha());
+				}
+				string text = "Mod Menu\n(Hotkey: F10)";
+				float areaWidth = Screen.width / 8;
+				float areaHeight = Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10;
+				float xOffset = 0;
+				float yOffset = Screen.height - areaHeight;
+				GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+				if (GUILayout.Button(text, styleManager.Group.button))
+				{
+					this.Show();
+				}
+
+				GUILayout.EndArea();
+			}
+
+			if (visible && !lastMenuVisibleStatus)
 			{
 				// Executes just before menu becomes visible
 				// Update the artset radio buttons/descriptions, as these are set by ModAddArtset() calls in init.txt at runtime
@@ -516,9 +539,29 @@ Sets the script censorship level
 
 		private void Show()
 		{
-			gameSystem.MODIgnoreInputs = true;
-			gameSystem.HideUIControls();
-			this.visible = true;
+			void ForceShow()
+			{
+				gameSystem.MODIgnoreInputs = true;
+				gameSystem.HideUIControls();
+				this.visible = true;
+			}
+
+			if (gameSystem.GameState == GameState.SaveLoadScreen)
+			{
+				MODToaster.Show("Please close the current menu and try again");
+			}
+			else if (gameSystem.GameState == GameState.ConfigScreen)
+			{
+				gameSystem.LeaveConfigScreen(delegate
+				{
+					ForceShow();
+				});
+			}
+			else
+			{
+				ForceShow();
+			}
+
 		}
 
 		public void Hide()
@@ -536,21 +579,7 @@ Sets the script censorship level
 			}
 			else
 			{
-				if (gameSystem.GameState == GameState.SaveLoadScreen)
-				{
-					MODToaster.Show("Please close the current menu and try again");
-				}
-				else if (gameSystem.GameState == GameState.ConfigScreen)
-				{
-					gameSystem.LeaveConfigScreen(delegate
-					{
-						Show();
-					});
-				}
-				else
-				{
-					Show();
-				}
+				this.Show();
 			}
 		}
 

@@ -143,6 +143,7 @@ namespace Assets.Scripts.Core
 		private PromptController promptController;
 
 		private ConfigManager configManager;
+		public ConfigManager ConfigManager() => configManager;
 
 		private GalleryManager galleryManager;
 
