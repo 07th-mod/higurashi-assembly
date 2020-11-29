@@ -427,9 +427,6 @@ Sets the script censorship level
 					GUILayout.Space(10);
 					OnGUIRestoreSettings();
 
-					Label("Save and Log Files");
-					ShowSupportButtons(content => Button(content));
-
 					Label("Resolution Settings");
 					{
 						GUILayout.BeginHorizontal();
@@ -477,6 +474,10 @@ Sets the script censorship level
 						}
 						GUILayout.EndHorizontal();
 					}
+
+					HeadingLabel("Troubleshooting");
+					Label("Save Files and Log Files");
+					ShowSupportButtons(content => Button(content));
 
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
@@ -673,6 +674,15 @@ Sets the script censorship level
 				{
 					MODActions.ShowSaveFolder();
 				}
+
+				if (buttonRenderer(new GUIContent("Show Compiled Scripts", "Sometimes out-of-date scripts can cause the game to fail to start up (stuck on black screen).\n\n" +
+					"You can manually clear the *.mg files (compiled scripts) in this folder to force the game to regenerate them the next time the game starts.\n\n" +
+					"Please be aware that the game will freeze for a couple minutes on a white screen, while scripts are being compiled.")))
+				{
+					Application.OpenURL(System.IO.Path.Combine(Application.streamingAssetsPath, "CompiledUpdateScripts"));
+				}
+
+
 				GUILayout.EndHorizontal();
 			}
 
