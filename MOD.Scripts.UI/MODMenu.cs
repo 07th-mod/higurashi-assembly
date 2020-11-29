@@ -110,10 +110,15 @@ LShift + N : Voice Volume MIN";
 
 Please send the developers your log file (output_log.txt or Player.log).
 
-If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).
+You can try the following yourself to fix the issue.
 
-Use the buttons under 'Save and Log files' on the bottom left to show your save and log files.
-If they do not not work, click the button below to open the support page";
+  1. Use the buttons under 'Troubleshooting' on the bottom left to show your save files, log files, and compiled scripts.
+
+  2. If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).
+
+  3. You can try to clear your compiled script files, then restart the game.
+
+  4. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
 
 		GUIContent[] defaultArtsetDescriptions = new GUIContent[] {
 			new GUIContent("Console", "Use the Console sprites and backgrounds"),
