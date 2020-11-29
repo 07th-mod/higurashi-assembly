@@ -21,6 +21,7 @@ namespace Assets.Scripts.Core
 		ChapterScreen,
 		ChapterJumpScreen,
 		ChapterPreview,
-		Movie
+		Movie,
+		MODDisableInput
 	}
 }
