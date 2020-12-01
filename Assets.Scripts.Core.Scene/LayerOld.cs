@@ -43,7 +43,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				meshRenderer = base.gameObject.AddComponent<MeshRenderer>();
 			}
-			mesh = MGHelper.CreateMesh(width, height, align);
+			mesh = MGHelper.CreateMesh(width, height, align,false, 0);
 			if (material != null)
 			{
 				if (!retainMainTexture)

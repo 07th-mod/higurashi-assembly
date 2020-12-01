@@ -175,6 +175,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
 		{
+			if (MODSkipImage(textureName))
+			{
+				return;
+			}
+
 			gameSystem.RegisterAction(delegate
 			{
 				Layer layer2 = GetLayer(layer);
@@ -346,6 +351,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBG(string texture, float wait, bool isblocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
 			Scene scene = GetActiveScene();
 			scene.BackgroundLayer.DrawLayer(texture, 0, 0, 0, null, 0f, /*isBustshot:*/ false, 0, wait, isblocking);
 		}
@@ -405,6 +415,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSceneWithMask(string backgroundfilename, string maskname, float time)
 		{
+			if (MODSkipImage(backgroundfilename))
+			{
+				return;
+			}
+
 			SwapActiveScenes();
 			Scene s = GetActiveScene();
 			s.UpdateRange(0f);
@@ -423,6 +438,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawScene(string backgroundfilename, float time)
 		{
+			if (MODSkipImage(backgroundfilename))
+			{
+				return;
+			}
+
 			SwapActiveScenes();
 			Scene s = GetActiveScene();
 			s.GetComponent<Camera>().enabled = false;
@@ -877,6 +897,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MODDrawBustshot(int layer, string textureName, Texture2D tex2d, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
 		{
+			if (MODSkipImage(textureName))
+			{
+				return;
+			}
+
 			Layer layer2 = GetLayer(layer);
 			while (layer2.FadingOut)
 			{
@@ -993,6 +1018,16 @@ namespace Assets.Scripts.Core.Scene
 		{
 			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile);
 			StartCoroutine(MODLipSyncCoroutine);
+		}
+
+		private bool MODSkipImage(string backgroundfilename)
+		{
+			if(Buriko.BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() == 1 && backgroundfilename.Contains("scene/"))
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
