@@ -2,6 +2,7 @@ using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.TextWindow;
+using MOD.Scripts.Core.State;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
@@ -49,6 +50,11 @@ namespace Assets.Scripts.UI
 		private GameSystem gameSystem;
 
 		private Vector3 unscaledPosition;
+
+		// While this timer is > 0, the current toast will be displayed (in seconds)
+		private MODStyleManager styleManager;
+		public MODMenu modMenu;
+		private MODToaster toaster;
 
 		public void UpdateGuiPosition(int x, int y)
 		{
@@ -146,6 +152,7 @@ namespace Assets.Scripts.UI
 				}
 				else
 				{
+					bool isRyukishiMode = BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1;
 					if (bgLayer == null)
 					{
 						bgLayer = LayerPool.ActivateLayer();
@@ -154,7 +161,7 @@ namespace Assets.Scripts.UI
 					bgLayer.SetPriority(62);
 					bgLayer.name = "Window Background";
 					bgLayer.IsStatic = true;
-					bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+					bgLayer.DrawLayer(isRyukishiMode ? "windo_filter_nvladv" : "windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
 				}
 			}
 		}
@@ -384,6 +391,20 @@ namespace Assets.Scripts.UI
 			{
 				gameSystem = GameSystem.Instance;
 			}
+
+			if (toaster != null)
+			{
+				toaster.Update();
+			}
+
+			if (modMenu != null)
+			{
+				modMenu.Update();
+			}
+
+			// Handle mod keyboard shortcuts
+			MODKeyboardShortcuts.ModInputHandler();
+
 			int num = 402;
 			int num2 = 402;
 			if (gameSystem.IsSkipping && !gameSystem.IsForceSkip)
@@ -425,55 +446,65 @@ namespace Assets.Scripts.UI
 			}
 		}
 
-		public void MODResetLayerBackground()
+		public void LateUpdate()
 		{
-			MODMainUIController mODMainUIController = new MODMainUIController();
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			if (modMenu != null)
 			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				mODMainUIController.NVLModeSettingStore();
-			}
-			else
-			{
-				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				mODMainUIController.ADVModeSettingStore();
+				modMenu.LateUpdate();
 			}
 		}
 
-		public void MODenableNVLModeINADVMode()
+		public void TryRedrawTextWindowBackground(string windowFilterTextureName)
 		{
-			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 1);
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			MainUIController ui = GameSystem.Instance.MainUIController;
+
+			// If this function is called from the main menu, the bgLayers might be null
+			if (ui.bgLayer == null)
 			{
-				MODMainUIController mODMainUIController = new MODMainUIController();
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_nvladv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				mODMainUIController.NVLADVModeSettingStore();
+				return;
 			}
+
+			ui.bgLayer.ReleaseTextures();
+			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 
-		public void MODdisableNVLModeINADVMode()
-		{
-			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 0);
-			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				MODMainUIController mODMainUIController = new MODMainUIController();
-				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				GameSystem.Instance.MainUIController.bgLayer.ReleaseTextures();
-				GameSystem.Instance.MainUIController.bgLayer.DrawLayer("windo_filter_adv", 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
-				mODMainUIController.ADVModeSettingStore();
-			}
-		}
-
+		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
+		// https://forum.unity.com/threads/gui-that-hidden-bastard.257383/
+		// https://answers.unity.com/questions/259870/performance-of-an-empty-ongui-fixedupdate.html
+		// Consider moving this to its own class, then disabling it if there is nothing to be drawn.
+		// NOTE: this function can be called before Update() if CTRL (skip) down during game startup
 		public void OnGUI()
 		{
+			if(BurikoSaveManager.lastSaveError != null)
+			{
+				MODMenu.EmergencyModMenu("Error loading save file! Please backup your saves, DISABLE STEAM SYNC, then delete the following save file:", BurikoSaveManager.lastSaveError);
+				return;
+			}
+
+			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
+			if(this.gameSystem == null)
+			{
+				return;
+			}
+
+			if(this.styleManager == null)
+			{
+				this.styleManager = new MODStyleManager();
+			}
+
+			if (this.toaster == null)
+			{
+				this.toaster = new MODToaster(this.styleManager);
+			}
+
+			if (this.modMenu == null)
+			{
+				this.modMenu = new MODMenu(this.gameSystem, this.styleManager);
+			}
+
+			modMenu.OnGUIFragment();
+			toaster.OnGUIFragment();
+
 			// Helper Functions for processing flags
 			string boolDesc(string flag, string name)
 			{
@@ -538,13 +569,12 @@ namespace Assets.Scripts.UI
 				string canSaveDesc = gameSystem.CanSave ? "" : "You can't save now\n";
 				string canInputDesc = gameSystem.CanInput ? "" : "Game avoid any input now\n";
 				var videoOpeningValue = BurikoMemory.Instance.GetGlobalFlag("GVideoOpening").IntValue();
-				var videoOpeningDescription = videoOpeningValue == 0 ? "Unset" : videoOpeningValue == 1 ? "Disabled" : videoOpeningValue == 2 ? "In-game" : videoOpeningValue == 3 ? "At launch + in-game" : "Unknown";
 				var artsetDescription = "Art = " + GameSystem.Instance.ChooseJapaneseEnglish(
 					japanese: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameJP,
 					english: Core.AssetManagement.AssetManager.Instance.CurrentArtset.nameEN
 				);
 				string textToDraw = string.Join("\n", new string[] {
-					"[MOD SETTINGS]",
+					"[MOD SETTINGS] (Press F10 to toggle)",
 					boolDesc("GADVMode",                             "ADV-MODE"),
 					boolDesc("GLipSync",                             "Lip-Sync"),
 					boolDesc("GAltBGM",                              "Alternative BGM"),
@@ -556,14 +586,14 @@ namespace Assets.Scripts.UI
 					intDesc ("GCensor",       "GCensorMaxNum",       "Voice Matching Level"),
 					intDesc ("GEffectExtend", "GEffectExtendMaxNum", "Effect Level"),
 					"Voice Volume = " + BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue().ToString(),
-					$"OP Movies = {videoOpeningDescription} ({videoOpeningValue})",
+					$"OP Movies = {MODActions.VideoOpeningDescription(videoOpeningValue)} ({videoOpeningValue})",
 					artsetDescription,
 					"\n[Restore Game Settings]",
 					settingLoaderDesc,
 					"\n[Status]",
 					hotkeyDesc + nvlAdvDesc + canSaveDesc + canInputDesc
 				});
-				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
@@ -582,24 +612,24 @@ namespace Assets.Scripts.UI
 					"\n[MOD Hotkey]",
 					"F1 : ADV-NVL MODE",
 					"F2 : Voice Matching Level",
-					"F3 : Effect Level",
+					"F3 : Effect Level (Not Used)",
 					"F5 : QuickSave",
 					"F7 : QuickLoad",
 					"F10 : Setting Monitor",
 					"M : Increase Voice Volume",
 					"N : Decrease Voice Volume",
-					"1 : Alternative BGM",
-					"2 : Alternative BGM Flow",
-					"3 : Alternative SE",
-					"4 : Alternative SE Flow",
-					"5 : Alternative Voice",
-					"6 : Alternative Voice Priority",
+					"1 : Alternative BGM (Not Used)",
+					"2 : Alternative BGM Flow (Not Used)",
+					"3 : Alternative SE (Not Used)",
+					"4 : Alternative SE Flow (Not Used)",
+					"5 : Alternative Voice (Not Used)",
+					"6 : Alternative Voice Priority (Not Used)",
 					"7 : Lip-Sync",
 					"LShift + F9 : Restore Settings",
 					"LShift + M : Voice Volume MAX",
 					"LShift + N : Voice Volume MIN"
 				});
-				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 3)
 			{
@@ -648,7 +678,7 @@ namespace Assets.Scripts.UI
 					"CanInput = " + (gameSystem.CanInput ? "true" : "false"),
 					"CanSave = " + (gameSystem.CanSave ? "true" : "false"),
 				});
-				GUI.TextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(0f, 0f, 320f, 1080f), textToDraw);
 			}
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() >= 4)
 			{
@@ -706,13 +736,24 @@ namespace Assets.Scripts.UI
 					.Select(flag => flag + " = " + (getOptionalLocalFlag(flag)?.IntValue().ToString() ?? "disable"))
 					.ToArray()
 				);
-				GUI.TextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw, 900);
+				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}
+
 		}
 
-		public void MODDebugFontSizeChanger()
+		void OnApplicationQuit()
 		{
-			new MODMainUIController().DebugFontChangerSettingStore();
+			this.modMenu.Hide();
 		}
+
+		/// <summary>
+		/// This looks the same as a TextArea, but you can't click on it
+		/// WARNING: Only call this function from OnGUI()
+		/// </summary>
+		private static void GUIUnclickableTextArea(Rect rect, string text)
+		{
+			GUI.Label(rect, text, GUI.skin.textArea);
+		}
+
 	}
 }

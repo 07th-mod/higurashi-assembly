@@ -157,6 +157,7 @@ namespace Assets.Scripts.Core
 		private PromptController promptController;
 
 		private ConfigManager configManager;
+		public ConfigManager ConfigManager() => configManager;
 
 		private GalleryManager galleryManager;
 
@@ -181,6 +182,10 @@ namespace Assets.Scripts.Core
 		public float AspectRatio;
 
 		private Thread CompileThread;
+		// Set to True to ignore normal gameplay inputs:
+		// - Disables normal inputs (e.g to advance text) in main GameSystem loop
+		// - Disables some GUI inputs by manually added checks in each button type
+		public bool MODIgnoreInputs;
 
 		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
 		// so use private ones with public accessors
@@ -933,7 +938,7 @@ namespace Assets.Scripts.Core
 			Logger.Update();
 			if (blockInputTime <= 0f)
 			{
-				if ((CanInput || GameState != GameState.Normal) && (inputHandler == null || !inputHandler()))
+				if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs || inputHandler == null || !inputHandler()))
 				{
 					return;
 				}
