@@ -15,6 +15,7 @@ namespace MOD.Scripts.Core.Scene
 		public struct Filter
 		{
 			public static readonly Filter Identity = new Filter(256, 0, 0, 0, 256, 0, 0, 0, 256, 256);
+			public static readonly Filter Grayscale = new Filter(55, 185, 18, 55, 185, 18, 55, 185, 18, 256);
 			public static readonly Filter Flashback = new Filter(117, 127, 39, 58, 171, 20, 69, 107, 40, 256); // 77 47 4 preserving luminosity
 			public static readonly Filter Night = new Filter(222, 0, 0, 0, 222, 0, 0, 0, 256, 256);
 			public static readonly Filter Sunset = new Filter(250, 0, 0, 0, 210, 0, 0, 0, 180, 256);
@@ -203,8 +204,13 @@ namespace MOD.Scripts.Core.Scene
 
 		public static Texture2D LoadTextureWithFilters(int? layer, string textureName)
 		{
+			return LoadTextureWithFilters(layer, textureName, out _);
+		}
+
+		public static Texture2D LoadTextureWithFilters(int? layer, string textureName, out string texturePath)
+		{
 			var watch = System.Diagnostics.Stopwatch.StartNew();
-			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName);
+			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName, out texturePath);
 			watch.Stop();
 			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms");
 			if (layer is int actualLayer) { ApplyFilters(actualLayer, texture); }

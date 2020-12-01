@@ -86,6 +86,11 @@ namespace Assets.Scripts.Core.Scene
 
 		private int? layerID; // The layer number in the scene controller, if it has one
 
+		private bool cachedIsBustShot;
+		private bool cachedStretchToFit;
+		private bool cachedRyukishiClamp;
+		private int cachedFinalXOffset;
+
 		public int? LayerID
 		{
 			get => layerID;
@@ -323,27 +328,45 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
 		{
-			if (mesh == null || !Mathf.Approximately((float)width / height, aspectRatio) || this.alignment != alignment || this.origin != origin)
+			bool ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1 && (texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));
+			bool stretchToFit = false;
+			if (texturePath != null)
 			{
+				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+			}
+
+			if (mesh == null ||
+				!Mathf.Approximately((float)width / height, aspectRatio) ||
+				this.alignment != alignment ||
+				this.origin != origin ||
+				cachedRyukishiClamp != ryukishiClamp ||
+				cachedFinalXOffset != finalXOffset ||
+				cachedStretchToFit != stretchToFit)
+			{
+				cachedFinalXOffset = finalXOffset;
+				cachedRyukishiClamp = ryukishiClamp;
+
 				if (origin is Vector2 nonnullOrigin)
 				{
-					CreateMesh(width, height, nonnullOrigin);
+					CreateMesh(width, height, nonnullOrigin, ryukishiClamp, finalXOffset, stretchToFit);
 				}
 				else
 				{
-					CreateMesh(width, height, alignment);
+					CreateMesh(width, height, alignment, ryukishiClamp, finalXOffset, stretchToFit);
 				}
 			}
 			this.origin = origin;
 			this.alignment = alignment;
 			this.aspectRatio = (float)width / height;
+			cachedStretchToFit = stretchToFit;
 		}
 
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
 		{
-			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
+			cachedIsBustShot = isBustshot;
+			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
 			Texture2D maskTexture = AssetManager.Instance.LoadTexture(maskName);
 			material.shader = shaderMasked;
 			SetPrimaryTexture(texture2D);
@@ -358,7 +381,10 @@ namespace Assets.Scripts.Core.Scene
 			EnsureCorrectlySizedMesh(
 				width: texture2D.width, height: texture2D.height,
 				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
-				origin: origin
+				origin: origin,
+				isBustShot: isBustshot,
+				finalXOffset: x,
+				texturePath: texturePath
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
@@ -398,6 +424,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
 		{
+			cachedIsBustShot = isBustshot;
 			FinishAll();
 			if (textureName == string.Empty)
 			{
@@ -405,7 +432,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + textureName);
@@ -430,7 +457,10 @@ namespace Assets.Scripts.Core.Scene
 					EnsureCorrectlySizedMesh(
 						width: texture2D.width, height: texture2D.height,
 						alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
-						origin: origin
+						origin: origin,
+						isBustShot: isBustshot,
+						finalXOffset: x,
+						texturePath: texturePath
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
 					if (primary != null)
@@ -648,7 +678,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, PrimaryName);
+				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, PrimaryName, out string texturePath);
 				if (texture2D == null)
 				{
 					Logger.LogError("Failed to load texture " + PrimaryName);
@@ -656,7 +686,15 @@ namespace Assets.Scripts.Core.Scene
 				else
 				{
 					SetPrimaryTexture(texture2D);
-					EnsureCorrectlySizedMesh(texture2D.width, texture2D.height, alignment, origin);
+					EnsureCorrectlySizedMesh(
+						texture2D.width,
+						texture2D.height,
+						alignment,
+						origin,
+						isBustShot: cachedIsBustShot,
+						finalXOffset: (int) base.transform.localPosition.x,
+						texturePath: texturePath
+					);
 				}
 			}
 		}
@@ -706,21 +744,31 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void CreateMesh(int width, int height, Vector2 origin)
+		// The below two CreateMesh functions clamp the image height to 480 
+		// (the height of the screen in vertex coords) while maintaining the aspect ratio. 
+		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			int num2 = num / height;
 			int width2 = Mathf.RoundToInt((float)Mathf.Clamp(width, 1, num2 * width));
-			mesh = MGHelper.CreateMeshWithOrigin(width2, num, origin);
+			if(stretchToFit)
+			{
+				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
+			}
+			mesh = MGHelper.CreateMeshWithOrigin(width2, num, origin, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
 		}
 
-		private void CreateMesh(int width, int height, LayerAlignment alignment)
+		private void CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			float num2 = (float)num / (float)height;
 			int width2 = Mathf.RoundToInt(Mathf.Clamp((float)width, 1f, num2 * (float)width));
-			mesh = MGHelper.CreateMesh(width2, num, alignment);
+			if (stretchToFit)
+			{
+				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
+			}
+			mesh = MGHelper.CreateMesh(width2, num, alignment, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
 		}
 
@@ -770,6 +818,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MODDrawLayer(string textureName, Texture2D tex2d, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
 		{
+			cachedIsBustShot = isBustshot;
 			FinishAll();
 			if (textureName == string.Empty)
 			{
@@ -799,7 +848,10 @@ namespace Assets.Scripts.Core.Scene
 				EnsureCorrectlySizedMesh(
 					width: tex2d.width, height: tex2d.height,
 					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
-					origin: origin
+					origin: origin,
+					isBustShot: isBustshot,
+					finalXOffset: x,
+					texturePath: null
 				);
 				if (primary != null)
 				{

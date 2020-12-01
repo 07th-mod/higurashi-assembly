@@ -28,7 +28,40 @@ namespace Assets.Scripts.Core
 
 		private static bool typeCheck;
 
-		public static Mesh CreateMeshWithOrigin(int width, int height, Vector2 origin)
+		public static void ClampValuesIfNecessary(Vector3[] vertices, Vector2[] uv, bool ryukishiClamp, int finalXOffset)
+		{
+			float scaleFromOrigin(float value, float scale)
+			{
+				return ((value - .5f) * scale) + .5f;
+			}
+
+			Vector2 scaleVector2FromOrigin(Vector2 vec, float xScale, float yScale)
+			{
+				return new Vector2(scaleFromOrigin(vec.x, xScale), scaleFromOrigin(vec.y, yScale));
+			}
+
+
+			if (ryukishiClamp)
+			{
+				// Ryukishi is nominally has x limited to [-320, 320]
+				// but since the x transform happens afterwards, we need to adjust for that
+				float minX = -320 - finalXOffset;
+				float maxX = 320 - finalXOffset;
+
+				for (int i = 0; i < 4; i++)
+				{
+					// Clamp the x of each vertex
+					float newX = Mathf.Clamp(vertices[i].x, minX, maxX);
+					float ratio = newX / vertices[i].x;
+					vertices[i].x = newX;
+
+					// Adjust UV X coordinates proportionally by how much we adjusted each vector
+					uv[i].x = scaleFromOrigin(uv[i].x, ratio);
+				}
+			}
+		}
+
+		public static Mesh CreateMeshWithOrigin(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset)
 		{
 			Mesh mesh = new Mesh();
 			float num = Mathf.Round((float)width / 2f);
@@ -41,11 +74,14 @@ namespace Assets.Scripts.Core
 			Vector3 vector4 = new Vector3(0f - num - origin.x, 0f - num2 + origin.y, 0f);
 			Vector3[] vertices = new Vector3[4]
 			{
-				vector2,
-				vector3,
-				vector,
-				vector4
+				// I'm not sure which one is actually top/bottom left/right, 
+				// as it depends on where the camera is, and unity's coordinate system.
+				vector2, // 426,  240
+				vector3, // 426, -240
+				vector,  //-426,  240
+				vector4  //-426, -240
 			};
+
 			Vector2[] uv = new Vector2[4]
 			{
 				new Vector2(1f, 1f),
@@ -53,6 +89,9 @@ namespace Assets.Scripts.Core
 				new Vector2(0f, 1f),
 				new Vector2(0f, 0f)
 			};
+
+			ClampValuesIfNecessary(vertices, uv, ryukishiClamp, finalXOffset);
+
 			int[] triangles = new int[6]
 			{
 				0,
@@ -70,7 +109,7 @@ namespace Assets.Scripts.Core
 			return mesh;
 		}
 
-		public static Mesh CreateMesh(int width, int height, LayerAlignment alignment)
+		public static Mesh CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset)
 		{
 			Mesh mesh = new Mesh();
 			float num = Mathf.Round((float)width / 2f);
@@ -117,6 +156,9 @@ namespace Assets.Scripts.Core
 				new Vector2(0f, 1f),
 				new Vector2(0f, 0f)
 			};
+
+			ClampValuesIfNecessary(vertices, uv, ryukishiClamp, finalXOffset);
+
 			int[] triangles = new int[6]
 			{
 				0,

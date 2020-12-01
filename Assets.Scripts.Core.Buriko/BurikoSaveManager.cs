@@ -8,10 +8,12 @@ namespace Assets.Scripts.Core.Buriko
 	public class BurikoSaveManager
 	{
 		private readonly Dictionary<int, SaveEntry> saveList;
+		public static string lastSaveError;
 
 		public BurikoSaveManager()
 		{
 			saveList = new Dictionary<int, SaveEntry>();
+			lastSaveError = null;
 			for (int i = 0; i < 100; i++)
 			{
 				string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", i.ToString("D3")));
@@ -97,7 +99,8 @@ namespace Assets.Scripts.Core.Buriko
 				}
 				catch (Exception ex)
 				{
-					Logger.LogWarning("Could not read from save file " + path + "\nException: " + ex);
+					lastSaveError = "Could not read from save file " + path + "\nException: " + ex;
+					Logger.LogWarning(lastSaveError);
 					throw;
 					IL_013f:;
 				}

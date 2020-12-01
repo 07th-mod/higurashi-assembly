@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using Assets.Scripts.Core.Buriko;
 using UnityEngine;
 
@@ -8,6 +10,13 @@ using UnityEngine;
 /// </summary>
 public static class MODUtility
 {
+	public enum Platform
+	{
+		Windows,
+		MacOS,
+		Linux
+	}
+
 	/// <summary>
 	/// Merges another dictionary into self, overwriting any duplicate keys
 	/// </summary>
@@ -42,6 +51,59 @@ public static class MODUtility
 			{
 				Debug.Log("Not attempting Retina, no library");
 			}
+		}
+	}
+
+	public static string CombinePaths(params string[] paths)
+	{
+		return paths.Aggregate((lhs, rhs) => System.IO.Path.Combine(lhs, rhs));
+	}
+
+	/// <returns>True if is 2000 series unity, False if is old unity versioning (5.x, 4.x etc)</returns>
+	public static bool IsUnity2000()
+	{
+		if (GetUnityVersionMajor() is int version)
+		{
+			return version > 2000;
+		}
+
+		return false;
+	}
+
+	/// <summary>
+	/// Gets the major part of the unity version, eg 2018, 2017, 5, 4, 3, as an integer
+	/// </summary>
+	/// <returns>Returns the major unity version as an int - returns null if version can't be determined</returns>
+	public static int? GetUnityVersionMajor()
+	{
+		string[] versions = Application.unityVersion.Split('.');
+		if (versions.Length > 0 && int.TryParse(versions[0], out int version))
+		{
+			return version;
+		}
+
+		return null;
+	}
+
+	public static Platform GetPlatform()
+	{
+		switch (Application.platform)
+		{
+			case RuntimePlatform.OSXEditor:
+			case RuntimePlatform.OSXPlayer:
+			case RuntimePlatform.IPhonePlayer:
+				return Platform.MacOS;
+
+			case RuntimePlatform.WindowsPlayer:
+			case RuntimePlatform.WindowsEditor:
+				return Platform.Windows;
+
+			case RuntimePlatform.LinuxPlayer:
+				return Platform.Linux;
+
+			// All other platforms are not possible for Higurashi, just assume windows
+			default:
+				return Platform.Windows;
 		}
 	}
 }
