@@ -84,6 +84,74 @@ namespace MOD.Scripts.UI
 
 		private static int NVLADVModeFontID;
 
+		// Ryukishi Mode Settings, with default values
+		private static string RyukishiModeNameFormat = "";
+		private static int RyukishiModeWindowPosX = 0;
+		private static int RyukishiModeWindowPosY = 10;
+		private static int RyukishiModeWindowSizeX = 1024;
+		private static int RyukishiModeWindowSizeY = 768;
+		private static int RyukishiModeWindowMarginLeft = 60;
+		private static int RyukishiModeWindowMarginTop = 30;
+		private static int RyukishiModeWindowMarginRight = 50;
+		private static int RyukishiModeWindowMarginBottom = 30;
+		private static int RyukishiModeFontID = 1;
+		private static int RyukishiModeCharSpacing = 0;
+		private static int RyukishiModeLineSpacing = 8;
+		private static int RyukishiModeFontSize = 34;
+
+		// Wide Mode/Ryukishi Mode Window Settings, with default values
+		private static int WideModeGuiPosX = 0;
+		private static int WideModeGuiPosY = 0;
+		private static int RyukishiModeGuiPosX = 0;
+		private static int RyukishiModeGuiPosY = 0;
+
+		private void StoreRyukishiModeIfFlagSet()
+		{
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2); // Set NVL Line Mode
+				RyukishiModeSettingStore();
+			}
+		}
+
+		private void StoreRyukishiGuiPositionIfFlagSet()
+		{
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				RyukishiModeSettingStore();
+			}
+		}
+
+		public void WideGuiPositionLoad(int posx, int posy)
+		{
+			WideModeGuiPosX = posx;
+			WideModeGuiPosY = posy;
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 1)
+			{
+				WideGuiPositionStore();
+			}
+
+			// This ensures scripts without a "ModRyukishiSetGuiPosition" will still initialize using the default values. Can be moved elsewhere (must be before reaching normal gameplay)
+			StoreRyukishiGuiPositionIfFlagSet();
+		}
+
+		public void RyukishiGuiPositionLoad(int posx, int posy)
+		{
+			RyukishiModeGuiPosX = posx;
+			RyukishiModeGuiPosY = posy;
+			StoreRyukishiGuiPositionIfFlagSet();
+		}
+
+		public void WideGuiPositionStore()
+		{
+			GameSystem.Instance.MainUIController.UpdateGuiPosition(WideModeGuiPosX, WideModeGuiPosY);
+		}
+
+		public void RyukishiGuiPositionStore()
+		{
+			GameSystem.Instance.MainUIController.UpdateGuiPosition(RyukishiModeGuiPosX, RyukishiModeGuiPosY);
+		}
+
 		public void ADVModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
 		{
 			ADVModeNameFormat = name;
@@ -126,6 +194,9 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				NVLModeSettingStore();
 			}
+
+			// This ensures scripts without a "ModRyukishiModeSettingLoad" will still initialize using the default values. Can be moved elsewhere (must be before reaching normal gameplay)
+			StoreRyukishiModeIfFlagSet();
 		}
 
 		public void NVLADVModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
@@ -143,6 +214,25 @@ namespace MOD.Scripts.UI
 			NVLADVModeCharSpacing = cspace;
 			NVLADVModeLineSpacing = lspace;
 			NVLADVModeFontSize = fsize;
+		}
+
+		public void RyukishiModeSettingLoad(string name, int posx, int posy, int sizex, int sizey, int mleft, int mtop, int mright, int mbottom, int font, int cspace, int lspace, int fsize)
+		{
+			RyukishiModeNameFormat = name;
+			RyukishiModeWindowPosX = posx;
+			RyukishiModeWindowPosY = posy;
+			RyukishiModeWindowSizeX = sizex;
+			RyukishiModeWindowSizeY = sizey;
+			RyukishiModeWindowMarginLeft = mleft;
+			RyukishiModeWindowMarginTop = mtop;
+			RyukishiModeWindowMarginRight = mright;
+			RyukishiModeWindowMarginBottom = mbottom;
+			RyukishiModeFontID = font;
+			RyukishiModeCharSpacing = cspace;
+			RyukishiModeLineSpacing = lspace;
+			RyukishiModeFontSize = fsize;
+
+			StoreRyukishiModeIfFlagSet();
 		}
 
 		public void ADVModeSettingStore()
@@ -218,6 +308,31 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.MainUIController.SetCharSpacing(nVLADVModeCharSpacing);
 			GameSystem.Instance.MainUIController.SetLineSpacing(nVLADVModeLineSpacing);
 			GameSystem.Instance.MainUIController.SetFontSize(nVLADVModeFontSize);
+		}
+
+		public void RyukishiModeSettingStore()
+		{
+			string ryukishiModeNameFormat = RyukishiModeNameFormat;
+			int ryukishiModeWindowPosX = RyukishiModeWindowPosX;
+			int ryukishiModeWindowPosY = RyukishiModeWindowPosY;
+			int ryukishiModeWindowSizeX = RyukishiModeWindowSizeX;
+			int ryukishiModeWindowSizeY = RyukishiModeWindowSizeY;
+			int ryukishiModeWindowMarginLeft = RyukishiModeWindowMarginLeft;
+			int ryukishiModeWindowMarginTop = RyukishiModeWindowMarginTop;
+			int ryukishiModeWindowMarginRight = RyukishiModeWindowMarginRight;
+			int ryukishiModeWindowMarginBottom = RyukishiModeWindowMarginBottom;
+			int ryukishiModeFontID = RyukishiModeFontID;
+			int ryukishiModeCharSpacing = RyukishiModeCharSpacing;
+			int ryukishiModeLineSpacing = RyukishiModeLineSpacing;
+			int ryukishiModeFontSize = RyukishiModeFontSize;
+			GameSystem.Instance.TextController.NameFormat = ryukishiModeNameFormat;
+			GameSystem.Instance.MainUIController.SetWindowPos(ryukishiModeWindowPosX, ryukishiModeWindowPosY);
+			GameSystem.Instance.MainUIController.SetWindowSize(ryukishiModeWindowSizeX, ryukishiModeWindowSizeY);
+			GameSystem.Instance.MainUIController.SetWindowMargins(ryukishiModeWindowMarginLeft, ryukishiModeWindowMarginTop, ryukishiModeWindowMarginRight, ryukishiModeWindowMarginBottom);
+			GameSystem.Instance.MainUIController.ChangeFontId(ryukishiModeFontID);
+			GameSystem.Instance.MainUIController.SetCharSpacing(ryukishiModeCharSpacing);
+			GameSystem.Instance.MainUIController.SetLineSpacing(ryukishiModeLineSpacing);
+			GameSystem.Instance.MainUIController.SetFontSize(ryukishiModeFontSize);
 		}
 
 		public void DebugFontChangerSettingStore()
