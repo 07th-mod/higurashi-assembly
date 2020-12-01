@@ -19,6 +19,8 @@ namespace Assets.Scripts.UI.Config
 
 		private UIPanel panel;
 
+		public float PanelAlpha() => panel.alpha;
+
 		private IEnumerator LeaveScreen(ConfigManager.LeaveConfigDelegate callback)
 		{
 			this.panel = this.Panel.GetComponent<UIPanel>();
