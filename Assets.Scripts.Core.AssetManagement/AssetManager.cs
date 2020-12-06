@@ -197,6 +197,26 @@ namespace Assets.Scripts.Core.AssetManagement
 					}
 				}
 			}
+
+			// If we want to use the game just to compile scripts in an automated manner, we need
+			// some way to terminate the game after scripts are compiled.
+			// The below code will terminate the game after scripts are compiled if "quitaftercompile"
+			// is passed as a command-line argument to the game
+			// The code will also try to write a higu_script_compile_status.txt as proof that
+			// the scripts really did compile OK
+			if (Environment.GetCommandLineArgs().Contains("quitaftercompile"))
+			{
+				GameSystem.Instance.CanExit = true;
+				try
+				{
+					System.IO.File.WriteAllText("higu_script_compile_status.txt", "Compile OK");
+				}
+				catch
+				{
+
+				}
+				Application.Quit();
+			}
 		}
 
 		private string GetArchiveNameByAudioType(Assets.Scripts.Core.Audio.AudioType audioType)
