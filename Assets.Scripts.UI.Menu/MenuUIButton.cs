@@ -15,11 +15,17 @@ namespace Assets.Scripts.UI.Menu
 
 		private GameSystem gameSystem;
 
+		private UIButton button;
+
 		private void OnClick()
 		{
 			if (gameSystem == null)
 			{
 				gameSystem = GameSystem.Instance;
+			}
+			if(gameSystem.MODIgnoreInputs)
+			{
+				return;
 			}
 			if (gameSystem.GameState == GameState.RightClickMenu && !(time > 0f) && UICamera.currentTouchID == -1 && isEnabled)
 			{
@@ -91,6 +97,16 @@ namespace Assets.Scripts.UI.Menu
 		private void Update()
 		{
 			time -= Time.deltaTime;
+		}
+
+		private void Awake()
+		{
+			button = GetComponent<UIButton>();
+		}
+
+		private void LateUpdate()
+		{
+			button.isEnabled = !GameSystem.Instance.MODIgnoreInputs;
 		}
 	}
 }

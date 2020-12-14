@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
 {
+
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find a cg
 	/// </summary>
@@ -23,6 +25,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			this.paths = paths;
 		}
 	}
+
 	public class AssetManager {
 		private static AssetManager _instance;
 
@@ -33,6 +36,8 @@ namespace Assets.Scripts.Core.AssetManagement
 		public bool ShouldSerializeArtsets = false;
 
 		private Texture2D windowTexture;
+		private string windowTexturePath = string.Empty;
+		private Texture2D dummyTexture;
 
 		private string assetPath = Application.streamingAssetsPath;
 
@@ -82,9 +87,27 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// <returns>A path to an on-disk asset or null</returns>
 		public string PathToAssetWithName(string name, PathCascadeList artset)
 		{
-			foreach (var path in artset.paths)
+			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
+
+			// If force og backgrounds is enabled, always check OGBackgrounds first.
+			if (backgroundSetIndex == 2)
 			{
-				string filePath = Path.Combine(Path.Combine(assetPath, path), name);
+				string filePath = Path.Combine(Path.Combine(assetPath, "OGBackgrounds"), name);
+				if (File.Exists(filePath))
+				{
+					return filePath;
+				}
+			}
+
+			foreach (var artSetPath in artset.paths)
+			{
+				// If force console backgrounds is enabled, don't check OGBackgrounds
+				if (backgroundSetIndex == 1 && artSetPath == "OGBackgrounds")
+				{
+					continue;
+				}
+
+				string filePath = Path.Combine(Path.Combine(assetPath, artSetPath), name);
 				if (File.Exists(filePath))
 				{
 					return filePath;
@@ -174,6 +197,26 @@ namespace Assets.Scripts.Core.AssetManagement
 					}
 				}
 			}
+
+			// If we want to use the game just to compile scripts in an automated manner, we need
+			// some way to terminate the game after scripts are compiled.
+			// The below code will terminate the game after scripts are compiled if "quitaftercompile"
+			// is passed as a command-line argument to the game
+			// The code will also try to write a higu_script_compile_status.txt as proof that
+			// the scripts really did compile OK
+			if (Environment.GetCommandLineArgs().Contains("quitaftercompile"))
+			{
+				GameSystem.Instance.CanExit = true;
+				try
+				{
+					System.IO.File.WriteAllText("higu_script_compile_status.txt", "Compile OK");
+				}
+				catch
+				{
+
+				}
+				Application.Quit();
+			}
 		}
 
 		private string GetArchiveNameByAudioType(Assets.Scripts.Core.Audio.AudioType audioType)
@@ -239,20 +282,41 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadTexture(string textureName)
 		{
+			return LoadTexture(textureName, out _);
+		}
+
+		public Texture2D LoadTexture(string textureName, out string texturePath)
+		{
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
+				texturePath = windowTexturePath;
 				return windowTexture;
 			}
 			string path = null;
-			if (!GameSystem.Instance.UseEnglishText)
+
+			// Load path from current artset
+			if (path == null && !GameSystem.Instance.UseEnglishText)
 			{
 				path = PathToAssetWithName(textureName.ToLower() + "_j.png", CurrentArtset);
 			}
-			path = path ?? PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
+
+			if (path == null)
+			{
+				path = PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
+			}
+
 			if (path == null)
 			{
 				Logger.LogWarning("Could not find texture asset " + textureName.ToLower() + " in " + CurrentArtset.nameEN);
-				return null;
+				// When returning null here, most functions won't crash, but this call chain does crash:
+				// OperationDrawSpriteWithFiltering() -> DrawSpriteWithFiltering() -> DrawLayerWithMask()
+				// Returning a dummy texture instead of null prevents these crashes
+				if (dummyTexture == null)
+				{
+					dummyTexture = new Texture2D(0, 0, TextureFormat.ARGB32, mipmap: true);
+				}
+				texturePath = "dummy_texture";
+				return dummyTexture;
 			}
 			byte[] array = File.ReadAllBytes(path);
 			if (array == null || array.Length == 0)
@@ -273,7 +337,9 @@ namespace Assets.Scripts.Core.AssetManagement
 			if (textureName == "windo_filter")
 			{
 				windowTexture = texture2D;
+				windowTexturePath = path;
 			}
+			texturePath = path;
 			return texture2D;
 		}
 

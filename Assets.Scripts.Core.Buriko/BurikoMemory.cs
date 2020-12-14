@@ -104,6 +104,11 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GLipSync", 522);
 			variableReference.Add("GVideoOpening", 523);
 			variableReference.Add("GChoiceMode", 524);
+			variableReference.Add("GHideCG", 525);
+			variableReference.Add("GRyukishiMode", 526);
+			variableReference.Add("GStretchBackgrounds", 527);
+			variableReference.Add("GBackgroundSet", 528);
+
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
@@ -261,7 +266,11 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				throw new Exception("Unable to get flag with the name " + flagname + ", flag not found.");
 			}
-			return new BurikoVariable(flags[value]);
+			if (!flags.TryGetValue(value, out int flag))
+			{
+				throw new Exception("Unable to get flag with the name " + flagname + ", flag not yet set.");
+			}
+			return new BurikoVariable(flag);
 		}
 
 		private BurikoVariable GetGlobalFlag(int key)
