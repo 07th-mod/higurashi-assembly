@@ -59,7 +59,6 @@ namespace MOD.Scripts.UI
 	public class MODMenu
 	{
 		private readonly MODStyleManager styleManager;
-		private readonly MODRadio radioADVNVLOriginal;
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
 		private readonly MODRadio radioOpenings;
@@ -124,7 +123,7 @@ You can try the following yourself to fix the issue.
 			new GUIContent("Console", "Use the Console sprites and backgrounds"),
 			new GUIContent("Remake", "Use Mangagamer's remake sprites with Console backgrounds"),
 			new GUIContent("Original/Remake", "Use Original/Ryukishi sprites and backgrounds\n" +
-			"Warning: Most users should just enable Original/Ryukishi mode at the top of this menu!"),
+			"Warning: Most users should use the Original/Ryukishi preset at the top of this menu!"),
 		};
 
 		public MODMenu(GameSystem gameSystem, MODStyleManager styleManager)
@@ -137,23 +136,6 @@ You can try the following yourself to fix the issue.
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
 			this.screenHeightString = String.Empty;
-
-			this.radioADVNVLOriginal = new MODRadio("Set ADV/NVL/Original Mode", new GUIContent[]
-			{
-				new GUIContent("ADV", "This preset:\n" +
-				"- Makes text show at the bottom of the screen in a textbox\n" +
-				"- Shows the name of the current character on the textbox\n" +
-				"- Uses the console sprites and backgrounds\n" +
-				"- Displays in 16:9 widescreen\n\n"),
-				new GUIContent("NVL", "This preset:\n" +
-				"- Makes text show across the whole screen\n" +
-				"- Uses the console sprites and backgrounds\n" +
-				"- Displays in 16:9 widescreen\n\n"),
-				new GUIContent("Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
-				"- Displays in 4:3 'standard' aspect\n" +
-				"- CGs are disabled\n" +
-				"- Switches to original sprites and backgrounds\n\n")
-			}, styleManager);
 
 			string baseCensorshipDescription = @"
 
@@ -221,22 +203,6 @@ Sets the script censorship level
 			if (Input.GetMouseButtonDown(1))
 			{
 				this.Hide();
-			}
-		}
-
-		private int GetModeFromFlags()
-		{
-			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
-			{
-				return 2;
-			}
-			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				return 0;
-			}
-			else
-			{
-				return 1;
 			}
 		}
 
@@ -356,24 +322,38 @@ Sets the script censorship level
 
 					HeadingLabel("Basic Options");
 
-					if (this.radioADVNVLOriginal.OnGUIFragment(this.GetModeFromFlags()) is int newMode)
+					Label("Graphics Presets");
 					{
-						if (newMode == 0)
+						GUILayout.BeginHorizontal();
+
+						int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
+
+						if (this.Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
+						"- Makes text show at the bottom of the screen in a textbox\n" +
+						"- Shows the name of the current character on the textbox\n" +
+						"- Uses the console sprites and backgrounds\n" +
+						"- Displays in 16:9 widescreen\n\n"), selected: advNVLRyukishiMode == 0))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 						}
-						else if (newMode == 1)
+
+						if (this.Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
+							"- Makes text show across the whole screen\n" +
+							"- Uses the console sprites and backgrounds\n" +
+							"- Displays in 16:9 widescreen\n\n"), selected: advNVLRyukishiMode == 1))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
 						}
-						else if (newMode == 2)
+
+						if (this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+							"- Displays in 4:3 'standard' aspect\n" +
+							"- CGs are disabled\n" +
+							"- Switches to original sprites and backgrounds\n\n"), selected: advNVLRyukishiMode == 2))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
 						}
-						else
-						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
-						}
+
+						GUILayout.EndHorizontal();
 					}
 
 					if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
@@ -589,9 +569,9 @@ Sets the script censorship level
 			}
 		}
 
-		private bool Button(GUIContent guiContent)
+		private bool Button(GUIContent guiContent, bool selected=false)
 		{
-			if(GUILayout.Button(guiContent, styleManager.Group.button))
+			if(GUILayout.Button(guiContent, selected ? styleManager.Group.selectedButton : styleManager.Group.button))
 			{
 				anyButtonPressed = true;
 				return true;

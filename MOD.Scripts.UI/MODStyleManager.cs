@@ -14,6 +14,7 @@ namespace MOD.Scripts.UI
 			public GUIStyle modMenuSelectionGrid;   // Used for SelectionGrid widgets
 			public GUIStyle errorLabel;
 			public GUIStyle button;
+			public GUIStyle selectedButton;
 			public GUIStyle label;             //Used for normal Label widgets
 			public GUIStyle headingLabel;
 		}
@@ -131,6 +132,11 @@ namespace MOD.Scripts.UI
 			GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
 			buttonStyle.fontSize = Mathf.RoundToInt(guiScale * baseFontSize);
 
+			// Selected button style (to show if a the option a button represents is activated)
+			GUIStyle selectedButtonStyle = new GUIStyle(buttonStyle);
+			selectedButtonStyle.normal.textColor = Color.green;
+			selectedButtonStyle.hover.textColor = Color.green;
+
 			// Label style
 			GUIStyle labelStyle = new GUIStyle(GUI.skin.label)
 			{
@@ -168,6 +174,7 @@ namespace MOD.Scripts.UI
 				modMenuSelectionGrid = modMenuSelectionGrid,
 				errorLabel = errorLabelStyle,
 				button = buttonStyle,
+				selectedButton = selectedButtonStyle,
 				label = labelStyle,
 				headingLabel = headingLabelStyle,
 			};
