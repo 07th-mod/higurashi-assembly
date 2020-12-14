@@ -73,6 +73,8 @@ namespace MOD.Scripts.UI
 		/// <param name="showInfoToast">If True, always shows a toast indicting the NVL/ADV status.
 		/// If False, will only show toast if there is a warning (like you are in a nvl_in_adv region)</param>
 		/// <returns>True if set and displayed, false if in a NVL_in_ADV region and value might not be applied immediately</returns>
+		///
+		/// NOTE: if this function is updated, you should update the corresponding "GetModeFromFlags()" function immediately below
 		public static void SetAndSaveADV(ModPreset setting, bool showInfoToast = true)
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
@@ -122,6 +124,51 @@ namespace MOD.Scripts.UI
 				mODMainUIController.RyukishiModeSettingStore();
 				Core.MODSystem.instance.modTextureController.SetArtStyle(2, showInfoToast);
 				if (showInfoToast) { MODToaster.Show($"Set OG Mode", isEnable: false); }
+			}
+		}
+
+		// This expressions for 'presetModified' should be updated each time SetAndSaveADV() above is changed,
+		// so that the player knows when the flags have changed from their default values for the current preset
+		public static int GetADVNVLRyukishiModeFromFlags(out bool presetModified)
+		{
+			// If background override is enabled on any preset, the preset has been modified
+			presetModified = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0;
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 2 ||
+					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 2 ||
+					BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 1 ||
+					BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() != 1 ||
+					BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() != 0;
+
+				return 2;
+			}
+			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			{
+				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 1 ||
+					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() != 0;
+
+				return 0;
+			}
+			else
+			{
+				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 2 ||
+					BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() != 0;
+
+				return 1;
 			}
 		}
 
