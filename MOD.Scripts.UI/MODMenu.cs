@@ -75,6 +75,7 @@ namespace MOD.Scripts.UI
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
 		private static Vector2 emergencyMenuScrollPosition;
+		private bool hasOGBackgrounds;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -136,6 +137,7 @@ You can try the following yourself to fix the issue.
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
 			this.screenHeightString = String.Empty;
+			this.hasOGBackgrounds = MODActions.HasOGBackgrounds();
 
 			string baseCensorshipDescription = @"
 
@@ -347,7 +349,8 @@ Sets the script censorship level
 							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
 						}
 
-						if (this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+						if (this.hasOGBackgrounds &&
+							this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
 							"- Displays backgrounds in 4:3 'standard' aspect\n" +
 							"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
 							"- Switches to original sprites and backgrounds\n\n" +
@@ -387,6 +390,7 @@ Sets the script censorship level
 						Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
 					}
 
+					if(this.hasOGBackgrounds)
 					{
 						int currentBackground = GetGlobal("GBackgroundSet");
 						if(currentBackground == 2)

@@ -62,7 +62,14 @@ namespace MOD.Scripts.UI
 			}
 			else
 			{
-				SetAndSaveADV(ModPreset.OG);
+				if(HasOGBackgrounds())
+				{
+					SetAndSaveADV(ModPreset.OG);
+				}
+				else
+				{
+					SetAndSaveADV(ModPreset.ADV);
+				}
 			}
 		}
 
@@ -364,6 +371,11 @@ namespace MOD.Scripts.UI
 			{
 				Assets.Scripts.Core.Logger.Log($"Failed to open {path}:\n{e}");
 			}
+		}
+
+		public static bool HasOGBackgrounds()
+		{
+			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, "OGBackgrounds"));
 		}
 	}
 }
