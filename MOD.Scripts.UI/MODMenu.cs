@@ -122,7 +122,7 @@ You can try the following yourself to fix the issue.
 		GUIContent[] defaultArtsetDescriptions = new GUIContent[] {
 			new GUIContent("Console", "Use the Console sprites and backgrounds"),
 			new GUIContent("Remake", "Use Mangagamer's remake sprites with Console backgrounds"),
-			new GUIContent("Original/Remake", "Use Original/Ryukishi sprites and backgrounds\n" +
+			new GUIContent("Original", "Use Original/Ryukishi sprites and backgrounds (if available - OG backgrounds not available for Console Arcs)\n\n" +
 			"Warning: Most users should use the Original/Ryukishi preset at the top of this menu!"),
 		};
 
@@ -332,7 +332,8 @@ Sets the script censorship level
 						"- Makes text show at the bottom of the screen in a textbox\n" +
 						"- Shows the name of the current character on the textbox\n" +
 						"- Uses the console sprites and backgrounds\n" +
-						"- Displays in 16:9 widescreen\n\n"), selected: advNVLRyukishiMode == 0))
+						"- Displays in 16:9 widescreen\n\n" +
+						"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 0))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 						}
@@ -340,15 +341,17 @@ Sets the script censorship level
 						if (this.Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
 							"- Makes text show across the whole screen\n" +
 							"- Uses the console sprites and backgrounds\n" +
-							"- Displays in 16:9 widescreen\n\n"), selected: advNVLRyukishiMode == 1))
+							"- Displays in 16:9 widescreen\n\n" +
+							"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 1))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
 						}
 
 						if (this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
-							"- Displays in 4:3 'standard' aspect\n" +
-							"- CGs are disabled\n" +
-							"- Switches to original sprites and backgrounds\n\n"), selected: advNVLRyukishiMode == 2))
+							"- Displays backgrounds in 4:3 'standard' aspect\n" +
+							"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
+							"- Switches to original sprites and backgrounds\n\n" +
+							"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 2))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
 						}
