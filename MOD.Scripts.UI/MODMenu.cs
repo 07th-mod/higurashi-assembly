@@ -90,7 +90,6 @@ S : Toggle Skip Mode
 F, Alt-Enter : FullScreen
 Space : Hide Text
 L : Swap Language
-P : Swap Sprites
 
 [MOD Hotkeys]
 F1 : ADV-NVL MODE
@@ -101,8 +100,8 @@ F7 : QuickLoad
 F10 : Mod Menu
 M : Increase Voice Volume
 N : Decrease Voice Volume
+P : Cycle through art styles
 7 : Lip-Sync
-LShift + F9 : Restore Settings
 LShift + M : Voice Volume MAX
 LShift + N : Voice Volume MIN";
 
