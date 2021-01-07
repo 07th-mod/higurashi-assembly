@@ -7,7 +7,7 @@ using UnityEngine;
 namespace MOD.Scripts.UI
 {
 	/// <summary>
-	/// This class is responsible for showing toast noficiations
+	/// This class is responsible for showing toast notifications
 	/// </summary>
 	class MODToaster
 	{
@@ -45,7 +45,7 @@ namespace MOD.Scripts.UI
 		}
 
 		/// <summary>
-		/// Displays a toast notification. It will appear ontop of everything else on the screen.
+		/// Displays a toast notification. It will appear on top of everything else on the screen.
 		/// </summary>
 		/// <param name="toastText">The text to display in the toast</param>
 		/// <param name="toastDuration">The duration the toast will be shown for.

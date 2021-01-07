@@ -76,11 +76,7 @@ namespace MOD.Scripts.UI
 			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
-				if (Input.GetKeyDown(KeyCode.F9))
-				{
-					return Action.RestoreSettings;
-				}
-				else if (Input.GetKeyDown(KeyCode.F10))
+				if (Input.GetKeyDown(KeyCode.F10))
 				{
 					return Action.FlagMonitor;
 				}
