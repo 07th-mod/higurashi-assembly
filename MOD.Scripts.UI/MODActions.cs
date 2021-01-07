@@ -62,7 +62,14 @@ namespace MOD.Scripts.UI
 			}
 			else
 			{
-				SetAndSaveADV(ModPreset.OG);
+				if(HasOGBackgrounds())
+				{
+					SetAndSaveADV(ModPreset.OG);
+				}
+				else
+				{
+					SetAndSaveADV(ModPreset.ADV);
+				}
 			}
 		}
 
@@ -244,7 +251,7 @@ namespace MOD.Scripts.UI
 		/// If min/max set to (3,6), it will loop over the values 3,4,5,6
 		/// </summary>
 		/// <param name="flagName">the name of the global flag, eg. "GVoiceVolume"</param>
-		/// <param name="minValueInclusive">This is the minvalue the flag can be allowed to have before it rolls over, inclusive.</param>
+		/// <param name="minValueInclusive">This is the min value the flag can be allowed to have before it rolls over, inclusive.</param>
 		/// <param name="maxValueInclusive">This is the max value the flag can be allowed to have before it rolls over, inclusive.</param>
 		/// <returns></returns>
 		static int _IncrementFlagWithRollover(string flagName, int minValueInclusive, int maxValueInclusive, bool isLocalFlag)
@@ -364,6 +371,11 @@ namespace MOD.Scripts.UI
 			{
 				Assets.Scripts.Core.Logger.Log($"Failed to open {path}:\n{e}");
 			}
+		}
+
+		public static bool HasOGBackgrounds()
+		{
+			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, "OGBackgrounds"));
 		}
 	}
 }
