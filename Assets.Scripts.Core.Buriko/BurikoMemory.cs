@@ -220,9 +220,9 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void SetHighestChapterFlag(int arcNumber, int number)
 		{
-			if (arcNumber < 0 || arcNumber >= 10)
+			if (arcNumber < 0 || arcNumber >= 20)
 			{
-				throw new Exception("Attempted to set highest chapter for chapter " + arcNumber + ", only 0-9 are allowed.");
+				throw new Exception("Attempted to set highest chapter for chapter " + arcNumber + ", only 0-19 are allowed.");
 			}
 			if (arcNumber == 0)
 			{
@@ -271,9 +271,9 @@ namespace Assets.Scripts.Core.Buriko
 
 		public BurikoVariable GetHighestChapterFlag(int arcNumber)
 		{
-			if (arcNumber < 0 || arcNumber >= 10)
+			if (arcNumber < 0 || arcNumber >= 20)
 			{
-				throw new Exception("Attempted to set highest chapter for chapter " + arcNumber + ", only 0-9 are allowed.");
+				throw new Exception("Attempted to set highest chapter for chapter " + arcNumber + ", only 0-19 are allowed.");
 			}
 			if (arcNumber == 0)
 			{
@@ -285,7 +285,7 @@ namespace Assets.Scripts.Core.Buriko
 
 		public int[] GetHighestChapterFlags()
 		{
-			return Enumerable.Range(0, 10).Select( arc => GetHighestChapterFlag(arc).IntValue() ).ToArray();
+			return Enumerable.Range(0, 20).Select( arc => GetHighestChapterFlag(arc).IntValue() ).ToArray();
 		}
 
 		public void MarkLineAsRead(string scriptname, int line)
