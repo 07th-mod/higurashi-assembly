@@ -102,7 +102,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GChoiceMode", 524);
 			variableReference.Add("LConsoleArc", 600);
 			variableReference.Add("GConsoleChoice", 601);
-			// 611 - 619 used for additional chapter progress info
+			// 611 - 629 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
 			SetGlobalFlag("GAutoSpeed", 50);
 			SetGlobalFlag("GAutoAdvSpeed", 50);
