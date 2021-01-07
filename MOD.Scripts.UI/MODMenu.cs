@@ -90,7 +90,6 @@ S : Toggle Skip Mode
 F, Alt-Enter : FullScreen
 Space : Hide Text
 L : Swap Language
-P : Swap Sprites
 
 [MOD Hotkeys]
 F1 : ADV-NVL MODE
@@ -101,8 +100,8 @@ F7 : QuickLoad
 F10 : Mod Menu
 M : Increase Voice Volume
 N : Decrease Voice Volume
+P : Cycle through art styles
 7 : Lip-Sync
-LShift + F9 : Restore Settings
 LShift + M : Voice Volume MAX
 LShift + N : Voice Volume MIN";
 
@@ -151,7 +150,7 @@ Sets the script censorship level
 			this.radioCensorshipLevel = new MODRadio("Voice Matching Level", new GUIContent[] {
 				new GUIContent("0", "Censorship level 0 - Equivalent to PC" + baseCensorshipDescription),
 				new GUIContent("1", "Censorship level 1" + baseCensorshipDescription),
-				new GUIContent("2*", "Censorship level 2 (this is the default/recommneded value)" + baseCensorshipDescription),
+				new GUIContent("2*", "Censorship level 2 (this is the default/recommended value)" + baseCensorshipDescription),
 				new GUIContent("3", "Censorship level 3" + baseCensorshipDescription),
 				new GUIContent("4", "Censorship level 4" + baseCensorshipDescription),
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
@@ -508,7 +507,7 @@ Sets the script censorship level
 					defaultToolTipTimer.Start(.2f);
 				}
 				// MUST pass in MinHeight option, otherwise Unity will get confused and assume
-				// label is one line high on first draw, and subsquent changes will truncate
+				// label is one line high on first draw, and subsequent changes will truncate
 				// label to one line even if it is multiple lines tall.
 				GUILayout.Label(displayedToolTip, toolTipStyle, GUILayout.MinHeight(areaHeight));
 				GUILayout.EndArea();
@@ -622,7 +621,7 @@ Sets the script censorship level
 		}
 
 		/// <summary>
-		/// This function draws an emergency mod menu in case of a critcal game error
+		/// This function draws an emergency mod menu in case of a critical game error
 		/// (for example, corrupted game save)
 		///
 		/// Please do null checks/try catch for gamesystem etc. if used in this function as it may be called
