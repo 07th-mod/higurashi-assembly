@@ -75,6 +75,7 @@ namespace MOD.Scripts.UI
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
 		private static Vector2 emergencyMenuScrollPosition;
+		private bool hasOGBackgrounds;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -89,7 +90,6 @@ S : Toggle Skip Mode
 F, Alt-Enter : FullScreen
 Space : Hide Text
 L : Swap Language
-P : Swap Sprites
 
 [MOD Hotkeys]
 F1 : ADV-NVL MODE
@@ -100,8 +100,8 @@ F7 : QuickLoad
 F10 : Mod Menu
 M : Increase Voice Volume
 N : Decrease Voice Volume
+P : Cycle through art styles
 7 : Lip-Sync
-LShift + F9 : Restore Settings
 LShift + M : Voice Volume MAX
 LShift + N : Voice Volume MIN";
 
@@ -122,7 +122,7 @@ You can try the following yourself to fix the issue.
 		GUIContent[] defaultArtsetDescriptions = new GUIContent[] {
 			new GUIContent("Console", "Use the Console sprites and backgrounds"),
 			new GUIContent("Remake", "Use Mangagamer's remake sprites with Console backgrounds"),
-			new GUIContent("Original/Remake", "Use Original/Ryukishi sprites and backgrounds\n" +
+			new GUIContent("Original", "Use Original/Ryukishi sprites and backgrounds (if available - OG backgrounds not available for Console Arcs)\n\n" +
 			"Warning: Most users should use the Original/Ryukishi preset at the top of this menu!"),
 		};
 
@@ -136,6 +136,7 @@ You can try the following yourself to fix the issue.
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
 			this.screenHeightString = String.Empty;
+			this.hasOGBackgrounds = MODActions.HasOGBackgrounds();
 
 			string baseCensorshipDescription = @"
 
@@ -149,7 +150,7 @@ Sets the script censorship level
 			this.radioCensorshipLevel = new MODRadio("Voice Matching Level", new GUIContent[] {
 				new GUIContent("0", "Censorship level 0 - Equivalent to PC" + baseCensorshipDescription),
 				new GUIContent("1", "Censorship level 1" + baseCensorshipDescription),
-				new GUIContent("2*", "Censorship level 2 (this is the default/recommneded value)" + baseCensorshipDescription),
+				new GUIContent("2*", "Censorship level 2 (this is the default/recommended value)" + baseCensorshipDescription),
 				new GUIContent("3", "Censorship level 3" + baseCensorshipDescription),
 				new GUIContent("4", "Censorship level 4" + baseCensorshipDescription),
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
@@ -332,7 +333,8 @@ Sets the script censorship level
 						"- Makes text show at the bottom of the screen in a textbox\n" +
 						"- Shows the name of the current character on the textbox\n" +
 						"- Uses the console sprites and backgrounds\n" +
-						"- Displays in 16:9 widescreen\n\n"), selected: advNVLRyukishiMode == 0))
+						"- Displays in 16:9 widescreen\n\n" +
+						"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 0))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 						}
@@ -340,15 +342,18 @@ Sets the script censorship level
 						if (this.Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
 							"- Makes text show across the whole screen\n" +
 							"- Uses the console sprites and backgrounds\n" +
-							"- Displays in 16:9 widescreen\n\n"), selected: advNVLRyukishiMode == 1))
+							"- Displays in 16:9 widescreen\n\n" +
+							"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 1))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
 						}
 
-						if (this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
-							"- Displays in 4:3 'standard' aspect\n" +
-							"- CGs are disabled\n" +
-							"- Switches to original sprites and backgrounds\n\n"), selected: advNVLRyukishiMode == 2))
+						if (this.hasOGBackgrounds &&
+							this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+							"- Displays backgrounds in 4:3 'standard' aspect\n" +
+							"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
+							"- Switches to original sprites and backgrounds\n\n" +
+							"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 2))
 						{
 							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
 						}
@@ -384,6 +389,7 @@ Sets the script censorship level
 						Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
 					}
 
+					if(this.hasOGBackgrounds)
 					{
 						int currentBackground = GetGlobal("GBackgroundSet");
 						if(currentBackground == 2)
@@ -501,7 +507,7 @@ Sets the script censorship level
 					defaultToolTipTimer.Start(.2f);
 				}
 				// MUST pass in MinHeight option, otherwise Unity will get confused and assume
-				// label is one line high on first draw, and subsquent changes will truncate
+				// label is one line high on first draw, and subsequent changes will truncate
 				// label to one line even if it is multiple lines tall.
 				GUILayout.Label(displayedToolTip, toolTipStyle, GUILayout.MinHeight(areaHeight));
 				GUILayout.EndArea();
@@ -615,7 +621,7 @@ Sets the script censorship level
 		}
 
 		/// <summary>
-		/// This function draws an emergency mod menu in case of a critcal game error
+		/// This function draws an emergency mod menu in case of a critical game error
 		/// (for example, corrupted game save)
 		///
 		/// Please do null checks/try catch for gamesystem etc. if used in this function as it may be called
