@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Interfaces;
+using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +29,8 @@ namespace Assets.Scripts.Core.Buriko
 		private bool hasSnapshot;
 
 		private readonly string[] tempSnapshotText = new string[2];
+
+		public bool FlowWasReached { get; private set; }
 
 		public static BurikoScriptSystem Instance
 		{
@@ -89,6 +92,11 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void CallScript(string scriptname, string blockname = "main")
 		{
+			if(scriptname == "flow")
+			{
+				FlowWasReached = true;
+			}
+
 			Logger.Log($"{currentScript.Filename}: calling script {scriptname} (block {blockname})");
 			callStack.Push(new BurikoStackEntry(currentScript, currentScript.Position, currentScript.LineNum));
 			scriptname = scriptname.ToLower();
@@ -415,11 +423,11 @@ namespace Assets.Scripts.Core.Buriko
 						GameSystem.Instance.TextController.SetTextFade(flag2 == 1);
 						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 && BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() == 2 && BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 0)
 						{
-							GameSystem.Instance.MainUIController.MODdisableNVLModeINADVMode();
+							MODActions.DisableNVLModeINADVMode();
 						}
 						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 && BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() == 0 && BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
 						{
-							GameSystem.Instance.MainUIController.MODenableNVLModeINADVMode();
+							MODActions.EnableNVLModeINADVMode();
 						}
 					}
 				}

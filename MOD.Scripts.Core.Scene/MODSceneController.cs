@@ -204,8 +204,13 @@ namespace MOD.Scripts.Core.Scene
 
 		public static Texture2D LoadTextureWithFilters(int? layer, string textureName)
 		{
+			return LoadTextureWithFilters(layer, textureName, out _);
+		}
+
+		public static Texture2D LoadTextureWithFilters(int? layer, string textureName, out string texturePath)
+		{
 			var watch = System.Diagnostics.Stopwatch.StartNew();
-			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName);
+			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName, out texturePath);
 			watch.Stop();
 			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms");
 			if (layer is int actualLayer) { ApplyFilters(actualLayer, texture); }
