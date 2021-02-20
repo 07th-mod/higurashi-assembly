@@ -12,7 +12,7 @@ namespace Assets.Scripts.Core.AssetManagement
 {
 
 	/// <summary>
-	/// Stores an ordered list of paths for the engine to check when trying to find a cg
+	/// Stores an ordered list of paths for the engine to check when trying to find an asset
 	/// </summary>
 	public class PathCascadeList {
 		public readonly string nameEN;
@@ -44,6 +44,29 @@ namespace Assets.Scripts.Core.AssetManagement
 		private List<string> scriptList = new List<string>();
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
+
+		public string debugLastBGM { get; private set; } = "No BGM played yet";
+		public string debugLastSE { get; private set; } = "No SE played yet";
+		public string debugLastVoice { get; private set; } = "No voice played yet";
+		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
+
+		public List<PathCascadeList> BGMCascades = new List<PathCascadeList>()
+		{
+			new PathCascadeList("April Update", "April Update", new string[] { "BGM" }),
+			new PathCascadeList("Original", "Original", new string[] { "OGBGM" , "BGM" }),
+		};
+
+		public List<PathCascadeList> SECascades = new List<PathCascadeList>()
+		{
+			new PathCascadeList("April Update", "April Update", new string[] { "SE" }),
+			new PathCascadeList("Original", "Original", new string[] { "OGSE" , "SE" }),
+		};
+
+		public List<PathCascadeList> voiceCascades = new List<PathCascadeList>()
+		{
+			new PathCascadeList("PS3", "PS3", new string[] { "voice" }),
+		};
+
 
 		/// <summary>
 		/// Get the artset at the given index
@@ -343,56 +366,78 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
-		public string GetAudioFilePath(string filename, Audio.AudioType type)
+		public string getAssetUsingFlagAndCascade(string filename, int flag, List<PathCascadeList> cascades, out bool exists)
 		{
-			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
-			string text = null;
-			string text2 = Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
-			string text3 = Path.Combine(assetPath, archiveNameByAudioType + "Alt/" + filename.ToLower());
-			switch (archiveNameByAudioType)
+			exists = false;
+
+			PathCascadeList cascade = cascades[0];
+			if(flag < cascades.Count)
 			{
-				case "BGM":
-					if (BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() != 0)
-					{
-						if (File.Exists(text3))
-						{
-							return text3;
-						}
-						break;
-					}
-					goto default;
-				case "SE":
-					if (BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() != 0)
-					{
-						if (File.Exists(text3))
-						{
-							return text3;
-						}
-						break;
-					}
-					goto default;
-				case "voice":
+				cascade = cascades[flag];
+			}
+
+			// Use the first file that exists. If none exist, return the last one.
+			string relativePath = "INVALID ASSET PATH";
+			foreach (string assetSubFolder in cascade.paths)
+			{
+				relativePath = Path.Combine(assetSubFolder, filename);
+				if (File.Exists(Path.Combine(assetPath, relativePath)))
+				{
+					exists = true;
+					break;
+				}
+			}
+
+			return relativePath;
+		}
+
+		public string _GetAudioFilePath(string filename, Audio.AudioType type, out bool ok)
+		{
+			switch (type)
+			{
+				case Audio.AudioType.BGM:
+					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue(), BGMCascades, out ok);
+
+				case Audio.AudioType.SE:
+				case Audio.AudioType.System:
+					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue(), SECascades, out ok);
+
+				case Audio.AudioType.Voice:
+					int voiceFlag = BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue();
 					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() == 0)
 					{
-						break;
+						voiceFlag = 0;
 					}
-					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue() != 0)
-					{
-						if (File.Exists(text3))
-						{
-							return text3;
-						}
-						break;
-					}
-					goto default;
+					return getAssetUsingFlagAndCascade(filename, voiceFlag, voiceCascades, out ok);
+
 				default:
-					if (!File.Exists(text2))
-					{
-						return text3;
-					}
+					Debug.Log($"_GetAudioFilePath(): Cannot play '{filename}' due to unknown AudioType '{type}' - ignoring this file");
+					ok = false;
+					return "";
+			}
+		}
+
+		public string GetAudioFilePath(string filename, Audio.AudioType type)
+		{
+			string relativePath = _GetAudioFilePath(filename, type, out bool ok);
+			string debugRelativePath = $"{relativePath} ({(ok ? "OK" : "FAILED to load")})";
+			// Record the last played BGM and SE only for debugging purposes
+			switch (type)
+			{
+				case Audio.AudioType.BGM:
+					debugLastBGM = debugRelativePath;
+					break;
+				case Audio.AudioType.SE:
+					debugLastSE = debugRelativePath;
+					break;
+				case Audio.AudioType.Voice:
+					debugLastVoice = debugRelativePath;
+					break;
+				default:
+					debugLastOtherAudio = debugRelativePath;
 					break;
 			}
-			return text2;
+			return Path.Combine(assetPath, relativePath);
 		}
 
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)

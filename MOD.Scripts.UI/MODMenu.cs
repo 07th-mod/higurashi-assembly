@@ -65,6 +65,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
+		private readonly MODRadio radioBGMSESet;
 		private readonly GameSystem gameSystem;
 		public bool visible;
 		private bool lastMenuVisibleStatus;
@@ -76,6 +77,7 @@ namespace MOD.Scripts.UI
 		Vector2 scrollPosition;
 		private static Vector2 emergencyMenuScrollPosition;
 		private bool hasOGBackgrounds;
+		private bool hasBGMSEOptions;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -137,6 +139,7 @@ You can try the following yourself to fix the issue.
 			this.startupFailed = false;
 			this.screenHeightString = String.Empty;
 			this.hasOGBackgrounds = MODActions.HasOGBackgrounds();
+			this.hasBGMSEOptions = MODActions.HasMusicToggle();
 
 			string baseCensorshipDescription = @"
 
@@ -188,6 +191,14 @@ Sets the script censorship level
 				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset\n\n" +
 				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
 			}, styleManager, itemsPerRow: 2);
+
+			this.radioBGMSESet = new MODRadio("Choose BGM/SE", new GUIContent[]
+			{
+				new GUIContent("New BGM/SE", "Enable the new SE introduced by MangaGamer in the April 2019 update.\n\n" +
+				"NOTE: The BGM/SE might not update immediately, and you may encounter some BGM glitches until the scene ends, depending on when you toggle this value."),
+				new GUIContent("Original BGM/SE", "Enable the original sound effects from the Japanese version of the game.This option was previously known as 'SE fix' and is now installed by default.\n\n" +
+				"NOTE: The BGM/SE might not update immediately, and you may encounter some BGM glitches until the scene ends, depending on when you toggle this value."),
+			}, styleManager);
 
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
 			this.startupWatchdogTimer.Start(5.0f);
@@ -245,7 +256,17 @@ Sets the script censorship level
 		/// </summary>
 		public void OnGUIFragment()
 		{
-			if(this.startupWatchdogTimer.Finished())
+			if (AssetManager.Instance != null)
+			{
+				GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height/7), styleManager.modMenuAreaStyleLight);
+				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Path: {AssetManager.Instance.debugLastBGM}", styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.Label($"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Path: {AssetManager.Instance.debugLastSE}", styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.Label($"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Path: {AssetManager.Instance.debugLastVoice}", styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.Label($"Other Path: {AssetManager.Instance.debugLastOtherAudio}", styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.EndArea();
+			}
+
+			if (this.startupWatchdogTimer.Finished())
 			{
 				this.startupWatchdogTimer.Cancel();
 				if (!BurikoScriptSystem.Instance.FlowWasReached)
@@ -412,6 +433,22 @@ Sets the script censorship level
 								SetGlobal("GBackgroundSet", background);
 							}
 							GameSystem.Instance.SceneController.ReloadAllImages();
+						}
+					}
+
+					if(this.hasBGMSEOptions)
+					{
+						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
+						if(this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int BGMSEValue)
+						{
+							SetGlobal("GAltBGM", BGMSEValue);
+							SetGlobal("GAltSE", BGMSEValue);
+							SetGlobal("GAltBGMflow", BGMSEValue);
+							SetGlobal("GAltSEflow", BGMSEValue);
+							// TODO: Copy logic from sprite switching to reload bgm if necessary
+							// It may be best to cancel all SE/BGM during the switch, to ensure you don't have multiple bgm playing
+							// Only way to fix this is to not use if statements and instead track which bgm should currently be playing
+							//UpdateBGM();
 						}
 					}
 
