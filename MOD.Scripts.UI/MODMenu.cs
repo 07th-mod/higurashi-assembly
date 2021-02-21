@@ -78,6 +78,7 @@ namespace MOD.Scripts.UI
 		private static Vector2 emergencyMenuScrollPosition;
 		private bool hasOGBackgrounds;
 		private bool hasBGMSEOptions;
+		private bool showDebugInfo;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -256,7 +257,7 @@ Sets the script censorship level
 		/// </summary>
 		public void OnGUIFragment()
 		{
-			if (AssetManager.Instance != null)
+			if (showDebugInfo && AssetManager.Instance != null)
 			{
 				GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height/7), styleManager.modMenuAreaStyleLight);
 				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Path: {AssetManager.Instance.debugLastBGM}", styleManager.Group.upperLeftHeadingLabel);
@@ -506,6 +507,10 @@ Sets the script censorship level
 					HeadingLabel("Troubleshooting");
 					Label("Save Files and Log Files");
 					ShowSupportButtons(content => Button(content));
+					if (Button(new GUIContent("Toggle debug menu", "Toggle the debug menu - mainly for developer use.")))
+					{
+						showDebugInfo = !showDebugInfo;
+					}
 
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
