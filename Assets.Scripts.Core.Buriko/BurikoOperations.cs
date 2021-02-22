@@ -145,5 +145,7 @@ namespace Assets.Scripts.Core.Buriko
 		ModClearArtsets,
 		ModRyukishiModeSettingLoad,
 		ModRyukishiSetGuiPosition,
+		ModPlayBGM,
+		ModFadeOutBGM,
 	}
 }

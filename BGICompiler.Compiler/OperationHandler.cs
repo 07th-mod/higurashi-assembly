@@ -173,6 +173,8 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModClearArtsets", new OpType(BurikoOperations.ModClearArtsets, string.Empty));
 			paramLookup.Add("ModRyukishiModeSettingLoad", new OpType(BurikoOperations.ModRyukishiModeSettingLoad, "siiiiiiiiiiii"));
 			paramLookup.Add("ModRyukishiSetGuiPosition", new OpType(BurikoOperations.ModRyukishiSetGuiPosition, "ii"));
+			paramLookup.Add("ModPlayBGM", new OpType(BurikoOperations.ModPlayBGM, "isiii"));
+			paramLookup.Add("ModFadeOutBGM", new OpType(BurikoOperations.ModFadeOutBGM, "iibi"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

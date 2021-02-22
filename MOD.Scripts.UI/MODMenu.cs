@@ -2,6 +2,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.State;
 using System;
 using System.Collections.Generic;
@@ -440,16 +441,15 @@ Sets the script censorship level
 					if(this.hasBGMSEOptions)
 					{
 						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-						if(this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int BGMSEValue)
+						int oldBGMSEValue = GetGlobal("GAltBGM");
+						if (this.radioBGMSESet.OnGUIFragment(oldBGMSEValue) is int newBGMSEValue)
 						{
-							SetGlobal("GAltBGM", BGMSEValue);
-							SetGlobal("GAltSE", BGMSEValue);
-							SetGlobal("GAltBGMflow", BGMSEValue);
-							SetGlobal("GAltSEflow", BGMSEValue);
-							// TODO: Copy logic from sprite switching to reload bgm if necessary
-							// It may be best to cancel all SE/BGM during the switch, to ensure you don't have multiple bgm playing
-							// Only way to fix this is to not use if statements and instead track which bgm should currently be playing
-							//UpdateBGM();
+							SetGlobal("GAltBGM", newBGMSEValue);
+							SetGlobal("GAltSE", newBGMSEValue);
+							SetGlobal("GAltBGMflow", newBGMSEValue);
+							SetGlobal("GAltSEflow", newBGMSEValue);
+
+							MODAudio.Instance.MODRestoreBGM(oldBGMSEValue, newBGMSEValue);
 						}
 					}
 
