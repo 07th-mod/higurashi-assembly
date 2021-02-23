@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Core;
 using Assets.Scripts.Core.Audio;
+using Assets.Scripts.Core.Buriko;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,20 +17,20 @@ namespace MOD.Scripts.Core.Audio
 
 		public bool LoggingEnabled { get; set; } = false;
 
+		public MODAudioTracking()
+		{
+			lastAltBGM = new Dictionary<int, AudioInfo>[BurikoMemory.Instance.GetGlobalFlag("GAltBGMflowMaxNum").IntValue() + 1];
+			for (int i = 0; i < lastAltBGM.Length; i++)
+			{
+				lastAltBGM[i] = new Dictionary<int, AudioInfo>();
+			}
+		}
+
 		private void Log(string text)
 		{
 			if(LoggingEnabled)
 			{
-				Logger.Log(text);
-			}
-		}
-
-		public MODAudioTracking()
-		{
-			lastAltBGM = new Dictionary<int, AudioInfo>[8];
-			for (int i = 0; i < lastAltBGM.Length; i++)
-			{
-				lastAltBGM[i] = new Dictionary<int, AudioInfo>();
+				Logger.Log($"[MODAudioTracking]: {text}");
 			}
 		}
 
@@ -92,6 +93,41 @@ namespace MOD.Scripts.Core.Audio
 				Log($"Start channel {info.Channel} file {info.Filename}");
 				AudioController.Instance.PlayAudio(info.Filename, AudioType.BGM, info.Channel, info.Volume, 500, noBGMTracking: true);
 			}
+		}
+
+		public static string GetBGMNameFromAltBGMFlag(int altBGMFlag)
+		{
+			switch(altBGMFlag)
+			{
+				case 0:
+					return "New BGM/SE";
+
+				case 1:
+					return "Original BGM/SE";
+
+				default:
+					return $"BGM/SE {altBGMFlag}";
+			}
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			for(int i = 0; i < lastAltBGM.Length; i++)
+			{
+				if (lastAltBGM[i].Count == 0)
+				{
+					continue;
+				}
+
+				sb.Append($"{GetBGMNameFromAltBGMFlag(i)}\n");
+				foreach (KeyValuePair<int, AudioInfo> entry in lastAltBGM[i])
+				{
+					sb.Append($"    {entry.Key}: {entry.Value.Filename}\n");
+				}
+			}
+
+			return sb.ToString();
 		}
 	}
 }

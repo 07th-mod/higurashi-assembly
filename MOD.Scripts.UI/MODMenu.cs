@@ -76,6 +76,7 @@ namespace MOD.Scripts.UI
 		private string screenHeightString;
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
+		Vector2 debugScrollPosition;
 		private static Vector2 emergencyMenuScrollPosition;
 		private bool hasOGBackgrounds;
 		private bool hasBGMSEOptions;
@@ -260,11 +261,14 @@ Sets the script censorship level
 		{
 			if (showDebugInfo && AssetManager.Instance != null)
 			{
-				GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height/7), styleManager.modMenuAreaStyleLight);
+				GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height/4), styleManager.modMenuAreaStyleLight);
+				debugScrollPosition = GUILayout.BeginScrollView(debugScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
 				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Path: {AssetManager.Instance.debugLastBGM}", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Path: {AssetManager.Instance.debugLastSE}", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Path: {AssetManager.Instance.debugLastVoice}", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"Other Path: {AssetManager.Instance.debugLastOtherAudio}", styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.Label(MODAudioTracking.Instance.ToString());
+				GUILayout.EndScrollView();
 				GUILayout.EndArea();
 			}
 
@@ -510,6 +514,7 @@ Sets the script censorship level
 					if (Button(new GUIContent("Toggle debug menu", "Toggle the debug menu - mainly for developer use.")))
 					{
 						showDebugInfo = !showDebugInfo;
+						MODAudioTracking.Instance.LoggingEnabled = showDebugInfo;
 					}
 
 					GUILayout.EndScrollView();
