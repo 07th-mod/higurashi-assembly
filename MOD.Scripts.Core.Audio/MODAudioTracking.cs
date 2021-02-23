@@ -6,10 +6,10 @@ using System.Text;
 
 namespace MOD.Scripts.Core.Audio
 {
-	public class MODAudio
+	public class MODAudioTracking
 	{
-		private static MODAudio _instance;
-		public static MODAudio Instance => _instance ?? (_instance = new MODAudio());
+		private static MODAudioTracking _instance;
+		public static MODAudioTracking Instance => _instance ?? (_instance = new MODAudioTracking());
 
 		// Dictionary of BGMFlow setting -> (Dictionary of channel -> last audio played on that channel by  MODPlayBGM functions))
 		private Dictionary<int, AudioInfo>[] lastAltBGM;
@@ -24,7 +24,7 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public MODAudio()
+		public MODAudioTracking()
 		{
 			lastAltBGM = new Dictionary<int, AudioInfo>[8];
 			for (int i = 0; i < lastAltBGM.Length; i++)
@@ -35,7 +35,7 @@ namespace MOD.Scripts.Core.Audio
 
 		private bool flowInRange(int flow) => flow < lastAltBGM.Length;
 
-		public void MODSaveLastBGM(AudioInfo info)
+		public void SaveLastBGM(AudioInfo info)
 		{
 			Log($"Saving bgm {info.Filename} channel {info.Channel} all flows");
 			foreach (Dictionary<int, AudioInfo> channelDict in lastAltBGM)
@@ -44,7 +44,7 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void MODForgetLastBGM(int channel)
+		public void ForgetLastBGM(int channel)
 		{
 			Log($"Forgetting channel {channel} all flows");
 			foreach (Dictionary<int, AudioInfo> channelDict in lastAltBGM)
@@ -53,7 +53,7 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void MODSaveLastAltBGM(int altBGMFlow, AudioInfo info)
+		public void SaveLastAltBGM(int altBGMFlow, AudioInfo info)
 		{
 			Log($"Saving bgm {info.Filename} channel {info.Channel} flow {altBGMFlow}");
 			if (flowInRange(altBGMFlow))
@@ -62,7 +62,7 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void MODForgetLastAltBGM(int altBGMFlow, int channel)
+		public void ForgetLastAltBGM(int altBGMFlow, int channel)
 		{
 			Log($"Forgetting channel {channel} flow {altBGMFlow}");
 			if (flowInRange(altBGMFlow))
@@ -71,7 +71,7 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void MODRestoreBGM(int oldBGMFlow, int newBGMFlow)
+		public void RestoreBGM(int oldBGMFlow, int newBGMFlow)
 		{
 			Log($"Begin BGM restore...");
 			if (!flowInRange(oldBGMFlow) || !flowInRange(newBGMFlow))

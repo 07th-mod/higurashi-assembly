@@ -449,7 +449,7 @@ Sets the script censorship level
 							SetGlobal("GAltBGMflow", newBGMSEValue);
 							SetGlobal("GAltSEflow", newBGMSEValue);
 
-							MODAudio.Instance.MODRestoreBGM(oldBGMSEValue, newBGMSEValue);
+							MODAudioTracking.Instance.RestoreBGM(oldBGMSEValue, newBGMSEValue);
 						}
 					}
 

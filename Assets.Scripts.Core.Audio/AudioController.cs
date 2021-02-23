@@ -223,7 +223,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			if (!noBGMTracking)
 			{
-				MODAudio.Instance.MODForgetLastBGM(channel);
+				MODAudioTracking.Instance.ForgetLastBGM(channel);
 			}
 			float num = (float)time / 1000f;
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
@@ -243,7 +243,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			if (!noBGMTracking)
 			{
-				MODAudio.Instance.MODForgetLastBGM(channel);
+				MODAudioTracking.Instance.ForgetLastBGM(channel);
 			}
 			AudioLayerUnity audioLayerUnity = channelDictionary[channel];
 			audioLayerUnity.StopAudio();
@@ -257,7 +257,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = channelstart; i <= channelend; i++)
 			{
-				MODAudio.Instance.MODForgetLastBGM(i);
+				MODAudioTracking.Instance.ForgetLastBGM(i);
 				FadeOutBGM(i, time, waitForFade);
 			}
 		}
@@ -389,7 +389,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = 0; i < 6; i++)
 			{
-				MODAudio.Instance.MODForgetLastBGM(i);
+				MODAudioTracking.Instance.ForgetLastBGM(i);
 				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
 				if (audioLayerUnity.IsPlaying())
 				{
@@ -432,7 +432,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				if (!noBGMTracking)
 				{
-					MODAudio.Instance.MODSaveLastBGM(new AudioInfo(volume, filename, channel));
+					MODAudioTracking.Instance.SaveLastBGM(new AudioInfo(volume, filename, channel));
 				}
 
 				if (currentAudio[AudioType.BGM].ContainsKey(channel))
