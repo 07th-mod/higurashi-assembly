@@ -72,19 +72,28 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void RestoreBGM(int oldBGMFlow, int newBGMFlow)
+		public void SetAndSaveBGMSE(int newBGMSEValue)
+		{
+			BurikoMemory.Instance.SetGlobalFlag("GAltBGM", newBGMSEValue);
+			BurikoMemory.Instance.SetGlobalFlag("GAltSE", newBGMSEValue);
+			BurikoMemory.Instance.SetGlobalFlag("GAltBGMflow", newBGMSEValue);
+			BurikoMemory.Instance.SetGlobalFlag("GAltSEflow", newBGMSEValue);
+			RestoreBGM(newBGMSEValue);
+		}
+
+		private void RestoreBGM(int newBGMFlow)
 		{
 			Log($"Begin BGM restore...");
-			if (!flowInRange(oldBGMFlow) || !flowInRange(newBGMFlow))
+			if (!flowInRange(newBGMFlow))
 			{
 				return;
 			}
 
-			// Stop all audio at the current bgm flow
-			foreach (int channel in lastAltBGM[oldBGMFlow].Keys)
+			// Stop all BGM (Currently game only uses BGM channels 0-5, see AudioController.StopAllAudio())
+			Log($"Stopping all BGM");
+			for (int i = 0; i < 6; i++)
 			{
-				Log($"Stop channel {channel}");
-				AudioController.Instance.FadeOutBGM(channel, 500, false, noBGMTracking: true);
+				AudioController.Instance.FadeOutBGM(i, 500, false, noBGMTracking: true);
 			}
 
 			// Start all audio at the new bgm flow
@@ -112,8 +121,13 @@ namespace MOD.Scripts.Core.Audio
 
 		public override string ToString()
 		{
+			if (lastAltBGM.Length == 0)
+			{
+				return " - No BGM Playing on any BGMflow";
+			}
+
 			StringBuilder sb = new StringBuilder();
-			for(int i = 0; i < lastAltBGM.Length; i++)
+			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
 				if (lastAltBGM[i].Count == 0)
 				{
@@ -123,7 +137,7 @@ namespace MOD.Scripts.Core.Audio
 				sb.Append($"{GetBGMNameFromAltBGMFlag(i)}\n");
 				foreach (KeyValuePair<int, AudioInfo> entry in lastAltBGM[i])
 				{
-					sb.Append($"    {entry.Key}: {entry.Value.Filename}\n");
+					sb.Append($"    Ch {entry.Key}: {entry.Value.Filename}\n");
 				}
 			}
 

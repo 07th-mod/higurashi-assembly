@@ -267,7 +267,7 @@ Sets the script censorship level
 				GUILayout.Label($"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Path: {AssetManager.Instance.debugLastSE}", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Path: {AssetManager.Instance.debugLastVoice}", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"Other Path: {AssetManager.Instance.debugLastOtherAudio}", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label(MODAudioTracking.Instance.ToString());
+				GUILayout.Label($"--- BGM Info ---\n{MODAudioTracking.Instance}");
 				GUILayout.EndScrollView();
 				GUILayout.EndArea();
 			}
@@ -445,15 +445,9 @@ Sets the script censorship level
 					if(this.hasBGMSEOptions)
 					{
 						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-						int oldBGMSEValue = GetGlobal("GAltBGM");
-						if (this.radioBGMSESet.OnGUIFragment(oldBGMSEValue) is int newBGMSEValue)
+						if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
 						{
-							SetGlobal("GAltBGM", newBGMSEValue);
-							SetGlobal("GAltSE", newBGMSEValue);
-							SetGlobal("GAltBGMflow", newBGMSEValue);
-							SetGlobal("GAltSEflow", newBGMSEValue);
-
-							MODAudioTracking.Instance.RestoreBGM(oldBGMSEValue, newBGMSEValue);
+							MODAudioTracking.Instance.SetAndSaveBGMSE(newBGMSEValue);
 						}
 					}
 

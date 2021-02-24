@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -217,7 +218,8 @@ namespace MOD.Scripts.UI
 				case Action.AltBGMFlow:
 					{
 						int newAltBGMFlow = MODActions.IncrementGlobalFlagWithRollover("GAltBGMflow", "GAltBGMflowMaxNum");
-						MODToaster.Show($"Alt BGM Flow: {newAltBGMFlow} (Not Used)", numberedSound: newAltBGMFlow);
+						MODAudioTracking.Instance.SetAndSaveBGMSE(newAltBGMFlow);
+						MODToaster.Show($"{MODAudioTracking.GetBGMNameFromAltBGMFlag(newAltBGMFlow)} ({newAltBGMFlow})", numberedSound: newAltBGMFlow);
 					}
 					break;
 
