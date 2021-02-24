@@ -121,23 +121,20 @@ namespace MOD.Scripts.Core.Audio
 
 		public override string ToString()
 		{
-			if (lastAltBGM.Length == 0)
-			{
-				return " - No BGM Playing on any BGMflow";
-			}
-
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
+				sb.Append($"{GetBGMNameFromAltBGMFlag(i)} ({i})\n");
+
 				if (lastAltBGM[i].Count == 0)
 				{
+					sb.Append("    - Nothing playing\n");
 					continue;
 				}
 
-				sb.Append($"{GetBGMNameFromAltBGMFlag(i)}\n");
 				foreach (KeyValuePair<int, AudioInfo> entry in lastAltBGM[i])
 				{
-					sb.Append($"    Ch {entry.Key}: {entry.Value.Filename}\n");
+					sb.Append($"    - Ch {entry.Key}: {entry.Value.Filename}\n");
 				}
 			}
 

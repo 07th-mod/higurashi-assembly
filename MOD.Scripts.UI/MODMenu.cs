@@ -76,7 +76,8 @@ namespace MOD.Scripts.UI
 		private string screenHeightString;
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
-		Vector2 debugScrollPosition;
+		Vector2 leftDebugColumnScrollPosition;
+		Vector2 rightDebugColumnScrollPosition;
 		private static Vector2 emergencyMenuScrollPosition;
 		private bool hasOGBackgrounds;
 		private bool hasBGMSEOptions;
@@ -261,13 +262,22 @@ Sets the script censorship level
 		{
 			if (showDebugInfo && AssetManager.Instance != null)
 			{
-				GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height/4), styleManager.modMenuAreaStyleLight);
-				debugScrollPosition = GUILayout.BeginScrollView(debugScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
-				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Path: {AssetManager.Instance.debugLastBGM}", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Path: {AssetManager.Instance.debugLastSE}", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Path: {AssetManager.Instance.debugLastVoice}", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"Other Path: {AssetManager.Instance.debugLastOtherAudio}", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"--- BGM Info ---\n{MODAudioTracking.Instance}");
+				// Left debug column
+				GUILayout.BeginArea(new Rect(0, 0, Screen.width/2, Screen.height / 4), styleManager.modMenuAreaStyleLight);
+				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
+				GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.EndScrollView();
+				GUILayout.EndArea();
+
+
+				// Right debug column
+				GUILayout.BeginArea(new Rect(Screen.width / 2, 0, Screen.width/2, Screen.height/4), styleManager.modMenuAreaStyleLight);
+				rightDebugColumnScrollPosition = GUILayout.BeginScrollView(rightDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
+				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Last Played Path: {AssetManager.Instance.debugLastBGM}\n" +
+					$"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Last Played Path: {AssetManager.Instance.debugLastSE}\n" +
+					$"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Last Played Path: {AssetManager.Instance.debugLastVoice}\n" +
+					$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}",
+					styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.EndScrollView();
 				GUILayout.EndArea();
 			}

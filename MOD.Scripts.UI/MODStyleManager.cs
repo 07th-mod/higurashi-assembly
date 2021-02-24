@@ -70,7 +70,7 @@ namespace MOD.Scripts.UI
 
 			for (int i = 0; i < pix.Length; i++)
 			{
-				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.65f);
+				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.7f);
 			}
 			modGUIBackgroundTextureLight = new Texture2D(width, height);
 			modGUIBackgroundTextureLight.SetPixels(pix);
