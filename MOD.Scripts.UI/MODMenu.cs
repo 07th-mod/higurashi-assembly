@@ -413,6 +413,15 @@ Sets the script censorship level
 						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 					};
 
+					if (this.hasBGMSEOptions)
+					{
+						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
+						if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
+						{
+							MODAudioTracking.Instance.SetAndSaveBGMSE(newBGMSEValue);
+						}
+					}
+
 					HeadingLabel("Advanced Options");
 
 					if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
@@ -449,15 +458,6 @@ Sets the script censorship level
 								SetGlobal("GBackgroundSet", background);
 							}
 							GameSystem.Instance.SceneController.ReloadAllImages();
-						}
-					}
-
-					if(this.hasBGMSEOptions)
-					{
-						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-						if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
-						{
-							MODAudioTracking.Instance.SetAndSaveBGMSE(newBGMSEValue);
 						}
 					}
 
