@@ -107,7 +107,8 @@ F10 : Mod Menu
 M : Increase Voice Volume
 N : Decrease Voice Volume
 P : Cycle through art styles
-7 : Lip-Sync
+2 : Cycle through BGM/SE
+7 : Enable/Disable Lip-Sync
 LShift + M : Voice Volume MAX
 LShift + N : Voice Volume MIN";
 
@@ -154,7 +155,7 @@ Sets the script censorship level
   - 2: Default - most balanced option
   - 0: Original PC Script with voices where it fits (least uncensored), but uncensored scenes may be missing voices";
 
-			this.radioCensorshipLevel = new MODRadio("Voice Matching Level", new GUIContent[] {
+			this.radioCensorshipLevel = new MODRadio("Voice Matching Level (Hotkey: F2)", new GUIContent[] {
 				new GUIContent("0", "Censorship level 0 - Equivalent to PC" + baseCensorshipDescription),
 				new GUIContent("1", "Censorship level 1" + baseCensorshipDescription),
 				new GUIContent("2*", "Censorship level 2 (this is the default/recommended value)" + baseCensorshipDescription),
@@ -163,13 +164,13 @@ Sets the script censorship level
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
 				}, styleManager);
 
-			this.radioLipSync = new MODRadio("Lip Sync for Console Sprites", new GUIContent[]
+			this.radioLipSync = new MODRadio("Lip Sync for Console Sprites (Hotkey: 7)", new GUIContent[]
 			{
 				new GUIContent("Lip Sync Off", "Disables Lip Sync for Console Sprites"),
 				new GUIContent("Lip Sync On", "Enables Lip Sync for Console Sprites"),
 			}, styleManager);
 
-			this.radioOpenings = new MODRadio("Opening Movies", new GUIContent[]
+			this.radioOpenings = new MODRadio("Opening Movies (Hotkey: Shift-F12)", new GUIContent[]
 			{
 				new GUIContent("Disabled", "Disables all opening videos"),
 				new GUIContent("Enabled", "Enables opening videos\n\n" +
@@ -196,10 +197,11 @@ Sets the script censorship level
 				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
 			}, styleManager, itemsPerRow: 2);
 
-			this.radioBGMSESet = new MODRadio("Choose BGM/SE", new GUIContent[]
+			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[]
 			{
-				new GUIContent("New BGM/SE", "Enable the new BGM/SE introduced by MangaGamer in the April 2019 update."),
-				new GUIContent("Original BGM/SE", "Enable the original BGM/SE from the Japanese version of the game. This option was previously known as 'BGM/SE fix'."),
+				new GUIContent("New BGM/SE", "Use the new BGM/SE introduced by MangaGamer in the April 2019 update."),
+				new GUIContent("Original BGM/SE", "Use the original BGM/SE from the Japanese version of the game. This option was previously known as 'BGM/SE fix'.\n\n" +
+				"Note that this not only changes which audio files are played, but also when BGM starts to play/stops playing, in certain cases."),
 			}, styleManager);
 
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
@@ -360,7 +362,7 @@ Sets the script censorship level
 
 					HeadingLabel("Basic Options");
 
-					Label("Graphics Presets");
+					Label("Graphics Presets (Hotkey: F1)");
 					{
 						GUILayout.BeginHorizontal();
 
