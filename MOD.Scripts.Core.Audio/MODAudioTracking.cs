@@ -14,6 +14,7 @@ namespace MOD.Scripts.Core.Audio
 
 		// Dictionary of BGMFlow setting -> (Dictionary of channel -> last audio played on that channel by  MODPlayBGM functions))
 		private Dictionary<int, AudioInfo>[] lastAltBGM;
+		private Dictionary<int, AudioInfo>[] queuedState;
 
 		public bool LoggingEnabled { get; set; } = false;
 
@@ -23,6 +24,30 @@ namespace MOD.Scripts.Core.Audio
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
 				lastAltBGM[i] = new Dictionary<int, AudioInfo>();
+			}
+		}
+
+		public Dictionary<int, AudioInfo>[] SerializeableState()
+		{
+			return lastAltBGM;
+		}
+
+		public void QueueState(Dictionary<int, AudioInfo>[] state)
+		{
+			this.queuedState = state;
+		}
+
+		public void RestoreState()
+		{
+			if(queuedState != null)
+			{
+				for (int i = 0; i < queuedState.Length; i++)
+				{
+					if (flowInRange(i))
+					{
+						lastAltBGM[i] = queuedState[i];
+					}
+				}
 			}
 		}
 

@@ -198,10 +198,8 @@ Sets the script censorship level
 
 			this.radioBGMSESet = new MODRadio("Choose BGM/SE", new GUIContent[]
 			{
-				new GUIContent("New BGM/SE", "Enable the new SE introduced by MangaGamer in the April 2019 update.\n\n" +
-				"NOTE: The BGM/SE might not update immediately, and you may encounter some BGM glitches until the scene ends, depending on when you toggle this value."),
-				new GUIContent("Original BGM/SE", "Enable the original sound effects from the Japanese version of the game.This option was previously known as 'SE fix' and is now installed by default.\n\n" +
-				"NOTE: The BGM/SE might not update immediately, and you may encounter some BGM glitches until the scene ends, depending on when you toggle this value."),
+				new GUIContent("New BGM/SE", "Enable the new BGM/SE introduced by MangaGamer in the April 2019 update."),
+				new GUIContent("Original BGM/SE", "Enable the original BGM/SE from the Japanese version of the game. This option was previously known as 'BGM/SE fix'."),
 			}, styleManager);
 
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
