@@ -10,28 +10,6 @@ using UnityEngine;
 /// </summary>
 public static class MODUtility
 {
-	/// <summary>
-	/// Some flags use "0" to indicate the flag has not been chosen by the user, and values 1 onwards as the actual flag value.
-	/// This class helps ensure 1-based flags are used correctly though type-checking and reusable conversion functions
-	/// </summary>
-	public class OneBasedFlag
-	{
-		public int OneBased { get; }
-
-		public OneBasedFlag(int OneBased)
-		{
-			this.OneBased = OneBased;
-		}
-
-		/// <summary>
-		/// Get the value of the flag if it were a 0-based value
-		/// If the 1-based value is 0, this function just returns 0
-		/// </summary>
-		public int ZeroBased => OneBased > 0 ? OneBased - 1 : 0;
-
-		public static OneBasedFlag FromZeroBased(int zeroBased) => new OneBasedFlag(zeroBased + 1);
-	}
-
 	public enum Platform
 	{
 		Windows,

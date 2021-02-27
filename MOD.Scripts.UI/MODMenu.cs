@@ -417,10 +417,10 @@ Sets the script censorship level
 
 					if (this.hasBGMSEOptions)
 					{
-						int zeroIndexed = new MODUtility.OneBasedFlag(GetGlobal("GAltBGMflow")).ZeroBased;
-						if (this.radioBGMSESet.OnGUIFragment(zeroIndexed) is int newBGMSEZeroIndexed)
+						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
+						if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
 						{
-							MODAudioTracking.Instance.SetAndSaveBGMSE(MODUtility.OneBasedFlag.FromZeroBased(newBGMSEZeroIndexed));
+							MODAudioTracking.Instance.SetAndSaveBGMSE(newBGMSEValue);
 						}
 					}
 

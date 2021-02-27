@@ -227,10 +227,9 @@ namespace MOD.Scripts.UI
 
 				case Action.AltBGMFlow:
 					{
-						int newBGMFlowInt = MODActions.IncrementGlobalFlagWithRollover("GAltBGMflow", 1, BurikoMemory.Instance.GetGlobalFlag("GAltBGMflowMaxNum").IntValue());
-						MODUtility.OneBasedFlag newBGMFlow = new MODUtility.OneBasedFlag(newBGMFlowInt);
-						MODAudioTracking.Instance.SetAndSaveBGMSE(newBGMFlow);
-						MODToaster.Show($"{MODAudioTracking.GetBGMNameFromAltBGMFlag(newBGMFlow)} ({newBGMFlow.OneBased})");
+						int newAltBGMFlow = MODActions.IncrementGlobalFlagWithRollover("GAltBGMflow", "GAltBGMflowMaxNum");
+						MODAudioTracking.Instance.SetAndSaveBGMSE(newAltBGMFlow);
+						MODToaster.Show($"{MODAudioTracking.GetBGMNameFromAltBGMFlag(newAltBGMFlow)} ({newAltBGMFlow})");
 					}
 					break;
 
