@@ -263,6 +263,7 @@ Sets the script censorship level
 				// Left debug column
 				GUILayout.BeginArea(new Rect(0, 0, Screen.width/2, Screen.height / 4), styleManager.modMenuAreaStyleLight);
 				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
+				GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.EndScrollView();
 				GUILayout.EndArea();
@@ -271,6 +272,7 @@ Sets the script censorship level
 				// Right debug column
 				GUILayout.BeginArea(new Rect(Screen.width / 2, 0, Screen.width/2, Screen.height/4), styleManager.modMenuAreaStyleLight);
 				rightDebugColumnScrollPosition = GUILayout.BeginScrollView(rightDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
+				GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Last Played Path: {AssetManager.Instance.debugLastBGM}\n" +
 					$"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Last Played Path: {AssetManager.Instance.debugLastSE}\n" +
 					$"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Last Played Path: {AssetManager.Instance.debugLastVoice}\n" +
@@ -515,11 +517,16 @@ Sets the script censorship level
 					ShowSupportButtons(content => Button(content));
 
 					Label("Developer");
-					if (Button(new GUIContent("Toggle debug menu", "Toggle the debug menu - mainly for developer use.")))
+					GUILayout.BeginHorizontal();
+					if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
 					{
-						showDebugInfo = !showDebugInfo;
-						MODAudioTracking.Instance.LoggingEnabled = showDebugInfo;
+						ToggleDebugMenu();
 					}
+					if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
+					{
+						MODActions.ToggleFlagMenu();
+					}
+					GUILayout.EndHorizontal();
 
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
@@ -733,6 +740,12 @@ Sets the script censorship level
 			{
 				Application.OpenURL("https://07th-mod.com/wiki/Higurashi/support/");
 			}
+		}
+
+		public void ToggleDebugMenu()
+		{
+			showDebugInfo = !showDebugInfo;
+			MODAudioTracking.Instance.LoggingEnabled = showDebugInfo;
 		}
 
 	}

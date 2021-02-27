@@ -154,7 +154,7 @@ namespace MOD.Scripts.Core.Audio
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
-				sb.Append($"{GetBGMNameFromAltBGMFlag(i)} ({i + 1})\n");
+				sb.Append($"{GetBGMNameFromAltBGMFlag(i)} (flow = {i + 1})\n");
 
 				if (lastAltBGM[i].Count == 0)
 				{

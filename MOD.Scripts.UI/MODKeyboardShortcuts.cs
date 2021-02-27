@@ -52,6 +52,7 @@ namespace MOD.Scripts.UI
 			ToggleADV,
 			CensorshipLevel,
 			EffectLevel,
+			DebugMenu,
 			FlagMonitor,
 			ModMenu,
 			OpeningVideo,
@@ -77,7 +78,11 @@ namespace MOD.Scripts.UI
 			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
-				if (Input.GetKeyDown(KeyCode.F10))
+				if (Input.GetKeyDown(KeyCode.F9))
+				{
+					return Action.DebugMenu;
+				}
+				else if (Input.GetKeyDown(KeyCode.F10))
 				{
 					return Action.FlagMonitor;
 				}
@@ -192,11 +197,12 @@ namespace MOD.Scripts.UI
 					}
 					break;
 
+				case Action.DebugMenu:
+					GameSystem.Instance.MainUIController.modMenu.ToggleDebugMenu();
+					break;
+
 				case Action.FlagMonitor:
-					{
-						int maxFlagMonitorValue = BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4;
-						MODActions.IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
-					}
+					MODActions.ToggleFlagMenu();
 					break;
 
 				case Action.OpeningVideo:

@@ -381,5 +381,11 @@ namespace MOD.Scripts.UI
 		{
 			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, "OGBGM"));
 		}
+
+		public static void ToggleFlagMenu()
+		{
+			int maxFlagMonitorValue = BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4;
+			IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
+		}
 	}
 }
