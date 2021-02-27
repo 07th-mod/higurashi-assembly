@@ -95,7 +95,7 @@ namespace MOD.Scripts.UI
 
 			style1080 = GenerateWidgetStyles(
 				menuWidth: 1200,
-				menuHeight: 800,
+				menuHeight: 950,
 				guiScale: 1.25f,
 				margin: new RectOffset(2, 2, 2, 2),
 				padding: new RectOffset(2, 2, 2, 2)
