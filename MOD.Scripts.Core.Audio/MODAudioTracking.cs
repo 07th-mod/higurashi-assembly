@@ -20,7 +20,7 @@ namespace MOD.Scripts.Core.Audio
 
 		public MODAudioTracking()
 		{
-			lastAltBGM = new Dictionary<int, AudioInfo>[BurikoMemory.Instance.GetGlobalFlag("GAltBGMflowMaxNum").IntValue() + 1];
+			lastAltBGM = new Dictionary<int, AudioInfo>[BurikoMemory.Instance.GetGlobalFlag("GAltBGMflowMaxNum").IntValue()];
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
 				lastAltBGM[i] = new Dictionary<int, AudioInfo>();
@@ -79,37 +79,37 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void SaveLastAltBGM(int altBGMFlow, AudioInfo info)
+		public void SaveLastAltBGM(MODUtility.OneBasedFlag altBGMFlow, AudioInfo info)
 		{
 			Log($"Saving bgm {info.Filename} channel {info.Channel} flow {altBGMFlow}");
-			if (flowInRange(altBGMFlow))
+			if (flowInRange(altBGMFlow.ZeroBased))
 			{
-				lastAltBGM[altBGMFlow][info.Channel] = info;
+				lastAltBGM[altBGMFlow.ZeroBased][info.Channel] = info;
 			}
 		}
 
-		public void ForgetLastAltBGM(int altBGMFlow, int channel)
+		public void ForgetLastAltBGM(MODUtility.OneBasedFlag altBGMFlow, int channel)
 		{
 			Log($"Forgetting channel {channel} flow {altBGMFlow}");
-			if (flowInRange(altBGMFlow))
+			if (flowInRange(altBGMFlow.ZeroBased))
 			{
-				lastAltBGM[altBGMFlow].Remove(channel);
+				lastAltBGM[altBGMFlow.ZeroBased].Remove(channel);
 			}
 		}
 
-		public void SetAndSaveBGMSE(int newBGMSEValue)
+		public void SetAndSaveBGMSE(MODUtility.OneBasedFlag newBGMSEValue)
 		{
-			BurikoMemory.Instance.SetGlobalFlag("GAltBGM", newBGMSEValue);
-			BurikoMemory.Instance.SetGlobalFlag("GAltSE", newBGMSEValue);
-			BurikoMemory.Instance.SetGlobalFlag("GAltBGMflow", newBGMSEValue);
-			BurikoMemory.Instance.SetGlobalFlag("GAltSEflow", newBGMSEValue);
+			BurikoMemory.Instance.SetGlobalFlag("GAltBGM", newBGMSEValue.OneBased);
+			BurikoMemory.Instance.SetGlobalFlag("GAltSE", newBGMSEValue.OneBased);
+			BurikoMemory.Instance.SetGlobalFlag("GAltBGMflow", newBGMSEValue.OneBased);
+			BurikoMemory.Instance.SetGlobalFlag("GAltSEflow", newBGMSEValue.OneBased);
 			RestoreBGM(newBGMSEValue);
 		}
 
-		private void RestoreBGM(int newBGMFlow)
+		private void RestoreBGM(MODUtility.OneBasedFlag newBGMFlow)
 		{
 			Log($"Begin BGM restore...");
-			if (!flowInRange(newBGMFlow))
+			if (!flowInRange(newBGMFlow.ZeroBased))
 			{
 				return;
 			}
@@ -122,14 +122,19 @@ namespace MOD.Scripts.Core.Audio
 			}
 
 			// Start all audio at the new bgm flow
-			foreach (AudioInfo info in lastAltBGM[newBGMFlow].Values)
+			foreach (AudioInfo info in lastAltBGM[newBGMFlow.ZeroBased].Values)
 			{
 				Log($"Start channel {info.Channel} file {info.Filename}");
 				AudioController.Instance.PlayAudio(info.Filename, AudioType.BGM, info.Channel, info.Volume, 500, noBGMTracking: true);
 			}
 		}
 
-		public static string GetBGMNameFromAltBGMFlag(int altBGMFlag)
+		public static string GetBGMNameFromAltBGMFlag(MODUtility.OneBasedFlag altBGMFlag)
+		{
+			return GetBGMNameFromAltBGMFlag(altBGMFlag.ZeroBased);
+		}
+
+		private static string GetBGMNameFromAltBGMFlag(int altBGMFlag)
 		{
 			switch(altBGMFlag)
 			{
@@ -149,7 +154,7 @@ namespace MOD.Scripts.Core.Audio
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
-				sb.Append($"{GetBGMNameFromAltBGMFlag(i)} ({i})\n");
+				sb.Append($"{GetBGMNameFromAltBGMFlag(i)} ({i + 1})\n");
 
 				if (lastAltBGM[i].Count == 0)
 				{

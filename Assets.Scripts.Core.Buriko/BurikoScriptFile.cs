@@ -466,7 +466,7 @@ namespace Assets.Scripts.Core.Buriko
 			// OperationMODPlayBGM accepts one extra argument - the GAltBGMflow setting where this bgm should be played
 			int targetBGMFlow = ReadVariable().IntValue();
 
-			MODAudioTracking.Instance.SaveLastAltBGM(targetBGMFlow, new AudioInfo(volume, filename, channel));
+			MODAudioTracking.Instance.SaveLastAltBGM(new MODUtility.OneBasedFlag(targetBGMFlow), new AudioInfo(volume, filename, channel));
 
 			if(BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == targetBGMFlow)
 			{
@@ -521,7 +521,7 @@ namespace Assets.Scripts.Core.Buriko
 			FadeBGMCommon(out int channel, out int time, out bool waitForFade);
 			int targetBGMFlow = ReadVariable().IntValue();
 
-			MODAudioTracking.Instance.ForgetLastAltBGM(targetBGMFlow, channel);
+			MODAudioTracking.Instance.ForgetLastAltBGM(new MODUtility.OneBasedFlag(targetBGMFlow), channel);
 
 			if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == targetBGMFlow)
 			{
