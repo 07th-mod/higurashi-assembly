@@ -513,6 +513,8 @@ Sets the script censorship level
 					HeadingLabel("Troubleshooting");
 					Label("Save Files and Log Files");
 					ShowSupportButtons(content => Button(content));
+
+					Label("Developer");
 					if (Button(new GUIContent("Toggle debug menu", "Toggle the debug menu - mainly for developer use.")))
 					{
 						showDebugInfo = !showDebugInfo;
