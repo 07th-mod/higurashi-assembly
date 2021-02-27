@@ -121,19 +121,23 @@ namespace MOD.Scripts.UI
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
 			{
-				return Action.AltBGM;
+				// Uncomment this if the user needs to be able to individually select AltBGM, separate from AltBGMFlow
+				// return Action.AltBGM;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
 			{
+				// TODO: make bgmflow hotkey harder to press?
 				return Action.AltBGMFlow;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
 			{
-				return Action.AltSE;
+				// Uncomment this if the user needs to be able to individually select AltSE, separate from AltBGMFlow
+				// return Action.AltSE;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
 			{
-				return Action.AltSEFlow;
+				// Uncomment this if the user needs to be able to individually select AltSEFlow, separate from AltBGMFlow
+				// return Action.AltSEFlow;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
 			{
