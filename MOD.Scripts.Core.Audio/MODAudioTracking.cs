@@ -125,7 +125,7 @@ namespace MOD.Scripts.Core.Audio
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
-				sb.Append($"{MODAudioSet.Instance.GetFlowName(i)} (set = {i})\n");
+				sb.Append($"{MODAudioSet.Instance.GetBGMFlowName(i)} (set = {i})\n");
 
 				if (lastAltBGM[i].Count == 0)
 				{

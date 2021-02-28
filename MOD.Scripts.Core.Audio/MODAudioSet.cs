@@ -33,30 +33,21 @@ namespace MOD.Scripts.Core.Audio
 		private static MODAudioSet _instance;
 		public static MODAudioSet Instance => _instance ?? (_instance = new MODAudioSet());
 
-		public List<string> bgmFlowNames = new List<string>()
+		private readonly List<string> bgmFlowNames = new List<string>()
 		{
 			"New BGM/SE",
 			"Original BGM/SE"
 		};
 
-		// This is indexed by the altBGM flag
-		public List<PathCascadeList> BGMCascades { get; private set; } = new List<PathCascadeList>()
-		{
-		};
+		private readonly PathCascadeList defaultBGMCascade = new PathCascadeList("New BGM", "New BGM", new string[] { "BGM" });
+		private readonly PathCascadeList defaultSECascade = new PathCascadeList("New SE", "New SE", new string[] { "SE" });
+		private readonly PathCascadeList defaultVoiceCascade = new PathCascadeList("PS3", "PS3", new string[] { "voice" });
 
-		// This is indexed by the altSE flag
-		public List<PathCascadeList> SECascades { get; private set; } = new List<PathCascadeList>()
-		{
-		};
+		private readonly List<PathCascadeList> BGMCascades = new List<PathCascadeList>();
+		private readonly List<PathCascadeList> SECascades = new List<PathCascadeList>();
+		private readonly List<PathCascadeList> voiceCascades = new List<PathCascadeList>();
+		private readonly List<AudioSet> audioSets = new List<AudioSet>();
 
-		public List<PathCascadeList> voiceCascades { get; private set; } = new List<PathCascadeList>()
-		{
-			new PathCascadeList("PS3", "PS3", new string[] { "voice" }),
-		};
-
-		List<AudioSet> audioSets = new List<AudioSet>
-		{
-		};
 
 		public void SetFromZeroBasedIndex(int zeroBasedIndex)
 		{
@@ -86,7 +77,8 @@ namespace MOD.Scripts.Core.Audio
 		public string GetCurrentAudioSetName(bool includeAudioSetFlag = false)
 		{
 			int audioSetFlag = BurikoMemory.Instance.GetGlobalFlag("GAudioSet").IntValue();
-			return GetAudioSetNameFromZeroIndexed(OneToZeroIndexed(audioSetFlag)) + (includeAudioSetFlag ? $" ({audioSetFlag})" : "");
+			string name = audioSetFlag == 0 ? "Not Chosen!" : GetAudioSetNameFromZeroIndexed(OneToZeroIndexed(audioSetFlag));
+			return name + (includeAudioSetFlag ? $" ({audioSetFlag})" : "");
 		}
 
 		public string GetAudioSetNameFromZeroIndexed(int zeroBasedIndex)
@@ -94,7 +86,7 @@ namespace MOD.Scripts.Core.Audio
 			return zeroBasedIndex < audioSets.Count ? audioSets[zeroBasedIndex].nameEN : $"Unknown BGM/SE {zeroBasedIndex}";
 		}
 
-		public string GetFlowName(int altBGMFlow)
+		public string GetBGMFlowName(int altBGMFlow)
 		{
 			return altBGMFlow < bgmFlowNames.Count ? bgmFlowNames[altBGMFlow] : $"Unknown BGM/SE {altBGMFlow}";
 		}
@@ -102,6 +94,22 @@ namespace MOD.Scripts.Core.Audio
 		public void AddBGMSet(PathCascadeList cascade) => BGMCascades.Add(cascade);
 		public void AddSESet(PathCascadeList cascade) => SECascades.Add(cascade);
 		public void AddAudioSet(AudioSet audioset) => audioSets.Add(audioset);
+
+		public bool GetBGMCascade(int altBGM, out PathCascadeList cascade) => GetCascade(altBGM, BGMCascades, defaultBGMCascade, out cascade);
+		public bool GetSECascade(int altSE, out PathCascadeList cascade) => GetCascade(altSE, SECascades, defaultSECascade, out cascade);
+		public bool GetVoiceCascade(int altVoice, out PathCascadeList cascade) => GetCascade(altVoice, voiceCascades, defaultVoiceCascade, out cascade);
+
+		private static bool GetCascade(int i, List<PathCascadeList> inputCascades, PathCascadeList defaultCascade, out PathCascadeList cascade)
+		{
+			if(i < inputCascades.Count)
+			{
+				cascade = inputCascades[i];
+				return true;
+			}
+
+			cascade = defaultCascade;
+			return false;
+		}
 
 		private static int OneToZeroIndexed(int value) => value > 0 ? value - 1 : 0;
 	}

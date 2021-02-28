@@ -261,18 +261,31 @@ Sets the script censorship level
 		{
 			if (showDebugInfo && AssetManager.Instance != null)
 			{
+				bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
+				bool seFlagOK = MODAudioSet.Instance.GetSECascade(GetGlobal("GAltSE"), out PathCascadeList SECascade);
+
 				GUILayout.BeginArea(new Rect(0, 0, Screen.width/3, Screen.height), styleManager.modMenuAreaStyleLight);
-				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
+				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height - 10));
 				GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
 
 				GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"Audio Set: {GetGlobal("GAudioSet")}\n" +
-					$"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Last Played Path: {AssetManager.Instance.debugLastBGM}\n" +
-					$"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Last Played Path: {AssetManager.Instance.debugLastSE}\n" +
-					$"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Last Played Path: {AssetManager.Instance.debugLastVoice}\n" +
-					$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}",
-					styleManager.Group.upperLeftHeadingLabel);
+				GUILayout.Label($"Audio Set: {GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetName()})\n" +
+					"\n" +
+					$"AltBGM: {GetGlobal("GAltBGM")}\n" +
+					$"AltBGMFlow: {GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(GetGlobal("GAltBGMflow"))})\n" +
+					$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
+					$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n" +
+					"\n" +
+					$"AltSE:  {GetGlobal("GAltSE")}\n" +
+					$"AltSEFlow: {GetGlobal("GAltSEflow")}\n" +
+					$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
+					$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
+					$"Voice: {GetGlobal("GAltVoice")}\n" +
+					$"Priority: {GetGlobal("GAltVoicePriority")}\n" +
+					"\n" +
+					$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
+					$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
 				GUILayout.EndScrollView();
 				GUILayout.EndArea();
 			}

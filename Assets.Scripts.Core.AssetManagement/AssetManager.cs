@@ -51,10 +51,6 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
-		PathCascadeList defaultBGMCascade = new PathCascadeList("April Update", "April Update", new string[] { "BGM" });
-		PathCascadeList defaultSECascade = new PathCascadeList("April Update", "April Update", new string[] { "SE" });
-		PathCascadeList defaultVoiceCascade = new PathCascadeList("PS3", "PS3", new string[] { "voice" });
-
 		/// <summary>
 		/// Get the artset at the given index
 		/// </summary>
@@ -353,15 +349,9 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
-		public string getAssetUsingFlagAndCascade(string filename, int flag, List<PathCascadeList> cascades, PathCascadeList defaultCascade, out bool exists)
+		public string getAssetFromCascade(string filename, PathCascadeList cascade, out bool exists)
 		{
 			exists = false;
-
-			PathCascadeList cascade = defaultCascade;
-			if(flag < cascades.Count)
-			{
-				cascade = cascades[flag];
-			}
 
 			// Use the first file that exists. If none exist, return the last one.
 			string relativePath = "INVALID ASSET PATH";
@@ -378,36 +368,46 @@ namespace Assets.Scripts.Core.AssetManagement
 			return relativePath;
 		}
 
-		public string _GetAudioFilePath(string filename, Audio.AudioType type, out bool ok)
+		public string _GetAudioFilePath(string filename, Audio.AudioType type, out bool exists, out bool flagValid)
 		{
 			switch (type)
 			{
 				case Audio.AudioType.BGM:
-					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue(), MODAudioSet.Instance.BGMCascades, defaultBGMCascade, out ok);
+					{
+						flagValid = MODAudioSet.Instance.GetBGMCascade(BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue(), out PathCascadeList cascade);
+						return getAssetFromCascade(filename, cascade, out exists);
+					}
 
 				case Audio.AudioType.SE:
 				case Audio.AudioType.System:
-					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue(), MODAudioSet.Instance.SECascades, defaultSECascade, out ok);
+					{
+						flagValid = MODAudioSet.Instance.GetSECascade(BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue(), out PathCascadeList cascade);
+						return getAssetFromCascade(filename, cascade, out exists);
+					}
 
 				case Audio.AudioType.Voice:
-					int voiceFlag = BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue();
-					if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() == 0)
 					{
-						voiceFlag = 0;
+						int voiceFlag = BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue();
+						if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() == 0)
+						{
+							voiceFlag = 0;
+						}
+						flagValid = MODAudioSet.Instance.GetVoiceCascade(voiceFlag, out PathCascadeList cascade);
+						return getAssetFromCascade(filename, cascade, out exists);
 					}
-					return getAssetUsingFlagAndCascade(filename, voiceFlag, MODAudioSet.Instance.voiceCascades, defaultVoiceCascade, out ok);
 
 				default:
 					Debug.Log($"_GetAudioFilePath(): Cannot play '{filename}' due to unknown AudioType '{type}' - ignoring this file");
-					ok = false;
+					exists = false;
+					flagValid = true;
 					return "";
 			}
 		}
 
 		public string GetAudioFilePath(string filename, Audio.AudioType type)
 		{
-			string relativePath = _GetAudioFilePath(filename, type, out bool ok);
-			string debugRelativePath = $"{relativePath} ({(ok ? "OK" : "FAILED to load")})";
+			string relativePath = _GetAudioFilePath(filename, type, out bool exists, out bool flagValid);
+			string debugRelativePath = $"{relativePath} ({(exists ? "File exists" : "File does not exist!")}, {(flagValid ? "Flag Valid" : "Unknown Flag!")})";
 			// Record the last played BGM and SE only for debugging purposes
 			switch (type)
 			{
