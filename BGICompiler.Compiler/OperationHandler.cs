@@ -175,6 +175,9 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModRyukishiSetGuiPosition", new OpType(BurikoOperations.ModRyukishiSetGuiPosition, "ii"));
 			paramLookup.Add("ModPlayBGM", new OpType(BurikoOperations.ModPlayBGM, "isiii"));
 			paramLookup.Add("ModFadeOutBGM", new OpType(BurikoOperations.ModFadeOutBGM, "iibi"));
+			paramLookup.Add("ModAddBGMset", new OpType(BurikoOperations.ModAddBGMset, "sss"));
+			paramLookup.Add("ModAddSEset", new OpType(BurikoOperations.ModAddSEset, "sss"));
+			paramLookup.Add("ModAddAudioset", new OpType(BurikoOperations.ModAddAudioset, "ssiiii"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

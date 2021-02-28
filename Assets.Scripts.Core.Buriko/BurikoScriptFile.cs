@@ -2234,6 +2234,12 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODPlayBGM();
 			case BurikoOperations.ModFadeOutBGM:
 				return OperationMODFadeOutBGM();
+			case BurikoOperations.ModAddBGMset:
+				return OperationMODAddBGMset();
+			case BurikoOperations.ModAddSEset:
+				return OperationMODAddSEset();
+			case BurikoOperations.ModAddAudioset:
+				return OperationMODAddAudioset();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2694,13 +2700,46 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
-		public BurikoVariable OperationMODAddArtset()
+		private PathCascadeList ReadPathCascadeFromArgs()
 		{
-			SetOperationType("MODAddArtset");
 			string nameEN = ReadVariable().StringValue();
 			string nameJP = ReadVariable().StringValue();
 			string[] paths = ReadVariable().StringValue().Split(':');
-			AssetManager.Instance.AddArtset(new PathCascadeList(nameEN, nameJP, paths));
+			return new PathCascadeList(nameEN, nameJP, paths);
+		}
+
+		public BurikoVariable OperationMODAddArtset()
+		{
+			SetOperationType("MODAddArtset");
+			AssetManager.Instance.AddArtset(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddBGMset()
+		{
+			SetOperationType("MODAddBGMset");
+			MODAudioSet.Instance.AddBGMSet(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddSEset()
+		{
+			SetOperationType("MODAddSEset");
+			MODAudioSet.Instance.AddSESet(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddAudioset()
+		{
+			SetOperationType("MODAddAudioSet");
+			string nameEN = ReadVariable().StringValue();
+			string nameJP = ReadVariable().StringValue();
+			int altBGM = ReadVariable().IntValue();
+			int altBGMflow = ReadVariable().IntValue();
+			int altSE = ReadVariable().IntValue();
+			int altSEFlow = ReadVariable().IntValue();
+			MODAudioSet.Instance.AddAudioSet(new AudioSet(nameEN, nameJP, altBGM, altBGMflow, altSE, altSEFlow));
+
 			return BurikoVariable.Null;
 		}
 
