@@ -2240,6 +2240,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODAddSEset();
 			case BurikoOperations.ModAddAudioset:
 				return OperationMODAddAudioset();
+			case BurikoOperations.ModGenericCall:
+				return OperationMODGenericCall();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2748,6 +2750,24 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("MODClearArtsets");
 			AssetManager.Instance.ClearArtsets();
 			AssetManager.Instance.ShouldSerializeArtsets = true;
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODGenericCall()
+		{
+			SetOperationType("MODGenericCall");
+			string callID = ReadVariable().StringValue();
+			string callParameters = ReadVariable().StringValue();
+			switch(callID)
+			{
+				case "ShowAudioSetupMenu":
+					GameSystem.Instance.MainUIController.modMenu.Show(ModMenuMode.AudioSetup);
+					break;
+
+				default:
+					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
+					break;
+			}
 			return BurikoVariable.Null;
 		}
 	}

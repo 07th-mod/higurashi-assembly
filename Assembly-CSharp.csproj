@@ -243,6 +243,7 @@
     <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenu.cs" />
     <Compile Include="MOD.Scripts.UI\MODActions.cs" />
+    <Compile Include="MOD.Scripts.UI\MODRadio.cs" />
     <Compile Include="MOD.Scripts.UI\MODSimpleTimer.cs" />
     <Compile Include="MOD.Scripts.UI\MODSound.cs" />
     <Compile Include="MOD.Scripts.UI\MODStyleManager.cs" />

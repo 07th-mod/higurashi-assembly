@@ -12,49 +12,10 @@ using UnityEngine;
 
 namespace MOD.Scripts.UI
 {
-	class MODRadio
+	public enum ModMenuMode
 	{
-		public static bool anyRadioPressed;
-		string label;
-		private GUIContent[] radioContents;
-		MODStyleManager styleManager;
-		int itemsPerRow;
-
-		public MODRadio(string label, GUIContent[] radioContents, MODStyleManager styleManager, int itemsPerRow=0) //Action<int> onRadioChange, 
-		{
-			this.label = label;
-			this.radioContents = radioContents;
-			this.itemsPerRow = radioContents.Length == 0 ? 1 : radioContents.Length;
-			if(itemsPerRow != 0)
-			{
-				this.itemsPerRow = itemsPerRow;
-			}
-			this.styleManager = styleManager;
-		}
-
-		/// <summary>
-		/// NOTE: only call this function within OnGUI()
-		/// Displays the radio, calling onRadioChange when the user clicks on a different radio value.
-		/// </summary>
-		/// <param name="displayedRadio">Sets the currently displayed radio. Use "-1" for "None selected"</param>
-		/// <returns>If radio did not change value, null is returned, otherwise the new value is returned.</returns>
-		public int? OnGUIFragment(int displayedRadio)
-		{
-			GUILayout.Label(this.label, styleManager.Group.label);
-			int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.Group.modMenuSelectionGrid);
-			if (i != displayedRadio)
-			{
-				MODRadio.anyRadioPressed = true;
-				return i;
-			}
-
-			return null;
-		}
-
-		public void SetContents(GUIContent[] content)
-		{
-			this.radioContents = content;
-		}
+		Normal,
+		AudioSetup,
 	}
 
 	public class MODMenu
@@ -81,6 +42,7 @@ namespace MOD.Scripts.UI
 		private bool hasOGBackgrounds;
 		private bool hasBGMSEOptions;
 		private bool showDebugInfo;
+		private ModMenuMode menuMode;
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -343,6 +305,7 @@ Sets the script censorship level
 			}
 			lastMenuVisibleStatus = visible;
 
+
 			if (visible)
 			{
 				float totalAreaWidth = styleManager.Group.menuWidth; // areaWidth + toolTipWidth;
@@ -366,175 +329,17 @@ Sets the script censorship level
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
 					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
 
-					HeadingLabel("Basic Options");
-
-					Label("Graphics Presets (Hotkey: F1)");
+					switch(menuMode)
 					{
-						GUILayout.BeginHorizontal();
+						case ModMenuMode.AudioSetup:
+							OnGUIFirstTimeAudioSetup();
+							break;
 
-						int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
-
-						if (this.Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
-						"- Makes text show at the bottom of the screen in a textbox\n" +
-						"- Shows the name of the current character on the textbox\n" +
-						"- Uses the console sprites and backgrounds\n" +
-						"- Displays in 16:9 widescreen\n\n" +
-						"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 0))
-						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
-						}
-
-						if (this.Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
-							"- Makes text show across the whole screen\n" +
-							"- Uses the console sprites and backgrounds\n" +
-							"- Displays in 16:9 widescreen\n\n" +
-							"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 1))
-						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
-						}
-
-						if (this.hasOGBackgrounds &&
-							this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
-							"- Displays backgrounds in 4:3 'standard' aspect\n" +
-							"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
-							"- Switches to original sprites and backgrounds\n\n" +
-							"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 2))
-						{
-							MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
-						}
-
-						GUILayout.EndHorizontal();
+						case ModMenuMode.Normal:
+						default:
+							OnGUINormalMenu();
+							break;
 					}
-
-					if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
-					{
-						SetGlobal("GCensor", censorLevel);
-					};
-
-					if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
-					{
-						SetGlobal("GLipSync", lipSyncEnabled);
-					};
-
-					if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
-					{
-						SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
-					};
-
-					if (this.hasBGMSEOptions)
-					{
-						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-						if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
-						{
-							MODAudioSet.Instance.SetFromZeroBasedIndex(newBGMSEValue);
-						}
-					}
-
-					HeadingLabel("Advanced Options");
-
-					if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
-					{
-						SetGlobal("GHideCG", hideCG);
-					};
-
-					if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
-					{
-						SetGlobal("GStretchBackgrounds", 0);
-						Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
-					}
-
-					if(this.hasOGBackgrounds)
-					{
-						int currentBackground = GetGlobal("GBackgroundSet");
-						if(currentBackground == 2)
-						{
-							if (GetGlobal("GStretchBackgrounds") == 1)
-							{
-								currentBackground = 3;
-							}
-						}
-						if(this.radioBackgrounds.OnGUIFragment(currentBackground) is int background)
-						{
-							if(background == 3)
-							{
-								SetGlobal("GStretchBackgrounds", 1);
-								SetGlobal("GBackgroundSet", 2);
-							}
-							else
-							{
-								SetGlobal("GStretchBackgrounds", 0);
-								SetGlobal("GBackgroundSet", background);
-							}
-							GameSystem.Instance.SceneController.ReloadAllImages();
-						}
-					}
-
-					GUILayout.Space(10);
-					OnGUIRestoreSettings();
-
-					Label("Resolution Settings");
-					{
-						GUILayout.BeginHorizontal();
-						if (Button(new GUIContent("480p", "Set resolution to 853 x 480"))) { SetAndSaveResolution(480); }
-						if (Button(new GUIContent("720p", "Set resolution to 1280 x 720"))) { SetAndSaveResolution(720); }
-						if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
-						if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
-						if (gameSystem.IsFullscreen)
-						{
-							if (Button(new GUIContent("Windowed", "Toggle Fullscreen")))
-							{
-								GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
-							}
-						}
-						else
-						{
-							if (Button(new GUIContent("Fullscreen", "Toggle Fullscreen")))
-							{
-								gameSystem.GoFullscreen();
-							}
-						}
-
-						screenHeightString = GUILayout.TextField(screenHeightString);
-						if(Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.\n\n" +
-							"Height set automatically to maintain 16:9 aspect ratio.")))
-						{
-							if(int.TryParse(screenHeightString, out int new_height))
-							{
-								if(new_height < 480)
-								{
-									MODToaster.Show("Height too small - must be at least 480 pixels");
-									new_height = 480;
-								}
-								else if(new_height > 15360)
-								{
-									MODToaster.Show("Height too big - must be less than 15360 pixels");
-									new_height = 15360;
-								}
-								screenHeightString = $"{new_height}";
-								int new_width = Mathf.RoundToInt(new_height * 16f / 9f);
-								Screen.SetResolution(new_width, new_height, Screen.fullScreen);
-								PlayerPrefs.SetInt("width", new_width);
-								PlayerPrefs.SetInt("height", new_height);
-							}
-						}
-						GUILayout.EndHorizontal();
-					}
-
-					HeadingLabel("Troubleshooting");
-					Label("Save Files and Log Files");
-					ShowSupportButtons(content => Button(content));
-
-					Label("Developer");
-					GUILayout.BeginHorizontal();
-					if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
-					{
-						ToggleDebugMenu();
-					}
-					if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
-					{
-						MODActions.ToggleFlagMenu();
-					}
-					GUILayout.EndHorizontal();
 
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
@@ -580,10 +385,10 @@ Sets the script censorship level
 
 				// Exit button
 				GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth, areaPosY, exitButtonWidth, exitButtonHeight));
-					if(Button(new GUIContent("X", "Close the Mod menu")))
-					{
-						this.Hide();
-					}
+				if (Button(new GUIContent("X", "Close the Mod menu")))
+				{
+					this.Hide();
+				}
 				GUILayout.EndArea();
 
 				if(MODRadio.anyRadioPressed || anyButtonPressed)
@@ -595,8 +400,176 @@ Sets the script censorship level
 			}
 		}
 
-		private void Show()
+		private void OnGUINormalMenu()
 		{
+			HeadingLabel("Basic Options");
+
+			Label("Graphics Presets (Hotkey: F1)");
+			{
+				GUILayout.BeginHorizontal();
+
+				int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
+
+				if (this.Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
+				"- Makes text show at the bottom of the screen in a textbox\n" +
+				"- Shows the name of the current character on the textbox\n" +
+				"- Uses the console sprites and backgrounds\n" +
+				"- Displays in 16:9 widescreen\n\n" +
+				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 0))
+				{
+					MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
+				}
+
+				if (this.Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
+					"- Makes text show across the whole screen\n" +
+					"- Uses the console sprites and backgrounds\n" +
+					"- Displays in 16:9 widescreen\n\n" +
+					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 1))
+				{
+					MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
+				}
+
+				if (this.hasOGBackgrounds &&
+					this.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+					"- Displays backgrounds in 4:3 'standard' aspect\n" +
+					"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
+					"- Switches to original sprites and backgrounds\n\n" +
+					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 2))
+				{
+					MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
+				}
+
+				GUILayout.EndHorizontal();
+			}
+
+			if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
+			{
+				SetGlobal("GCensor", censorLevel);
+			};
+
+			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
+			{
+				SetGlobal("GLipSync", lipSyncEnabled);
+			};
+
+			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
+			{
+				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
+			};
+
+			OnGUIFragmentChooseAudioSet();
+
+			HeadingLabel("Advanced Options");
+
+			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
+			{
+				SetGlobal("GHideCG", hideCG);
+			};
+
+			if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
+			{
+				SetGlobal("GStretchBackgrounds", 0);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
+			}
+
+			if (this.hasOGBackgrounds)
+			{
+				int currentBackground = GetGlobal("GBackgroundSet");
+				if (currentBackground == 2)
+				{
+					if (GetGlobal("GStretchBackgrounds") == 1)
+					{
+						currentBackground = 3;
+					}
+				}
+				if (this.radioBackgrounds.OnGUIFragment(currentBackground) is int background)
+				{
+					if (background == 3)
+					{
+						SetGlobal("GStretchBackgrounds", 1);
+						SetGlobal("GBackgroundSet", 2);
+					}
+					else
+					{
+						SetGlobal("GStretchBackgrounds", 0);
+						SetGlobal("GBackgroundSet", background);
+					}
+					GameSystem.Instance.SceneController.ReloadAllImages();
+				}
+			}
+
+			GUILayout.Space(10);
+			OnGUIRestoreSettings();
+
+			Label("Resolution Settings");
+			{
+				GUILayout.BeginHorizontal();
+				if (Button(new GUIContent("480p", "Set resolution to 853 x 480"))) { SetAndSaveResolution(480); }
+				if (Button(new GUIContent("720p", "Set resolution to 1280 x 720"))) { SetAndSaveResolution(720); }
+				if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
+				if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
+				if (gameSystem.IsFullscreen)
+				{
+					if (Button(new GUIContent("Windowed", "Toggle Fullscreen")))
+					{
+						GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
+					}
+				}
+				else
+				{
+					if (Button(new GUIContent("Fullscreen", "Toggle Fullscreen")))
+					{
+						gameSystem.GoFullscreen();
+					}
+				}
+
+				screenHeightString = GUILayout.TextField(screenHeightString);
+				if (Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.\n\n" +
+					"Height set automatically to maintain 16:9 aspect ratio.")))
+				{
+					if (int.TryParse(screenHeightString, out int new_height))
+					{
+						if (new_height < 480)
+						{
+							MODToaster.Show("Height too small - must be at least 480 pixels");
+							new_height = 480;
+						}
+						else if (new_height > 15360)
+						{
+							MODToaster.Show("Height too big - must be less than 15360 pixels");
+							new_height = 15360;
+						}
+						screenHeightString = $"{new_height}";
+						int new_width = Mathf.RoundToInt(new_height * 16f / 9f);
+						Screen.SetResolution(new_width, new_height, Screen.fullScreen);
+						PlayerPrefs.SetInt("width", new_width);
+						PlayerPrefs.SetInt("height", new_height);
+					}
+				}
+				GUILayout.EndHorizontal();
+			}
+
+			HeadingLabel("Troubleshooting");
+			Label("Save Files and Log Files");
+			ShowSupportButtons(content => Button(content));
+
+			Label("Developer");
+			GUILayout.BeginHorizontal();
+			if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
+			{
+				ToggleDebugMenu();
+			}
+			if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
+			{
+				MODActions.ToggleFlagMenu();
+			}
+			GUILayout.EndHorizontal();
+		}
+
+		public void Show(ModMenuMode menuMode = ModMenuMode.Normal)
+		{
+			this.menuMode = menuMode;
+
 			void ForceShow()
 			{
 				gameSystem.MODIgnoreInputs = true;
@@ -750,11 +723,35 @@ Sets the script censorship level
 			}
 		}
 
+		private void OnGUIFirstTimeAudioSetup()
+		{
+			Label("The patch supports different BGM/SE types, they can vary what you will hear and when. Choose the one that feels most appropriate for your experience.");
+			if(OnGUIFragmentChooseAudioSet())
+			{
+				menuMode = ModMenuMode.Normal;
+				Hide();
+			}
+		}
+
 		public void ToggleDebugMenu()
 		{
 			showDebugInfo = !showDebugInfo;
 			MODAudioTracking.Instance.LoggingEnabled = showDebugInfo;
 		}
 
+		public bool OnGUIFragmentChooseAudioSet()
+		{
+			if (this.hasBGMSEOptions)
+			{
+				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
+				if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
+				{
+					MODAudioSet.Instance.SetFromZeroBasedIndex(newBGMSEValue);
+					return true;
+				}
+			}
+
+			return false;
+		}
 	}
 }

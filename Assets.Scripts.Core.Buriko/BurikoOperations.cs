@@ -150,5 +150,6 @@ namespace Assets.Scripts.Core.Buriko
 		ModAddBGMset,
 		ModAddSEset,
 		ModAddAudioset,
+		ModGenericCall,
 	}
 }
