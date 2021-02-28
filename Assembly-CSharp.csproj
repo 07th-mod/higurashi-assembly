@@ -243,6 +243,11 @@
     <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenu.cs" />
     <Compile Include="MOD.Scripts.UI\MODActions.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuSupport.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuModuleInterface.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuNormal.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuResolution.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuCommon.cs" />
     <Compile Include="MOD.Scripts.UI\MODRadio.cs" />
     <Compile Include="MOD.Scripts.UI\MODSimpleTimer.cs" />
     <Compile Include="MOD.Scripts.UI\MODSound.cs" />
