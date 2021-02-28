@@ -227,9 +227,8 @@ namespace MOD.Scripts.UI
 
 				case Action.AltBGMFlow:
 					{
-						int newAltBGMFlow = MODActions.IncrementGlobalFlagWithRollover("GAltBGMflow", "GAltBGMflowMaxNum");
-						MODAudioTracking.Instance.SetAndSaveBGMSE(newAltBGMFlow);
-						MODToaster.Show($"{MODAudioTracking.GetBGMNameFromAltBGMFlag(newAltBGMFlow)} ({newAltBGMFlow})");
+						MODAudioSet.Instance.Toggle();
+						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetName(includeAudioSetFlag: true));
 					}
 					break;
 

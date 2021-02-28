@@ -77,7 +77,6 @@ namespace MOD.Scripts.UI
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
 		Vector2 leftDebugColumnScrollPosition;
-		Vector2 rightDebugColumnScrollPosition;
 		private static Vector2 emergencyMenuScrollPosition;
 		private bool hasOGBackgrounds;
 		private bool hasBGMSEOptions;
@@ -262,20 +261,14 @@ Sets the script censorship level
 		{
 			if (showDebugInfo && AssetManager.Instance != null)
 			{
-				// Left debug column
-				GUILayout.BeginArea(new Rect(0, 0, Screen.width/2, Screen.height / 4), styleManager.modMenuAreaStyleLight);
+				GUILayout.BeginArea(new Rect(0, 0, Screen.width/3, Screen.height), styleManager.modMenuAreaStyleLight);
 				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
 				GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
 				GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.EndScrollView();
-				GUILayout.EndArea();
 
-
-				// Right debug column
-				GUILayout.BeginArea(new Rect(Screen.width / 2, 0, Screen.width/2, Screen.height/4), styleManager.modMenuAreaStyleLight);
-				rightDebugColumnScrollPosition = GUILayout.BeginScrollView(rightDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height / 4 - 10));
 				GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Last Played Path: {AssetManager.Instance.debugLastBGM}\n" +
+				GUILayout.Label($"Audio Set: {GetGlobal("GAudioSet")}\n" +
+					$"BGM: {GetGlobal("GAltBGM")} - Flow: {GetGlobal("GAltBGMflow")} - Last Played Path: {AssetManager.Instance.debugLastBGM}\n" +
 					$"SE:  {GetGlobal("GAltSE")}  - Flow: {GetGlobal("GAltSEflow")} - Last Played Path: {AssetManager.Instance.debugLastSE}\n" +
 					$"Voice: {GetGlobal("GAltVoice")} - Priority: {GetGlobal("GAltVoicePriority")} - Last Played Path: {AssetManager.Instance.debugLastVoice}\n" +
 					$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}",
@@ -420,7 +413,7 @@ Sets the script censorship level
 						// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
 						if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAltBGM")) is int newBGMSEValue)
 						{
-							MODAudioTracking.Instance.SetAndSaveBGMSE(newBGMSEValue);
+							MODAudioSet.Instance.SetFromZeroBasedIndex(newBGMSEValue);
 						}
 					}
 

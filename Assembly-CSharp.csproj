@@ -71,6 +71,7 @@
     <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
+    <Compile Include="MOD.Scripts.Core.Audio\MODAudioSet.cs" />
     <Compile Include="MOD.Scripts.Core.Audio\MODAudioTracking.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\OnFinishLoad.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoObjectConverter.cs" />

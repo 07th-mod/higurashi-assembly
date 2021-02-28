@@ -97,16 +97,7 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public void SetAndSaveBGMSE(int newBGMSEValue)
-		{
-			BurikoMemory.Instance.SetGlobalFlag("GAltBGM", newBGMSEValue);
-			BurikoMemory.Instance.SetGlobalFlag("GAltSE", newBGMSEValue);
-			BurikoMemory.Instance.SetGlobalFlag("GAltBGMflow", newBGMSEValue);
-			BurikoMemory.Instance.SetGlobalFlag("GAltSEflow", newBGMSEValue);
-			RestoreBGM(newBGMSEValue);
-		}
-
-		private void RestoreBGM(int newBGMFlow)
+		public void RestoreBGM(int newBGMFlow)
 		{
 			Log($"Begin BGM restore...");
 			if (!flowInRange(newBGMFlow))
@@ -129,27 +120,12 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public static string GetBGMNameFromAltBGMFlag(int altBGMFlag)
-		{
-			switch(altBGMFlag)
-			{
-				case 0:
-					return "New BGM/SE";
-
-				case 1:
-					return "Original BGM/SE";
-
-				default:
-					return $"BGM/SE {altBGMFlag}";
-			}
-		}
-
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < lastAltBGM.Length; i++)
 			{
-				sb.Append($"{GetBGMNameFromAltBGMFlag(i)} (flow = {i})\n");
+				sb.Append($"{MODAudioSet.Instance.GetFlowName(i)} (set = {i})\n");
 
 				if (lastAltBGM[i].Count == 0)
 				{

@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
+using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -50,23 +51,9 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
-		public List<PathCascadeList> BGMCascades = new List<PathCascadeList>()
-		{
-			new PathCascadeList("April Update", "April Update", new string[] { "BGM" }),
-			new PathCascadeList("Original", "Original", new string[] { "OGBGM" , "BGM" }),
-		};
-
-		public List<PathCascadeList> SECascades = new List<PathCascadeList>()
-		{
-			new PathCascadeList("April Update", "April Update", new string[] { "SE" }),
-			new PathCascadeList("Original", "Original", new string[] { "OGSE" , "SE" }),
-		};
-
-		public List<PathCascadeList> voiceCascades = new List<PathCascadeList>()
-		{
-			new PathCascadeList("PS3", "PS3", new string[] { "voice" }),
-		};
-
+		PathCascadeList defaultBGMCascade = new PathCascadeList("April Update", "April Update", new string[] { "BGM" });
+		PathCascadeList defaultSECascade = new PathCascadeList("April Update", "April Update", new string[] { "SE" });
+		PathCascadeList defaultVoiceCascade = new PathCascadeList("PS3", "PS3", new string[] { "voice" });
 
 		/// <summary>
 		/// Get the artset at the given index
@@ -366,11 +353,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
-		public string getAssetUsingFlagAndCascade(string filename, int flag, List<PathCascadeList> cascades, out bool exists)
+		public string getAssetUsingFlagAndCascade(string filename, int flag, List<PathCascadeList> cascades, PathCascadeList defaultCascade, out bool exists)
 		{
 			exists = false;
 
-			PathCascadeList cascade = cascades[0];
+			PathCascadeList cascade = defaultCascade;
 			if(flag < cascades.Count)
 			{
 				cascade = cascades[flag];
@@ -396,11 +383,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			switch (type)
 			{
 				case Audio.AudioType.BGM:
-					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue(), BGMCascades, out ok);
+					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue(), MODAudioSet.Instance.BGMCascades, defaultBGMCascade, out ok);
 
 				case Audio.AudioType.SE:
 				case Audio.AudioType.System:
-					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue(), SECascades, out ok);
+					return getAssetUsingFlagAndCascade(filename, BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue(), MODAudioSet.Instance.SECascades, defaultSECascade, out ok);
 
 				case Audio.AudioType.Voice:
 					int voiceFlag = BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue();
@@ -408,7 +395,7 @@ namespace Assets.Scripts.Core.AssetManagement
 					{
 						voiceFlag = 0;
 					}
-					return getAssetUsingFlagAndCascade(filename, voiceFlag, voiceCascades, out ok);
+					return getAssetUsingFlagAndCascade(filename, voiceFlag, MODAudioSet.Instance.voiceCascades, defaultVoiceCascade, out ok);
 
 				default:
 					Debug.Log($"_GetAudioFilePath(): Cannot play '{filename}' due to unknown AudioType '{type}' - ignoring this file");

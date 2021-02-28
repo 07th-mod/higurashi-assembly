@@ -109,6 +109,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GRyukishiMode", 526);
 			variableReference.Add("GStretchBackgrounds", 527);
 			variableReference.Add("GBackgroundSet", 528);
+			variableReference.Add("GAudioSet", 529);
 
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
