@@ -112,5 +112,7 @@ namespace MOD.Scripts.Core.Audio
 		}
 
 		private static int OneToZeroIndexed(int value) => value > 0 ? value - 1 : 0;
+
+		public bool HasAudioSets() => audioSets.Count > 0;
 	}
 }
