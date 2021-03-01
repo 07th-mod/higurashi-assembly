@@ -12,10 +12,10 @@ namespace MOD.Scripts.UI
 		private readonly MODMenu modMenu;
 		private readonly MODMenuCommon c;
 		private readonly MODMenuResolution resolutionMenu;
+		private readonly MODMenuAudioOptions audioOptionsMenu;
 
 		private GUIContent[] defaultArtsetDescriptions;
 		private readonly bool hasOGBackgrounds;
-		private bool hasBGMSEOptions;
 
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
@@ -23,16 +23,15 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
-		private readonly MODRadio radioBGMSESet;
 
-		public MODMenuNormal(MODMenu modMenu, MODMenuCommon c, MODStyleManager styleManager)
+		public MODMenuNormal(MODMenu modMenu, MODMenuCommon c, MODStyleManager styleManager, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
 			this.c = c;
+			this.audioOptionsMenu = audioOptionsMenu;
 			this.resolutionMenu = new MODMenuResolution(c);
 
 			hasOGBackgrounds = MODActions.HasOGBackgrounds();
-			hasBGMSEOptions = MODActions.HasMusicToggle();
 
 			defaultArtsetDescriptions = new GUIContent[] {
 				new GUIContent("Console", "Use the Console sprites and backgrounds"),
@@ -91,13 +90,6 @@ Sets the script censorship level
 			}, styleManager, itemsPerRow: 2);
 
 			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, styleManager, itemsPerRow: 3);
-
-			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[]
-			{
-				new GUIContent("New BGM/SE", "Use the new BGM/SE introduced by MangaGamer in the April 2019 update."),
-				new GUIContent("Original BGM/SE", "Use the original BGM/SE from the Japanese version of the game. This option was previously known as 'BGM/SE fix'.\n\n" +
-				"Note that this not only changes which audio files are played, but also when BGM starts to play/stops playing, in certain cases."),
-			}, styleManager);
 		}
 
 		public void OnGUI()
@@ -157,7 +149,7 @@ Sets the script censorship level
 				c.SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 			};
 
-			OnGUIFragmentChooseAudioSet(c);
+			this.audioOptionsMenu.OnGUI();
 
 			c.HeadingLabel("Advanced Options");
 
@@ -235,6 +227,7 @@ Sets the script censorship level
 			this.radioArtSet.SetContents(descriptions);
 
 			resolutionMenu.OnBeforeMenuVisible();
+			audioOptionsMenu.OnBeforeMenuVisible();
 		}
 
 		private void OnGUIRestoreSettings(MODMenuCommon w)
@@ -268,27 +261,6 @@ Sets the script censorship level
 				}
 			}
 			GUILayout.EndHorizontal();
-		}
-
-		public bool OnGUIFragmentChooseAudioSet(MODMenuCommon c)
-		{
-			if (this.hasBGMSEOptions)
-			{
-				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : 0) is int newBGMSEValue)
-				{
-					MODAudioSet.Instance.SetFromZeroBasedIndex(newBGMSEValue);
-				}
-
-				GUILayout.Space(20);
-
-				if (c.GetGlobal("GAudioSet") != 0 && c.Button(new GUIContent("Click here when you're finished.")))
-				{
-					return true;
-				}
-			}
-
-			return false;
 		}
 	}
 }

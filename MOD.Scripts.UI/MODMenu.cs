@@ -33,9 +33,10 @@ namespace MOD.Scripts.UI
 		Vector2 scrollPosition;
 		Vector2 leftDebugColumnScrollPosition;
 
-		private ModMenuMode menuMode;
-
 		private MODMenuNormal normalMenu;
+		private MODMenuAudioOptions audioOptionsMenu;
+		private MODMenuAudioSetup audioSetupMenu;
+		private MODMenuModuleInterface currentMenu; // The menu that is currently visible
 
 		string lastToolTip = String.Empty;
 		string defaultTooltip = @"Hover over a button on the left panel for its description.
@@ -95,7 +96,10 @@ You can try the following yourself to fix the issue.
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
 			this.startupWatchdogTimer.Start(5.0f);
 
-			this.normalMenu = new MODMenuNormal(this, this.c, styleManager);
+			this.audioOptionsMenu = new MODMenuAudioOptions(this.c, styleManager);
+			this.normalMenu = new MODMenuNormal(this, this.c, styleManager, this.audioOptionsMenu);
+			this.audioSetupMenu = new MODMenuAudioSetup(this, this.c, this.audioOptionsMenu);
+			this.currentMenu = this.normalMenu;
 		}
 
 		public void Update()
@@ -184,7 +188,7 @@ You can try the following yourself to fix the issue.
 			if (visible && !lastMenuVisibleStatus)
 			{
 				// Executes just before menu becomes visible
-				normalMenu.OnBeforeMenuVisible();
+				currentMenu.OnBeforeMenuVisible();
 			}
 			lastMenuVisibleStatus = visible;
 
@@ -213,17 +217,7 @@ You can try the following yourself to fix the issue.
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
 					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
 
-					switch(menuMode)
-					{
-						case ModMenuMode.AudioSetup:
-							customDefaultToolTip = OnGUIFirstTimeAudioSetup();
-							break;
-
-						case ModMenuMode.Normal:
-						default:
-							normalMenu.OnGUI();
-							break;
-					}
+					currentMenu.OnGUI();
 
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
@@ -284,10 +278,23 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
-		public void Show(ModMenuMode menuMode = ModMenuMode.Normal)
+		public void SetMode(ModMenuMode menuMode)
 		{
-			this.menuMode = menuMode;
+			switch (menuMode)
+			{
+				case ModMenuMode.AudioSetup:
+					currentMenu = audioSetupMenu;
+					break;
 
+				case ModMenuMode.Normal:
+				default:
+					currentMenu = normalMenu;
+					break;
+			}
+		}
+
+		public void Show()
+		{
 			void ForceShow()
 			{
 				gameSystem.MODIgnoreInputs = true;
@@ -330,18 +337,6 @@ You can try the following yourself to fix the issue.
 			{
 				this.Show();
 			}
-		}
-
-		private string OnGUIFirstTimeAudioSetup()
-		{
-			c.Label("The patch supports different BGM/SE types, they can vary what you will hear and when. Choose the one that feels most appropriate for your experience.");
-			if(normalMenu.OnGUIFragmentChooseAudioSet(c))
-			{
-				menuMode = ModMenuMode.Normal;
-				Hide();
-			}
-
-			return "Please select a BGM type on the left before continuing.";
 		}
 
 		public void ToggleDebugMenu()
