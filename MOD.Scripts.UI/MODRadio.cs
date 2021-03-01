@@ -34,6 +34,12 @@ namespace MOD.Scripts.UI
 		public int? OnGUIFragment(int displayedRadio)
 		{
 			GUILayout.Label(this.label, styleManager.Group.label);
+
+			if(radioContents.Length == 0)
+			{
+				GUILayout.Label("MODRadio Error: this radio has no options!", styleManager.Group.label);
+			}
+
 			int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.Group.modMenuSelectionGrid);
 			if (i != displayedRadio)
 			{
@@ -48,5 +54,7 @@ namespace MOD.Scripts.UI
 		{
 			this.radioContents = content;
 		}
+
+		public GUIContent[] GetContents() => this.radioContents;
 	}
 }

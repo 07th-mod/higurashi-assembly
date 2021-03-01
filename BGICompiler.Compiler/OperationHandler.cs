@@ -177,7 +177,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ModFadeOutBGM", new OpType(BurikoOperations.ModFadeOutBGM, "iibi"));
 			paramLookup.Add("ModAddBGMset", new OpType(BurikoOperations.ModAddBGMset, "sss"));
 			paramLookup.Add("ModAddSEset", new OpType(BurikoOperations.ModAddSEset, "sss"));
-			paramLookup.Add("ModAddAudioset", new OpType(BurikoOperations.ModAddAudioset, "ssiiii"));
+			paramLookup.Add("ModAddAudioset", new OpType(BurikoOperations.ModAddAudioset, "ssssiiii"));
 			paramLookup.Add("ModGenericCall", new OpType(BurikoOperations.ModGenericCall, "ss"));
 		}
 

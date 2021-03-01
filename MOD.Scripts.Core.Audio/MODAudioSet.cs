@@ -11,20 +11,27 @@ namespace MOD.Scripts.Core.Audio
 	{
 		public readonly string nameEN;
 		public readonly string nameJP;
+		public readonly string descriptionEN;
+		public readonly string descriptionJP;
 		public readonly int altBGM;
 		public readonly int altBGMFlow;
 		public readonly int altSE;
 		public readonly int altSEFlow;
 
-		public AudioSet(string nameEN, string nameJP, int altBGM, int altBGMFlow, int altSE, int altSEFlow)
+		public AudioSet(string nameEN, string nameJP, string descriptionEN, string descriptionJP, int altBGM, int altBGMFlow, int altSE, int altSEFlow)
 		{
 			this.nameEN = nameEN;
 			this.nameJP = nameJP;
+			this.descriptionEN = descriptionEN;
+			this.descriptionJP = descriptionJP;
 			this.altBGM = altBGM;
 			this.altBGMFlow = altBGMFlow;
 			this.altSE = altSE;
 			this.altSEFlow = altSEFlow;
 		}
+
+		public string Name(bool getJapanese) => getJapanese ? nameJP : nameEN;
+		public string Description(bool getJapanese) => getJapanese ? descriptionJP : descriptionEN;
 	}
 
 	class MODAudioSet
@@ -85,6 +92,8 @@ namespace MOD.Scripts.Core.Audio
 		{
 			return zeroBasedIndex < audioSets.Count ? audioSets[zeroBasedIndex].nameEN : $"Unknown BGM/SE {zeroBasedIndex}";
 		}
+
+		public List<AudioSet> GetAudioSets() => audioSets;
 
 		public string GetBGMFlowName(int altBGMFlow)
 		{

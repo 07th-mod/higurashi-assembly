@@ -2731,16 +2731,22 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		/// <summary>
+		/// Note: Tabs are not supported for descriptions and will be stripped out.
+		/// This is so that you can write multiple line strings in the game script without tabs appearing in the output.
+		/// </summary>
 		public BurikoVariable OperationMODAddAudioset()
 		{
 			SetOperationType("MODAddAudioSet");
 			string nameEN = ReadVariable().StringValue();
+			string descriptionEN = ReadVariable().StringValue();
 			string nameJP = ReadVariable().StringValue();
+			string descriptionJP = ReadVariable().StringValue();
 			int altBGM = ReadVariable().IntValue();
 			int altBGMflow = ReadVariable().IntValue();
 			int altSE = ReadVariable().IntValue();
 			int altSEFlow = ReadVariable().IntValue();
-			MODAudioSet.Instance.AddAudioSet(new AudioSet(nameEN, nameJP, altBGM, altBGMflow, altSE, altSEFlow));
+			MODAudioSet.Instance.AddAudioSet(new AudioSet(nameEN, nameJP, MODUtility.StripTabs(descriptionEN), MODUtility.StripTabs(descriptionJP), altBGM, altBGMflow, altSE, altSEFlow));
 
 			return BurikoVariable.Null;
 		}

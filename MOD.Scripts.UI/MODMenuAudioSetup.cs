@@ -18,7 +18,10 @@ namespace MOD.Scripts.UI
 			this.audioOptions = audioOptions;
 		}
 
-		public void OnBeforeMenuVisible()	{}
+		public void OnBeforeMenuVisible()
+		{
+			audioOptions.OnBeforeMenuVisible();
+		}
 
 		public void OnGUI()
 		{

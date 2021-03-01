@@ -227,6 +227,7 @@ Sets the script censorship level
 			this.radioArtSet.SetContents(descriptions);
 
 			resolutionMenu.OnBeforeMenuVisible();
+			audioOptionsMenu.OnBeforeMenuVisible();
 		}
 
 		private void OnGUIRestoreSettings(MODMenuCommon w)

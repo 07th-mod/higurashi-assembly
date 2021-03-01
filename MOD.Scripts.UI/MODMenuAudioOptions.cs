@@ -1,6 +1,7 @@
 ﻿using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -17,12 +18,18 @@ namespace MOD.Scripts.UI
 			this.c = c;
 			hasBGMSEOptions = MODActions.HasMusicToggle();
 
-			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[]
+			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[] { }, styleManager);
+		}
+
+		public void OnBeforeMenuVisible()
+		{
+			if (this.radioBGMSESet.GetContents().Length == 0)
 			{
-				new GUIContent("New BGM/SE", "Use the new BGM/SE introduced by MangaGamer in the April 2019 update."),
-				new GUIContent("Original BGM/SE", "Use the original BGM/SE from the Japanese version of the game. This option was previously known as 'BGM/SE fix'.\n\n" +
-				"Note that this not only changes which audio files are played, but also when BGM starts to play/stops playing, in certain cases."),
-			}, styleManager);
+				bool japanese = c.GetGlobal("GLanguage") == 0;
+				this.radioBGMSESet.SetContents(
+					MODAudioSet.Instance.GetAudioSets().Select(x => new GUIContent(x.Name(japanese), x.Description(japanese))).ToArray()
+				);
+			}
 		}
 
 		public void OnGUI()
