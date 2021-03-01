@@ -207,6 +207,7 @@ You can try the following yourself to fix the issue.
 				float exitButtonHeight = areaHeight * .05f;
 
 				// Radio buttons
+				string customDefaultToolTip = null;
 				{
 					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
@@ -215,7 +216,7 @@ You can try the following yourself to fix the issue.
 					switch(menuMode)
 					{
 						case ModMenuMode.AudioSetup:
-							OnGUIFirstTimeAudioSetup();
+							customDefaultToolTip = OnGUIFirstTimeAudioSetup();
 							break;
 
 						case ModMenuMode.Normal:
@@ -246,7 +247,7 @@ You can try the following yourself to fix the issue.
 						}
 						else
 						{
-							displayedToolTip = defaultTooltip;
+							displayedToolTip = customDefaultToolTip ?? defaultTooltip;
 						}
 					}
 					else
@@ -331,7 +332,7 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
-		private void OnGUIFirstTimeAudioSetup()
+		private string OnGUIFirstTimeAudioSetup()
 		{
 			c.Label("The patch supports different BGM/SE types, they can vary what you will hear and when. Choose the one that feels most appropriate for your experience.");
 			if(normalMenu.OnGUIFragmentChooseAudioSet(c))
@@ -339,6 +340,8 @@ You can try the following yourself to fix the issue.
 				menuMode = ModMenuMode.Normal;
 				Hide();
 			}
+
+			return "Please select a BGM type on the left before continuing.";
 		}
 
 		public void ToggleDebugMenu()
