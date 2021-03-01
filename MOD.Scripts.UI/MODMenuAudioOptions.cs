@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MOD.Scripts.UI
 {
-	class MODMenuAudioOptions : MODMenuModuleInterface
+	class MODMenuAudioOptions
 	{
 		private readonly MODRadio radioBGMSESet;
 		private readonly MODMenuCommon c;
@@ -23,10 +23,6 @@ namespace MOD.Scripts.UI
 				new GUIContent("Original BGM/SE", "Use the original BGM/SE from the Japanese version of the game. This option was previously known as 'BGM/SE fix'.\n\n" +
 				"Note that this not only changes which audio files are played, but also when BGM starts to play/stops playing, in certain cases."),
 			}, styleManager);
-		}
-
-		public void OnBeforeMenuVisible()
-		{
 		}
 
 		public void OnGUI()

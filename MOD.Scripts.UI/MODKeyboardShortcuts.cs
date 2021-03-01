@@ -320,7 +320,7 @@ namespace MOD.Scripts.UI
 			{
 				if (action == Action.ModMenu)
 				{
-					GameSystem.Instance.MainUIController.modMenu.ToggleVisibility();
+					GameSystem.Instance.MainUIController.modMenu.UserToggleVisibility();
 				}
 				else
 				{

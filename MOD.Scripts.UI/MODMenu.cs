@@ -112,7 +112,7 @@ You can try the following yourself to fix the issue.
 		{
 			if (Input.GetMouseButtonDown(1))
 			{
-				this.Hide();
+				this.UserHide();
 			}
 		}
 
@@ -262,12 +262,15 @@ You can try the following yourself to fix the issue.
 				GUILayout.EndArea();
 
 				// Exit button
-				GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth, areaPosY, exitButtonWidth, exitButtonHeight));
-				if (c.Button(new GUIContent("X", "Close the Mod menu")))
+				if (currentMenu.UserCanClose())
 				{
-					this.Hide();
+					GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth, areaPosY, exitButtonWidth, exitButtonHeight));
+					if (c.Button(new GUIContent("X", "Close the Mod menu")))
+					{
+						this.UserHide();
+					}
+					GUILayout.EndArea();
 				}
-				GUILayout.EndArea();
 
 				if(MODRadio.anyRadioPressed || anyButtonPressed)
 				{
@@ -320,18 +323,38 @@ You can try the following yourself to fix the issue.
 
 		}
 
-		public void Hide()
+		/// <summary>
+		/// This function should be called when the user has initiated the hiding of the menu.
+		/// This function call might be ignored if the menu disallows closing - call
+		/// </summary>
+		public void UserHide()
+		{
+			if (currentMenu.UserCanClose())
+			{
+				ForceHide();
+			}
+		}
+
+		public void UserToggleVisibility()
+		{
+			if (currentMenu.UserCanClose())
+			{
+				ForceToggleVisibility();
+			}
+		}
+
+		public void ForceHide()
 		{
 			this.visible = false;
 			gameSystem.MODIgnoreInputs = false;
 			gameSystem.ShowUIControls();
 		}
 
-		public void ToggleVisibility()
+		public void ForceToggleVisibility()
 		{
 			if (this.visible)
 			{
-				this.Hide();
+				this.ForceHide();
 			}
 			else
 			{

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MOD.Scripts.UI
 {
-	class MODMenuResolution : MODMenuModuleInterface
+	class MODMenuResolution
 	{
 		private string screenHeightString;
 		MODMenuCommon c;

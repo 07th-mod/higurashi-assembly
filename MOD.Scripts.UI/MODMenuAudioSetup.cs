@@ -18,10 +18,7 @@ namespace MOD.Scripts.UI
 			this.audioOptions = audioOptions;
 		}
 
-		public void OnBeforeMenuVisible()
-		{
-			audioOptions.OnBeforeMenuVisible();
-		}
+		public void OnBeforeMenuVisible()	{}
 
 		public void OnGUI()
 		{
@@ -34,8 +31,10 @@ namespace MOD.Scripts.UI
 			if (c.GetGlobal("GAudioSet") != 0 && c.Button(new GUIContent("Click here when you're finished.")))
 			{
 				modMenu.SetMode(ModMenuMode.Normal);
-				modMenu.Hide();
+				modMenu.ForceHide();
 			}
 		}
+
+		public bool UserCanClose() => false;
 	}
 }

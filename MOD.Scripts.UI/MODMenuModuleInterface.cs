@@ -15,5 +15,7 @@ namespace MOD.Scripts.UI
 		/// Use for setup, or to do tasks that you don't want to execute every frame
 		/// </summary>
 		void OnBeforeMenuVisible();
+
+		bool UserCanClose();
 	}
 }
