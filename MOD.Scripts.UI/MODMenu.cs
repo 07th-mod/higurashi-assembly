@@ -39,33 +39,6 @@ namespace MOD.Scripts.UI
 		private MODMenuModuleInterface currentMenu; // The menu that is currently visible
 
 		string lastToolTip = String.Empty;
-		string defaultTooltip = @"Hover over a button on the left panel for its description.
-
-[Vanilla Hotkeys]
-Enter,Return,RightArrow,PageDown : Advance Text
-LeftArrow,Pageup : See Backlog
-ESC : Open Menu
-Ctrl : Hold Skip Mode
-A : Auto Mode
-S : Toggle Skip Mode
-F, Alt-Enter : FullScreen
-Space : Hide Text
-L : Swap Language
-
-[MOD Hotkeys]
-F1 : ADV-NVL MODE
-F2 : Voice Matching Level
-F3 : Effect Level (Not Used)
-F5 : QuickSave
-F7 : QuickLoad
-F10 : Mod Menu
-M : Increase Voice Volume
-N : Decrease Voice Volume
-P : Cycle through art styles
-2 : Cycle through BGM/SE
-7 : Enable/Disable Lip-Sync
-LShift + M : Voice Volume MAX
-LShift + N : Voice Volume MIN";
 
 		string startupFailureToolTip = @"It looks like there was a problem starting up
 
@@ -211,7 +184,6 @@ You can try the following yourself to fix the issue.
 				float exitButtonHeight = areaHeight * .05f;
 
 				// Radio buttons
-				string customDefaultToolTip = null;
 				{
 					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
@@ -225,7 +197,7 @@ You can try the following yourself to fix the issue.
 
 				// Descriptions for each button are shown on hover, like a tooltip
 				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modMenuAreaStyle);
-				c.HeadingLabel("Mod Options Menu");
+				c.HeadingLabel(currentMenu.Heading());
 				GUILayout.Space(10);
 
 				GUIStyle toolTipStyle = styleManager.Group.label;
@@ -241,7 +213,7 @@ You can try the following yourself to fix the issue.
 						}
 						else
 						{
-							displayedToolTip = customDefaultToolTip ?? defaultTooltip;
+							displayedToolTip = currentMenu.DefaultTooltip();
 						}
 					}
 					else

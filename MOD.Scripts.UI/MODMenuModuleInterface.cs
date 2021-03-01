@@ -17,5 +17,8 @@ namespace MOD.Scripts.UI
 		void OnBeforeMenuVisible();
 
 		bool UserCanClose();
+
+		string DefaultTooltip();
+		string Heading();
 	}
 }

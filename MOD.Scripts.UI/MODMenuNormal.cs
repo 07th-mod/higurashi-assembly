@@ -263,5 +263,37 @@ Sets the script censorship level
 		}
 
 		public bool UserCanClose() => true;
+		public string Heading() => "Mod Options Menu";
+
+		public string DefaultTooltip()
+		{
+			return @"Hover over a button on the left panel for its description.
+
+[Vanilla Hotkeys]
+Enter,Return,RightArrow,PageDown : Advance Text
+LeftArrow,Pageup : See Backlog
+ESC : Open Menu
+Ctrl : Hold Skip Mode
+A : Auto Mode
+S : Toggle Skip Mode
+F, Alt-Enter : FullScreen
+Space : Hide Text
+L : Swap Language
+
+[MOD Hotkeys]
+F1 : ADV-NVL MODE
+F2 : Voice Matching Level
+F3 : Effect Level (Not Used)
+F5 : QuickSave
+F7 : QuickLoad
+F10 : Mod Menu
+M : Increase Voice Volume
+N : Decrease Voice Volume
+P : Cycle through art styles
+2 : Cycle through BGM/SE
+7 : Enable/Disable Lip-Sync
+LShift + M : Voice Volume MAX
+LShift + N : Voice Volume MIN";
+		}
 	}
 }

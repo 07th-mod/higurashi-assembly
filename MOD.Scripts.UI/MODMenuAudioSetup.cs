@@ -36,5 +36,7 @@ namespace MOD.Scripts.UI
 		}
 
 		public bool UserCanClose() => false;
+		public string Heading() => "First-Time Setup Menu";
+		public string DefaultTooltip() => "Please choose the options on the left before continuing. You can hover over a button to view its description.";
 	}
 }
