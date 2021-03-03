@@ -1,9 +1,12 @@
-﻿using Assets.Scripts.Core.AssetManagement;
+﻿using Assets.Scripts.Core;
+using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace MOD.Scripts.Core.Audio
 {
@@ -17,6 +20,7 @@ namespace MOD.Scripts.Core.Audio
 		public readonly int altBGMFlow;
 		public readonly int altSE;
 		public readonly int altSEFlow;
+		private bool? isInstalled;
 
 		public AudioSet(string nameEN, string nameJP, string descriptionEN, string descriptionJP, int altBGM, int altBGMFlow, int altSE, int altSEFlow)
 		{
@@ -32,6 +36,32 @@ namespace MOD.Scripts.Core.Audio
 
 		public string Name(bool getJapanese) => getJapanese ? nameJP : nameEN;
 		public string Description(bool getJapanese) => getJapanese ? descriptionJP : descriptionEN;
+
+		public bool IsInstalledCached()
+		{
+			if (isInstalled is bool isInstalledBool)
+			{
+				return isInstalledBool;
+			}
+
+			// Check this audio set's BGM folder is installed
+			bool bgmInstalled = false;
+			if (MODAudioSet.Instance.GetBGMCascade(altBGM, out PathCascadeList bgmCascade))
+			{
+				bgmInstalled = MODAudioSet.CascadeInstalled(bgmCascade);
+			}
+
+			// Check this audio set's SE folder is installed
+			bool seInstalled = false;
+			if (MODAudioSet.Instance.GetSECascade(altSE, out PathCascadeList seCascade))
+			{
+				seInstalled = MODAudioSet.CascadeInstalled(seCascade);
+			}
+
+			bool audioSetInstalled = seInstalled && bgmInstalled;
+			isInstalled = audioSetInstalled;
+			return audioSetInstalled;
+		}
 	}
 
 	class MODAudioSet
@@ -62,10 +92,29 @@ namespace MOD.Scripts.Core.Audio
 			ReloadBGMSE(zeroBasedIndex);
 		}
 
+		/// <summary>
+		/// Toggles to the next installed audio set (skips audio sets which are not installed)
+		/// </summary>
 		public void Toggle()
 		{
-			int newAltBGMFlow = MODActions.IncrementGlobalFlagWithRollover("GAudioSet", 1, audioSets.Count);
-			ReloadBGMSE(OneToZeroIndexed(newAltBGMFlow));
+			for(int i = 0; i < audioSets.Count; i++)
+			{
+				int audioSetZeroBasedIndex = OneToZeroIndexed(
+					MODActions.IncrementGlobalFlagWithRollover("GAudioSet", 1, audioSets.Count)
+				);
+
+				// Only apply the audio set if it is installed
+				if (GetAudioSet(audioSetZeroBasedIndex, out AudioSet audioSet))
+				{
+					if(audioSet.IsInstalledCached())
+					{
+						ReloadBGMSE(audioSetZeroBasedIndex);
+						return;
+					}
+				}
+			}
+
+			Logger.Log("MODAudioSet: Failed to toggle audio set, as no audio sets were installed");
 		}
 
 		public void ReloadBGMSE(int zeroBasedIndex)
@@ -94,6 +143,17 @@ namespace MOD.Scripts.Core.Audio
 		}
 
 		public List<AudioSet> GetAudioSets() => audioSets;
+		public bool GetAudioSet(int zeroBasedIndex, out AudioSet audioSet)
+		{
+			if(zeroBasedIndex < audioSets.Count)
+			{
+				audioSet = audioSets[zeroBasedIndex];
+				return true;
+			}
+
+			audioSet = null;
+			return false;
+		}
 
 		public string GetBGMFlowName(int altBGMFlow)
 		{
@@ -122,6 +182,19 @@ namespace MOD.Scripts.Core.Audio
 
 		private static int OneToZeroIndexed(int value) => value > 0 ? value - 1 : 0;
 
-		public bool HasAudioSets() => audioSets.Count > 0;
+		public bool HasAudioSetsDefined() => audioSets.Count > 0;
+
+		public static bool CascadeInstalled(PathCascadeList cascade)
+		{
+			if(cascade.paths.Length == 0)
+			{
+				return false;
+			}
+
+			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, cascade.paths[0]));
+		}
+
+
+
 	}
 }

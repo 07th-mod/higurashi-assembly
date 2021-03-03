@@ -11,12 +11,10 @@ namespace MOD.Scripts.UI
 	{
 		private readonly MODRadio radioBGMSESet;
 		private readonly MODMenuCommon c;
-		private readonly bool hasBGMSEOptions;
 
 		public MODMenuAudioOptions(MODMenuCommon c, MODStyleManager styleManager)
 		{
 			this.c = c;
-			hasBGMSEOptions = MODActions.HasMusicToggle();
 
 			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[] { }, styleManager);
 		}
@@ -34,7 +32,7 @@ namespace MOD.Scripts.UI
 
 		public void OnGUI()
 		{
-			if (this.hasBGMSEOptions)
+			if (MODAudioSet.Instance.HasAudioSetsDefined())
 			{
 				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
 				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : 0) is int newBGMSEValue)

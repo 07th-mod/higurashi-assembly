@@ -2767,7 +2767,7 @@ namespace Assets.Scripts.Core.Buriko
 			switch(callID)
 			{
 				case "ShowAudioSetupMenu":
-					if(MODAudioSet.Instance.HasAudioSets())
+					if(MODAudioSet.Instance.HasAudioSetsDefined())
 					{
 						GameSystem.Instance.MainUIController.modMenu.SetMode(ModMenuMode.AudioSetup);
 						GameSystem.Instance.MainUIController.modMenu.Show();

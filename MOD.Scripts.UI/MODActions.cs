@@ -377,10 +377,6 @@ namespace MOD.Scripts.UI
 		{
 			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, "OGBackgrounds"));
 		}
-		public static bool HasMusicToggle()
-		{
-			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, "OGBGM"));
-		}
 
 		public static void ToggleFlagMenu()
 		{
