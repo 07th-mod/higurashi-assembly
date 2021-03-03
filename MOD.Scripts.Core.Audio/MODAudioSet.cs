@@ -44,24 +44,23 @@ namespace MOD.Scripts.Core.Audio
 				return isInstalledBool;
 			}
 
-			// Check this audio set's BGM folder is installed
-			bool bgmInstalled = false;
-			if (MODAudioSet.Instance.GetBGMCascade(altBGM, out PathCascadeList bgmCascade))
+			if(!BGMCascade(out PathCascadeList bgmCascade))
 			{
-				bgmInstalled = MODAudioSet.CascadeInstalled(bgmCascade);
+				return false;
 			}
 
-			// Check this audio set's SE folder is installed
-			bool seInstalled = false;
-			if (MODAudioSet.Instance.GetSECascade(altSE, out PathCascadeList seCascade))
+			if(!SECascade(out PathCascadeList seCascade))
 			{
-				seInstalled = MODAudioSet.CascadeInstalled(seCascade);
+				return false;
 			}
 
-			bool audioSetInstalled = seInstalled && bgmInstalled;
+			bool audioSetInstalled = seCascade.IsInstalled(Application.streamingAssetsPath) && bgmCascade.IsInstalled(Application.streamingAssetsPath);
 			isInstalled = audioSetInstalled;
 			return audioSetInstalled;
 		}
+
+		public bool BGMCascade(out PathCascadeList bgmCascade) => MODAudioSet.Instance.GetBGMCascade(altBGM, out bgmCascade);
+		public bool SECascade(out PathCascadeList seCascade) => MODAudioSet.Instance.GetSECascade(altSE, out seCascade);
 	}
 
 	class MODAudioSet
@@ -183,18 +182,5 @@ namespace MOD.Scripts.Core.Audio
 		private static int OneToZeroIndexed(int value) => value > 0 ? value - 1 : 0;
 
 		public bool HasAudioSetsDefined() => audioSets.Count > 0;
-
-		public static bool CascadeInstalled(PathCascadeList cascade)
-		{
-			if(cascade.paths.Length == 0)
-			{
-				return false;
-			}
-
-			return Directory.Exists(Path.Combine(Application.streamingAssetsPath, cascade.paths[0]));
-		}
-
-
-
 	}
 }

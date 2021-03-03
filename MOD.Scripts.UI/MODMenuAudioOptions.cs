@@ -16,7 +16,7 @@ namespace MOD.Scripts.UI
 		{
 			this.c = c;
 
-			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[] { }, styleManager);
+			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2);
 		}
 
 		public void OnBeforeMenuVisible()
@@ -24,9 +24,37 @@ namespace MOD.Scripts.UI
 			if (this.radioBGMSESet.GetContents().Length == 0)
 			{
 				bool japanese = c.GetGlobal("GLanguage") == 0;
-				this.radioBGMSESet.SetContents(
-					MODAudioSet.Instance.GetAudioSets().Select(x => new GUIContent(x.Name(japanese), x.Description(japanese))).ToArray()
-				);
+
+				List<GUIContent> buttonContents = new List<GUIContent>();
+				foreach(AudioSet audioSet in MODAudioSet.Instance.GetAudioSets())
+				{
+					string buttonText = audioSet.Name(japanese);
+					string tooltipText = audioSet.Description(japanese);
+
+					// Append message to button text/tooltip if audioSet is not installed
+					if(!audioSet.IsInstalledCached())
+					{
+						string bgmPrimaryInfo = "Invalid BGM cascade";
+						if(audioSet.BGMCascade(out var bgmCascade) && bgmCascade.PrimaryFolder(out string bgmPrimary))
+						{
+							bgmPrimaryInfo = bgmPrimary;
+						}
+
+						string sePrimaryInfo = "Invalid SE cascade";
+						if (audioSet.SECascade(out var seCascade) && seCascade.PrimaryFolder(out string sePrimary))
+						{
+							sePrimaryInfo = sePrimary;
+						}
+
+						buttonText += " (NOT INSTALLED)";
+						tooltipText += $"\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\n\n" +
+							$"\n\nDetailed Info: you're either missing the BGM folder '{bgmPrimaryInfo}' or the SE folder '{sePrimaryInfo}' in the StreamingAssets folder.";
+					}
+
+					buttonContents.Add(new GUIContent(buttonText, tooltipText));
+				}
+
+				this.radioBGMSESet.SetContents(buttonContents.ToArray());
 			}
 		}
 
@@ -35,9 +63,12 @@ namespace MOD.Scripts.UI
 			if (MODAudioSet.Instance.HasAudioSetsDefined())
 			{
 				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : 0) is int newBGMSEValue)
+				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : 0) is int newAudioSetZeroBased)
 				{
-					MODAudioSet.Instance.SetFromZeroBasedIndex(newBGMSEValue);
+					if(MODAudioSet.Instance.GetAudioSet(newAudioSetZeroBased, out AudioSet audioSet) && audioSet.IsInstalledCached())
+					{
+						MODAudioSet.Instance.SetAndSaveAudioFlags(newAudioSetZeroBased);
+					}
 				}
 			}
 		}

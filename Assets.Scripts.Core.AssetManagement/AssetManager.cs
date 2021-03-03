@@ -25,6 +25,28 @@ namespace Assets.Scripts.Core.AssetManagement
 			this.nameJP = nameJP;
 			this.paths = paths;
 		}
+
+		public bool PrimaryFolder(out string primaryFolder)
+		{
+			if(paths.Length == 0)
+			{
+				primaryFolder = "";
+				return false;
+			}
+
+			primaryFolder = paths[0];
+			return true;
+		}
+
+		public bool IsInstalled(string rootPath)
+		{
+			if (!PrimaryFolder(out string primaryFolder))
+			{
+				return false;
+			}
+
+			return Directory.Exists(Path.Combine(rootPath, primaryFolder));
+		}
 	}
 
 	public class AssetManager {
