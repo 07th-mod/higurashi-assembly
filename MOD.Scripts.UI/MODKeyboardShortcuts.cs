@@ -71,6 +71,7 @@ namespace MOD.Scripts.UI
 			ToggleArtStyle,
 			DebugMode,
 			RestoreSettings,
+			ToggleAudioSet,
 		}
 
 		private static Action? GetUserAction()
@@ -131,8 +132,7 @@ namespace MOD.Scripts.UI
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
 			{
-				// TODO: make bgmflow hotkey harder to press?
-				return Action.AltBGMFlow;
+				return Action.ToggleAudioSet;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
 			{
@@ -227,8 +227,8 @@ namespace MOD.Scripts.UI
 
 				case Action.AltBGMFlow:
 					{
-						MODAudioSet.Instance.Toggle();
-						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetName(includeAudioSetFlag: true));
+						int newAltBGMFlow = MODActions.IncrementGlobalFlagWithRollover("GAltBGMflow", "GAltBGMflowMaxNum");
+						MODToaster.Show($"Alt BGM Flow: {newAltBGMFlow} (Not Used)", numberedSound: newAltBGMFlow);
 					}
 					break;
 
@@ -301,6 +301,13 @@ namespace MOD.Scripts.UI
 					{
 						int restoreGameSettingsNum = MODActions.IncrementGlobalFlagWithRollover("GMOD_SETTING_LOADER", 0, 3);
 						MODToaster.Show($"Reset Settings: {restoreGameSettingsNum} (see F10 menu)", numberedSound: restoreGameSettingsNum);
+					}
+					break;
+
+				case Action.ToggleAudioSet:
+					{
+						MODAudioSet.Instance.Toggle();
+						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetName(includeAudioSetFlag: true));
 					}
 					break;
 
