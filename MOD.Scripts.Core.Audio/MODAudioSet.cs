@@ -34,8 +34,10 @@ namespace MOD.Scripts.Core.Audio
 			this.altSEFlow = altSEFlow;
 		}
 
-		public string Name(bool getJapanese) => getJapanese ? nameJP : nameEN;
-		public string Description(bool getJapanese) => getJapanese ? descriptionJP : descriptionEN;
+		private bool JapaneseMode() => BurikoMemory.Instance.GetGlobalFlag("GLanguage").IntValue() == 0;
+
+		public string LocalizedDisplayName() => JapaneseMode() ? nameJP : nameEN + (IsCurrentAndCustom() ? " (custom)" : "");
+		public string LocalizedDescription() => JapaneseMode() ? descriptionJP : descriptionEN;
 
 		public bool IsInstalledCached()
 		{
@@ -61,6 +63,22 @@ namespace MOD.Scripts.Core.Audio
 
 		public bool BGMCascade(out PathCascadeList bgmCascade) => MODAudioSet.Instance.GetBGMCascade(altBGM, out bgmCascade);
 		public bool SECascade(out PathCascadeList seCascade) => MODAudioSet.Instance.GetSECascade(altSE, out seCascade);
+
+		/// <summary>
+		/// Returns true if this Audio Set is selected, and it has been customized by altering one of the audio flags
+		/// </summary>
+		public bool IsCurrentAndCustom()
+		{
+			if (MODAudioSet.Instance.GetCurrentAudioSet(out AudioSet set) && set == this)
+			{
+				return BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() != set.altBGM ||
+					BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() != set.altBGMFlow ||
+					BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() != set.altSE ||
+					BurikoMemory.Instance.GetGlobalFlag("GAltSEflow").IntValue() != set.altSEFlow;
+			}
+
+			return false;
+		}
 	}
 
 	class MODAudioSet
@@ -88,8 +106,8 @@ namespace MOD.Scripts.Core.Audio
 			0,
 			0);
 
-		private readonly List<PathCascadeList> BGMCascades = new List<PathCascadeList>();
-		private readonly List<PathCascadeList> SECascades = new List<PathCascadeList>();
+		public readonly List<PathCascadeList> BGMCascades = new List<PathCascadeList>();
+		public readonly List<PathCascadeList> SECascades = new List<PathCascadeList>();
 		private readonly List<PathCascadeList> voiceCascades = new List<PathCascadeList>();
 		private readonly List<AudioSet> audioSets = new List<AudioSet>();
 
@@ -138,16 +156,15 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		/// <summary>
-		/// Only use this function for displaying to user. Do not use for string comparisons etc.
-		/// </summary>
+		// <summary>
+		// Only use this function for displaying to user.Do not use for string comparisons etc.
+		// </summary>
 		public string GetCurrentAudioSetDisplayName(bool includeAudioSetFlag = false)
 		{
 			string name;
 			if(GetCurrentAudioSet(out AudioSet audioSet, out int audioSetFlag))
 			{
-				// Use an asterisk to indicate the audioSet has been customized
-				name = audioSet.nameEN + (CurrentAudioSetIsCustom() ? "*" : "");
+				name = audioSet.nameEN + (audioSet.IsCurrentAndCustom() ? "(custom)" : "");
 			}
 			else
 			{
@@ -190,19 +207,6 @@ namespace MOD.Scripts.Core.Audio
 			{
 				return GetAudioSet(audioSetFlag - 1, out audioSet);
 			}
-		}
-
-		public bool CurrentAudioSetIsCustom()
-		{
-			if(GetCurrentAudioSet(out AudioSet set))
-			{
-				return	BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() != set.altBGM ||
-					BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() != set.altBGMFlow ||
-					BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() != set.altSE ||
-					BurikoMemory.Instance.GetGlobalFlag("GAltSEflow").IntValue() != set.altSEFlow;
-			}
-
-			return false;
 		}
 
 		public string GetBGMFlowName(int altBGMFlow)

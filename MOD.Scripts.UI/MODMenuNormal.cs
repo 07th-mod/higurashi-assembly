@@ -153,6 +153,8 @@ Sets the script censorship level
 
 			c.HeadingLabel("Advanced Options");
 
+			this.audioOptionsMenu.AdvancedOnGUI();
+
 			if (this.radioHideCG.OnGUIFragment(c.GetGlobal("GHideCG")) is int hideCG)
 			{
 				c.SetGlobal("GHideCG", hideCG);

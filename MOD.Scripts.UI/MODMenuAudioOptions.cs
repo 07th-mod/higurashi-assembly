@@ -10,52 +10,62 @@ namespace MOD.Scripts.UI
 	class MODMenuAudioOptions
 	{
 		private readonly MODRadio radioBGMSESet;
+		private readonly MODRadio radioSE;
 		private readonly MODMenuCommon c;
 
 		public MODMenuAudioOptions(MODMenuCommon c, MODStyleManager styleManager)
 		{
 			this.c = c;
 
-			this.radioBGMSESet = new MODRadio("Choose BGM/SE (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2);
+			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2);
+			this.radioSE = new MODRadio("Override SE", new GUIContent[] { }, styleManager, itemsPerRow: 2);
+		}
+
+		public void ReloadMenu()
+		{
+			bool japanese = c.GetGlobal("GLanguage") == 0;
+
+			List<GUIContent> buttonContents = new List<GUIContent>();
+			foreach (AudioSet audioSet in MODAudioSet.Instance.GetAudioSets())
+			{
+				string buttonText = audioSet.LocalizedDisplayName();
+				string tooltipText = audioSet.LocalizedDescription();
+
+				// Append message to button text/tooltip if audioSet is not installed
+				if (!audioSet.IsInstalledCached())
+				{
+					string bgmPrimaryInfo = "Invalid BGM cascade";
+					if (audioSet.BGMCascade(out var bgmCascade) && bgmCascade.PrimaryFolder(out string bgmPrimary))
+					{
+						bgmPrimaryInfo = bgmPrimary;
+					}
+
+					string sePrimaryInfo = "Invalid SE cascade";
+					if (audioSet.SECascade(out var seCascade) && seCascade.PrimaryFolder(out string sePrimary))
+					{
+						sePrimaryInfo = sePrimary;
+					}
+
+					buttonText += " (NOT INSTALLED)";
+					tooltipText += $"\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\n\n" +
+						$"\n\nDetailed Info: you're either missing the BGM folder '{bgmPrimaryInfo}' or the SE folder '{sePrimaryInfo}' in the StreamingAssets folder.";
+				}
+
+				buttonContents.Add(new GUIContent(buttonText, tooltipText));
+			}
+
+			this.radioBGMSESet.SetContents(buttonContents.ToArray());
+
+			this.radioSE.SetContents(
+				MODAudioSet.Instance.SECascades.Select(
+					c => new GUIContent(c.nameEN, $"This allows you to use the '{c.nameEN}' sound effects, regardless of what the audio preset would use.")
+				).ToArray()
+			);
 		}
 
 		public void OnBeforeMenuVisible()
 		{
-			if (this.radioBGMSESet.GetContents().Length == 0)
-			{
-				bool japanese = c.GetGlobal("GLanguage") == 0;
-
-				List<GUIContent> buttonContents = new List<GUIContent>();
-				foreach(AudioSet audioSet in MODAudioSet.Instance.GetAudioSets())
-				{
-					string buttonText = audioSet.Name(japanese);
-					string tooltipText = audioSet.Description(japanese);
-
-					// Append message to button text/tooltip if audioSet is not installed
-					if(!audioSet.IsInstalledCached())
-					{
-						string bgmPrimaryInfo = "Invalid BGM cascade";
-						if(audioSet.BGMCascade(out var bgmCascade) && bgmCascade.PrimaryFolder(out string bgmPrimary))
-						{
-							bgmPrimaryInfo = bgmPrimary;
-						}
-
-						string sePrimaryInfo = "Invalid SE cascade";
-						if (audioSet.SECascade(out var seCascade) && seCascade.PrimaryFolder(out string sePrimary))
-						{
-							sePrimaryInfo = sePrimary;
-						}
-
-						buttonText += " (NOT INSTALLED)";
-						tooltipText += $"\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\n\n" +
-							$"\n\nDetailed Info: you're either missing the BGM folder '{bgmPrimaryInfo}' or the SE folder '{sePrimaryInfo}' in the StreamingAssets folder.";
-					}
-
-					buttonContents.Add(new GUIContent(buttonText, tooltipText));
-				}
-
-				this.radioBGMSESet.SetContents(buttonContents.ToArray());
-			}
+			ReloadMenu();
 		}
 
 		public void OnGUI()
@@ -68,8 +78,19 @@ namespace MOD.Scripts.UI
 					if(MODAudioSet.Instance.GetAudioSet(newAudioSetZeroBased, out AudioSet audioSet) && audioSet.IsInstalledCached())
 					{
 						MODAudioSet.Instance.SetAndSaveAudioFlags(newAudioSetZeroBased);
+						ReloadMenu();
 					}
 				}
+			}
+
+		}
+
+		public void AdvancedOnGUI()
+		{
+			if (this.radioSE.OnGUIFragment(c.GetGlobal("GAltSE")) is int newAltSE)
+			{
+				c.SetGlobal("GAltSE", newAltSE);
+				ReloadMenu();
 			}
 		}
 	}
