@@ -78,6 +78,15 @@ namespace MOD.Scripts.Core.Audio
 		private readonly PathCascadeList defaultBGMCascade = new PathCascadeList("New BGM", "New BGM", new string[] { "BGM" });
 		private readonly PathCascadeList defaultSECascade = new PathCascadeList("New SE", "New SE", new string[] { "SE" });
 		private readonly PathCascadeList defaultVoiceCascade = new PathCascadeList("PS3", "PS3", new string[] { "voice" });
+		private readonly AudioSet defaultAudioSet = new AudioSet(
+			"default/not chosen",
+			"default/not chosen",
+			"This default audio set should never be used",
+			"This default audio set should never be used",
+			0,
+			0,
+			0,
+			0);
 
 		private readonly List<PathCascadeList> BGMCascades = new List<PathCascadeList>();
 		private readonly List<PathCascadeList> SECascades = new List<PathCascadeList>();
@@ -85,7 +94,7 @@ namespace MOD.Scripts.Core.Audio
 		private readonly List<AudioSet> audioSets = new List<AudioSet>();
 
 
-		public void SetFromZeroBasedIndex(int zeroBasedIndex)
+		public void SetAndSaveAudioFlags(int zeroBasedIndex)
 		{
 			BurikoMemory.Instance.SetGlobalFlag("GAudioSet", zeroBasedIndex +  1);
 			ReloadBGMSE(zeroBasedIndex);
@@ -129,10 +138,23 @@ namespace MOD.Scripts.Core.Audio
 			}
 		}
 
-		public string GetCurrentAudioSetName(bool includeAudioSetFlag = false)
+		/// <summary>
+		/// Only use this function for displaying to user. Do not use for string comparisons etc.
+		/// </summary>
+		public string GetCurrentAudioSetDisplayName(bool includeAudioSetFlag = false)
 		{
-			int audioSetFlag = BurikoMemory.Instance.GetGlobalFlag("GAudioSet").IntValue();
-			string name = audioSetFlag == 0 ? "Not Chosen!" : GetAudioSetNameFromZeroIndexed(OneToZeroIndexed(audioSetFlag));
+			string name;
+			if(GetCurrentAudioSet(out AudioSet audioSet, out int audioSetFlag))
+			{
+				// Use an asterisk to indicate the audioSet has been customized
+				name = audioSet.nameEN + (CurrentAudioSetIsCustom() ? "*" : "");
+			}
+			else
+			{
+				includeAudioSetFlag = true;
+				name = $"Not Chosen/Invalid";
+			}
+
 			return name + (includeAudioSetFlag ? $" ({audioSetFlag})" : "");
 		}
 
@@ -150,7 +172,36 @@ namespace MOD.Scripts.Core.Audio
 				return true;
 			}
 
-			audioSet = null;
+			audioSet = defaultAudioSet;
+			return false;
+		}
+
+		public bool GetCurrentAudioSet(out AudioSet audioSet) => GetCurrentAudioSet(out audioSet, out _);
+		public bool GetCurrentAudioSet(out AudioSet audioSet, out int audioSetFlag)
+		{
+			audioSetFlag = BurikoMemory.Instance.GetGlobalFlag("GAudioSet").IntValue();
+
+			if(audioSetFlag == 0)
+			{
+				GetAudioSet(0, out audioSet);
+				return false;
+			}
+			else
+			{
+				return GetAudioSet(audioSetFlag - 1, out audioSet);
+			}
+		}
+
+		public bool CurrentAudioSetIsCustom()
+		{
+			if(GetCurrentAudioSet(out AudioSet set))
+			{
+				return	BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue() != set.altBGM ||
+					BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() != set.altBGMFlow ||
+					BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue() != set.altSE ||
+					BurikoMemory.Instance.GetGlobalFlag("GAltSEflow").IntValue() != set.altSEFlow;
+			}
+
 			return false;
 		}
 

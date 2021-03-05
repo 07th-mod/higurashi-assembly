@@ -307,7 +307,7 @@ namespace MOD.Scripts.UI
 				case Action.ToggleAudioSet:
 					{
 						MODAudioSet.Instance.Toggle();
-						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetName(includeAudioSetFlag: true));
+						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetDisplayName(includeAudioSetFlag: true));
 					}
 					break;
 

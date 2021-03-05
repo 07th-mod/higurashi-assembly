@@ -105,7 +105,7 @@ You can try the following yourself to fix the issue.
 				GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
 
 				GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"Audio Set: {c.GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetName()})\n" +
+				GUILayout.Label($"Audio Set: {c.GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n" +
 					"\n" +
 					$"AltBGM: {c.GetGlobal("GAltBGM")}\n" +
 					$"AltBGMFlow: {c.GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(c.GetGlobal("GAltBGMflow"))})\n" +
