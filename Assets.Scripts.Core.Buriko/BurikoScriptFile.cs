@@ -2766,7 +2766,7 @@ namespace Assets.Scripts.Core.Buriko
 			string callParameters = ReadVariable().StringValue();
 			switch(callID)
 			{
-				case "ShowAudioSetupMenu":
+				case "ShowSetupMenuIfRequired":
 					if(MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
 					{
 						GameSystem.Instance.MainUIController.modMenu.SetMode(ModMenuMode.AudioSetup);
