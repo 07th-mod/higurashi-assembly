@@ -32,6 +32,7 @@ namespace MOD.Scripts.UI
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
 		Vector2 leftDebugColumnScrollPosition;
+		GUISound buttonClickSound;
 
 		private MODMenuNormal normalMenu;
 		private MODMenuAudioOptions audioOptionsMenu;
@@ -69,7 +70,7 @@ You can try the following yourself to fix the issue.
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
 			this.startupWatchdogTimer.Start(5.0f);
 
-			this.audioOptionsMenu = new MODMenuAudioOptions(this.c, styleManager);
+			this.audioOptionsMenu = new MODMenuAudioOptions(this, this.c, styleManager);
 			this.normalMenu = new MODMenuNormal(this, this.c, styleManager, this.audioOptionsMenu);
 			this.audioSetupMenu = new MODMenuAudioSetup(this, this.c, this.audioOptionsMenu);
 			this.currentMenu = this.normalMenu;
@@ -94,6 +95,8 @@ You can try the following yourself to fix the issue.
 		/// </summary>
 		public void OnGUIFragment()
 		{
+			buttonClickSound = GUISound.Click;
+
 			if (showDebugInfo && AssetManager.Instance != null)
 			{
 				bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(c.GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
@@ -246,11 +249,16 @@ You can try the following yourself to fix the issue.
 
 				if(MODRadio.anyRadioPressed || anyButtonPressed)
 				{
-					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(GUISound.Click));
+					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(buttonClickSound));
 					MODRadio.anyRadioPressed = false;
 					anyButtonPressed = false;
 				}
 			}
+		}
+
+		public void OverrideClickSound(GUISound sound)
+		{
+			buttonClickSound = sound;
 		}
 
 		public void SetMode(ModMenuMode menuMode)

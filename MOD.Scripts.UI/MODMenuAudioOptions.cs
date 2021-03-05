@@ -11,10 +11,11 @@ namespace MOD.Scripts.UI
 	{
 		private readonly MODRadio radioBGMSESet;
 		private readonly MODRadio radioSE;
+		private readonly MODMenu modMenu;
 		private readonly MODMenuCommon c;
-
-		public MODMenuAudioOptions(MODMenuCommon c, MODStyleManager styleManager)
+		public MODMenuAudioOptions(MODMenu m, MODMenuCommon c, MODStyleManager styleManager)
 		{
+			this.modMenu = m;
 			this.c = c;
 
 			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2);
@@ -47,8 +48,8 @@ namespace MOD.Scripts.UI
 					}
 
 					buttonText += " (NOT INSTALLED)";
-					tooltipText += $"\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\n\n" +
-						$"\n\nDetailed Info: you're either missing the BGM folder '{bgmPrimaryInfo}' or the SE folder '{sePrimaryInfo}' in the StreamingAssets folder.";
+					tooltipText += $"\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\n" +
+						$"You're either missing the BGM folder '{bgmPrimaryInfo}' or the SE folder '{sePrimaryInfo}' in the StreamingAssets folder.";
 				}
 
 				buttonContents.Add(new GUIContent(buttonText, tooltipText));
@@ -75,10 +76,18 @@ namespace MOD.Scripts.UI
 				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
 				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : 0) is int newAudioSetZeroBased)
 				{
-					if(MODAudioSet.Instance.GetAudioSet(newAudioSetZeroBased, out AudioSet audioSet) && audioSet.IsInstalledCached())
+					if(MODAudioSet.Instance.GetAudioSet(newAudioSetZeroBased, out AudioSet audioSet))
 					{
-						MODAudioSet.Instance.SetAndSaveAudioFlags(newAudioSetZeroBased);
-						ReloadMenu();
+						if (audioSet.IsInstalledCached())
+						{
+							MODAudioSet.Instance.SetAndSaveAudioFlags(newAudioSetZeroBased);
+							ReloadMenu();
+						}
+						else
+						{
+							MODToaster.Show("Option Not Installed!", maybeSound: null);
+							this.modMenu.OverrideClickSound(GUISound.Disable);
+						}
 					}
 				}
 			}
