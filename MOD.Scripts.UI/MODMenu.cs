@@ -20,11 +20,13 @@ namespace MOD.Scripts.UI
 
 	public class MODMenu
 	{
+		private const int DEBUG_WINDOW_ID = 1;
+
 		private readonly MODStyleManager styleManager;
 		private readonly MODMenuCommon c;
 		private readonly GameSystem gameSystem;
 		public bool visible;
-		private bool showDebugInfo;
+		public bool debug;
 		private bool lastMenuVisibleStatus;
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
@@ -32,6 +34,7 @@ namespace MOD.Scripts.UI
 		private bool anyButtonPressed;
 		Vector2 scrollPosition;
 		Vector2 leftDebugColumnScrollPosition;
+		private Rect debugWindowRect;
 		GUISound buttonClickSound;
 
 		private MODMenuNormal normalMenu;
@@ -60,7 +63,7 @@ You can try the following yourself to fix the issue.
 			this.gameSystem = gameSystem;
 			this.styleManager = styleManager;
 			this.visible = false;
-			this.showDebugInfo = false;
+			this.debug = false;
 			this.lastMenuVisibleStatus = false;
 			this.defaultToolTipTimer = new MODSimpleTimer();
 			this.startupWatchdogTimer = new MODSimpleTimer();
@@ -74,6 +77,8 @@ You can try the following yourself to fix the issue.
 			this.normalMenu = new MODMenuNormal(this, this.c, styleManager, this.audioOptionsMenu);
 			this.audioSetupMenu = new MODMenuAudioSetup(this, this.c, this.audioOptionsMenu);
 			this.currentMenu = this.normalMenu;
+
+			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
 		}
 
 		public void Update()
@@ -90,6 +95,59 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
+		private void OnGUIDebugWindow(int windowID)
+		{
+			GUI.depth = 1;
+
+			bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(c.GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
+			bool seFlagOK = MODAudioSet.Instance.GetSECascade(c.GetGlobal("GAltSE"), out PathCascadeList SECascade);
+
+			if (!visible)
+			{
+				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width / 3), GUILayout.Height(Screen.height - 10));
+			}
+			GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
+			GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
+
+			GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
+			GUILayout.Label($"Audio Set: {c.GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n" +
+				"\n" +
+				$"AltBGM: {c.GetGlobal("GAltBGM")}\n" +
+				$"AltBGMFlow: {c.GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(c.GetGlobal("GAltBGMflow"))})\n" +
+				$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
+				$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n" +
+				"\n" +
+				$"AltSE:  {c.GetGlobal("GAltSE")}\n" +
+				$"AltSEFlow: {c.GetGlobal("GAltSEflow")}\n" +
+				$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
+				$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
+				$"Voice: {c.GetGlobal("GAltVoice")}\n" +
+				$"Priority: {c.GetGlobal("GAltVoicePriority")}\n" +
+				"\n" +
+				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
+				$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
+
+			if (debug)
+			{
+				if(c.Button(new GUIContent("Reset GAudioSet", "Set GAudioSet to 0, to force the game to do audio setup on next startup")))
+				{
+					c.SetGlobal("GAudioSet", 0);
+				}
+			}
+
+			if (c.Button(new GUIContent("Close", "Close the debug menu")))
+			{
+				ToggleDebugMenu();
+			}
+
+			if (!visible)
+			{
+				GUILayout.EndScrollView();
+			}
+
+			GUI.DragWindow(new Rect(0, 0, 10000, 40));
+		}
+
 		/// <summary>
 		/// Must be called from an OnGUI()
 		/// </summary>
@@ -97,36 +155,12 @@ You can try the following yourself to fix the issue.
 		{
 			buttonClickSound = GUISound.Click;
 
-			if (showDebugInfo && AssetManager.Instance != null)
+			if (debug && AssetManager.Instance != null)
 			{
-				bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(c.GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
-				bool seFlagOK = MODAudioSet.Instance.GetSECascade(c.GetGlobal("GAltSE"), out PathCascadeList SECascade);
-
-				GUILayout.BeginArea(new Rect(0, 0, Screen.width/3, Screen.height), styleManager.modMenuAreaStyleLight);
-				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height - 10));
-				GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
-
-				GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
-				GUILayout.Label($"Audio Set: {c.GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n" +
-					"\n" +
-					$"AltBGM: {c.GetGlobal("GAltBGM")}\n" +
-					$"AltBGMFlow: {c.GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(c.GetGlobal("GAltBGMflow"))})\n" +
-					$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
-					$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n" +
-					"\n" +
-					$"AltSE:  {c.GetGlobal("GAltSE")}\n" +
-					$"AltSEFlow: {c.GetGlobal("GAltSEflow")}\n" +
-					$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
-					$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
-					$"Voice: {c.GetGlobal("GAltVoice")}\n" +
-					$"Priority: {c.GetGlobal("GAltVoicePriority")}\n" +
-					"\n" +
-					$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
-					$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
-				GUILayout.EndScrollView();
-				GUILayout.EndArea();
+				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, "Developer Debug Window", styleManager.modMenuAreaStyleLight);
 			}
+
+			GUI.depth = 0;
 
 			if (this.startupWatchdogTimer.Finished())
 			{
@@ -344,8 +378,8 @@ You can try the following yourself to fix the issue.
 
 		public void ToggleDebugMenu()
 		{
-			showDebugInfo = !showDebugInfo;
-			MODAudioTracking.Instance.LoggingEnabled = showDebugInfo;
+			debug = !debug;
+			MODAudioTracking.Instance.LoggingEnabled = debug;
 		}
 	}
 }
