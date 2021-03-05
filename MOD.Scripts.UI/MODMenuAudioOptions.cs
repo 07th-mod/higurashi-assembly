@@ -69,12 +69,12 @@ namespace MOD.Scripts.UI
 			ReloadMenu();
 		}
 
-		public void OnGUI()
+		public void OnGUI(bool hideLabel=false)
 		{
 			if (MODAudioSet.Instance.HasAudioSetsDefined())
 			{
 				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : 0) is int newAudioSetZeroBased)
+				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : -1, hideLabel: hideLabel) is int newAudioSetZeroBased)
 				{
 					if(MODAudioSet.Instance.GetAudioSet(newAudioSetZeroBased, out AudioSet audioSet))
 					{

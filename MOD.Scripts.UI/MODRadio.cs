@@ -31,9 +31,12 @@ namespace MOD.Scripts.UI
 		/// </summary>
 		/// <param name="displayedRadio">Sets the currently displayed radio. Use "-1" for "None selected"</param>
 		/// <returns>If radio did not change value, null is returned, otherwise the new value is returned.</returns>
-		public int? OnGUIFragment(int displayedRadio)
+		public int? OnGUIFragment(int displayedRadio, bool hideLabel = false)
 		{
-			GUILayout.Label(this.label, styleManager.Group.label);
+			if (!hideLabel)
+			{
+				GUILayout.Label(this.label, styleManager.Group.label);
+			}
 
 			if(radioContents.Length == 0)
 			{

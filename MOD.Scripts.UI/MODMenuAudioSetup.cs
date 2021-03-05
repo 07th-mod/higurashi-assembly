@@ -25,9 +25,10 @@ namespace MOD.Scripts.UI
 
 		public void OnGUI()
 		{
-			c.Label("The patch supports different BGM/SE types, they can vary what you will hear and when. Choose the one that feels most appropriate for your experience.");
+			c.Label("The patch supports different BGM/SE types, they can vary what you will hear and when. Choose the one that feels most appropriate for your experience.\n\n" +
+				"You can change this at any time via the mod menu.");
 
-			audioOptions.OnGUI();
+			audioOptions.OnGUI(hideLabel: true);
 
 			GUILayout.Space(20);
 
