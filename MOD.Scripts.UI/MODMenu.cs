@@ -104,7 +104,7 @@ You can try the following yourself to fix the issue.
 
 			if (!visible)
 			{
-				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width / 3), GUILayout.Height(Screen.height - 10));
+				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width / 3), GUILayout.Height(Screen.height*9/10));
 			}
 			GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
 			GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
@@ -145,7 +145,7 @@ You can try the following yourself to fix the issue.
 				GUILayout.EndScrollView();
 			}
 
-			GUI.DragWindow(new Rect(0, 0, 10000, 40));
+			GUI.DragWindow(new Rect(0, 0, 10000, 10000));
 		}
 
 		/// <summary>
@@ -157,7 +157,7 @@ You can try the following yourself to fix the issue.
 
 			if (debug && AssetManager.Instance != null)
 			{
-				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, "Developer Debug Window", styleManager.modMenuAreaStyleLight);
+				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, "Developer Debug Window (click to drag)", styleManager.modMenuAreaStyleLight);
 			}
 
 			GUI.depth = 0;
@@ -177,6 +177,7 @@ You can try the following yourself to fix the issue.
 			{
 				this.startupFailed = false;
 			}
+
 			// Button to open the Mod Menu on the Config Screen
 			if (gameSystem.GameState == GameState.ConfigScreen)
 			{
@@ -220,14 +221,17 @@ You can try the following yourself to fix the issue.
 				float areaPosX = Screen.width / 2 - totalAreaWidth / 2;
 				float areaPosY = Screen.height / 2 - areaHeight / 2;
 
-				float toolTipPosX = areaPosX + areaWidth;
+				float toolTipPosX = areaWidth;
 
 				float exitButtonWidth = toolTipWidth * .1f;
 				float exitButtonHeight = areaHeight * .05f;
 
+				float innerMargin = 4f;
+
 				// Radio buttons
+				GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth + toolTipWidth, areaHeight), styleManager.modMenuAreaStyle);
 				{
-					GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+					GUILayout.BeginArea(new Rect(innerMargin, innerMargin, areaWidth-innerMargin, areaHeight-innerMargin), styleManager.modGUIBackgroundTextureTransparent);
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
 					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
 
@@ -238,53 +242,56 @@ You can try the following yourself to fix the issue.
 				}
 
 				// Descriptions for each button are shown on hover, like a tooltip
-				GUILayout.BeginArea(new Rect(toolTipPosX, areaPosY, toolTipWidth, areaHeight), styleManager.modMenuAreaStyle);
-				c.HeadingLabel(currentMenu.Heading());
-				GUILayout.Space(10);
-
-				GUIStyle toolTipStyle = styleManager.Group.label;
-				string displayedToolTip;
-				if (GUI.tooltip == String.Empty)
 				{
-					if (defaultToolTipTimer.timeLeft == 0)
+					GUILayout.BeginArea(new Rect(toolTipPosX, innerMargin, toolTipWidth- innerMargin, areaHeight-innerMargin), styleManager.modGUIBackgroundTextureTransparent);
+					c.HeadingLabel(currentMenu.Heading());
+					GUILayout.Space(10);
+
+					GUIStyle toolTipStyle = styleManager.Group.label;
+					string displayedToolTip;
+					if (GUI.tooltip == String.Empty)
 					{
-						if(this.startupFailed)
+						if (defaultToolTipTimer.timeLeft == 0)
 						{
-							displayedToolTip = startupFailureToolTip;
-							toolTipStyle = styleManager.Group.errorLabel;
+							if (this.startupFailed)
+							{
+								displayedToolTip = startupFailureToolTip;
+								toolTipStyle = styleManager.Group.errorLabel;
+							}
+							else
+							{
+								displayedToolTip = currentMenu.DefaultTooltip();
+							}
 						}
 						else
 						{
-							displayedToolTip = currentMenu.DefaultTooltip();
+							displayedToolTip = lastToolTip;
 						}
 					}
 					else
 					{
-						displayedToolTip = lastToolTip;
+						lastToolTip = GUI.tooltip;
+						displayedToolTip = GUI.tooltip;
+						defaultToolTipTimer.Start(.2f);
 					}
-				}
-				else
-				{
-					lastToolTip = GUI.tooltip;
-					displayedToolTip = GUI.tooltip;
-					defaultToolTipTimer.Start(.2f);
-				}
-				// MUST pass in MinHeight option, otherwise Unity will get confused and assume
-				// label is one line high on first draw, and subsequent changes will truncate
-				// label to one line even if it is multiple lines tall.
-				GUILayout.Label(displayedToolTip, toolTipStyle, GUILayout.MinHeight(areaHeight));
-				GUILayout.EndArea();
-
-				// Exit button
-				if (currentMenu.UserCanClose())
-				{
-					GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth, areaPosY, exitButtonWidth, exitButtonHeight));
-					if (c.Button(new GUIContent("X", "Close the Mod menu")))
-					{
-						this.UserHide();
-					}
+					// MUST pass in MinHeight option, otherwise Unity will get confused and assume
+					// label is one line high on first draw, and subsequent changes will truncate
+					// label to one line even if it is multiple lines tall.
+					GUILayout.Label(displayedToolTip, toolTipStyle, GUILayout.MinHeight(areaHeight));
 					GUILayout.EndArea();
+
+					// Exit button
+					if (currentMenu.UserCanClose())
+					{
+						GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth - innerMargin, innerMargin, exitButtonWidth, exitButtonHeight));
+						if (c.Button(new GUIContent("X", "Close the Mod menu")))
+						{
+							this.UserHide();
+						}
+						GUILayout.EndArea();
+					}
 				}
+				GUILayout.EndArea();
 
 				if(MODRadio.anyRadioPressed || anyButtonPressed)
 				{

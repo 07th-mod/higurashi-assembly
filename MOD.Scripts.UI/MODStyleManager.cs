@@ -27,8 +27,10 @@ namespace MOD.Scripts.UI
 		// Styles used for the Mod menu
 		public GUIStyle modMenuAreaStyle;       //Used for Area widgets
 		public GUIStyle modMenuAreaStyleLight;
+		public GUIStyle modMenuAreaStyleTransparent;
 
 		public Texture2D modGUIBackgroundTexture;
+		public Texture2D modGUIBackgroundTextureTransparent;
 		public Texture2D modGUIBackgroundTextureLight;
 
 		StyleGroup style480;
@@ -57,21 +59,49 @@ namespace MOD.Scripts.UI
 		/// </summary>
 		public MODStyleManager()
 		{
-			int width = 1;
-			int height = 1;
+			int width = 10;
+			int height = 10;
 			Color[] pix = new Color[width * height];
+
 			for (int i = 0; i < pix.Length; i++)
 			{
-				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.9f);
+				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
+
+			modGUIBackgroundTextureTransparent = new Texture2D(width, height);
+			modGUIBackgroundTextureTransparent.SetPixels(pix);
+			modGUIBackgroundTextureTransparent.Apply();
+
+			for (int i = 0; i < pix.Length; i++)
+			{
+				pix[i] = new Color(0.7f, 0.7f, 0.7f);
+			}
+
+			for (int y = 2; y < height-2; y++)
+			{
+				for (int x = 2; x < width-2; x++)
+				{
+					pix[x + y * width] = new Color(0.0f, 0.0f, 0.0f, 0.9f);
+				}
+			}
+
 			modGUIBackgroundTexture = new Texture2D(width, height);
 			modGUIBackgroundTexture.SetPixels(pix);
 			modGUIBackgroundTexture.Apply();
 
 			for (int i = 0; i < pix.Length; i++)
 			{
-				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.7f);
+				pix[i] = new Color(1.0f, 1.0f, 1.0f, 0.7f);
 			}
+
+			for (int y = 2; y < height-2; y++)
+			{
+				for (int x = 2; x < width-2; x++)
+				{
+					pix[x + y * width] = new Color(0.0f, 0.0f, 0.0f, 0.7f);
+				}
+			}
+
 			modGUIBackgroundTextureLight = new Texture2D(width, height);
 			modGUIBackgroundTextureLight.SetPixels(pix);
 			modGUIBackgroundTextureLight.Apply();
@@ -139,6 +169,9 @@ namespace MOD.Scripts.UI
 
 			modMenuAreaStyleLight = new GUIStyle(modMenuAreaStyle);
 			modMenuAreaStyleLight.normal.background = modGUIBackgroundTextureLight;
+
+			modMenuAreaStyleTransparent = new GUIStyle(modMenuAreaStyle);
+			modMenuAreaStyleTransparent.normal.background = modGUIBackgroundTextureTransparent;
 		}
 
 		private StyleGroup GenerateWidgetStyles(int menuWidth, int menuHeight, float guiScale, RectOffset margin, RectOffset padding)
