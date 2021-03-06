@@ -18,7 +18,7 @@ namespace MOD.Scripts.UI
 			this.modMenu = m;
 			this.c = c;
 
-			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2);
+			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2, asButtons: true);
 			this.radioSE = new MODRadio("Override SE", new GUIContent[] { }, styleManager, itemsPerRow: 2);
 		}
 

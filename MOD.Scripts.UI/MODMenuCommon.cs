@@ -9,7 +9,6 @@ namespace MOD.Scripts.UI
 	class MODMenuCommon
 	{
 		MODStyleManager styleManager;
-		bool anyButtonPressed;
 		public MODMenuCommon(MODStyleManager styleManager)
 		{
 			this.styleManager = styleManager;
@@ -25,18 +24,11 @@ namespace MOD.Scripts.UI
 			GUILayout.Label(label, styleManager.Group.headingLabel);
 		}
 
-		public bool Button(GUIContent guiContent, bool selected = false)
+		public static bool Button(GUIContent guiContent, MODStyleManager styleManager, bool selected = false)
 		{
-			if (GUILayout.Button(guiContent, selected ? styleManager.Group.selectedButton : styleManager.Group.button))
-			{
-				anyButtonPressed = true;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return GUILayout.Button(guiContent, selected ? styleManager.Group.selectedButton : styleManager.Group.button);
 		}
+		public bool Button(GUIContent guiContent, bool selected = false) => Button(guiContent, styleManager, selected);
 
 		public int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
 		public void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);

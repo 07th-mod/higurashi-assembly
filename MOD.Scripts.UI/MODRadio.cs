@@ -12,8 +12,17 @@ namespace MOD.Scripts.UI
 		private GUIContent[] radioContents;
 		MODStyleManager styleManager;
 		int itemsPerRow;
+		bool asButtons;
 
-		public MODRadio(string label, GUIContent[] radioContents, MODStyleManager styleManager, int itemsPerRow = 0) //Action<int> onRadioChange, 
+		/// <summary>
+		/// Create a radio widget
+		/// </summary>
+		/// <param name="label">The heading label for this radio widget</param>
+		/// <param name="radioContents">The button name and hover tooltip for each option</param>
+		/// <param name="styleManager">The style manager with which the label and buttons will be rendered</param>
+		/// <param name="itemsPerRow">The number of buttons per row</param>
+		/// <param name="asButtons">Implement this as Buttons rather than SelectionGrid, which allows clicking on an already selected item</param>
+		public MODRadio(string label, GUIContent[] radioContents, MODStyleManager styleManager, int itemsPerRow = 0, bool asButtons = false)
 		{
 			this.label = label;
 			this.radioContents = radioContents;
@@ -23,6 +32,7 @@ namespace MOD.Scripts.UI
 				this.itemsPerRow = itemsPerRow;
 			}
 			this.styleManager = styleManager;
+			this.asButtons = asButtons;
 		}
 
 		/// <summary>
@@ -30,7 +40,10 @@ namespace MOD.Scripts.UI
 		/// Displays the radio, calling onRadioChange when the user clicks on a different radio value.
 		/// </summary>
 		/// <param name="displayedRadio">Sets the currently displayed radio. Use "-1" for "None selected"</param>
-		/// <returns>If radio did not change value, null is returned, otherwise the new value is returned.</returns>
+		/// <returns>
+		/// If asButtons is false, If radio did not change value, null is returned, otherwise the new value is returned.
+		/// If asButtons is true, returns the clicked button's index, even if the radio did not change. If nothing clicked, null returned.
+		/// </returns>
 		public int? OnGUIFragment(int displayedRadio, bool hideLabel = false)
 		{
 			if (!hideLabel)
@@ -43,12 +56,37 @@ namespace MOD.Scripts.UI
 				GUILayout.Label("MODRadio Error: this radio has no options!", styleManager.Group.label);
 			}
 
-			int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.Group.modMenuSelectionGrid);
-			if (i != displayedRadio)
+			if(asButtons)
 			{
-				MODRadio.anyRadioPressed = true;
-				return i;
+				GUILayout.BeginVertical();
+				GUILayout.BeginHorizontal();
+				for(int i = 0; i < radioContents.Length; i++)
+				{
+					if ((i % itemsPerRow) == 0 && i != 0)
+					{
+						GUILayout.EndHorizontal();
+						GUILayout.BeginHorizontal();
+					}
+
+					if (MODMenuCommon.Button(radioContents[i], styleManager, selected: i == displayedRadio))
+					{
+						MODRadio.anyRadioPressed = true;
+						return i;
+					}
+				}
+				GUILayout.EndHorizontal();
+				GUILayout.EndVertical();
 			}
+			else
+			{
+				int i = GUILayout.SelectionGrid(displayedRadio, radioContents, itemsPerRow, styleManager.Group.modMenuSelectionGrid);
+				if (i != displayedRadio)
+				{
+					MODRadio.anyRadioPressed = true;
+					return i;
+				}
+			}
+
 
 			return null;
 		}
