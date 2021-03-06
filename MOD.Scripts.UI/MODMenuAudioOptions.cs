@@ -95,10 +95,13 @@ namespace MOD.Scripts.UI
 
 		public void AdvancedOnGUI()
 		{
-			if (this.radioSE.OnGUIFragment(GetGlobal("GAltSE")) is int newAltSE)
+			if (MODAudioSet.Instance.SECascades.Count > 0)
 			{
-				SetGlobal("GAltSE", newAltSE);
-				ReloadMenu();
+				if (this.radioSE.OnGUIFragment(GetGlobal("GAltSE")) is int newAltSE)
+				{
+					SetGlobal("GAltSE", newAltSE);
+					ReloadMenu();
+				}
 			}
 		}
 	}
