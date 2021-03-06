@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using UnityEngine;
 
 namespace MOD.Scripts.Core.Audio
 {
@@ -56,7 +55,8 @@ namespace MOD.Scripts.Core.Audio
 				return false;
 			}
 
-			bool audioSetInstalled = seCascade.IsInstalled(Application.streamingAssetsPath) && bgmCascade.IsInstalled(Application.streamingAssetsPath);
+			string streamingAssetsPath = UnityEngine.Application.streamingAssetsPath;
+			bool audioSetInstalled = seCascade.IsInstalled(streamingAssetsPath) && bgmCascade.IsInstalled(streamingAssetsPath);
 			isInstalled = audioSetInstalled;
 			return audioSetInstalled;
 		}
