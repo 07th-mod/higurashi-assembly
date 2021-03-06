@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static MOD.Scripts.UI.MODMenuCommon;
 
 namespace MOD.Scripts.UI
 {
 	class MODMenuNormal : MODMenuModuleInterface
 	{
 		private readonly MODMenu modMenu;
-		private readonly MODMenuCommon c;
 		private readonly MODMenuResolution resolutionMenu;
 		private readonly MODMenuAudioOptions audioOptionsMenu;
 
@@ -24,12 +24,11 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
 
-		public MODMenuNormal(MODMenu modMenu, MODMenuCommon c, MODStyleManager styleManager, MODMenuAudioOptions audioOptionsMenu)
+		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
-			this.c = c;
 			this.audioOptionsMenu = audioOptionsMenu;
-			this.resolutionMenu = new MODMenuResolution(c);
+			this.resolutionMenu = new MODMenuResolution();
 
 			hasOGBackgrounds = MODActions.HasOGBackgrounds();
 
@@ -56,13 +55,13 @@ Sets the script censorship level
 				new GUIContent("3", "Censorship level 3" + baseCensorshipDescription),
 				new GUIContent("4", "Censorship level 4" + baseCensorshipDescription),
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
-				}, styleManager);
+				});
 
 			radioLipSync = new MODRadio("Lip Sync for Console Sprites (Hotkey: 7)", new GUIContent[]
 			{
 				new GUIContent("Lip Sync Off", "Disables Lip Sync for Console Sprites"),
 				new GUIContent("Lip Sync On", "Enables Lip Sync for Console Sprites"),
-			}, styleManager);
+			});
 
 			radioOpenings = new MODRadio("Opening Movies (Hotkey: Shift-F12)", new GUIContent[]
 			{
@@ -73,13 +72,13 @@ Sets the script censorship level
 				new GUIContent("Launch + In-Game", "WARNING: There is usually no need to set this manually.\n\n" +
 				"If openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\n" +
 				"That is, after the opening is played the first time, from then on openings will play every time the game launches"),
-			}, styleManager);
+			});
 
 			radioHideCG = new MODRadio("Show/Hide CGs", new GUIContent[]
 			{
 				new GUIContent("Show CGs", "Shows CGs (You probably want this enabled for Console ADV/NVL mode)"),
 				new GUIContent("Hide CGs", "Disables all CGs (mainly for use with the Original/Ryukishi preset)"),
-			}, styleManager);
+			});
 
 			radioBackgrounds = new MODRadio("Override Art Set Backgrounds", new GUIContent[]{
 				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
@@ -87,22 +86,22 @@ Sets the script censorship level
 				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
 				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset\n\n" +
 				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
-			}, styleManager, itemsPerRow: 2);
+			}, itemsPerRow: 2);
 
-			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, styleManager, itemsPerRow: 3);
+			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
 		}
 
 		public void OnGUI()
 		{
-			c.HeadingLabel("Basic Options");
+			HeadingLabel("Basic Options");
 
-			c.Label("Graphics Presets (Hotkey: F1)");
+			Label("Graphics Presets (Hotkey: F1)");
 			{
 				GUILayout.BeginHorizontal();
 
 				int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
 
-				if (c.Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
+				if (Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
 				"- Makes text show at the bottom of the screen in a textbox\n" +
 				"- Shows the name of the current character on the textbox\n" +
 				"- Uses the console sprites and backgrounds\n" +
@@ -112,7 +111,7 @@ Sets the script censorship level
 					MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 				}
 
-				if (c.Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
+				if (Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
 					"- Makes text show across the whole screen\n" +
 					"- Uses the console sprites and backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
@@ -122,7 +121,7 @@ Sets the script censorship level
 				}
 
 				if (this.hasOGBackgrounds &&
-					c.Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+					Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
 					"- Displays backgrounds in 4:3 'standard' aspect\n" +
 					"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
 					"- Switches to original sprites and backgrounds\n\n" +
@@ -134,44 +133,44 @@ Sets the script censorship level
 				GUILayout.EndHorizontal();
 			}
 
-			if (this.radioCensorshipLevel.OnGUIFragment(c.GetGlobal("GCensor")) is int censorLevel)
+			if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
 			{
-				c.SetGlobal("GCensor", censorLevel);
+				SetGlobal("GCensor", censorLevel);
 			};
 
-			if (this.radioLipSync.OnGUIFragment(c.GetGlobal("GLipSync")) is int lipSyncEnabled)
+			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
-				c.SetGlobal("GLipSync", lipSyncEnabled);
+				SetGlobal("GLipSync", lipSyncEnabled);
 			};
 
-			if (this.radioOpenings.OnGUIFragment(c.GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
+			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
 			{
-				c.SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
+				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 			};
 
 			this.audioOptionsMenu.OnGUI();
 
-			c.HeadingLabel("Advanced Options");
+			HeadingLabel("Advanced Options");
 
 			this.audioOptionsMenu.AdvancedOnGUI();
 
-			if (this.radioHideCG.OnGUIFragment(c.GetGlobal("GHideCG")) is int hideCG)
+			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 			{
-				c.SetGlobal("GHideCG", hideCG);
+				SetGlobal("GHideCG", hideCG);
 			};
 
 			if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
 			{
-				c.SetGlobal("GStretchBackgrounds", 0);
+				SetGlobal("GStretchBackgrounds", 0);
 				Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
 			}
 
 			if (this.hasOGBackgrounds)
 			{
-				int currentBackground = c.GetGlobal("GBackgroundSet");
+				int currentBackground = GetGlobal("GBackgroundSet");
 				if (currentBackground == 2)
 				{
-					if (c.GetGlobal("GStretchBackgrounds") == 1)
+					if (GetGlobal("GStretchBackgrounds") == 1)
 					{
 						currentBackground = 3;
 					}
@@ -180,13 +179,13 @@ Sets the script censorship level
 				{
 					if (background == 3)
 					{
-						c.SetGlobal("GStretchBackgrounds", 1);
-						c.SetGlobal("GBackgroundSet", 2);
+						SetGlobal("GStretchBackgrounds", 1);
+						SetGlobal("GBackgroundSet", 2);
 					}
 					else
 					{
-						c.SetGlobal("GStretchBackgrounds", 0);
-						c.SetGlobal("GBackgroundSet", background);
+						SetGlobal("GStretchBackgrounds", 0);
+						SetGlobal("GBackgroundSet", background);
 					}
 					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
@@ -195,20 +194,20 @@ Sets the script censorship level
 			resolutionMenu.OnGUI();
 
 			GUILayout.Space(10);
-			OnGUIRestoreSettings(c);
+			OnGUIRestoreSettings();
 
 
-			c.HeadingLabel("Troubleshooting");
-			c.Label("Save Files and Log Files");
-			MODMenuSupport.ShowSupportButtons(content => c.Button(content));
+			HeadingLabel("Troubleshooting");
+			Label("Save Files and Log Files");
+			MODMenuSupport.ShowSupportButtons(content => Button(content));
 
-			c.Label("Developer");
+			Label("Developer");
 			GUILayout.BeginHorizontal();
-			if (c.Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
+			if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
 			{
 				modMenu.ToggleDebugMenu();
 			}
-			if (c.Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
+			if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
 			{
 				MODActions.ToggleFlagMenu();
 			}
@@ -232,34 +231,34 @@ Sets the script censorship level
 			audioOptionsMenu.OnBeforeMenuVisible();
 		}
 
-		private void OnGUIRestoreSettings(MODMenuCommon w)
+		private void OnGUIRestoreSettings()
 		{
-			w.Label($"Restore Settings {(w.GetGlobal("GMOD_SETTING_LOADER") == 3 ? "" : ": <Restart Pending>")}");
+			Label($"Restore Settings {(GetGlobal("GMOD_SETTING_LOADER") == 3 ? "" : ": <Restart Pending>")}");
 
 			GUILayout.BeginHorizontal();
-			if (w.GetGlobal("GMOD_SETTING_LOADER") == 3)
+			if (GetGlobal("GMOD_SETTING_LOADER") == 3)
 			{
-				if (w.Button(new GUIContent("ADV defaults", "This restores flags to the defaults for NVL mode\n" +
+				if (Button(new GUIContent("ADV defaults", "This restores flags to the defaults for NVL mode\n" +
 					"NOTE: Requires you to relaunch the game 2 times to come into effect")))
 				{
-					w.SetGlobal("GMOD_SETTING_LOADER", 0);
+					SetGlobal("GMOD_SETTING_LOADER", 0);
 				}
-				else if (w.Button(new GUIContent("NVL defaults", "This restores flags to the defaults for NVL mode\n" +
+				else if (Button(new GUIContent("NVL defaults", "This restores flags to the defaults for NVL mode\n" +
 					"NOTE: Requires you to relaunch the game 2 times to come into effect")))
 				{
-					w.SetGlobal("GMOD_SETTING_LOADER", 1);
+					SetGlobal("GMOD_SETTING_LOADER", 1);
 				}
-				else if (w.Button(new GUIContent("Vanilla Defaults", "This restores flags to the same settings as the unmodded game.\n" +
+				else if (Button(new GUIContent("Vanilla Defaults", "This restores flags to the same settings as the unmodded game.\n" +
 					"NOTE: Requires a relaunch to come into effect. After this, uninstall the mod.")))
 				{
-					w.SetGlobal("GMOD_SETTING_LOADER", 2);
+					SetGlobal("GMOD_SETTING_LOADER", 2);
 				}
 			}
 			else
 			{
-				if (w.Button(new GUIContent("Cancel Pending Restore", "Click this to stop restoring defaults on next game launch")))
+				if (Button(new GUIContent("Cancel Pending Restore", "Click this to stop restoring defaults on next game launch")))
 				{
-					w.SetGlobal("GMOD_SETTING_LOADER", 3);
+					SetGlobal("GMOD_SETTING_LOADER", 3);
 				}
 			}
 			GUILayout.EndHorizontal();

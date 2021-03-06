@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static MOD.Scripts.UI.MODMenuCommon;
 
 namespace MOD.Scripts.UI
 {
@@ -12,19 +13,17 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioBGMSESet;
 		private readonly MODRadio radioSE;
 		private readonly MODMenu modMenu;
-		private readonly MODMenuCommon c;
-		public MODMenuAudioOptions(MODMenu m, MODMenuCommon c, MODStyleManager styleManager)
+		public MODMenuAudioOptions(MODMenu m)
 		{
 			this.modMenu = m;
-			this.c = c;
 
-			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, styleManager, itemsPerRow: 2, asButtons: true);
-			this.radioSE = new MODRadio("Override SE", new GUIContent[] { }, styleManager, itemsPerRow: 2);
+			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, itemsPerRow: 2, asButtons: true);
+			this.radioSE = new MODRadio("Override SE", new GUIContent[] { },  itemsPerRow: 2);
 		}
 
 		public void ReloadMenu()
 		{
-			bool japanese = c.GetGlobal("GLanguage") == 0;
+			bool japanese = GetGlobal("GLanguage") == 0;
 
 			List<GUIContent> buttonContents = new List<GUIContent>();
 			foreach (AudioSet audioSet in MODAudioSet.Instance.GetAudioSets())
@@ -74,7 +73,7 @@ namespace MOD.Scripts.UI
 			if (MODAudioSet.Instance.HasAudioSetsDefined())
 			{
 				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.
-				if (this.radioBGMSESet.OnGUIFragment(c.GetGlobal("GAudioSet") > 0 ? c.GetGlobal("GAudioSet") - 1 : -1, hideLabel: hideLabel) is int newAudioSetZeroBased)
+				if (this.radioBGMSESet.OnGUIFragment(GetGlobal("GAudioSet") > 0 ? GetGlobal("GAudioSet") - 1 : -1, hideLabel: hideLabel) is int newAudioSetZeroBased)
 				{
 					if(MODAudioSet.Instance.GetAudioSet(newAudioSetZeroBased, out AudioSet audioSet))
 					{
@@ -96,9 +95,9 @@ namespace MOD.Scripts.UI
 
 		public void AdvancedOnGUI()
 		{
-			if (this.radioSE.OnGUIFragment(c.GetGlobal("GAltSE")) is int newAltSE)
+			if (this.radioSE.OnGUIFragment(GetGlobal("GAltSE")) is int newAltSE)
 			{
-				c.SetGlobal("GAltSE", newAltSE);
+				SetGlobal("GAltSE", newAltSE);
 				ReloadMenu();
 			}
 		}

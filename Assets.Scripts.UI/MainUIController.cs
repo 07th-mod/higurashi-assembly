@@ -53,7 +53,6 @@ namespace Assets.Scripts.UI
 		private Vector3 unscaledPosition;
 
 		// While this timer is > 0, the current toast will be displayed (in seconds)
-		private MODStyleManager styleManager;
 		public MODMenu modMenu;
 		private MODToaster toaster;
 
@@ -531,19 +530,14 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			if(this.styleManager == null)
-			{
-				this.styleManager = new MODStyleManager();
-			}
-
 			if (this.toaster == null)
 			{
-				this.toaster = new MODToaster(this.styleManager);
+				this.toaster = new MODToaster();
 			}
 
 			if (this.modMenu == null)
 			{
-				this.modMenu = new MODMenu(this.gameSystem, this.styleManager);
+				this.modMenu = new MODMenu(this.gameSystem);
 			}
 
 			modMenu.OnGUIFragment();

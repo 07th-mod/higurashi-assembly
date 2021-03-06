@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static MOD.Scripts.UI.MODMenuCommon;
 
 namespace MOD.Scripts.UI
 {
@@ -22,8 +23,6 @@ namespace MOD.Scripts.UI
 	{
 		private const int DEBUG_WINDOW_ID = 1;
 
-		private readonly MODStyleManager styleManager;
-		private readonly MODMenuCommon c;
 		private readonly GameSystem gameSystem;
 		public bool visible;
 		public bool debug;
@@ -58,24 +57,22 @@ You can try the following yourself to fix the issue.
 
   4. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
 
-		public MODMenu(GameSystem gameSystem, MODStyleManager styleManager)
+		public MODMenu(GameSystem gameSystem)
 		{
 			this.gameSystem = gameSystem;
-			this.styleManager = styleManager;
 			this.visible = false;
 			this.debug = false;
 			this.lastMenuVisibleStatus = false;
 			this.defaultToolTipTimer = new MODSimpleTimer();
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
-			this.c = new MODMenuCommon(styleManager);
 
 			// Start the watchdog timer as soon as possible, so it starts from "when the game started"
 			this.startupWatchdogTimer.Start(5.0f);
 
-			this.audioOptionsMenu = new MODMenuAudioOptions(this, this.c, styleManager);
-			this.normalMenu = new MODMenuNormal(this, this.c, styleManager, this.audioOptionsMenu);
-			this.audioSetupMenu = new MODMenuAudioSetup(this, this.c, this.audioOptionsMenu);
+			this.audioOptionsMenu = new MODMenuAudioOptions(this);
+			this.normalMenu = new MODMenuNormal(this, this.audioOptionsMenu);
+			this.audioSetupMenu = new MODMenuAudioSetup(this, this.audioOptionsMenu);
 			this.currentMenu = this.normalMenu;
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
@@ -97,10 +94,11 @@ You can try the following yourself to fix the issue.
 
 		private void OnGUIDebugWindow(int windowID)
 		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 			GUI.depth = 1;
 
-			bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(c.GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
-			bool seFlagOK = MODAudioSet.Instance.GetSECascade(c.GetGlobal("GAltSE"), out PathCascadeList SECascade);
+			bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
+			bool seFlagOK = MODAudioSet.Instance.GetSECascade(GetGlobal("GAltSE"), out PathCascadeList SECascade);
 
 			if (!visible)
 			{
@@ -110,32 +108,32 @@ You can try the following yourself to fix the issue.
 			GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
 
 			GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
-			GUILayout.Label($"Audio Set: {c.GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n" +
+			GUILayout.Label($"Audio Set: {GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n" +
 				"\n" +
-				$"AltBGM: {c.GetGlobal("GAltBGM")}\n" +
-				$"AltBGMFlow: {c.GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(c.GetGlobal("GAltBGMflow"))})\n" +
+				$"AltBGM: {GetGlobal("GAltBGM")}\n" +
+				$"AltBGMFlow: {GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(GetGlobal("GAltBGMflow"))})\n" +
 				$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
 				$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n" +
 				"\n" +
-				$"AltSE:  {c.GetGlobal("GAltSE")}\n" +
-				$"AltSEFlow: {c.GetGlobal("GAltSEflow")}\n" +
+				$"AltSE:  {GetGlobal("GAltSE")}\n" +
+				$"AltSEFlow: {GetGlobal("GAltSEflow")}\n" +
 				$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
 				$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
-				$"Voice: {c.GetGlobal("GAltVoice")}\n" +
-				$"Priority: {c.GetGlobal("GAltVoicePriority")}\n" +
+				$"Voice: {GetGlobal("GAltVoice")}\n" +
+				$"Priority: {GetGlobal("GAltVoicePriority")}\n" +
 				"\n" +
 				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
 				$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
 
 			if (debug)
 			{
-				if(c.Button(new GUIContent("Reset GAudioSet", "Set GAudioSet to 0, to force the game to do audio setup on next startup")))
+				if(Button(new GUIContent("Reset GAudioSet", "Set GAudioSet to 0, to force the game to do audio setup on next startup")))
 				{
-					c.SetGlobal("GAudioSet", 0);
+					SetGlobal("GAudioSet", 0);
 				}
 			}
 
-			if (c.Button(new GUIContent("Close", "Close the debug menu")))
+			if (Button(new GUIContent("Close", "Close the debug menu")))
 			{
 				ToggleDebugMenu();
 			}
@@ -153,6 +151,7 @@ You can try the following yourself to fix the issue.
 		/// </summary>
 		public void OnGUIFragment()
 		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 			buttonClickSound = GUISound.Click;
 
 			if (debug && AssetManager.Instance != null)
@@ -244,7 +243,7 @@ You can try the following yourself to fix the issue.
 				// Descriptions for each button are shown on hover, like a tooltip
 				{
 					GUILayout.BeginArea(new Rect(toolTipPosX, innerMargin, toolTipWidth- innerMargin, areaHeight-innerMargin), styleManager.modGUIBackgroundTextureTransparent);
-					c.HeadingLabel(currentMenu.Heading());
+					HeadingLabel(currentMenu.Heading());
 					GUILayout.Space(10);
 
 					GUIStyle toolTipStyle = styleManager.Group.label;
@@ -284,7 +283,7 @@ You can try the following yourself to fix the issue.
 					if (currentMenu.UserCanClose())
 					{
 						GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth - innerMargin, innerMargin, exitButtonWidth, exitButtonHeight));
-						if (c.Button(new GUIContent("X", "Close the Mod menu")))
+						if (Button(new GUIContent("X", "Close the Mod menu")))
 						{
 							this.UserHide();
 						}

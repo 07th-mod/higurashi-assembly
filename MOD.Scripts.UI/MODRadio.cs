@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static MOD.Scripts.UI.MODMenuCommon;
 
 namespace MOD.Scripts.UI
 {
@@ -10,7 +11,6 @@ namespace MOD.Scripts.UI
 		public static bool anyRadioPressed;
 		string label;
 		private GUIContent[] radioContents;
-		MODStyleManager styleManager;
 		int itemsPerRow;
 		bool asButtons;
 
@@ -19,10 +19,9 @@ namespace MOD.Scripts.UI
 		/// </summary>
 		/// <param name="label">The heading label for this radio widget</param>
 		/// <param name="radioContents">The button name and hover tooltip for each option</param>
-		/// <param name="styleManager">The style manager with which the label and buttons will be rendered</param>
 		/// <param name="itemsPerRow">The number of buttons per row</param>
 		/// <param name="asButtons">Implement this as Buttons rather than SelectionGrid, which allows clicking on an already selected item</param>
-		public MODRadio(string label, GUIContent[] radioContents, MODStyleManager styleManager, int itemsPerRow = 0, bool asButtons = false)
+		public MODRadio(string label, GUIContent[] radioContents, int itemsPerRow = 0, bool asButtons = false)
 		{
 			this.label = label;
 			this.radioContents = radioContents;
@@ -31,7 +30,6 @@ namespace MOD.Scripts.UI
 			{
 				this.itemsPerRow = itemsPerRow;
 			}
-			this.styleManager = styleManager;
 			this.asButtons = asButtons;
 		}
 
@@ -46,6 +44,7 @@ namespace MOD.Scripts.UI
 		/// </returns>
 		public int? OnGUIFragment(int displayedRadio, bool hideLabel = false)
 		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 			if (!hideLabel)
 			{
 				GUILayout.Label(this.label, styleManager.Group.label);
@@ -68,7 +67,7 @@ namespace MOD.Scripts.UI
 						GUILayout.BeginHorizontal();
 					}
 
-					if (MODMenuCommon.Button(radioContents[i], styleManager, selected: i == displayedRadio))
+					if (Button(radioContents[i], selected: i == displayedRadio))
 					{
 						MODRadio.anyRadioPressed = true;
 						return i;

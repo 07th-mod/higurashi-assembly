@@ -6,31 +6,24 @@ using UnityEngine;
 
 namespace MOD.Scripts.UI
 {
-	class MODMenuCommon
+	static class MODMenuCommon
 	{
-		MODStyleManager styleManager;
-		public MODMenuCommon(MODStyleManager styleManager)
+		public static void Label(string label)
 		{
-			this.styleManager = styleManager;
+			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.label);
 		}
 
-		public void Label(string label)
+		public static void HeadingLabel(string label)
 		{
-			GUILayout.Label(label, styleManager.Group.label);
+			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.headingLabel);
 		}
 
-		public void HeadingLabel(string label)
+		public static bool Button(GUIContent guiContent, bool selected = false)
 		{
-			GUILayout.Label(label, styleManager.Group.headingLabel);
+			return GUILayout.Button(guiContent, selected ? MODStyleManager.OnGUIInstance.Group.selectedButton : MODStyleManager.OnGUIInstance.Group.button);
 		}
 
-		public static bool Button(GUIContent guiContent, MODStyleManager styleManager, bool selected = false)
-		{
-			return GUILayout.Button(guiContent, selected ? styleManager.Group.selectedButton : styleManager.Group.button);
-		}
-		public bool Button(GUIContent guiContent, bool selected = false) => Button(guiContent, styleManager, selected);
-
-		public int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
-		public void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);
+		public static int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
+		public static void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);
 	}
 }

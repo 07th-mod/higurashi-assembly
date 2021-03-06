@@ -7,6 +7,12 @@ namespace MOD.Scripts.UI
 {
 	public class MODStyleManager
 	{
+		private static MODStyleManager _instance;
+		/// <summary>
+		/// Only call this function from within an OnGUI() context, as Unity gives an error if you try to create styles elsewhere.
+		/// </summary>
+		public static MODStyleManager OnGUIInstance => _instance ?? (_instance = new MODStyleManager());
+
 		public class StyleGroup
 		{
 			public int menuHeight;
@@ -54,10 +60,7 @@ namespace MOD.Scripts.UI
 
 		public float baseFontSize = 14;
 
-		/// <summary>
-		/// Note that this static construct is automatically created
-		/// </summary>
-		public MODStyleManager()
+		private MODStyleManager()
 		{
 			int width = 10;
 			int height = 10;
