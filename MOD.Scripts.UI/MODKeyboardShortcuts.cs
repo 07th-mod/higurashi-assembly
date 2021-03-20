@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -51,6 +52,7 @@ namespace MOD.Scripts.UI
 			ToggleADV,
 			CensorshipLevel,
 			EffectLevel,
+			DebugMenu,
 			FlagMonitor,
 			ModMenu,
 			OpeningVideo,
@@ -69,6 +71,7 @@ namespace MOD.Scripts.UI
 			ToggleArtStyle,
 			DebugMode,
 			RestoreSettings,
+			ToggleAudioSet,
 		}
 
 		private static Action? GetUserAction()
@@ -76,7 +79,11 @@ namespace MOD.Scripts.UI
 			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
-				if (Input.GetKeyDown(KeyCode.F10))
+				if (Input.GetKeyDown(KeyCode.F9))
+				{
+					return Action.DebugMenu;
+				}
+				else if (Input.GetKeyDown(KeyCode.F10))
 				{
 					return Action.FlagMonitor;
 				}
@@ -120,19 +127,22 @@ namespace MOD.Scripts.UI
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
 			{
-				return Action.AltBGM;
+				// Uncomment this if the user needs to be able to individually select AltBGM, separate from AltBGMFlow
+				// return Action.AltBGM;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
 			{
-				return Action.AltBGMFlow;
+				return Action.ToggleAudioSet;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
 			{
-				return Action.AltSE;
+				// Uncomment this if the user needs to be able to individually select AltSE, separate from AltBGMFlow
+				// return Action.AltSE;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
 			{
-				return Action.AltSEFlow;
+				// Uncomment this if the user needs to be able to individually select AltSEFlow, separate from AltBGMFlow
+				// return Action.AltSEFlow;
 			}
 			else if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
 			{
@@ -187,11 +197,12 @@ namespace MOD.Scripts.UI
 					}
 					break;
 
+				case Action.DebugMenu:
+					GameSystem.Instance.MainUIController.modMenu.ToggleDebugMenu();
+					break;
+
 				case Action.FlagMonitor:
-					{
-						int maxFlagMonitorValue = BurikoMemory.Instance.GetGlobalFlag("GMOD_DEBUG_MODE").IntValue() == 0 ? 2 : 4;
-						MODActions.IncrementLocalFlagWithRollover("LFlagMonitor", 0, maxFlagMonitorValue);
-					}
+					MODActions.ToggleFlagMenu();
 					break;
 
 				case Action.OpeningVideo:
@@ -293,6 +304,13 @@ namespace MOD.Scripts.UI
 					}
 					break;
 
+				case Action.ToggleAudioSet:
+					{
+						MODAudioSet.Instance.Toggle();
+						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetDisplayName(includeAudioSetFlag: true));
+					}
+					break;
+
 				default:
 					Assets.Scripts.Core.Logger.Log($"Warning: Unknown mod action {action} was requested to be executed");
 					break;
@@ -309,7 +327,7 @@ namespace MOD.Scripts.UI
 			{
 				if (action == Action.ModMenu)
 				{
-					GameSystem.Instance.MainUIController.modMenu.ToggleVisibility();
+					GameSystem.Instance.MainUIController.modMenu.UserToggleVisibility();
 				}
 				else
 				{
