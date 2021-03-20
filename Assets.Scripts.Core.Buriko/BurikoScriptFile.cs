@@ -6,6 +6,7 @@ using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Scene;
 using MOD.Scripts.Core.State;
 using MOD.Scripts.UI;
@@ -482,15 +483,35 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
-		private BurikoVariable OperationPlayBGM()
+		private void PlayBGMCommon(out string filename, out int channel, out float volume, out float fadeInTime)
 		{
 			SetOperationType("PlayBGM");
-			int channel = ReadVariable().IntValue();
-			string filename = ReadVariable().StringValue() + ".ogg";
-			int num = ReadVariable().IntValue();
-			int num2 = ReadVariable().IntValue();
-			float volume = (float)num / 128f;
-			AudioController.Instance.PlayAudio(filename, Assets.Scripts.Core.Audio.AudioType.BGM, channel, volume, (float)num2);
+			channel = ReadVariable().IntValue();
+			filename = ReadVariable().StringValue() + ".ogg";
+			volume = (float)ReadVariable().IntValue() / 128f;
+			fadeInTime = (float)ReadVariable().IntValue();
+		}
+
+		private BurikoVariable OperationPlayBGM()
+		{
+			PlayBGMCommon(out string filename, out int channel, out float volume, out float fadeInTime);
+			AudioController.Instance.PlayAudio(filename, Assets.Scripts.Core.Audio.AudioType.BGM, channel, volume, fadeInTime);
+			return BurikoVariable.Null;
+		}
+		private BurikoVariable OperationMODPlayBGM()
+		{
+			PlayBGMCommon(out string filename, out int channel, out float volume, out float fadeInTime);
+
+			// OperationMODPlayBGM accepts one extra argument - the GAltBGMflow setting where this bgm should be played
+			int targetBGMFlow = ReadVariable().IntValue();
+
+			MODAudioTracking.Instance.SaveLastAltBGM(targetBGMFlow, new AudioInfo(volume, filename, channel));
+
+			if(BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == targetBGMFlow)
+			{
+				AudioController.Instance.PlayAudio(filename, Assets.Scripts.Core.Audio.AudioType.BGM, channel, volume, fadeInTime, noBGMTracking: true);
+			}
+
 			return BurikoVariable.Null;
 		}
 
@@ -512,12 +533,17 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
-		private BurikoVariable OperationFadeOutBGM()
+		private void FadeBGMCommon(out int channel, out int time, out bool waitForFade)
 		{
 			SetOperationType("FadeOutBGM");
-			int channel = ReadVariable().IntValue();
-			int time = ReadVariable().IntValue();
-			bool waitForFade = ReadVariable().BoolValue();
+			channel = ReadVariable().IntValue();
+			time = ReadVariable().IntValue();
+			waitForFade = ReadVariable().BoolValue();
+		}
+
+		private BurikoVariable OperationFadeOutBGM()
+		{
+			FadeBGMCommon(out int channel, out int time, out bool waitForFade);
 			if (gameSystem.IsSkipping)
 			{
 				AudioController.Instance.StopBGM(channel);
@@ -525,6 +551,27 @@ namespace Assets.Scripts.Core.Buriko
 			else
 			{
 				AudioController.Instance.FadeOutBGM(channel, time, waitForFade);
+			}
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODFadeOutBGM()
+		{
+			FadeBGMCommon(out int channel, out int time, out bool waitForFade);
+			int targetBGMFlow = ReadVariable().IntValue();
+
+			MODAudioTracking.Instance.ForgetLastAltBGM(targetBGMFlow, channel);
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == targetBGMFlow)
+			{
+				if (gameSystem.IsSkipping)
+				{
+					AudioController.Instance.StopBGM(channel, noBGMTracking: true);
+				}
+				else
+				{
+					AudioController.Instance.FadeOutBGM(channel, time, waitForFade, noBGMTracking: true);
+				}
 			}
 			return BurikoVariable.Null;
 		}
@@ -2298,6 +2345,18 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationMODRyukishiModeSettingLoad();
 			case BurikoOperations.ModRyukishiSetGuiPosition:
 				return OperationSetRyukishiGuiPosition();
+			case BurikoOperations.ModPlayBGM:
+				return OperationMODPlayBGM();
+			case BurikoOperations.ModFadeOutBGM:
+				return OperationMODFadeOutBGM();
+			case BurikoOperations.ModAddBGMset:
+				return OperationMODAddBGMset();
+			case BurikoOperations.ModAddSEset:
+				return OperationMODAddSEset();
+			case BurikoOperations.ModAddAudioset:
+				return OperationMODAddAudioset();
+			case BurikoOperations.ModGenericCall:
+				return OperationMODGenericCall();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2773,13 +2832,52 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
-		public BurikoVariable OperationMODAddArtset()
+		private PathCascadeList ReadPathCascadeFromArgs()
 		{
-			SetOperationType("MODAddArtset");
 			string nameEN = ReadVariable().StringValue();
 			string nameJP = ReadVariable().StringValue();
 			string[] paths = ReadVariable().StringValue().Split(':');
-			AssetManager.Instance.AddArtset(new PathCascadeList(nameEN, nameJP, paths));
+			return new PathCascadeList(nameEN, nameJP, paths);
+		}
+
+		public BurikoVariable OperationMODAddArtset()
+		{
+			SetOperationType("MODAddArtset");
+			AssetManager.Instance.AddArtset(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddBGMset()
+		{
+			SetOperationType("MODAddBGMset");
+			MODAudioSet.Instance.AddBGMSet(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddSEset()
+		{
+			SetOperationType("MODAddSEset");
+			MODAudioSet.Instance.AddSESet(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		/// <summary>
+		/// Note: Tabs are not supported for descriptions and will be stripped out.
+		/// This is so that you can write multiple line strings in the game script without tabs appearing in the output.
+		/// </summary>
+		public BurikoVariable OperationMODAddAudioset()
+		{
+			SetOperationType("MODAddAudioSet");
+			string nameEN = ReadVariable().StringValue();
+			string descriptionEN = ReadVariable().StringValue();
+			string nameJP = ReadVariable().StringValue();
+			string descriptionJP = ReadVariable().StringValue();
+			int altBGM = ReadVariable().IntValue();
+			int altBGMflow = ReadVariable().IntValue();
+			int altSE = ReadVariable().IntValue();
+			int altSEFlow = ReadVariable().IntValue();
+			MODAudioSet.Instance.AddAudioSet(new AudioSet(nameEN, nameJP, MODUtility.StripTabs(descriptionEN), MODUtility.StripTabs(descriptionJP), altBGM, altBGMflow, altSE, altSEFlow));
+
 			return BurikoVariable.Null;
 		}
 
@@ -2788,6 +2886,28 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("MODClearArtsets");
 			AssetManager.Instance.ClearArtsets();
 			AssetManager.Instance.ShouldSerializeArtsets = true;
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODGenericCall()
+		{
+			SetOperationType("MODGenericCall");
+			string callID = ReadVariable().StringValue();
+			string callParameters = ReadVariable().StringValue();
+			switch(callID)
+			{
+				case "ShowSetupMenuIfRequired":
+					if(MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
+					{
+						GameSystem.Instance.MainUIController.modMenu.SetMode(ModMenuMode.AudioSetup);
+						GameSystem.Instance.MainUIController.modMenu.Show();
+					}
+					break;
+
+				default:
+					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
+					break;
+			}
 			return BurikoVariable.Null;
 		}
 	}
