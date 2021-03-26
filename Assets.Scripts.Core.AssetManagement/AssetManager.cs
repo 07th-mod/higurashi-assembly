@@ -365,8 +365,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			return texture2D;
 		}
 
-		public string getAssetFromCascade(string filename, PathCascadeList cascade, out bool exists)
+		public string getAssetFromCascade(string filenameAnyCase, PathCascadeList cascade, out bool exists)
 		{
+			// Assume that all files are lowercase on disk, but are sometimes not fully lowercase in the game script or as args to this function
+			string filename = filenameAnyCase.ToLower();
+
 			exists = false;
 
 			// Use the first file that exists. If none exist, return the last one.
