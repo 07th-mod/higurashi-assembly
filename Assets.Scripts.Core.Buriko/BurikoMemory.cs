@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
+using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Scene;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
@@ -98,6 +99,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GRyukishiMode", 526);
 			variableReference.Add("GStretchBackgrounds", 527);
 			variableReference.Add("GBackgroundSet", 528);
+			variableReference.Add("GAudioSet", 529);
 
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
@@ -372,6 +374,7 @@ namespace Assets.Scripts.Core.Buriko
 			// Save extra variables that aren't in vanilla games into places where they'll be ignored by vanilla games
 			// In this case, the variable list seemed like a good spot (with a name that's not a valid Buriko variable name)
 			serializeToSave("$layerFilters", MODSceneController.serializableLayerFilters);
+			serializeToSave("$audioTracking", MODAudioTracking.Instance.SerializeableState());
 			if (AssetManager.Instance.ShouldSerializeArtsets)
 			{
 				serializeToSave("$artsets", AssetManager.Instance.Artsets);
@@ -407,6 +410,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				memorylist.Remove("$layerFilters");
 				memorylist.Remove("$artsets");
+				memorylist.Remove("$audioTracking");
 			}
 		}
 
@@ -453,6 +457,10 @@ namespace Assets.Scripts.Core.Buriko
 				AssetManager.Instance.Artsets = artsets;
 				AssetManager.Instance.ShouldSerializeArtsets = true;
 				Debug.Log("Loaded " + artsets.Count + " artsets: " + string.Join(", ", artsets.Select(x => x.ToString()).ToArray()));
+			}
+			if(tryDeserializeFromSave<Dictionary<int, Audio.AudioInfo>[]>("$audioTracking", out var audioTracking))
+			{
+				MODAudioTracking.Instance.QueueState(audioTracking);
 			}
 			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{

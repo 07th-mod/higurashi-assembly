@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Interfaces;
+using MOD.Scripts.Core.Audio;
 using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
@@ -410,6 +411,8 @@ namespace Assets.Scripts.Core.Buriko
 						currentScript.JumpToLineNum(linenum2);
 						memoryManager.LoadMemory(memoryStream);
 						AudioController.Instance.DeSerializeCurrentAudio(memoryStream);
+						// Restoring mod audio state done here to avoid changes being overwritten by above DeSerializeCurrentAudio() call
+						MODAudioTracking.Instance.RestoreState();
 						GameSystem.Instance.SceneController.DeSerializeScene(memoryStream);
 						GameSystem.Instance.ForceReturnNormalState();
 						GameSystem.Instance.CloseChoiceIfExists();
