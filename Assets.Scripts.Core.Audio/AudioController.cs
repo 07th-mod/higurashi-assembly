@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.TextWindow;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
@@ -218,8 +219,12 @@ namespace Assets.Scripts.Core.Audio
 			audioLayerUnity.StartVolumeFade(volume, time2);
 		}
 
-		public void FadeOutBGM(int channel, int time, bool waitForFade)
+		public void FadeOutBGM(int channel, int time, bool waitForFade, bool noBGMTracking = false)
 		{
+			if (!noBGMTracking)
+			{
+				MODAudioTracking.Instance.ForgetLastBGM(channel);
+			}
 			float num = (float)time / 1000f;
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
 			AudioLayerUnity audioLayerUnity = channelDictionary[channelByTypeChannel];
@@ -234,8 +239,12 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		public void StopBGM(int channel)
+		public void StopBGM(int channel, bool noBGMTracking = false)
 		{
+			if (!noBGMTracking)
+			{
+				MODAudioTracking.Instance.ForgetLastBGM(channel);
+			}
 			AudioLayerUnity audioLayerUnity = channelDictionary[channel];
 			audioLayerUnity.StopAudio();
 			if (currentAudio[AudioType.BGM].ContainsKey(channel))
@@ -248,6 +257,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = channelstart; i <= channelend; i++)
 			{
+				MODAudioTracking.Instance.ForgetLastBGM(i);
 				FadeOutBGM(i, time, waitForFade);
 			}
 		}
@@ -379,6 +389,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = 0; i < 6; i++)
 			{
+				MODAudioTracking.Instance.ForgetLastBGM(i);
 				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
 				if (audioLayerUnity.IsPlaying())
 				{
@@ -403,7 +414,7 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		public void PlayAudio(string filename, AudioType type, int channel, float volume, float fadeintime = 0)
+		public void PlayAudio(string filename, AudioType type, int channel, float volume, float fadeintime = 0, bool noBGMTracking = false)
 		{
 			float startvolume = volume;
 			if (fadeintime > 0f)
@@ -419,6 +430,11 @@ namespace Assets.Scripts.Core.Audio
 			bool loop = type == AudioType.BGM;
 			if (type == AudioType.BGM)
 			{
+				if (!noBGMTracking)
+				{
+					MODAudioTracking.Instance.SaveLastBGM(new AudioInfo(volume, filename, channel));
+				}
+
 				if (currentAudio[AudioType.BGM].ContainsKey(channel))
 				{
 					currentAudio[AudioType.BGM].Remove(channel);
