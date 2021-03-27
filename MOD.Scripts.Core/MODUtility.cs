@@ -106,4 +106,6 @@ public static class MODUtility
 				return Platform.Windows;
 		}
 	}
+
+	public static string StripTabs(string s) => s.Replace("\t", "");
 }

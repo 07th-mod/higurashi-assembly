@@ -12,13 +12,11 @@ namespace MOD.Scripts.UI
 	class MODToaster
 	{
 		static MODToaster Instance;
-		private MODStyleManager styleManager;
 		string toastText;
 		MODSimpleTimer toastNotificationTimer;
 
-		public MODToaster(MODStyleManager styleManager)
+		public MODToaster()
 		{
-			this.styleManager = styleManager;
 			this.toastText = "";
 			this.toastNotificationTimer = new MODSimpleTimer();
 
@@ -32,6 +30,8 @@ namespace MOD.Scripts.UI
 
 		public void OnGUIFragment()
 		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
+
 			if (toastNotificationTimer.Running())
 			{
 				// This scrolls the toast notification off the window when it's nearly finished
