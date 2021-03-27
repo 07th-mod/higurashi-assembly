@@ -7,6 +7,12 @@ namespace MOD.Scripts.UI
 {
 	public class MODStyleManager
 	{
+		private static MODStyleManager _instance;
+		/// <summary>
+		/// Only call this function from within an OnGUI() context, as Unity gives an error if you try to create styles elsewhere.
+		/// </summary>
+		public static MODStyleManager OnGUIInstance => _instance ?? (_instance = new MODStyleManager());
+
 		public class StyleGroup
 		{
 			public int menuHeight;
@@ -17,6 +23,7 @@ namespace MOD.Scripts.UI
 			public GUIStyle selectedButton;
 			public GUIStyle label;             //Used for normal Label widgets
 			public GUIStyle headingLabel;
+			public GUIStyle upperLeftHeadingLabel;
 		}
 
 		// Styles used for Toasts
@@ -24,9 +31,13 @@ namespace MOD.Scripts.UI
 		public GUIStyle smallToastLabelStyle;
 
 		// Styles used for the Mod menu
-		public GUIStyle modMenuAreaStyle;		//Used for Area widgets
+		public GUIStyle modMenuAreaStyle;       //Used for Area widgets
+		public GUIStyle modMenuAreaStyleLight;
+		public GUIStyle modMenuAreaStyleTransparent;
 
 		public Texture2D modGUIBackgroundTexture;
+		public Texture2D modGUIBackgroundTextureTransparent;
+		public Texture2D modGUIBackgroundTextureLight;
 
 		StyleGroup style480;
 		StyleGroup style720;
@@ -49,21 +60,55 @@ namespace MOD.Scripts.UI
 
 		public float baseFontSize = 14;
 
-		/// <summary>
-		/// Note that this static construct is automatically created
-		/// </summary>
-		public MODStyleManager()
+		private MODStyleManager()
 		{
-			int width = 1;
-			int height = 1;
+			int width = 10;
+			int height = 10;
 			Color[] pix = new Color[width * height];
+
 			for (int i = 0; i < pix.Length; i++)
 			{
-				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.9f);
+				pix[i] = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 			}
+
+			modGUIBackgroundTextureTransparent = new Texture2D(width, height);
+			modGUIBackgroundTextureTransparent.SetPixels(pix);
+			modGUIBackgroundTextureTransparent.Apply();
+
+			for (int i = 0; i < pix.Length; i++)
+			{
+				pix[i] = new Color(0.7f, 0.7f, 0.7f);
+			}
+
+			for (int y = 2; y < height-2; y++)
+			{
+				for (int x = 2; x < width-2; x++)
+				{
+					pix[x + y * width] = new Color(0.0f, 0.0f, 0.0f, 0.9f);
+				}
+			}
+
 			modGUIBackgroundTexture = new Texture2D(width, height);
 			modGUIBackgroundTexture.SetPixels(pix);
 			modGUIBackgroundTexture.Apply();
+
+			for (int i = 0; i < pix.Length; i++)
+			{
+				pix[i] = new Color(1.0f, 1.0f, 1.0f, 0.7f);
+			}
+
+			for (int y = 2; y < height-2; y++)
+			{
+				for (int x = 2; x < width-2; x++)
+				{
+					pix[x + y * width] = new Color(0.0f, 0.0f, 0.0f, 0.7f);
+				}
+			}
+
+			modGUIBackgroundTextureLight = new Texture2D(width, height);
+			modGUIBackgroundTextureLight.SetPixels(pix);
+			modGUIBackgroundTextureLight.Apply();
+
 
 			style480 = GenerateWidgetStyles(
 				menuWidth: 850,
@@ -83,7 +128,7 @@ namespace MOD.Scripts.UI
 
 			style1080 = GenerateWidgetStyles(
 				menuWidth: 1200,
-				menuHeight: 800,
+				menuHeight: 950,
 				guiScale: 1.25f,
 				margin: new RectOffset(2, 2, 2, 2),
 				padding: new RectOffset(2, 2, 2, 2)
@@ -124,6 +169,12 @@ namespace MOD.Scripts.UI
 			modMenuAreaStyle.normal.background = modGUIBackgroundTexture;
 			modMenuAreaStyle.normal.textColor = Color.white;
 			modMenuAreaStyle.wordWrap = true;
+
+			modMenuAreaStyleLight = new GUIStyle(modMenuAreaStyle);
+			modMenuAreaStyleLight.normal.background = modGUIBackgroundTextureLight;
+
+			modMenuAreaStyleTransparent = new GUIStyle(modMenuAreaStyle);
+			modMenuAreaStyleTransparent.normal.background = modGUIBackgroundTextureTransparent;
 		}
 
 		private StyleGroup GenerateWidgetStyles(int menuWidth, int menuHeight, float guiScale, RectOffset margin, RectOffset padding)
@@ -153,6 +204,9 @@ namespace MOD.Scripts.UI
 			};
 			headingLabelStyle.padding.top *= 5;
 
+			GUIStyle upperLeftHeadingLabelStyle = new GUIStyle(headingLabelStyle);
+			upperLeftHeadingLabelStyle.alignment = TextAnchor.UpperLeft;
+
 			// Menu selection grid/radio
 			GUIStyle modMenuSelectionGrid = new GUIStyle(GUI.skin.button) //Copy the default style for 'box' as a base
 			{
@@ -177,6 +231,7 @@ namespace MOD.Scripts.UI
 				selectedButton = selectedButtonStyle,
 				label = labelStyle,
 				headingLabel = headingLabelStyle,
+				upperLeftHeadingLabel = upperLeftHeadingLabelStyle,
 			};
 		}
 	}
