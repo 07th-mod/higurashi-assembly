@@ -24,6 +24,8 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
 
+		private readonly MODTabControl tabControl;
+
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
@@ -89,12 +91,40 @@ Sets the script censorship level
 			}, itemsPerRow: 2);
 
 			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
+
+			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>
+			{
+				new MODTabControl.TabProperties("Gameplay", "Voice Matching and Opening Videos", GameplayTabOnGUI),
+				new MODTabControl.TabProperties("Graphics", "Sprites, Backgrounds, CGs, Resolution", GraphicsTabOnGUI),
+				new MODTabControl.TabProperties("Audio", "BGM and SE options", AudioTabOnGUI),
+				new MODTabControl.TabProperties("Troubleshooting", "Tools to help you if something goes wrong", TroubleShootingTabOnGUI),
+			});
 		}
 
 		public void OnGUI()
 		{
-			HeadingLabel("Basic Options");
+			tabControl.OnGUI();
+		}
 
+		public void OnBeforeMenuVisible() {
+			// Update the artset radio buttons/descriptions, as these are set by ModAddArtset() calls in init.txt at runtime
+			// Technically only need to do this once after init.txt has been called, but it's easier to just do it each time menu is opened
+			GUIContent[] descriptions = Core.MODSystem.instance.modTextureController.GetArtStyleDescriptions();
+			for (int i = 0; i < descriptions.Length; i++)
+			{
+				if (i < this.defaultArtsetDescriptions.Length)
+				{
+					descriptions[i] = this.defaultArtsetDescriptions[i];
+				}
+			}
+			this.radioArtSet.SetContents(descriptions);
+
+			resolutionMenu.OnBeforeMenuVisible();
+			audioOptionsMenu.OnBeforeMenuVisible();
+		}
+
+		private void GraphicsTabOnGUI()
+		{
 			Label("Graphics Presets (Hotkey: F1)");
 			{
 				GUILayout.BeginHorizontal();
@@ -133,26 +163,12 @@ Sets the script censorship level
 				GUILayout.EndHorizontal();
 			}
 
-			if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
-			{
-				SetGlobal("GCensor", censorLevel);
-			};
-
 			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
 				SetGlobal("GLipSync", lipSyncEnabled);
 			};
 
-			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
-			{
-				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
-			};
-
-			this.audioOptionsMenu.OnGUI();
-
 			HeadingLabel("Advanced Options");
-
-			this.audioOptionsMenu.AdvancedOnGUI();
 
 			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 			{
@@ -191,15 +207,43 @@ Sets the script censorship level
 				}
 			}
 
+			HeadingLabel("Resolution");
+
 			resolutionMenu.OnGUI();
+		}
 
-			GUILayout.Space(10);
-			OnGUIRestoreSettings();
+		private void GameplayTabOnGUI()
+		{
+			if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
+			{
+				SetGlobal("GCensor", censorLevel);
+			};
+
+			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
+			{
+				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
+			};
+		}
 
 
-			HeadingLabel("Troubleshooting");
+		private void AudioTabOnGUI()
+		{
+			this.audioOptionsMenu.OnGUI();
+
+			HeadingLabel("Advanced Options");
+
+			this.audioOptionsMenu.AdvancedOnGUI();
+		}
+
+
+		private void TroubleShootingTabOnGUI()
+		{
 			Label("Save Files and Log Files");
 			MODMenuSupport.ShowSupportButtons(content => Button(content));
+
+			GUILayout.Space(10);
+
+			OnGUIRestoreSettings();
 
 			Label("Developer");
 			GUILayout.BeginHorizontal();
@@ -212,23 +256,6 @@ Sets the script censorship level
 				MODActions.ToggleFlagMenu();
 			}
 			GUILayout.EndHorizontal();
-		}
-
-		public void OnBeforeMenuVisible() {
-			// Update the artset radio buttons/descriptions, as these are set by ModAddArtset() calls in init.txt at runtime
-			// Technically only need to do this once after init.txt has been called, but it's easier to just do it each time menu is opened
-			GUIContent[] descriptions = Core.MODSystem.instance.modTextureController.GetArtStyleDescriptions();
-			for (int i = 0; i < descriptions.Length; i++)
-			{
-				if (i < this.defaultArtsetDescriptions.Length)
-				{
-					descriptions[i] = this.defaultArtsetDescriptions[i];
-				}
-			}
-			this.radioArtSet.SetContents(descriptions);
-
-			resolutionMenu.OnBeforeMenuVisible();
-			audioOptionsMenu.OnBeforeMenuVisible();
 		}
 
 		private void OnGUIRestoreSettings()

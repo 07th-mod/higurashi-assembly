@@ -254,6 +254,7 @@
     <Compile Include="MOD.Scripts.UI\MODSimpleTimer.cs" />
     <Compile Include="MOD.Scripts.UI\MODSound.cs" />
     <Compile Include="MOD.Scripts.UI\MODStyleManager.cs" />
+    <Compile Include="MOD.Scripts.UI\MODTabControl.cs" />
     <Compile Include="MOD.Scripts.UI\MODToaster.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonArray.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryType.cs" />
