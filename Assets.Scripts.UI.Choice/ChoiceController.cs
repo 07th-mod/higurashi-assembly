@@ -54,7 +54,7 @@ namespace Assets.Scripts.UI.Choice
 					{
 						x = GameSystem.Instance.GetGUIOffset() + 300f;
 					}
-					gameObject2.transform.localPosition = new Vector3(x, (float)(-75 * (i / 2) + 27 * count - 50), 0f);
+					gameObject2.transform.localPosition = new Vector3(x, (float)(-75 * (i / 2) + 27 * count - 100), 0f);
 				}
 				else
 				{
