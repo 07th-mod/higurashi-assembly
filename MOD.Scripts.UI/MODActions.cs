@@ -91,6 +91,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
+				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
 				TryRedrawTextWindowBackground(WindowFilterType.ADV);
 				mODMainUIController.WideGuiPositionStore();
@@ -112,6 +113,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
+				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
 				TryRedrawTextWindowBackground(WindowFilterType.Normal);
 				mODMainUIController.WideGuiPositionStore();
@@ -125,6 +127,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
+				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
 				TryRedrawTextWindowBackground(WindowFilterType.OG);
 				mODMainUIController.RyukishiGuiPositionStore();
@@ -138,12 +141,14 @@ namespace MOD.Scripts.UI
 		// so that the player knows when the flags have changed from their default values for the current preset
 		public static int GetADVNVLRyukishiModeFromFlags(out bool presetModified)
 		{
+
 			// If background override is enabled on any preset, the preset has been modified
-			presetModified = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0;
+			presetModified = false;
 
 			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
 			{
 				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 1 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 2 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 2 ||
@@ -156,6 +161,7 @@ namespace MOD.Scripts.UI
 			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
 				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 1 ||
 					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 0 ||
@@ -168,6 +174,7 @@ namespace MOD.Scripts.UI
 			else
 			{
 				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 2 ||
