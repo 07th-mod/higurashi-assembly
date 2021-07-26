@@ -30,7 +30,6 @@ namespace MOD.Scripts.UI
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
 		private bool startupFailed;
-		private bool anyButtonPressed;
 		Vector2 scrollPosition;
 		Vector2 leftDebugColumnScrollPosition;
 		private Rect debugWindowRect;
@@ -292,11 +291,11 @@ You can try the following yourself to fix the issue.
 				}
 				GUILayout.EndArea();
 
-				if(MODRadio.anyRadioPressed || anyButtonPressed)
+				if(MODRadio.anyRadioPressed || MODMenuCommon.anyButtonPressed)
 				{
 					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(buttonClickSound));
 					MODRadio.anyRadioPressed = false;
-					anyButtonPressed = false;
+					MODMenuCommon.anyButtonPressed = false;
 				}
 			}
 		}
