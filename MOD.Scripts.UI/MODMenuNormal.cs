@@ -23,6 +23,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
+		private readonly MODRadio radioStretchBackgrounds;
 
 		private readonly MODTabControl tabControl;
 
@@ -86,9 +87,14 @@ Sets the script censorship level
 				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
 				new GUIContent("Console BGs", "Force Console backgrounds, regardless of the artset"),
 				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
-				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset\n\n" +
-				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
 			}, itemsPerRow: 2);
+
+			radioStretchBackgrounds = new MODRadio("Background Stretching", new GUIContent[]
+			{
+				new GUIContent("Normal BGs", "Makes backgrounds as big as possible without any stretching (Keep Aspect Ratio)"),
+				new GUIContent("Stretched BGs", "Stretches backgrounds to fit the screen (Ignore Aspect Ratio)\n\n" +
+				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
+			});
 
 			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
 
@@ -182,29 +188,19 @@ Sets the script censorship level
 
 			if (this.hasOGBackgrounds)
 			{
-				int currentBackground = GetGlobal("GBackgroundSet");
-				if (currentBackground == 2)
+				if (this.radioBackgrounds.OnGUIFragment(GetGlobal("GBackgroundSet")) is int background)
 				{
-					if (GetGlobal("GStretchBackgrounds") == 1)
-					{
-						currentBackground = 3;
-					}
+					SetGlobal("GBackgroundSet", background);
+					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
-				if (this.radioBackgrounds.OnGUIFragment(currentBackground) is int background)
+
+				if (this.radioStretchBackgrounds.OnGUIFragment(GetGlobal("GStretchBackgrounds")) is int stretchBackgrounds)
 				{
-					if (background == 3)
-					{
-						SetGlobal("GStretchBackgrounds", 1);
-						SetGlobal("GBackgroundSet", 2);
-					}
-					else
-					{
-						SetGlobal("GStretchBackgrounds", 0);
-						SetGlobal("GBackgroundSet", background);
-					}
+					SetGlobal("GStretchBackgrounds", stretchBackgrounds);
 					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
 			}
+
 
 			HeadingLabel("Resolution");
 
