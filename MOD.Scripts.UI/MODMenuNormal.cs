@@ -177,7 +177,6 @@ Sets the script censorship level
 
 			if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
 			{
-				SetGlobal("GStretchBackgrounds", 0);
 				Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
 			}
 
