@@ -83,10 +83,9 @@ Sets the script censorship level
 				new GUIContent("Hide CGs", "Disables all CGs (mainly for use with the Original/Ryukishi preset)"),
 			});
 
-			radioBackgrounds = new MODRadio("Override Art Set Backgrounds", new GUIContent[]{
-				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
-				new GUIContent("Console BGs", "Force Console backgrounds, regardless of the artset"),
-				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
+			radioBackgrounds = new MODRadio("Background Style", new GUIContent[]{
+				new GUIContent("Console BGs", "Use Console backgrounds"),
+				new GUIContent("Original BGs", "Use Original/Ryukishi backgrounds"),
 			}, itemsPerRow: 2);
 
 			radioStretchBackgrounds = new MODRadio("Background Stretching", new GUIContent[]
