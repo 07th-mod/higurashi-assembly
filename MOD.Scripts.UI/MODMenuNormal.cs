@@ -235,11 +235,13 @@ Sets the script censorship level
 			Label("Save Files and Log Files");
 			MODMenuSupport.ShowSupportButtons(content => Button(content));
 
-			GUILayout.Space(10);
+			GUILayout.Space(100);
+
+			HeadingLabel("Developer Tools - Warning: only use if asked by developers!");
 
 			OnGUIRestoreSettings();
 
-			Label("Developer");
+			Label("Developer Debug Menu");
 			GUILayout.BeginHorizontal();
 			if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
 			{
