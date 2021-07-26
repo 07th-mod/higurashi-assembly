@@ -24,6 +24,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
 		private readonly MODRadio radioStretchBackgrounds;
+		private readonly MODRadio radioTextWindowModeAndCrop;
 
 		private readonly MODTabControl tabControl;
 
@@ -90,12 +91,29 @@ Sets the script censorship level
 
 			radioStretchBackgrounds = new MODRadio("Background Stretching", new GUIContent[]
 			{
-				new GUIContent("Normal BGs", "Makes backgrounds as big as possible without any stretching (Keep Aspect Ratio)"),
-				new GUIContent("Stretched BGs", "Stretches backgrounds to fit the screen (Ignore Aspect Ratio)\n\n" +
+				new GUIContent("BG Stretching Off", "Makes backgrounds as big as possible without any stretching (Keep Aspect Ratio)"),
+				new GUIContent("BG Stretching On", "Stretches backgrounds to fit the screen (Ignore Aspect Ratio)\n\n" +
 				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
 			});
 
 			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
+
+			radioTextWindowModeAndCrop = new MODRadio("Text Window Appearance & Sprite Cropping", new GUIContent[]{
+				new GUIContent("ADV Mode", "This option:\n" +
+				"- Makes text show at the bottom of the screen in a textbox\n" +
+				"- Shows the name of the current character on the textbox\n" +
+				"- Does not crop sprites"),
+				new GUIContent("NVL Mode", "This option:\n" +
+				"- Makes text show across the whole screen\n" +
+				"- Does not crop sprites"),
+				new GUIContent("Original With Cropping", "This option:\n" +
+				"- Darkens the whole screen to emulate the original game" +
+				"- Makes text show along the middle of the screen\n" +
+				"- Crops sprites to fit in a 4:3 aspect ratio\n\n" +
+				"NOTE: This is only for use with the following options:\n" +
+				"- Background Style = Original BGs\n" +
+				"- Background Stretching = BG Stretching Off\n"),
+			}, itemsPerRow: 2);
 
 			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>
 			{
@@ -143,7 +161,7 @@ Sets the script censorship level
 				"- Displays in 16:9 widescreen\n\n" +
 				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 0))
 				{
-					MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.ADV, showInfoToast: false);
 				}
 
 				if (Button(new GUIContent("NVL", "This preset:\n" +
@@ -152,7 +170,7 @@ Sets the script censorship level
 					"- Displays in 16:9 widescreen\n\n" +
 					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 1))
 				{
-					MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.NVL, showInfoToast: false);
 				}
 
 				if (this.hasOGBackgrounds &&
@@ -162,7 +180,7 @@ Sets the script censorship level
 					"- Switches to original sprites and backgrounds\n\n" +
 					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 2))
 				{
-					MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.OG, showInfoToast: false);
 				}
 
 				if (Button(new GUIContent("Custom", "Your own custom preset, using the options below"), selected: presetModified))
@@ -205,6 +223,11 @@ Sets the script censorship level
 				}
 			}
 
+			if (this.radioTextWindowModeAndCrop.OnGUIFragment((int)MODActions.GetWindowModeFromFlags()) is int windowMode)
+			{
+				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode);
+				GameSystem.Instance.SceneController.ReloadAllImages();
+			}
 
 			HeadingLabel("Resolution");
 
