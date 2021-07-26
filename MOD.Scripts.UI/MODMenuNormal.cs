@@ -136,33 +136,38 @@ Sets the script censorship level
 
 				int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
 
-				if (Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
+				if (Button(new GUIContent("ADV", "This preset:\n" +
 				"- Makes text show at the bottom of the screen in a textbox\n" +
 				"- Shows the name of the current character on the textbox\n" +
 				"- Uses the console sprites and backgrounds\n" +
 				"- Displays in 16:9 widescreen\n\n" +
-				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 0))
+				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 0))
 				{
 					MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
 				}
 
-				if (Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
+				if (Button(new GUIContent("NVL", "This preset:\n" +
 					"- Makes text show across the whole screen\n" +
 					"- Uses the console sprites and backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
-					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 1))
+					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 1))
 				{
 					MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
 				}
 
 				if (this.hasOGBackgrounds &&
-					Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+					Button(new GUIContent("Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
 					"- Displays backgrounds in 4:3 'standard' aspect\n" +
 					"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
 					"- Switches to original sprites and backgrounds\n\n" +
-					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 2))
+					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 2))
 				{
 					MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
+				}
+
+				if (Button(new GUIContent("Custom", "Your own custom preset, using the options below"), selected: presetModified))
+				{
+					MODToaster.Show("Change some options below to make your own custom preset");
 				}
 
 				GUILayout.EndHorizontal();
