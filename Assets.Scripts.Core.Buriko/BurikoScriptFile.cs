@@ -2793,7 +2793,7 @@ namespace Assets.Scripts.Core.Buriko
 				case "ShowSetupMenuIfRequired":
 					if(MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
 					{
-						GameSystem.Instance.MainUIController.modMenu.SetMode(ModMenuMode.AudioSetup);
+						GameSystem.Instance.MainUIController.modMenu.SetSubMenu(ModSubMenu.AudioSetup);
 						GameSystem.Instance.MainUIController.modMenu.Show();
 					}
 					break;
