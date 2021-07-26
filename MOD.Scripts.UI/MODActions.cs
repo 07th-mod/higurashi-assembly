@@ -90,24 +90,27 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
-				SetTextWindowAppearance(setting, mODMainUIController, showInfoToast);
-				Core.MODSystem.instance.modTextureController.SetArtStyle(0, showInfoToast);
+				SetTextWindowAppearance(setting, mODMainUIController, false);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(0, false);
+				if (showInfoToast) { UI.MODToaster.Show($"Preset: Console"); }
 			}
 			else if (setting == ModPreset.NVL)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
-				SetTextWindowAppearance(setting, mODMainUIController, showInfoToast);
-				Core.MODSystem.instance.modTextureController.SetArtStyle(1, showInfoToast);
+				SetTextWindowAppearance(setting, mODMainUIController, false);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(1, false);
+				if (showInfoToast) { UI.MODToaster.Show($"Preset: MangaGamer"); }
 			}
 			else if (setting == ModPreset.OG)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
-				SetTextWindowAppearance(setting, mODMainUIController, showInfoToast);
-				Core.MODSystem.instance.modTextureController.SetArtStyle(2, showInfoToast);
+				SetTextWindowAppearance(setting, mODMainUIController, false);
+				Core.MODSystem.instance.modTextureController.SetArtStyle(2, false);
+				if (showInfoToast) { UI.MODToaster.Show($"Preset: Original/Ryukishi"); }
 			}
 
 		}

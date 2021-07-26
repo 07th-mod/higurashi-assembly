@@ -154,7 +154,7 @@ Sets the script censorship level
 
 				int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
 
-				if (Button(new GUIContent("ADV", "This preset:\n" +
+				if (Button(new GUIContent("Console", "This preset:\n" +
 				"- Makes text show at the bottom of the screen in a textbox\n" +
 				"- Shows the name of the current character on the textbox\n" +
 				"- Uses the console sprites and backgrounds\n" +
@@ -164,7 +164,7 @@ Sets the script censorship level
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.ADV, showInfoToast: false);
 				}
 
-				if (Button(new GUIContent("NVL", "This preset:\n" +
+				if (Button(new GUIContent("MangaGamer", "This preset:\n" +
 					"- Makes text show across the whole screen\n" +
 					"- Uses the console sprites and backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
