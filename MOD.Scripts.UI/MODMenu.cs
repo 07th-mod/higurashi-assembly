@@ -85,6 +85,9 @@ You can try the following yourself to fix the issue.
 
 		public void LateUpdate()
 		{
+			// Hide the menu on right-click
+			// This must be done in LateUpdate() rather than Update(),
+			// otherwise the right-click event will also open the in-game right-click menu
 			if (Input.GetMouseButtonDown(1))
 			{
 				this.UserHide();
@@ -146,7 +149,8 @@ You can try the following yourself to fix the issue.
 		}
 
 		/// <summary>
-		/// Must be called from an OnGUI()
+		/// This function MUST be called from an OnGUI(), otherwise Unity won't work
+		/// properly when  the immediate mode GUI functions are called.
 		/// </summary>
 		public void OnGUIFragment()
 		{
@@ -171,12 +175,14 @@ You can try the following yourself to fix the issue.
 				}
 			}
 
+			// Assume that the game started up correctly if the flow.txt game script was reached
 			if(BurikoScriptSystem.Instance.FlowWasReached)
 			{
 				this.startupFailed = false;
 			}
 
-			// Button to open the Mod Menu on the Config Screen
+			// This adds an "Open Mod Menu" button to the Config Screen
+			// (the normal settings screen that comes with the stock game)
 			if (gameSystem.GameState == GameState.ConfigScreen)
 			{
 				if (gameSystem.ConfigManager() != null)
@@ -199,9 +205,10 @@ You can try the following yourself to fix the issue.
 				GUILayout.EndArea();
 			}
 
+			// If you need to initialize things just once before the menu opens, rather than every frame
+			// you can do it in the OnBeforeMenuVisible() function below.
 			if (visible && !lastMenuVisibleStatus)
 			{
-				// Executes just before menu becomes visible
 				currentMenu.OnBeforeMenuVisible();
 			}
 			lastMenuVisibleStatus = visible;
@@ -209,7 +216,7 @@ You can try the following yourself to fix the issue.
 
 			if (visible)
 			{
-				float totalAreaWidth = styleManager.Group.menuWidth; // areaWidth + toolTipWidth;
+				float totalAreaWidth = styleManager.Group.menuWidth;
 
 				float areaWidth = Mathf.Round(totalAreaWidth * 9/16);
 				float toolTipWidth = Mathf.Round(totalAreaWidth * 7/16);
@@ -226,19 +233,24 @@ You can try the following yourself to fix the issue.
 
 				float innerMargin = 4f;
 
-				// Radio buttons
+				// This contains the the entire menu, and draws a white border around it
 				GUILayout.BeginArea(new Rect(areaPosX, areaPosY, areaWidth + toolTipWidth, areaHeight), styleManager.modMenuAreaStyle);
+
+				// This displays the left hand side of the menu which contains the option buttons and headings
 				{
 					GUILayout.BeginArea(new Rect(innerMargin, innerMargin, areaWidth-innerMargin, areaHeight-innerMargin), styleManager.modGUIBackgroundTextureTransparent);
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
 					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
 
+					// 'currentMenu' is reassigned to switch to different modes/screens
+					// please see the SetMode() function
 					currentMenu.OnGUI();
 
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
 				}
 
+				// This displays the right hand side of the menu which contains descriptions of each option.
 				// Descriptions for each button are shown on hover, like a tooltip
 				{
 					GUILayout.BeginArea(new Rect(toolTipPosX, innerMargin, toolTipWidth- innerMargin, areaHeight-innerMargin), styleManager.modGUIBackgroundTextureTransparent);
@@ -300,11 +312,15 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
+		// This temporarily changes button click sound for one frame.
+		// The button click sound will revert to the default click sound on the next frame.
 		public void OverrideClickSound(GUISound sound)
 		{
 			buttonClickSound = sound;
 		}
 
+		// The mod menu has different modes (screens), which can be switched between by calling this function.
+		// If the screens have any state, it will be retained during switching, and even if the menu is closed and reopened.
 		public void SetMode(ModMenuMode menuMode)
 		{
 			switch (menuMode)
@@ -320,6 +336,10 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
+		// This function attempts to show the menu, but please note:
+		// - on the Save / Load screen, it will instead tell you to close the Save/Load screen
+		// - the menu might open after a short delay, due to using a delegate to close
+		//   the currently open menu. Please keep this in mind if you're relying on the menu opening immediately.
 		public void Show()
 		{
 			void ForceShow()
@@ -348,8 +368,8 @@ You can try the following yourself to fix the issue.
 		}
 
 		/// <summary>
-		/// This function should be called when the user has initiated the hiding of the menu.
-		/// This function call might be ignored if the menu disallows closing - call
+		/// This function hides the menu if the menu allows it.
+		/// Use ForceHide() to forcibly hide the menu.
 		/// </summary>
 		public void UserHide()
 		{
@@ -359,6 +379,10 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
+		/// <summary>
+		/// This function toggles the menu on/off if the menu allows it.
+		/// Use ForceToggleVisibility() to forcibly toggle the menu.
+		/// </summary>
 		public void UserToggleVisibility()
 		{
 			if (currentMenu.UserCanClose())
@@ -367,6 +391,9 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
+		/// <summary>
+		/// This function hides the menu, even if the if the menu prefers not to be hidden.
+		/// </summary>
 		public void ForceHide()
 		{
 			this.visible = false;
@@ -374,6 +401,9 @@ You can try the following yourself to fix the issue.
 			gameSystem.ShowUIControls();
 		}
 
+		/// <summary>
+		/// This function toggles the menu, even if the if the menu prefers not to be toggled.
+		/// </summary>
 		public void ForceToggleVisibility()
 		{
 			if (this.visible)
