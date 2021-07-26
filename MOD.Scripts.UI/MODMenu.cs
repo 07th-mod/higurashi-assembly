@@ -13,7 +13,7 @@ using static MOD.Scripts.UI.MODMenuCommon;
 
 namespace MOD.Scripts.UI
 {
-	public enum ModMenuMode
+	public enum ModSubMenu
 	{
 		Normal,
 		AudioSetup,
@@ -242,8 +242,8 @@ You can try the following yourself to fix the issue.
 					// Note: GUILayout.Height is adjusted to be slightly smaller, otherwise not all content is visible/scroll bar is slightly cut off.
 					scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(areaWidth), GUILayout.Height(areaHeight-10));
 
-					// 'currentMenu' is reassigned to switch to different modes/screens
-					// please see the SetMode() function
+					// 'currentMenu' is reassigned to switch to different sub-menus
+					// please see the SetSubMenu() function
 					currentMenu.OnGUI();
 
 					GUILayout.EndScrollView();
@@ -319,17 +319,17 @@ You can try the following yourself to fix the issue.
 			buttonClickSound = sound;
 		}
 
-		// The mod menu has different modes (screens), which can be switched between by calling this function.
-		// If the screens have any state, it will be retained during switching, and even if the menu is closed and reopened.
-		public void SetMode(ModMenuMode menuMode)
+		// The mod menu has different sub-menus, which can be switched between by calling this function.
+		// If the sub-menus have any state, it will be retained during switching, and even if the menu is closed and reopened.
+		public void SetSubMenu(ModSubMenu subMenu)
 		{
-			switch (menuMode)
+			switch (subMenu)
 			{
-				case ModMenuMode.AudioSetup:
+				case ModSubMenu.AudioSetup:
 					currentMenu = audioSetupMenu;
 					break;
 
-				case ModMenuMode.Normal:
+				case ModSubMenu.Normal:
 				default:
 					currentMenu = normalMenu;
 					break;
