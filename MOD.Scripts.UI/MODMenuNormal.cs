@@ -157,7 +157,7 @@ Sets the script censorship level
 				if (Button(new GUIContent("Console", "This preset:\n" +
 				"- Makes text show at the bottom of the screen in a textbox\n" +
 				"- Shows the name of the current character on the textbox\n" +
-				"- Uses the console sprites and backgrounds\n" +
+				"- Uses the console sprites (with lipsync) and console backgrounds\n" +
 				"- Displays in 16:9 widescreen\n\n" +
 				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 0))
 				{
@@ -191,12 +191,12 @@ Sets the script censorship level
 				GUILayout.EndHorizontal();
 			}
 
+			HeadingLabel("Advanced Options");
+
 			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
 				SetGlobal("GLipSync", lipSyncEnabled);
 			};
-
-			HeadingLabel("Advanced Options");
 
 			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 			{
@@ -223,7 +223,7 @@ Sets the script censorship level
 				}
 			}
 
-			if (this.radioTextWindowModeAndCrop.OnGUIFragment((int)MODActions.GetWindowModeFromFlags()) is int windowMode)
+			if (this.radioTextWindowModeAndCrop.OnGUIFragment(MODActions.GetADVNVLRyukishiModeFromFlags()) is int windowMode)
 			{
 				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode);
 				GameSystem.Instance.SceneController.ReloadAllImages();
