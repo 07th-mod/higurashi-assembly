@@ -757,6 +757,14 @@ namespace Assets.Scripts.Core.Scene
 			{
 				layer.ReloadTexture();
 			}
+
+			// Force Unity to unload unused assets.
+			// Higuarshi will do this if you play the game normally each time ExecuteActions()
+			// is called (it appears as "Unloading 7 unused Assets to reduce memory usage." in the log).
+			// However, if you don't advance the text, it won't ever clean up.
+			// Eventually, you can run out of memory if this function is repeatedly
+			// called (for example, constantly toggling art styles)
+			Resources.UnloadUnusedAssets();
 		}
 
 		private Scene GetActiveScene()
