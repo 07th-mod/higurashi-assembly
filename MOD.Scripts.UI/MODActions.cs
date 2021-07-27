@@ -22,8 +22,8 @@ namespace MOD.Scripts.UI
 
 		public enum ModPreset
 		{
-			ADV = 0,
-			NVL = 1,
+			Console = 0,
+			MangaGamer = 1,
 			OG = 2,
 		}
 
@@ -54,11 +54,11 @@ namespace MOD.Scripts.UI
 		{
 			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
 			{
-				SetGraphicsPreset(ModPreset.ADV);
+				SetGraphicsPreset(ModPreset.Console);
 			}
 			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
-				SetGraphicsPreset(ModPreset.NVL);
+				SetGraphicsPreset(ModPreset.MangaGamer);
 			}
 			else
 			{
@@ -68,7 +68,7 @@ namespace MOD.Scripts.UI
 				}
 				else
 				{
-					SetGraphicsPreset(ModPreset.ADV);
+					SetGraphicsPreset(ModPreset.Console);
 				}
 			}
 		}
@@ -85,7 +85,7 @@ namespace MOD.Scripts.UI
 		public static void SetGraphicsPreset(ModPreset setting, bool showInfoToast = true)
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
-			if (setting == ModPreset.ADV)
+			if (setting == ModPreset.Console)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
@@ -94,7 +94,7 @@ namespace MOD.Scripts.UI
 				Core.MODSystem.instance.modTextureController.SetArtStyle(0, false);
 				if (showInfoToast) { UI.MODToaster.Show($"Preset: Console"); }
 			}
-			else if (setting == ModPreset.NVL)
+			else if (setting == ModPreset.MangaGamer)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
@@ -119,7 +119,7 @@ namespace MOD.Scripts.UI
 
 		public static void SetTextWindowAppearance(ModPreset setting, MODMainUIController mODMainUIController, bool showInfoToast = true)
 		{
-			if(setting == ModPreset.ADV)
+			if(setting == ModPreset.Console)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
@@ -137,7 +137,7 @@ namespace MOD.Scripts.UI
 				}
 				if (is_nvl_in_adv_region || showInfoToast) { MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration); }
 			}
-			else if(setting == ModPreset.NVL)
+			else if(setting == ModPreset.MangaGamer)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
@@ -163,7 +163,7 @@ namespace MOD.Scripts.UI
 		{
 			if(BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
-				return ModPreset.ADV;
+				return ModPreset.Console;
 			}
 			else
 			{
@@ -173,7 +173,7 @@ namespace MOD.Scripts.UI
 				}
 				else
 				{
-					return ModPreset.NVL;
+					return ModPreset.MangaGamer;
 				}
 			}
 		}

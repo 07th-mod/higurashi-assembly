@@ -161,7 +161,7 @@ Sets the script censorship level
 				"- Displays in 16:9 widescreen\n\n" +
 				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 0))
 				{
-					MODActions.SetGraphicsPreset(MODActions.ModPreset.ADV, showInfoToast: false);
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.Console, showInfoToast: false);
 				}
 
 				if (Button(new GUIContent("MangaGamer", "This preset:\n" +
@@ -170,7 +170,7 @@ Sets the script censorship level
 					"- Displays in 16:9 widescreen\n\n" +
 					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 1))
 				{
-					MODActions.SetGraphicsPreset(MODActions.ModPreset.NVL, showInfoToast: false);
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.MangaGamer, showInfoToast: false);
 				}
 
 				if (this.hasOGBackgrounds &&
