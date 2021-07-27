@@ -87,6 +87,8 @@ namespace MOD.Scripts.UI
 			MODMainUIController mODMainUIController = new MODMainUIController();
 			if (setting == ModPreset.Console)
 			{
+				// Make sure lipsync is enabled when using Console preset
+				BurikoMemory.Instance.SetGlobalFlag("GLipSync", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
@@ -159,24 +161,7 @@ namespace MOD.Scripts.UI
 			}
 		}
 
-		public static ModPreset GetWindowModeFromFlags()
-		{
-			if(BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
-			{
-				return ModPreset.Console;
-			}
-			else
-			{
-				if(BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
-				{
-					return ModPreset.OG;
-				}
-				else
-				{
-					return ModPreset.MangaGamer;
-				}
-			}
-		}
+		public static int GetADVNVLRyukishiModeFromFlags() => GetADVNVLRyukishiModeFromFlags(out bool _);
 
 		// This expressions for 'presetModified' should be updated each time SetAndSaveADV() above is changed,
 		// so that the player knows when the flags have changed from their default values for the current preset
@@ -188,6 +173,7 @@ namespace MOD.Scripts.UI
 
 			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
 			{
+				// Original/Ryukishi Preset
 				presetModified = presetModified ||
 					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 1 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 2 ||
@@ -201,7 +187,9 @@ namespace MOD.Scripts.UI
 			}
 			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
+				// Console Preset
 				presetModified = presetModified ||
+					BurikoMemory.Instance.GetGlobalFlag("GLipSync").IntValue() != 1 ||
 					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 1 ||
@@ -214,6 +202,7 @@ namespace MOD.Scripts.UI
 			}
 			else
 			{
+				// Mangagamer Preset
 				presetModified = presetModified ||
 					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
