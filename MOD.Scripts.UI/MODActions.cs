@@ -47,29 +47,36 @@ namespace MOD.Scripts.UI
 		}
 
 		/// <summary>
-		/// Cycles and saves ADV->NVL->OG->ADV...
+		/// Cycles and saves Console->MangaGamer->OG->Custom->Console...
 		/// </summary>
 		/// <returns>True if set and displayed, false if in a NVL_in_ADV region and value might not be applied immediately</returns>
 		public static void ToggleAndSaveADVMode()
 		{
-			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			MODCustomFlagPreset customPreset = BurikoMemory.Instance.GetCustomFlagPresetInstance();
+
+			// Custom Preset -> Console
+			if (customPreset.Enabled)
 			{
 				SetGraphicsPreset(ModPreset.Console);
+				return;
 			}
-			else if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+
+			switch (GetADVNVLRyukishiModeFromFlags())
 			{
-				SetGraphicsPreset(ModPreset.MangaGamer);
-			}
-			else
-			{
-				if(HasOGBackgrounds())
-				{
+				// Console -> MangaGamer
+				case 0:
+					SetGraphicsPreset(ModPreset.MangaGamer);
+					break;
+
+				// MangaGamer -> OG
+				case 1:
 					SetGraphicsPreset(ModPreset.OG);
-				}
-				else
-				{
-					SetGraphicsPreset(ModPreset.Console);
-				}
+					break;
+
+				// OG -> Custom Preset
+				case 2:
+					SetCustomGraphicsPreset();
+					break;
 			}
 		}
 
@@ -85,6 +92,8 @@ namespace MOD.Scripts.UI
 		public static void SetGraphicsPreset(ModPreset setting, bool showInfoToast = true)
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
+
+			BurikoMemory.Instance.GetCustomFlagPresetInstance().DisablePresetAndSavePresetToMemory();
 			if (setting == ModPreset.Console)
 			{
 				// Make sure lipsync is enabled when using Console preset
@@ -114,7 +123,14 @@ namespace MOD.Scripts.UI
 				Core.MODSystem.instance.modTextureController.SetArtStyle(2, false);
 				if (showInfoToast) { UI.MODToaster.Show($"Preset: Original/Ryukishi"); }
 			}
+		}
 
+		public static void SetCustomGraphicsPreset(bool showInfoToast = true)
+		{
+			BurikoMemory.Instance.GetCustomFlagPresetInstance().EnablePresetAndRestorePresetFromMemory();
+			SetTextWindowAppearance((ModPreset) GetADVNVLRyukishiModeFromFlags());
+			Core.MODSystem.instance.modTextureController.SetArtStyle(Assets.Scripts.Core.AssetManagement.AssetManager.Instance.CurrentArtsetIndex);
+			if (showInfoToast) { UI.MODToaster.Show($"Preset: Custom"); }
 		}
 
 		public static void SetTextWindowAppearance(ModPreset setting, bool showInfoToast = true) => SetTextWindowAppearance(setting, new MODMainUIController(), showInfoToast);

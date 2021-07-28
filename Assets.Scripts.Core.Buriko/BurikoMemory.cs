@@ -190,7 +190,7 @@ namespace Assets.Scripts.Core.Buriko
 			MODSceneController.ClearLayerFilters();
 		}
 
-		public MODCustomFlagPreset GetCustomFlagPresetInstancec()
+		public MODCustomFlagPreset GetCustomFlagPresetInstance()
 		{
 			return customFlagPreset;
 		}
