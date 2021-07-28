@@ -125,7 +125,7 @@ Sets the script censorship level
 				new MODTabControl.TabProperties("Troubleshooting", "Tools to help you if something goes wrong", TroubleShootingTabOnGUI),
 			});
 
-			customFlagPreset = Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetCustomFlagPresetInstancec();
+			customFlagPreset = Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetCustomFlagPresetInstance();
 		}
 
 		public void OnGUI()
@@ -165,8 +165,6 @@ Sets the script censorship level
 				"- Displays in 16:9 widescreen\n\n" +
 				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 0))
 				{
-
-					customFlagPreset.DisablePresetAndSavePresetToMemory();
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.Console, showInfoToast: false);
 				}
 
@@ -176,7 +174,6 @@ Sets the script censorship level
 					"- Displays in 16:9 widescreen\n\n" +
 					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 1))
 				{
-					customFlagPreset.DisablePresetAndSavePresetToMemory();
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.MangaGamer, showInfoToast: false);
 				}
 
@@ -187,14 +184,13 @@ Sets the script censorship level
 					"- Switches to original sprites and backgrounds\n\n" +
 					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 2))
 				{
-					customFlagPreset.DisablePresetAndSavePresetToMemory();
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.OG, showInfoToast: false);
 				}
 
 				if (Button(new GUIContent("Custom", "Your own custom preset, using the options below.\n\n" +
 					"This custom preset will be saved, even when you switch to the other presets."), selected: customFlagPreset.Enabled))
 				{
-					customFlagPreset.EnablePresetAndRestorePresetFromMemory();
+					MODActions.SetCustomGraphicsPreset();
 				}
 
 				GUILayout.EndHorizontal();
