@@ -205,7 +205,7 @@ namespace MOD.Scripts.UI
 				// Mangagamer Preset
 				presetModified = presetModified ||
 					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
-					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
+					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 1 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 2 ||
 					BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 0 ||
