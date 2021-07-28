@@ -163,7 +163,7 @@ Sets the script censorship level
 				"- Shows the name of the current character on the textbox\n" +
 				"- Uses the console sprites (with lipsync) and console backgrounds\n" +
 				"- Displays in 16:9 widescreen\n\n" +
-				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 0))
+				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 0))
 				{
 
 					customFlagPreset.DisablePresetAndSavePresetToMemory();
@@ -174,7 +174,7 @@ Sets the script censorship level
 					"- Makes text show across the whole screen\n" +
 					"- Uses the console sprites and backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
-					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 1))
+					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 1))
 				{
 					customFlagPreset.DisablePresetAndSavePresetToMemory();
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.MangaGamer, showInfoToast: false);
@@ -185,7 +185,7 @@ Sets the script censorship level
 					"- Displays backgrounds in 4:3 'standard' aspect\n" +
 					"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
 					"- Switches to original sprites and backgrounds\n\n" +
-					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !presetModified && advNVLRyukishiMode == 2))
+					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 2))
 				{
 					customFlagPreset.DisablePresetAndSavePresetToMemory();
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.OG, showInfoToast: false);
