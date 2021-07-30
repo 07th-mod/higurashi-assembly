@@ -57,9 +57,12 @@ namespace MOD.Scripts.UI
 			}
 		}
 
-		public void EnablePresetAndRestorePresetFromMemory()
+		public void EnablePreset(bool restorePresetFromMemory)
 		{
-			RestorePresetFromMemory();
+			if(restorePresetFromMemory)
+			{
+				RestorePresetFromMemory();
+			}
 
 			Flags[ENABLED_KEY] = 1;
 		}

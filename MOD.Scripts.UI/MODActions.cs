@@ -75,7 +75,7 @@ namespace MOD.Scripts.UI
 
 				// OG -> Custom Preset
 				case 2:
-					SetCustomGraphicsPreset();
+					LoadCustomGraphicsPreset();
 					break;
 			}
 		}
@@ -125,11 +125,17 @@ namespace MOD.Scripts.UI
 			}
 		}
 
-		public static void SetCustomGraphicsPreset(bool showInfoToast = true)
+		public static void LoadCustomGraphicsPreset(bool showInfoToast = true)
 		{
-			BurikoMemory.Instance.GetCustomFlagPresetInstance().EnablePresetAndRestorePresetFromMemory();
+			BurikoMemory.Instance.GetCustomFlagPresetInstance().EnablePreset(restorePresetFromMemory: true);
 			SetTextWindowAppearance((ModPreset) GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
 			Core.MODSystem.instance.modTextureController.SetArtStyle(Assets.Scripts.Core.AssetManagement.AssetManager.Instance.CurrentArtsetIndex, showInfoToast: false);
+			if (showInfoToast) { UI.MODToaster.Show($"Preset: Custom"); }
+		}
+
+		public static void EnableCustomGraphicsPreset(bool showInfoToast = true)
+		{
+			BurikoMemory.Instance.GetCustomFlagPresetInstance().EnablePreset(restorePresetFromMemory: false);
 			if (showInfoToast) { UI.MODToaster.Show($"Preset: Custom"); }
 		}
 
