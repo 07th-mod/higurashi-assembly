@@ -200,30 +200,30 @@ Sets the script censorship level
 
 			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
-				SetGlobal("GLipSync", lipSyncEnabled);
+				MODActions.SetFlagFromUserInput("GLipSync", lipSyncEnabled);
 			};
 
 			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
 			{
-				SetGlobal("GHideCG", hideCG);
+				MODActions.SetFlagFromUserInput("GHideCG", hideCG);
 			};
 
 			if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
 			{
-				Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
+				MODActions.SetArtStyle(artStyle, showInfoToast: false);
 			}
 
 			if (this.hasOGBackgrounds)
 			{
 				if (this.radioBackgrounds.OnGUIFragment(GetGlobal("GBackgroundSet")) is int background)
 				{
-					SetGlobal("GBackgroundSet", background);
+					MODActions.SetFlagFromUserInput("GBackgroundSet", background);
 					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
 
 				if (this.radioStretchBackgrounds.OnGUIFragment(GetGlobal("GStretchBackgrounds")) is int stretchBackgrounds)
 				{
-					SetGlobal("GStretchBackgrounds", stretchBackgrounds);
+					MODActions.SetFlagFromUserInput("GStretchBackgrounds", stretchBackgrounds);
 					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
 			}
