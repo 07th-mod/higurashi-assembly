@@ -101,7 +101,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
-				SetTextWindowAppearance(setting, mODMainUIController, false);
+				SetTextWindowAppearanceInternal(setting, mODMainUIController, false);
 				Core.MODSystem.instance.modTextureController.SetArtStyle(0, false);
 				if (showInfoToast) { UI.MODToaster.Show($"Preset: Console"); }
 			}
@@ -110,7 +110,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
-				SetTextWindowAppearance(setting, mODMainUIController, false);
+				SetTextWindowAppearanceInternal(setting, mODMainUIController, false);
 				Core.MODSystem.instance.modTextureController.SetArtStyle(1, false);
 				if (showInfoToast) { UI.MODToaster.Show($"Preset: MangaGamer"); }
 			}
@@ -119,7 +119,7 @@ namespace MOD.Scripts.UI
 				BurikoMemory.Instance.SetGlobalFlag("GHideCG", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GBackgroundSet", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GStretchBackgrounds", 0);
-				SetTextWindowAppearance(setting, mODMainUIController, false);
+				SetTextWindowAppearanceInternal(setting, mODMainUIController, false);
 				Core.MODSystem.instance.modTextureController.SetArtStyle(2, false);
 				if (showInfoToast) { UI.MODToaster.Show($"Preset: Original/Ryukishi"); }
 			}
@@ -128,7 +128,7 @@ namespace MOD.Scripts.UI
 		public static void LoadCustomGraphicsPreset(bool showInfoToast = true)
 		{
 			BurikoMemory.Instance.GetCustomFlagPresetInstance().EnablePreset(restorePresetFromMemory: true);
-			SetTextWindowAppearance((ModPreset) GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
+			SetTextWindowAppearanceInternal((ModPreset) GetADVNVLRyukishiModeFromFlags(), new MODMainUIController(), showInfoToast: false);
 			Core.MODSystem.instance.modTextureController.SetArtStyle(Assets.Scripts.Core.AssetManagement.AssetManager.Instance.CurrentArtsetIndex, showInfoToast: false);
 			if (showInfoToast) { UI.MODToaster.Show($"Preset: Custom"); }
 		}
@@ -139,18 +139,28 @@ namespace MOD.Scripts.UI
 			if (showInfoToast) { UI.MODToaster.Show($"Preset: Custom"); }
 		}
 
-		public static void SetTextWindowAppearance(ModPreset setting, bool showInfoToast = true) => SetTextWindowAppearance(setting, new MODMainUIController(), showInfoToast);
-
-		public static void SetTextWindowAppearance(ModPreset setting, MODMainUIController mODMainUIController, bool showInfoToast = true)
+		public static void SetArtStyle(int artStyle, bool showInfoToast)
 		{
-			if(setting == ModPreset.Console)
+			Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast);
+			SwitchToCustomPresetIfPresetModified(showInfoToast);
+		}
+
+		public static void SetTextWindowAppearance(ModPreset setting, bool showInfoToast = true)
+		{
+			SetTextWindowAppearanceInternal(setting, new MODMainUIController(), showInfoToast);
+			SwitchToCustomPresetIfPresetModified(showInfoToast);
+		}
+
+		private static void SetTextWindowAppearanceInternal(ModPreset setting, MODMainUIController MODMainUIController, bool showInfoToast = true)
+		{
+			if (setting == ModPreset.Console)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
 				TryRedrawTextWindowBackground(WindowFilterType.ADV);
-				mODMainUIController.WideGuiPositionStore();
-				mODMainUIController.ADVModeSettingStore();
+				MODMainUIController.WideGuiPositionStore();
+				MODMainUIController.ADVModeSettingStore();
 				string feedbackString = $"Set ADV Mode";
 				int toastDuration = 3;
 				bool is_nvl_in_adv_region = BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1;
@@ -161,24 +171,24 @@ namespace MOD.Scripts.UI
 				}
 				if (is_nvl_in_adv_region || showInfoToast) { MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration); }
 			}
-			else if(setting == ModPreset.MangaGamer)
+			else if (setting == ModPreset.MangaGamer)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				TryRedrawTextWindowBackground(WindowFilterType.Normal);
-				mODMainUIController.WideGuiPositionStore();
-				mODMainUIController.NVLModeSettingStore();
+				MODMainUIController.WideGuiPositionStore();
+				MODMainUIController.NVLModeSettingStore();
 				if (showInfoToast) { MODToaster.Show($"Set NVL Mode", isEnable: false); }
 			}
-			else if(setting == ModPreset.OG)
+			else if (setting == ModPreset.OG)
 			{
 				BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode", 1);
 				BurikoMemory.Instance.SetGlobalFlag("GADVMode", 0);
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 2);
 				TryRedrawTextWindowBackground(WindowFilterType.OG);
-				mODMainUIController.RyukishiGuiPositionStore();
-				mODMainUIController.RyukishiModeSettingStore();
+				MODMainUIController.RyukishiGuiPositionStore();
+				MODMainUIController.RyukishiModeSettingStore();
 				if (showInfoToast) { MODToaster.Show($"Set OG Mode", isEnable: false); }
 			}
 		}
@@ -235,6 +245,15 @@ namespace MOD.Scripts.UI
 					BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() != 0;
 
 				return 1;
+			}
+		}
+
+		public static void SwitchToCustomPresetIfPresetModified(bool showInfoToast)
+		{
+			GetADVNVLRyukishiModeFromFlags(out bool presetModified);
+			if(presetModified && !BurikoMemory.Instance.GetCustomFlagPresetInstance().Enabled)
+			{
+				EnableCustomGraphicsPreset(showInfoToast: showInfoToast);
 			}
 		}
 
@@ -338,10 +357,17 @@ namespace MOD.Scripts.UI
 		public static bool ToggleFlagAndSave(string flagName)
 		{
 			int newValue = (BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue() + 1) % 2;
-			BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
+			SetFlagFromUserInput(flagName, newValue);
 
 			return newValue == 1;
 		}
+
+		public static void SetFlagFromUserInput(string flagName, int newValue)
+		{
+			BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
+			SwitchToCustomPresetIfPresetModified(showInfoToast: true);
+		}
+
 		public static string VideoOpeningDescription(int videoOpeningValue)
 		{
 			switch (videoOpeningValue)
