@@ -30,6 +30,8 @@ namespace MOD.Scripts.UI
 
 		private readonly MODCustomFlagPreset customFlagPreset;
 
+		private bool showDeveloperSubmenu;
+
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
@@ -268,23 +270,31 @@ Sets the script censorship level
 			Label("Save Files and Log Files");
 			MODMenuSupport.ShowSupportButtons(content => Button(content));
 
-			GUILayout.Space(100);
+			HeadingLabel("Developer Tools");
 
-			HeadingLabel("Developer Tools - Warning: only use if asked by developers!");
-
-			OnGUIRestoreSettings();
-
-			Label("Developer Debug Menu");
-			GUILayout.BeginHorizontal();
-			if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
+			if(showDeveloperSubmenu)
 			{
-				modMenu.ToggleDebugMenu();
+				OnGUIRestoreSettings();
+
+				Label("Developer Debug Menu");
+				GUILayout.BeginHorizontal();
+				if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
+				{
+					modMenu.ToggleDebugMenu();
+				}
+				if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
+				{
+					MODActions.ToggleFlagMenu();
+				}
+				GUILayout.EndHorizontal();
 			}
-			if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
+			else
 			{
-				MODActions.ToggleFlagMenu();
+				if (Button(new GUIContent("Show Developer Tools: Only click if asked by developers", "Show the Developer Tools.\n\nOnly click this button if you're asked to by the developers.")))
+				{
+					showDeveloperSubmenu = true;
+				}
 			}
-			GUILayout.EndHorizontal();
 		}
 
 		private void OnGUIRestoreSettings()
