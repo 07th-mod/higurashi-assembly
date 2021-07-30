@@ -357,15 +357,15 @@ namespace MOD.Scripts.UI
 		public static bool ToggleFlagAndSave(string flagName)
 		{
 			int newValue = (BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue() + 1) % 2;
-			SetFlagFromUserInput(flagName, newValue);
+			SetFlagFromUserInput(flagName, newValue, showInfoToast: false);
 
 			return newValue == 1;
 		}
 
-		public static void SetFlagFromUserInput(string flagName, int newValue)
+		public static void SetFlagFromUserInput(string flagName, int newValue, bool showInfoToast)
 		{
 			BurikoMemory.Instance.SetGlobalFlag(flagName, newValue);
-			SwitchToCustomPresetIfPresetModified(showInfoToast: true);
+			SwitchToCustomPresetIfPresetModified(showInfoToast);
 		}
 
 		public static string VideoOpeningDescription(int videoOpeningValue)
