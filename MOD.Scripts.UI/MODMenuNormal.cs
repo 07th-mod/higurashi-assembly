@@ -190,7 +190,7 @@ Sets the script censorship level
 				if (Button(new GUIContent("Custom", "Your own custom preset, using the options below.\n\n" +
 					"This custom preset will be saved, even when you switch to the other presets."), selected: customFlagPreset.Enabled))
 				{
-					MODActions.SetCustomGraphicsPreset(showInfoToast: false);
+					MODActions.LoadCustomGraphicsPreset(showInfoToast: false);
 				}
 
 				GUILayout.EndHorizontal();
