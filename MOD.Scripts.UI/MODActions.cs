@@ -128,8 +128,8 @@ namespace MOD.Scripts.UI
 		public static void SetCustomGraphicsPreset(bool showInfoToast = true)
 		{
 			BurikoMemory.Instance.GetCustomFlagPresetInstance().EnablePresetAndRestorePresetFromMemory();
-			SetTextWindowAppearance((ModPreset) GetADVNVLRyukishiModeFromFlags());
-			Core.MODSystem.instance.modTextureController.SetArtStyle(Assets.Scripts.Core.AssetManagement.AssetManager.Instance.CurrentArtsetIndex);
+			SetTextWindowAppearance((ModPreset) GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
+			Core.MODSystem.instance.modTextureController.SetArtStyle(Assets.Scripts.Core.AssetManagement.AssetManager.Instance.CurrentArtsetIndex, showInfoToast: false);
 			if (showInfoToast) { UI.MODToaster.Show($"Preset: Custom"); }
 		}
 

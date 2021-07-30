@@ -109,7 +109,7 @@ Sets the script censorship level
 				"- Makes text show across the whole screen\n" +
 				"- Does not crop sprites"),
 				new GUIContent("Original With Cropping", "This option:\n" +
-				"- Darkens the whole screen to emulate the original game" +
+				"- Darkens the whole screen to emulate the original game\n" +
 				"- Makes text show along the middle of the screen\n" +
 				"- Crops sprites to fit in a 4:3 aspect ratio\n\n" +
 				"NOTE: This is only for use with the following options:\n" +
@@ -190,7 +190,7 @@ Sets the script censorship level
 				if (Button(new GUIContent("Custom", "Your own custom preset, using the options below.\n\n" +
 					"This custom preset will be saved, even when you switch to the other presets."), selected: customFlagPreset.Enabled))
 				{
-					MODActions.SetCustomGraphicsPreset();
+					MODActions.SetCustomGraphicsPreset(showInfoToast: false);
 				}
 
 				GUILayout.EndHorizontal();
@@ -230,7 +230,7 @@ Sets the script censorship level
 
 			if (this.radioTextWindowModeAndCrop.OnGUIFragment(MODActions.GetADVNVLRyukishiModeFromFlags()) is int windowMode)
 			{
-				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode);
+				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode, showInfoToast: false);
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 
