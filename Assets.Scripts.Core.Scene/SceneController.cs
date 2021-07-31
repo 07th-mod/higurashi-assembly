@@ -74,6 +74,9 @@ namespace Assets.Scripts.Core.Scene
 
 		public Scene MODActiveScene => GetActiveScene();
 
+		private float expression2Threshold = .7f;
+		private float expression1Threshold = .3f;
+
 		static SceneController()
 		{
 			UpperLayerRange = 32;
@@ -885,7 +888,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile)
+		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile, AudioClip audioClip)
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
 			string str = audiofile.Replace(".ogg", ".txt");
@@ -926,39 +929,109 @@ namespace Assets.Scripts.Core.Scene
 					}
 					yield return (object)new WaitForSeconds(0.0666f);
 				}
+
 			}
 			else
 			{
-				MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
-				yield return (object)new WaitForSeconds(0.25f);
-				MODSystem.instance.modSceneController.MODLipSyncProcess(character, "1", exp3, coroutineId);
-				yield return (object)new WaitForSeconds(0.25f);
-				int k = 0;
-				if (GameSystem.Instance.AudioController.IsVoicePlaying(audiolayer))
+				const float CHUNK_LENGTH_SECONDS = .05f;
+
+				int frameRate = audioClip.frequency;
+				//NOTE: Unity calls a "sample" what is usually called a "frame". Frames contain multiple channel's worth of information for a given point in time.
+				int numFrames = audioClip.samples;
+				int samplesPerFrame = audioClip.channels;
+
+				int framesPerChunk = (int)(CHUNK_LENGTH_SECONDS * frameRate);
+				int samplesPerChunk = framesPerChunk * samplesPerFrame;
+
+				// If there is a leftover chunk (this happens if there is a remainder during the below division), it will be excluded/skipped.
+				int numChunks = numFrames / framesPerChunk;
+
+				bool voiceStartedPlaying = false;
+
+				// This for loop condition shouldn't ever be met, it's just here
+				// to set some upper limit (~10x the expected number of loops) on the number of iterations
+				for (int chunk = 0; chunk < 10 * numChunks; chunk++)
 				{
-					k = (int)(GameSystem.Instance.AudioController.GetRemainingVoicePlayTime(audiolayer) * 10f);
-				}
-				if (k >= 5)
-				{
-					for (int i = 0; i < k - 5; i += 5)
+					// Forcibly stop the lipsync animation if it's not meant to be playing at this time?
+					if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
 					{
-						if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+						break;
+					}
+
+					if (GameSystem.Instance.AudioController.IsVoicePlaying(audiolayer))
+					{
+						voiceStartedPlaying = true;
+
+						// If there is less than one chunk of audio left, we are finished.
+						int frameOffset = GameSystem.Instance.AudioController.GetPlayTimeSamples(audiolayer);
+						int framesLeft = numFrames - frameOffset;
+						if (framesLeft < framesPerChunk)
 						{
 							break;
 						}
-						MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
-						yield return (object)new WaitForSeconds(0.25f);
-						MODSystem.instance.modSceneController.MODLipSyncProcess(character, "1", exp3, coroutineId);
-						yield return (object)new WaitForSeconds(0.25f);
+
+						// Get the chunk we are interested in
+						// Note: If the audio finishes playing before the coroutine finishes, then
+						// audioClip somehow becomes null. I've added handling here in case this happens,
+						// although the above "is audio playing" checks should above should stop this from happening.
+						float[] rawAudioData = new float[samplesPerChunk];
+						try
+						{
+							if (audioClip == null)
+							{
+								break;
+							}
+							audioClip.GetData(rawAudioData, frameOffset);
+						}
+						catch (Exception e)
+						{
+							break;
+						}
+
+						// Find the max value in the chunk, with some shortcuts
+						//  - We don't care about which channel the audio comes from, so just process every sample the same, even if it's a different channel
+						//  - We only check the positive maximum of the waveform (we don't need to check the negative maximum of the waveform for our application)
+						float max = 0;
+						foreach (float data in rawAudioData)
+						{
+							if (data > max)
+							{
+								max = data;
+							}
+						}
+
+						//Use the max to determine what mouth sprite should be displayed
+						if (max > expression2Threshold)
+						{
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, "2", exp2, coroutineId);
+						}
+						else if (max > expression1Threshold)
+						{
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, "1", exp3, coroutineId);
+						}
+						else
+						{
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
+						}
 					}
+					else if(voiceStartedPlaying)
+					{
+						// If the voice previously was playing, but now has stopped playing, lipsync is finished.
+						// This happens if this coroutine resumes just after the audio finishes playing.
+						break;
+					}
+
+					// This delay sets the approximate rate at which the lipsync updates
+					// the exact delay time is not critical
+					yield return (object)new WaitForSeconds(CHUNK_LENGTH_SECONDS);
 				}
 			}
 			MODSystem.instance.modSceneController.MODLipSyncProcess(character, "0", exp4, coroutineId);
 		}
 
-		public void MODLipSyncStart(int character, int audiolayer, string audiofile)
+		public void MODLipSyncStart(int character, int audiolayer, string audiofile, AudioClip audioClip)
 		{
-			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile);
+			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile, audioClip);
 			StartCoroutine(MODLipSyncCoroutine);
 		}
 
