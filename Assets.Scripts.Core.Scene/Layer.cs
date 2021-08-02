@@ -330,10 +330,11 @@ namespace Assets.Scripts.Core.Scene
 
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
 		{
-			bool ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1 && (texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));
+			bool ryukishiClamp = false;
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
+				ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1 && (texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));
 				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
 			}
 

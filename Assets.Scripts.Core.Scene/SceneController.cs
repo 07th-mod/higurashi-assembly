@@ -296,6 +296,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSpriteWithFiltering(int layer, string texture, string mask, int x, int y, int style, int priority, float wait, bool isBlocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
 			Layer layer2 = GetLayer(layer);
 			UpdateLayerMask(layer2, priority);
 			layer2.DrawLayerWithMask(texture, mask, x, y, null, /*isBustshot:*/ false, style, wait, isBlocking);
@@ -313,6 +318,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSprite(int layer, string texture, string mask, int x, int y, int z, int originx, int originy, int angle, int style, float alpha, int priority, float wait, bool isblocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
 			Layer layer2 = GetLayer(layer);
 			UpdateLayerMask(layer2, priority);
 			Vector2? origin = null;
