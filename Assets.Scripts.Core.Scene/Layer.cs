@@ -330,7 +330,12 @@ namespace Assets.Scripts.Core.Scene
 
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
 		{
-			bool ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1 && (texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));
+			// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
+			bool ryukishiClamp = isBustShot &&
+				Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
+				Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+				(texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));               // Is a sprite. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
