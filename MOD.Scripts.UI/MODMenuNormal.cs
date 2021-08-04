@@ -90,33 +90,27 @@ Sets the script censorship level
 
 			radioBackgrounds = new MODRadio("Background Style", new GUIContent[]{
 				new GUIContent("Console BGs", "Use Console backgrounds"),
-				new GUIContent("Original BGs", "Use Original/Ryukishi backgrounds"),
+				new GUIContent("Original BGs", "Use Original/Ryukishi backgrounds."),
 			}, itemsPerRow: 2);
 
 			radioStretchBackgrounds = new MODRadio("Background Stretching", new GUIContent[]
 			{
 				new GUIContent("BG Stretching Off", "Makes backgrounds as big as possible without any stretching (Keep Aspect Ratio)"),
 				new GUIContent("BG Stretching On", "Stretches backgrounds to fit the screen (Ignore Aspect Ratio)\n\n" +
-				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
+				"Mainly for use with the Original BGs, which are in 4:3 aspect ratio."),
 			});
 
 			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
 
-			radioTextWindowModeAndCrop = new MODRadio("Text Window Appearance & Sprite Cropping", new GUIContent[]{
+			radioTextWindowModeAndCrop = new MODRadio("Text Window Appearance", new GUIContent[]{
 				new GUIContent("ADV Mode", "This option:\n" +
 				"- Makes text show at the bottom of the screen in a textbox\n" +
-				"- Shows the name of the current character on the textbox\n" +
-				"- Does not crop sprites"),
+				"- Shows the name of the current character on the textbox\n"),
 				new GUIContent("NVL Mode", "This option:\n" +
-				"- Makes text show across the whole screen\n" +
-				"- Does not crop sprites"),
-				new GUIContent("Original With Cropping", "This option:\n" +
+				"- Makes text show across the whole screen\n"),
+				new GUIContent("Original", "This option:\n" +
 				"- Darkens the whole screen to emulate the original game\n" +
-				"- Makes text show along the middle of the screen\n" +
-				"- Crops sprites to fit in a 4:3 aspect ratio\n\n" +
-				"NOTE: This is only for use with the following options:\n" +
-				"- Background Style = Original BGs\n" +
-				"- Background Stretching = BG Stretching Off\n"),
+				"- Makes text show only in a 4:3 section of the screen (narrower than NVL mode)\n"),
 			}, itemsPerRow: 2);
 
 			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>

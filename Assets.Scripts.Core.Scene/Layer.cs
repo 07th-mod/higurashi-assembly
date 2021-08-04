@@ -334,7 +334,12 @@ namespace Assets.Scripts.Core.Scene
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
-				ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1 && (texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));
+				// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
+				ryukishiClamp = isBustShot &&
+					Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
+					Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+					(texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));               // Is a sprite. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+
 				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
 			}
 
