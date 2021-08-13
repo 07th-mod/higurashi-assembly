@@ -338,7 +338,10 @@ namespace Assets.Scripts.Core.Scene
 				ryukishiClamp = isBustShot &&
 					Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
 					Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
-					(texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));               // Is a sprite. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+					(texturePath.Contains("sprite/") ||
+					texturePath.Contains("sprite\\") ||
+					texturePath.Contains("portrait/") ||
+					texturePath.Contains("portrait\\")); // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
 
 				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
 			}
