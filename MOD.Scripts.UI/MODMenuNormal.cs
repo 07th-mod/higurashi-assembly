@@ -41,10 +41,9 @@ namespace MOD.Scripts.UI
 			hasOGBackgrounds = MODActions.HasOGBackgrounds();
 
 			defaultArtsetDescriptions = new GUIContent[] {
-				new GUIContent("Console", "Use the Console sprites and backgrounds"),
-				new GUIContent("Remake", "Use Mangagamer's remake sprites with Console backgrounds"),
-				new GUIContent("Original", "Use Original/Ryukishi sprites and backgrounds (if available - OG backgrounds not available for Console Arcs)\n\n" +
-				"Warning: Most users should use the Original/Ryukishi preset at the top of this menu!"),
+				new GUIContent("Console", "Use the Console sprites"),
+				new GUIContent("MangaGamer", "Use Mangagamer's remake sprites"),
+				new GUIContent("Original", "Use Original/Ryukishi sprites"),
 			};
 
 			string baseCensorshipDescription = @"
@@ -100,7 +99,7 @@ Sets the script censorship level
 				"Mainly for use with the Original BGs, which are in 4:3 aspect ratio."),
 			});
 
-			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
+			radioArtSet = new MODRadio("Sprite Style", defaultArtsetDescriptions, itemsPerRow: 3);
 
 			radioTextWindowModeAndCrop = new MODRadio("Text Window Appearance", new GUIContent[]{
 				new GUIContent("ADV Mode", "This option:\n" +
