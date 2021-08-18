@@ -10,6 +10,7 @@ namespace MOD.Scripts.Core.Scene
 {
 	public class MODSceneController
 	{
+		private const int MAX_CHARACTERS = 100;
 		public static int MODLipSync_Character_Audio;
 
 		public struct Filter
@@ -263,15 +264,15 @@ namespace MOD.Scripts.Core.Scene
 		public void MODLipSyncInitializeAll()
 		{
 			MODLipSync_Character_Audio = 0;
-			MODLipSync_Bool = new bool[50];
-			MODLipSync_Layer = new int[50];
-			MODLipSync_Texture = new string[50];
-			MODLipSync_X = new int[50];
-			MODLipSync_Y = new int[50];
-			MODLipSync_Z = new int[50];
-			MODLipSync_Priority = new int[50];
-			MODLipSync_Channel = new int[50];
-			MODLipSync_CoroutineId = new ulong[50];
+			MODLipSync_Bool = new bool[MAX_CHARACTERS];
+			MODLipSync_Layer = new int[MAX_CHARACTERS];
+			MODLipSync_Texture = new string[MAX_CHARACTERS];
+			MODLipSync_X = new int[MAX_CHARACTERS];
+			MODLipSync_Y = new int[MAX_CHARACTERS];
+			MODLipSync_Z = new int[MAX_CHARACTERS];
+			MODLipSync_Priority = new int[MAX_CHARACTERS];
+			MODLipSync_Channel = new int[MAX_CHARACTERS];
+			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
 		}
 
 		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
@@ -283,16 +284,16 @@ namespace MOD.Scripts.Core.Scene
 
 		static MODSceneController()
 		{
-			MODLipSync_Bool = new bool[50];
-			MODLipSync_Layer = new int[50];
-			MODLipSync_Texture = new string[50];
-			MODLipSync_X = new int[50];
-			MODLipSync_Y = new int[50];
-			MODLipSync_Z = new int[50];
-			MODLipSync_Priority = new int[50];
-			MODLipSync_Type = new int[50];
-			MODLipSync_Channel = new int[50];
-			MODLipSync_CoroutineId = new ulong[50];
+			MODLipSync_Bool = new bool[MAX_CHARACTERS];
+			MODLipSync_Layer = new int[MAX_CHARACTERS];
+			MODLipSync_Texture = new string[MAX_CHARACTERS];
+			MODLipSync_X = new int[MAX_CHARACTERS];
+			MODLipSync_Y = new int[MAX_CHARACTERS];
+			MODLipSync_Z = new int[MAX_CHARACTERS];
+			MODLipSync_Priority = new int[MAX_CHARACTERS];
+			MODLipSync_Type = new int[MAX_CHARACTERS];
+			MODLipSync_Channel = new int[MAX_CHARACTERS];
+			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
 		}
 
 		private void MODLipSyncStoreAudioChannel(int character, int channel)

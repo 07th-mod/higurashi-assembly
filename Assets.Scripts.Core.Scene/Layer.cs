@@ -330,18 +330,19 @@ namespace Assets.Scripts.Core.Scene
 
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
 		{
-			// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
-			bool ryukishiClamp = isBustShot &&
-				Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
-				Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
-				(texturePath.Contains("sprite/") ||
-				 texturePath.Contains("sprite\\") ||
-				 texturePath.Contains("portrait/") ||
-				 texturePath.Contains("portrait\\")); // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
-
+			bool ryukishiClamp = false;
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
+				// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
+				ryukishiClamp = isBustShot &&
+					Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
+					Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+					(texturePath.Contains("sprite/") ||
+					texturePath.Contains("sprite\\") ||
+					texturePath.Contains("portrait/") ||
+					texturePath.Contains("portrait\\")); // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+
 				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
 			}
 
