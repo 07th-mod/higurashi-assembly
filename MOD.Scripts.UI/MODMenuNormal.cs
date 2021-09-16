@@ -46,7 +46,7 @@ Sets the script censorship level
 - We recommend the default level (2), the most balanced option. Using this option, only copyright changes, innuendos, and a few words will be changed.
   - 5: Full PS3 script fully voiced (most censored)
   - 2: Default - most balanced option
-  - 0: Original PC Script with voices where it fits (least uncensored), but uncensored scenes may be missing voices";
+  - 0: Original PC Script with voices where it fits (fully uncensored), but uncensored scenes may be missing voices";
 
 			radioCensorshipLevel = new MODRadio("Voice Matching Level (Hotkey: F2)", new GUIContent[] {
 				new GUIContent("0", "Censorship level 0 - Equivalent to PC" + baseCensorshipDescription),
