@@ -373,24 +373,40 @@ namespace MOD.Scripts.Core.Scene
 			int type = MODLipSync_Type[charnum];
 
 			var layer = GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER);
+			layer.FadeTo(alpha: 1, time: 0);
 
 			// If 'LayerActiveOnBothScenes' is not set, lipsync will stop working at the next scene transition.
 			GameSystem.Instance.SceneController.SetLayerActiveOnBothScenes(layer);
 
 			layer.DrawLayer(expressionnum, tex2d, x, y, z, null, 1f, true, type, 0f, false);
 
-			// This ensures the character is drawn ontop of everything else. TODO: double check if this is actually necessary.
-			layer.SetPriority(1000);
+			// This ensures the character is drawn ontop of the existing character, but underneath any other layers which are ontop of the character.
+			layer.SetPriority(priority + .5f);
 		}
 
+		// Update the lipsync texture. Layer will be un-hidden if previously temporarily hidden.
 		public void MODLipSyncProcess(int charnum, Texture2D tex2d, ulong coroutineId)
 		{
 			if (MODLipSyncIsAnimationCurrent(charnum, coroutineId))
 			{
-				GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER).SetPrimaryTexture(tex2d);
+				var layer = GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER);
+				layer.SetPrimaryTexture(tex2d);
+				layer.FadeTo(alpha: 1, time: 0);
 			}
 		}
 
+		// Hide the layer temporarily by setting its alpha to 0
+		public void MODLipSyncHideTemporary(int charnum, ulong coroutineId)
+		{
+			if (MODLipSyncIsAnimationCurrent(charnum, coroutineId))
+			{
+				var layer = GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER);
+				layer.FadeTo(alpha: 0, time: 0);
+			}
+		}
+
+		// Hide the layer and release any associated textures.
+		// There is no check here that lipsync has finished because we always want to hide the lipsync layer when we are done.
 		public void MODLipSyncFinished()
 		{
 			GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER).HideLayer();

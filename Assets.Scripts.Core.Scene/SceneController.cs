@@ -909,11 +909,10 @@ namespace Assets.Scripts.Core.Scene
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
 			string str = audiofile.Replace(".ogg", ".txt");
-			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
 			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
 			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
 
-			MODSystem.instance.modSceneController.MODLipSyncInit(character, "0", exp4, coroutineId);
+			MODSystem.instance.modSceneController.MODLipSyncInit(character, "1", exp3, coroutineId);
 
 			string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
 			if (File.Exists(path))
@@ -943,7 +942,7 @@ namespace Assets.Scripts.Core.Scene
 							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
 							break;
 						case "0":
-							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+							MODSystem.instance.modSceneController.MODLipSyncHideTemporary(character, coroutineId);
 							break;
 						}
 					}
@@ -952,7 +951,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			else
 			{
-				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+				MODSystem.instance.modSceneController.MODLipSyncHideTemporary(character, coroutineId);
 				yield return (object)new WaitForSeconds(0.25f);
 				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
 				yield return (object)new WaitForSeconds(0.25f);
@@ -969,7 +968,7 @@ namespace Assets.Scripts.Core.Scene
 						{
 							break;
 						}
-						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+						MODSystem.instance.modSceneController.MODLipSyncHideTemporary(character, coroutineId);
 						yield return (object)new WaitForSeconds(0.25f);
 						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
 						yield return (object)new WaitForSeconds(0.25f);

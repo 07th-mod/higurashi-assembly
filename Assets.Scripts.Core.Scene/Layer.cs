@@ -52,7 +52,7 @@ namespace Assets.Scripts.Core.Scene
 
 		private Shader shaderReverseZ;
 
-		public int Priority;
+		public float Priority;
 
 		private int shaderType;
 
@@ -584,7 +584,7 @@ namespace Assets.Scripts.Core.Scene
 			material.shader = shaderReverseZ;
 		}
 
-		public void SetPriority(int newpriority)
+		public void SetPriority(float newpriority)
 		{
 			Priority = newpriority + 1;
 			Vector3 localPosition = base.transform.localPosition;
