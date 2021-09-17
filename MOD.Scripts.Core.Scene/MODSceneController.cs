@@ -10,7 +10,10 @@ namespace MOD.Scripts.Core.Scene
 {
 	public class MODSceneController
 	{
+		Layer lipsyncLayer;
+
 		public static int MODLipSync_Character_Audio;
+		public const int LIPSYNC_LAYER = 19;
 
 		public struct Filter
 		{
@@ -360,13 +363,37 @@ namespace MOD.Scripts.Core.Scene
 			return coroutineId == MODLipSync_CoroutineId[character];
 		}
 
+		public void MODLipSyncInit(int charnum, string expressionnum, Texture2D tex2d, ulong coroutineId)
+		{
+			string textureName = MODLipSync_Texture[charnum] + expressionnum;
+			int x = MODLipSync_X[charnum];
+			int y = MODLipSync_Y[charnum];
+			int z = MODLipSync_Z[charnum];
+			int priority = MODLipSync_Priority[charnum];
+			int type = MODLipSync_Type[charnum];
+
+			var layer = GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER);
+
+			// If 'LayerActiveOnBothScenes' is not set, lipsync will stop working at the next scene transition.
+			GameSystem.Instance.SceneController.SetLayerActiveOnBothScenes(layer);
+
+			layer.DrawLayer(expressionnum, tex2d, x, y, z, null, 1f, true, type, 0f, false);
+
+			// This ensures the character is drawn ontop of everything else. TODO: double check if this is actually necessary.
+			layer.SetPriority(1000);
+		}
+
 		public void MODLipSyncProcess(int charnum, Texture2D tex2d, ulong coroutineId)
 		{
 			if (MODLipSyncIsAnimationCurrent(charnum, coroutineId))
 			{
-				int layer = MODLipSync_Layer[charnum];
-				GameSystem.Instance.SceneController.GetLayer(layer)?.SetPrimaryTexture(tex2d);
+				GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER).SetPrimaryTexture(tex2d);
 			}
+		}
+
+		public void MODLipSyncFinished()
+		{
+			GameSystem.Instance.SceneController.GetLayer(LIPSYNC_LAYER).HideLayer();
 		}
 	}
 }

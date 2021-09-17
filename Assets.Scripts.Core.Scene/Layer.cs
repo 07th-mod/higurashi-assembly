@@ -436,81 +436,86 @@ namespace Assets.Scripts.Core.Scene
 			else
 			{
 				Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
-				if (texture2D == null)
+				DrawLayer(textureName, texture2D, x, y, z, origin, alpha, isBustshot, type, wait, isBlocking);
+			}
+		}
+
+		public void DrawLayer(string textureName, Texture2D texture2D, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		{
+			if (texture2D == null)
+			{
+				Logger.LogError("Failed to load texture " + textureName);
+			}
+			else
+			{
+				startRange = 0f;
+				targetRange = alpha;
+				targetAlpha = alpha;
+				meshRenderer.enabled = true;
+				shaderType = type;
+				PrimaryName = textureName;
+				float num = 1f;
+				if (z > 0)
 				{
-					Logger.LogError("Failed to load texture " + textureName);
+					num = 1f - (float)z / 400f;
+				}
+				if (z < 0)
+				{
+					num = 1f + (float)z / -400f;
+				}
+				EnsureCorrectlySizedMesh(
+					width: texture2D.width, height: texture2D.height,
+					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+					origin: origin,
+					isBustShot: isBustshot,
+					finalXOffset: x,
+					texturePath: null
+				);
+				aspectRatio = (float)texture2D.width / texture2D.height;
+				if (primary != null)
+				{
+					material.shader = shaderCrossfade;
+					SetSecondaryTexture(primary);
+					SetPrimaryTexture(texture2D);
+					startRange = 1f;
+					targetRange = 0f;
+					targetAlpha = 1f;
 				}
 				else
 				{
-					startRange = 0f;
-					targetRange = alpha;
-					targetAlpha = alpha;
-					meshRenderer.enabled = true;
-					shaderType = type;
-					PrimaryName = textureName;
-					float num = 1f;
-					if (z > 0)
+					material.shader = shaderDefault;
+					if (type == 3)
 					{
-						num = 1f - (float)z / 400f;
+						material.shader = shaderMultiply;
 					}
-					if (z < 0)
+					SetPrimaryTexture(texture2D);
+				}
+				SetRange(startRange);
+				base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
+				base.transform.localScale = new Vector3(num, num, 1f);
+				targetPosition = base.transform.localPosition;
+				targetScale = base.transform.localScale;
+				if (Mathf.Approximately(wait, 0f))
+				{
+					FinishFade();
+				}
+				else
+				{
+					GameSystem.Instance.RegisterAction(delegate
 					{
-						num = 1f + (float)z / -400f;
-					}
-					EnsureCorrectlySizedMesh(
-						width: texture2D.width, height: texture2D.height,
-						alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
-						origin: origin,
-						isBustShot: isBustshot,
-						finalXOffset: x,
-						texturePath: texturePath
-					);
-					aspectRatio = (float)texture2D.width / texture2D.height;
-					if (primary != null)
-					{
-						material.shader = shaderCrossfade;
-						SetSecondaryTexture(primary);
-						SetPrimaryTexture(texture2D);
-						startRange = 1f;
-						targetRange = 0f;
-						targetAlpha = 1f;
-					}
-					else
-					{
-						material.shader = shaderDefault;
-						if (type == 3)
+						if (Mathf.Approximately(wait, 0f))
 						{
-							material.shader = shaderMultiply;
+							FinishFade();
 						}
-						SetPrimaryTexture(texture2D);
-					}
-					SetRange(startRange);
-					base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
-					base.transform.localScale = new Vector3(num, num, 1f);
-					targetPosition = base.transform.localPosition;
-					targetScale = base.transform.localScale;
-					if (Mathf.Approximately(wait, 0f))
-					{
-						FinishFade();
-					}
-					else
-					{
-						GameSystem.Instance.RegisterAction(delegate
+						else
 						{
-							if (Mathf.Approximately(wait, 0f))
+							FadeInLayer(wait);
+							if (isBlocking)
 							{
-								FinishFade();
+								GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
 							}
-							else
-							{
-								FadeInLayer(wait);
-								if (isBlocking)
-								{
-									GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
-								}
-							}
-						});
-					}
+						}
+					});
 				}
 			}
 		}

@@ -138,7 +138,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void SetLayerActiveOnBothScenes(Layer layer)
+		public void SetLayerActiveOnBothScenes(Layer layer)
 		{
 			layer.gameObject.layer = LayerMask.NameToLayer("RenderBoth");
 		}
@@ -912,6 +912,9 @@ namespace Assets.Scripts.Core.Scene
 			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
 			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
 			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
+
+			MODSystem.instance.modSceneController.MODLipSyncInit(character, "0", exp4, coroutineId);
+
 			string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
 			if (File.Exists(path))
 			{
@@ -973,7 +976,8 @@ namespace Assets.Scripts.Core.Scene
 					}
 				}
 			}
-			MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+
+			MODSystem.instance.modSceneController.MODLipSyncFinished();
 		}
 
 		public void MODLipSyncStart(int character, int audiolayer, string audiofile)
