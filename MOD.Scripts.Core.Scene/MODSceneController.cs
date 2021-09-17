@@ -347,18 +347,12 @@ namespace MOD.Scripts.Core.Scene
 			return coroutineId == MODLipSync_CoroutineId[character];
 		}
 
-		public void MODLipSyncProcess(int charnum, string expressionnum, Texture2D tex2d, ulong coroutineId)
+		public void MODLipSyncProcess(int charnum, Texture2D tex2d, ulong coroutineId)
 		{
 			if (MODLipSyncIsAnimationCurrent(charnum, coroutineId))
 			{
 				int layer = MODLipSync_Layer[charnum];
-				string textureName = MODLipSync_Texture[charnum] + expressionnum;
-				int x = MODLipSync_X[charnum];
-				int y = MODLipSync_Y[charnum];
-				int z = MODLipSync_Z[charnum];
-				int priority = MODLipSync_Priority[charnum];
-				int type = MODLipSync_Type[charnum];
-				GameSystem.Instance.SceneController.MODDrawBustshot(layer, textureName, tex2d, x, y, z, 0, 0, 0, /*move:*/ false, priority, type, 0f, /*isblocking:*/ false);
+				GameSystem.Instance.SceneController.GetLayer(layer)?.SetPrimaryTexture(tex2d);
 			}
 		}
 	}
