@@ -66,7 +66,7 @@ namespace Assets.Scripts.UI.Tips
 			}
 			else
 			{
-				tipsTitleText.text = ((!GameSystem.Instance.UseEnglishText) ? "“üè‚s‚h‚o‚r‚Í‚ ‚è‚Ü‚¹‚ñ" : "No new tips available.");
+				tipsTitleText.text = ((!GameSystem.Instance.UseEnglishText) ? "å…¥æ‰‹ï¼´ï¼©ï¼°ï¼³ã¯ã‚ã‚Šã¾ã›ã‚“" : "No new tips available.");
 			}
 		}
 
