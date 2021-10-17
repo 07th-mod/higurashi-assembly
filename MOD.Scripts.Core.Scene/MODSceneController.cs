@@ -10,6 +10,7 @@ namespace MOD.Scripts.Core.Scene
 {
 	public class MODSceneController
 	{
+		private const int MAX_CHARACTERS = 100;
 		public static int MODLipSync_Character_Audio;
 
 		public struct Filter
@@ -173,7 +174,6 @@ namespace MOD.Scripts.Core.Scene
 
 		public static ulong[] MODLipSync_CoroutineId;
 
-		const uint NUM_CHARACTERS = 50;
 
 		public static void SetLayerFilter(int layer, Filter filter)
 		{
@@ -265,15 +265,15 @@ namespace MOD.Scripts.Core.Scene
 		public void MODLipSyncInitializeAll()
 		{
 			MODLipSync_Character_Audio = 0;
-			MODLipSync_Bool = new bool[NUM_CHARACTERS];
-			MODLipSync_Layer = new int[NUM_CHARACTERS];
-			MODLipSync_Texture = new string[NUM_CHARACTERS];
-			MODLipSync_X = new int[NUM_CHARACTERS];
-			MODLipSync_Y = new int[NUM_CHARACTERS];
-			MODLipSync_Z = new int[NUM_CHARACTERS];
-			MODLipSync_Priority = new int[NUM_CHARACTERS];
-			MODLipSync_Channel = new int[NUM_CHARACTERS];
-			MODLipSync_CoroutineId = new ulong[NUM_CHARACTERS];
+			MODLipSync_Bool = new bool[MAX_CHARACTERS];
+			MODLipSync_Layer = new int[MAX_CHARACTERS];
+			MODLipSync_Texture = new string[MAX_CHARACTERS];
+			MODLipSync_X = new int[MAX_CHARACTERS];
+			MODLipSync_Y = new int[MAX_CHARACTERS];
+			MODLipSync_Z = new int[MAX_CHARACTERS];
+			MODLipSync_Priority = new int[MAX_CHARACTERS];
+			MODLipSync_Channel = new int[MAX_CHARACTERS];
+			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
 		}
 
 		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
@@ -285,16 +285,16 @@ namespace MOD.Scripts.Core.Scene
 
 		static MODSceneController()
 		{
-			MODLipSync_Bool = new bool[NUM_CHARACTERS];
-			MODLipSync_Layer = new int[NUM_CHARACTERS];
-			MODLipSync_Texture = new string[NUM_CHARACTERS];
-			MODLipSync_X = new int[NUM_CHARACTERS];
-			MODLipSync_Y = new int[NUM_CHARACTERS];
-			MODLipSync_Z = new int[NUM_CHARACTERS];
-			MODLipSync_Priority = new int[NUM_CHARACTERS];
-			MODLipSync_Type = new int[NUM_CHARACTERS];
-			MODLipSync_Channel = new int[NUM_CHARACTERS];
-			MODLipSync_CoroutineId = new ulong[NUM_CHARACTERS];
+			MODLipSync_Bool = new bool[MAX_CHARACTERS];
+			MODLipSync_Layer = new int[MAX_CHARACTERS];
+			MODLipSync_Texture = new string[MAX_CHARACTERS];
+			MODLipSync_X = new int[MAX_CHARACTERS];
+			MODLipSync_Y = new int[MAX_CHARACTERS];
+			MODLipSync_Z = new int[MAX_CHARACTERS];
+			MODLipSync_Priority = new int[MAX_CHARACTERS];
+			MODLipSync_Type = new int[MAX_CHARACTERS];
+			MODLipSync_Channel = new int[MAX_CHARACTERS];
+			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
 		}
 
 		private void MODLipSyncStoreAudioChannel(int character, int channel)
@@ -340,7 +340,7 @@ namespace MOD.Scripts.Core.Scene
 
 		public void MODLipSyncInvalidateAndGenerateIdsForAll()
 		{
-			for (int character = 0; character < NUM_CHARACTERS; character++)
+			for (int character = 0; character < MAX_CHARACTERS; character++)
 			{
 				MODLipSyncInvalidateAndGenerateId(character);
 			}
@@ -360,18 +360,12 @@ namespace MOD.Scripts.Core.Scene
 			return coroutineId == MODLipSync_CoroutineId[character];
 		}
 
-		public void MODLipSyncProcess(int charnum, string expressionnum, Texture2D tex2d, ulong coroutineId)
+		public void MODLipSyncProcess(int charnum, Texture2D tex2d, ulong coroutineId)
 		{
 			if (MODLipSyncIsAnimationCurrent(charnum, coroutineId))
 			{
 				int layer = MODLipSync_Layer[charnum];
-				string textureName = MODLipSync_Texture[charnum] + expressionnum;
-				int x = MODLipSync_X[charnum];
-				int y = MODLipSync_Y[charnum];
-				int z = MODLipSync_Z[charnum];
-				int priority = MODLipSync_Priority[charnum];
-				int type = MODLipSync_Type[charnum];
-				GameSystem.Instance.SceneController.MODDrawBustshot(layer, textureName, tex2d, x, y, z, 0, 0, 0, /*move:*/ false, priority, type, 0f, /*isblocking:*/ false);
+				GameSystem.Instance.SceneController.GetLayer(layer)?.SetPrimaryTexture(tex2d);
 			}
 		}
 	}
