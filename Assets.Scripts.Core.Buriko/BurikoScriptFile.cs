@@ -2539,6 +2539,9 @@ namespace Assets.Scripts.Core.Buriko
 			bool flag = ReadVariable().BoolValue();
 			string textureName2 = textureName + "0";
 			string text = textureName + str;
+
+			x = MODRyukishiRevertSpritePosition(textureName, x);
+
 			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
 			if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
 			{
@@ -2587,6 +2590,9 @@ namespace Assets.Scripts.Core.Buriko
 			bool flag = ReadVariable().BoolValue();
 			string textureName2 = textureName + "0";
 			string text = textureName + str;
+
+			x = MODRyukishiRevertSpritePosition(textureName, x);
+
 			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
 			if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
 			{
@@ -2800,7 +2806,7 @@ namespace Assets.Scripts.Core.Buriko
 				case "ShowSetupMenuIfRequired":
 					if(MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
 					{
-						GameSystem.Instance.MainUIController.modMenu.SetMode(ModMenuMode.AudioSetup);
+						GameSystem.Instance.MainUIController.modMenu.SetSubMenu(ModSubMenu.AudioSetup);
 						GameSystem.Instance.MainUIController.modMenu.Show();
 					}
 					break;
@@ -2810,6 +2816,36 @@ namespace Assets.Scripts.Core.Buriko
 					break;
 			}
 			return BurikoVariable.Null;
+		}
+
+		/// <summary>
+		/// This function reverts the x positions of sprites when using 4:3 backgrounds to match the original game
+		/// In some places, our mod has 'spread out' the sprite positions to better match 16:9 widescreen by setting
+		/// their X position to 240/-240 instead of 160/-160 (mostly when there are 3 characters on the screen at once).
+		/// However, when playing in 4:3 mode, this causes the sprites to be more cut-off than they were in the original game.
+		/// This function attempts to revert this specific case by changing an X of 240/-240 into 160/-160.
+		/// </summary>
+		private int MODRyukishiRevertSpritePosition(string path, int x)
+		{
+			path = path.ToLower();
+
+			if(BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 && // Using OG Backgrounds AND
+			   BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0) // Not stretching backgrounds
+			{
+				if (path.StartsWith("sprite/") || path.StartsWith("portrait/")) // is from the sprite or portrait folder
+				{
+					if (x == 240)
+					{
+						return 160;
+					}
+					else if (x == -240)
+					{
+						return -160;
+					}
+				}
+			}
+
+			return x;
 		}
 	}
 }
