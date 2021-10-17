@@ -3,6 +3,7 @@ using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Scene;
+using MOD.Scripts.UI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -28,6 +29,8 @@ namespace Assets.Scripts.Core.Buriko
 		private Dictionary<string, List<int>> readText = new Dictionary<string, List<int>>();
 
 		private List<string> cgflags = new List<string>();
+
+		private MODCustomFlagPreset customFlagPreset = new MODCustomFlagPreset();
 
 		private int scopeLevel;
 
@@ -163,6 +166,11 @@ namespace Assets.Scripts.Core.Buriko
 			where a.Value.Scope <= scopeLevel
 			select a).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
 			MODSceneController.ClearLayerFilters();
+		}
+
+		public MODCustomFlagPreset GetCustomFlagPresetInstance()
+		{
+			return customFlagPreset;
 		}
 
 		public bool SeenCG(string cg)
@@ -505,6 +513,25 @@ namespace Assets.Scripts.Core.Buriko
 						{
 							readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader);
 						}
+						try
+						{
+							using (BsonReader reader = new BsonReader(stream) { CloseInput = false })
+							{
+								Dictionary<string, int> deserializedState = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
+								if(deserializedState == null)
+								{
+									Debug.LogWarning("Failed to load graphics preset state (serializer returned null)! Probably is old global.dat file missing this data.");
+								}
+								else
+								{
+									customFlagPreset.Flags = deserializedState;
+								}
+							}
+						}
+						catch(Exception arg)
+						{
+							Debug.LogWarning("Failed to load graphics preset state! Exception: " + arg);
+						}
 					}
 				}
 				catch (Exception arg)
@@ -552,6 +579,11 @@ namespace Assets.Scripts.Core.Buriko
 					jsonSerializer.Serialize(jsonWriter, globalFlags);
 					jsonSerializer.Serialize(jsonWriter, cgflags);
 					jsonSerializer.Serialize(jsonWriter, readText);
+					if(customFlagPreset.Enabled)
+					{
+						customFlagPreset.SavePresetToMemory();
+					}
+					jsonSerializer.Serialize(jsonWriter, customFlagPreset.Flags);
 					inputBytes = memoryStream.ToArray();
 				}
 			}
