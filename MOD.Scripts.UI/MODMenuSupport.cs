@@ -52,7 +52,7 @@ namespace MOD.Scripts.UI
 				}
 
 				if (buttonRenderer(new GUIContent("Show Saves", "Clearing your save files can fix some issues with game startup, and resets all mod flags.\n\n" +
-					"- WARNING: Steam sync will restore your saves if you manually delete them! Therefore, remember to disable steam sync, otherwise your saves will magically reappear!\n" +
+					"- WARNING: Steam cloud will restore your saves if you manually delete them! Therefore, remember to disable steam cloud, otherwise your saves will magically reappear!\n" +
 					"- The 'global.dat' file stores your global unlock process and mod flags\n" +
 					"- The 'qsaveX.dat' and 'saveXXX.dat' files contain individual save files. Note that these becoming corrupted can break your game\n" +
 					"- It's recommended to take a backup of all your saves before you modify them")))
