@@ -330,10 +330,19 @@ namespace Assets.Scripts.Core.Scene
 
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
 		{
-			bool ryukishiClamp = isBustShot && Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1 && (texturePath.Contains("sprite/") || texturePath.Contains("sprite\\"));
+			bool ryukishiClamp = false;
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
+				// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
+				ryukishiClamp = isBustShot &&
+					Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
+					Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+					(texturePath.Contains("sprite/") ||
+					texturePath.Contains("sprite\\") ||
+					texturePath.Contains("portrait/") ||
+					texturePath.Contains("portrait\\")); // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+
 				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
 			}
 
@@ -827,73 +836,6 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MODOnlyRecompile()
 		{
-		}
-
-		public void MODDrawLayer(string textureName, Texture2D tex2d, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
-		{
-			cachedIsBustShot = isBustshot;
-			FinishAll();
-			if (textureName == string.Empty)
-			{
-				HideLayer();
-			}
-			else if (tex2d == null)
-			{
-				Logger.LogError("Failed to load texture " + textureName);
-			}
-			else
-			{
-				startRange = 0f;
-				targetRange = alpha;
-				targetAlpha = alpha;
-				meshRenderer.enabled = true;
-				shaderType = type;
-				PrimaryName = textureName;
-				float num = 1f;
-				if (z > 0)
-				{
-					num = 1f - (float)z / 400f;
-				}
-				if (z < 0)
-				{
-					num = 1f + (float)z / -400f;
-				}
-				EnsureCorrectlySizedMesh(
-					width: tex2d.width, height: tex2d.height,
-					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
-					origin: origin,
-					isBustShot: isBustshot,
-					finalXOffset: x,
-					texturePath: null
-				);
-				if (primary != null)
-				{
-					material.shader = shaderCrossfade;
-					SetSecondaryTexture(primary);
-					SetPrimaryTexture(tex2d);
-					startRange = 1f;
-					targetRange = 0f;
-					targetAlpha = 1f;
-				}
-				else
-				{
-					material.shader = shaderDefault;
-					if (type == 3)
-					{
-						material.shader = shaderMultiply;
-					}
-					SetPrimaryTexture(tex2d);
-				}
-				SetRange(startRange);
-				base.transform.localPosition = new Vector3((float)x, 0f - (float)y, (float)Priority * -0.1f);
-				base.transform.localScale = new Vector3(num, num, 1f);
-				targetPosition = base.transform.localPosition;
-				targetScale = base.transform.localScale;
-				if (Mathf.Approximately(wait, 0f))
-				{
-					FinishFade();
-				}
-			}
 		}
 	}
 }

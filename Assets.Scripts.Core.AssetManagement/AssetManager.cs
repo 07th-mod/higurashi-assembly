@@ -117,8 +117,8 @@ namespace Assets.Scripts.Core.AssetManagement
 		{
 			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
 
-			// If force og backgrounds is enabled, always check OGBackgrounds first.
-			if (backgroundSetIndex == 2)
+			// If OG backgrounds are enabled, always check OGBackgrounds first.
+			if (backgroundSetIndex == 1)
 			{
 				string filePath = Path.Combine(Path.Combine(assetPath, "OGBackgrounds"), name);
 				if (File.Exists(filePath))
@@ -129,8 +129,8 @@ namespace Assets.Scripts.Core.AssetManagement
 
 			foreach (var artSetPath in artset.paths)
 			{
-				// If force console backgrounds is enabled, don't check OGBackgrounds
-				if (backgroundSetIndex == 1 && artSetPath == "OGBackgrounds")
+				// If console backgrounds are enabled, don't check OGBackgrounds
+				if (backgroundSetIndex == 0 && artSetPath == "OGBackgrounds")
 				{
 					continue;
 				}

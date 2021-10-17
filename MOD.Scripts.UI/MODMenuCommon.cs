@@ -8,6 +8,7 @@ namespace MOD.Scripts.UI
 {
 	static class MODMenuCommon
 	{
+		public static bool anyButtonPressed;
 		public static void Label(string label)
 		{
 			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.label);
@@ -20,7 +21,15 @@ namespace MOD.Scripts.UI
 
 		public static bool Button(GUIContent guiContent, bool selected = false)
 		{
-			return GUILayout.Button(guiContent, selected ? MODStyleManager.OnGUIInstance.Group.selectedButton : MODStyleManager.OnGUIInstance.Group.button);
+			if(GUILayout.Button(guiContent, selected ? MODStyleManager.OnGUIInstance.Group.selectedButton : MODStyleManager.OnGUIInstance.Group.button))
+			{
+				anyButtonPressed = true;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		public static int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
