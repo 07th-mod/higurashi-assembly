@@ -470,7 +470,7 @@ namespace Assets.Scripts.UI
 		{
 			if(BurikoSaveManager.lastSaveError != null)
 			{
-				MODMenuSupport.EmergencyModMenu("Error loading save file! Please backup your saves, DISABLE STEAM SYNC, then delete the following save file:", BurikoSaveManager.lastSaveError);
+				MODMenuSupport.EmergencyModMenu("Error loading save file! Please 1. Backup your saves, 2. DISABLE STEAM CLOUD, 3. Delete the following save file:", BurikoSaveManager.lastSaveError);
 				return;
 			}
 
