@@ -23,6 +23,14 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
+		private readonly MODRadio radioStretchBackgrounds;
+		private readonly MODRadio radioTextWindowModeAndCrop;
+
+		private readonly MODTabControl tabControl;
+
+		private readonly MODCustomFlagPreset customFlagPreset;
+
+		private bool showDeveloperSubmenu;
 
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
@@ -33,10 +41,9 @@ namespace MOD.Scripts.UI
 			hasOGBackgrounds = MODActions.HasOGBackgrounds();
 
 			defaultArtsetDescriptions = new GUIContent[] {
-				new GUIContent("Console", "Use the Console sprites and backgrounds"),
-				new GUIContent("Remake", "Use Mangagamer's remake sprites with Console backgrounds"),
-				new GUIContent("Original", "Use Original/Ryukishi sprites and backgrounds (if available - OG backgrounds not available for Console Arcs)\n\n" +
-				"Warning: Most users should use the Original/Ryukishi preset at the top of this menu!"),
+				new GUIContent("Console", "Use the Console sprites"),
+				new GUIContent("MangaGamer", "Use Mangagamer's remake sprites"),
+				new GUIContent("Original", "Use Original/Ryukishi sprites"),
 			};
 
 			string baseCensorshipDescription = @"
@@ -46,7 +53,7 @@ Sets the script censorship level
 - We recommend the default level (2), the most balanced option. Using this option, only copyright changes, innuendos, and a few words will be changed.
   - 5: Full PS3 script fully voiced (most censored)
   - 2: Default - most balanced option
-  - 0: Original PC Script with voices where it fits (least uncensored), but uncensored scenes may be missing voices";
+  - 0: Original PC Script with voices where it fits (fully uncensored), but uncensored scenes may be missing voices";
 
 			radioCensorshipLevel = new MODRadio("Voice Matching Level (Hotkey: F2)", new GUIContent[] {
 				new GUIContent("0", "Censorship level 0 - Equivalent to PC" + baseCensorshipDescription),
@@ -80,138 +87,45 @@ Sets the script censorship level
 				new GUIContent("Hide CGs", "Disables all CGs (mainly for use with the Original/Ryukishi preset)"),
 			});
 
-			radioBackgrounds = new MODRadio("Override Art Set Backgrounds", new GUIContent[]{
-				new GUIContent("Default BGs", "Use the default backgrounds for the current artset"),
-				new GUIContent("Console BGs", "Force Console backgrounds, regardless of the artset"),
-				new GUIContent("Original BGs", "Force Original/Ryukishi backgrounds, regardless of the artset"),
-				new GUIContent("Original Stretched", "Force Original/Ryukishi backgrounds, stretched to fit, regardless of the artset\n\n" +
-				"WARNING: When using this option, you should have ADV/NVL mode selected, otherwise sprites will be cut off, and UI will appear in the wrong place"),
+			radioBackgrounds = new MODRadio("Background Style", new GUIContent[]{
+				new GUIContent("Console BGs", "Use Console backgrounds"),
+				new GUIContent("Original BGs", "Use Original/Ryukishi backgrounds."),
 			}, itemsPerRow: 2);
 
-			radioArtSet = new MODRadio("Choose Art Set", defaultArtsetDescriptions, itemsPerRow: 3);
+			radioStretchBackgrounds = new MODRadio("Background Stretching", new GUIContent[]
+			{
+				new GUIContent("BG Stretching Off", "Makes backgrounds as big as possible without any stretching (Keep Aspect Ratio)"),
+				new GUIContent("BG Stretching On", "Stretches backgrounds to fit the screen (Ignore Aspect Ratio)\n\n" +
+				"Mainly for use with the Original BGs, which are in 4:3 aspect ratio."),
+			});
+
+			radioArtSet = new MODRadio("Sprite Style", defaultArtsetDescriptions, itemsPerRow: 3);
+
+			radioTextWindowModeAndCrop = new MODRadio("Text Window Appearance", new GUIContent[]{
+				new GUIContent("ADV Mode", "This option:\n" +
+				"- Makes text show at the bottom of the screen in a textbox\n" +
+				"- Shows the name of the current character on the textbox\n"),
+				new GUIContent("NVL Mode", "This option:\n" +
+				"- Makes text show across the whole screen\n"),
+				new GUIContent("Original", "This option:\n" +
+				"- Darkens the whole screen to emulate the original game\n" +
+				"- Makes text show only in a 4:3 section of the screen (narrower than NVL mode)\n"),
+			}, itemsPerRow: 2);
+
+			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>
+			{
+				new MODTabControl.TabProperties("Gameplay", "Voice Matching and Opening Videos", GameplayTabOnGUI),
+				new MODTabControl.TabProperties("Graphics", "Sprites, Backgrounds, CGs, Resolution", GraphicsTabOnGUI),
+				new MODTabControl.TabProperties("Audio", "BGM and SE options", AudioTabOnGUI),
+				new MODTabControl.TabProperties("Troubleshooting", "Tools to help you if something goes wrong", TroubleShootingTabOnGUI),
+			});
+
+			customFlagPreset = Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetCustomFlagPresetInstance();
 		}
 
 		public void OnGUI()
 		{
-			HeadingLabel("Basic Options");
-
-			Label("Graphics Presets (Hotkey: F1)");
-			{
-				GUILayout.BeginHorizontal();
-
-				int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
-
-				if (Button(new GUIContent(advNVLRyukishiMode == 0 && presetModified ? "ADV (custom)" : "ADV", "This preset:\n" +
-				"- Makes text show at the bottom of the screen in a textbox\n" +
-				"- Shows the name of the current character on the textbox\n" +
-				"- Uses the console sprites and backgrounds\n" +
-				"- Displays in 16:9 widescreen\n\n" +
-				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 0))
-				{
-					MODActions.SetAndSaveADV(MODActions.ModPreset.ADV, showInfoToast: false);
-				}
-
-				if (Button(new GUIContent(advNVLRyukishiMode == 1 && presetModified ? "NVL (custom)" : "NVL", "This preset:\n" +
-					"- Makes text show across the whole screen\n" +
-					"- Uses the console sprites and backgrounds\n" +
-					"- Displays in 16:9 widescreen\n\n" +
-					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 1))
-				{
-					MODActions.SetAndSaveADV(MODActions.ModPreset.NVL, showInfoToast: false);
-				}
-
-				if (this.hasOGBackgrounds &&
-					Button(new GUIContent(advNVLRyukishiMode == 2 && presetModified ? "Original/Ryukishi (custom)" : "Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
-					"- Displays backgrounds in 4:3 'standard' aspect\n" +
-					"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
-					"- Switches to original sprites and backgrounds\n\n" +
-					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: advNVLRyukishiMode == 2))
-				{
-					MODActions.SetAndSaveADV(MODActions.ModPreset.OG, showInfoToast: false);
-				}
-
-				GUILayout.EndHorizontal();
-			}
-
-			if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
-			{
-				SetGlobal("GCensor", censorLevel);
-			};
-
-			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
-			{
-				SetGlobal("GLipSync", lipSyncEnabled);
-			};
-
-			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
-			{
-				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
-			};
-
-			this.audioOptionsMenu.OnGUI();
-
-			HeadingLabel("Advanced Options");
-
-			this.audioOptionsMenu.AdvancedOnGUI();
-
-			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
-			{
-				SetGlobal("GHideCG", hideCG);
-			};
-
-			if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
-			{
-				SetGlobal("GStretchBackgrounds", 0);
-				Core.MODSystem.instance.modTextureController.SetArtStyle(artStyle, showInfoToast: false);
-			}
-
-			if (this.hasOGBackgrounds)
-			{
-				int currentBackground = GetGlobal("GBackgroundSet");
-				if (currentBackground == 2)
-				{
-					if (GetGlobal("GStretchBackgrounds") == 1)
-					{
-						currentBackground = 3;
-					}
-				}
-				if (this.radioBackgrounds.OnGUIFragment(currentBackground) is int background)
-				{
-					if (background == 3)
-					{
-						SetGlobal("GStretchBackgrounds", 1);
-						SetGlobal("GBackgroundSet", 2);
-					}
-					else
-					{
-						SetGlobal("GStretchBackgrounds", 0);
-						SetGlobal("GBackgroundSet", background);
-					}
-					GameSystem.Instance.SceneController.ReloadAllImages();
-				}
-			}
-
-			resolutionMenu.OnGUI();
-
-			GUILayout.Space(10);
-			OnGUIRestoreSettings();
-
-
-			HeadingLabel("Troubleshooting");
-			Label("Save Files and Log Files");
-			MODMenuSupport.ShowSupportButtons(content => Button(content));
-
-			Label("Developer");
-			GUILayout.BeginHorizontal();
-			if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
-			{
-				modMenu.ToggleDebugMenu();
-			}
-			if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
-			{
-				MODActions.ToggleFlagMenu();
-			}
-			GUILayout.EndHorizontal();
+			tabControl.OnGUI();
 		}
 
 		public void OnBeforeMenuVisible() {
@@ -229,6 +143,151 @@ Sets the script censorship level
 
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
+		}
+
+		private void GraphicsTabOnGUI()
+		{
+			Label("Graphics Presets (Hotkey: F1)");
+			{
+				GUILayout.BeginHorizontal();
+
+				int advNVLRyukishiMode = MODActions.GetADVNVLRyukishiModeFromFlags(out bool presetModified);
+
+				if (Button(new GUIContent("Console", "This preset:\n" +
+				"- Makes text show at the bottom of the screen in a textbox\n" +
+				"- Shows the name of the current character on the textbox\n" +
+				"- Uses the console sprites (with lipsync) and console backgrounds\n" +
+				"- Displays in 16:9 widescreen\n\n" +
+				"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 0))
+				{
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.Console, showInfoToast: false);
+				}
+
+				if (Button(new GUIContent("MangaGamer", "This preset:\n" +
+					"- Makes text show across the whole screen\n" +
+					"- Uses the console sprites and backgrounds\n" +
+					"- Displays in 16:9 widescreen\n\n" +
+					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 1))
+				{
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.MangaGamer, showInfoToast: false);
+				}
+
+				if (this.hasOGBackgrounds &&
+					Button(new GUIContent("Original/Ryukishi", "This preset makes the game behave similarly to the unmodded game:\n" +
+					"- Displays backgrounds in 4:3 'standard' aspect\n" +
+					"- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n" +
+					"- Switches to original sprites and backgrounds\n\n" +
+					"Note that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 2))
+				{
+					MODActions.SetGraphicsPreset(MODActions.ModPreset.OG, showInfoToast: false);
+				}
+
+				if (Button(new GUIContent("Custom", "Your own custom preset, using the options below.\n\n" +
+					"This custom preset will be saved, even when you switch to the other presets."), selected: customFlagPreset.Enabled))
+				{
+					MODActions.LoadCustomGraphicsPreset(showInfoToast: false);
+				}
+
+				GUILayout.EndHorizontal();
+			}
+
+			HeadingLabel("Advanced Options");
+
+			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
+			{
+				MODActions.SetFlagFromUserInput("GLipSync", lipSyncEnabled, showInfoToast: false);
+			};
+
+			if (this.radioHideCG.OnGUIFragment(GetGlobal("GHideCG")) is int hideCG)
+			{
+				MODActions.SetFlagFromUserInput("GHideCG", hideCG, showInfoToast: false);
+			};
+
+			if (this.radioArtSet.OnGUIFragment(Core.MODSystem.instance.modTextureController.GetArtStyle()) is int artStyle)
+			{
+				MODActions.SetArtStyle(artStyle, showInfoToast: false);
+			}
+
+			if (this.hasOGBackgrounds)
+			{
+				if (this.radioBackgrounds.OnGUIFragment(GetGlobal("GBackgroundSet")) is int background)
+				{
+					MODActions.SetFlagFromUserInput("GBackgroundSet", background, showInfoToast: false);
+					GameSystem.Instance.SceneController.ReloadAllImages();
+				}
+
+				if (this.radioStretchBackgrounds.OnGUIFragment(GetGlobal("GStretchBackgrounds")) is int stretchBackgrounds)
+				{
+					MODActions.SetFlagFromUserInput("GStretchBackgrounds", stretchBackgrounds, showInfoToast: false);
+					GameSystem.Instance.SceneController.ReloadAllImages();
+				}
+			}
+
+			if (this.radioTextWindowModeAndCrop.OnGUIFragment(MODActions.GetADVNVLRyukishiModeFromFlags()) is int windowMode)
+			{
+				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode, showInfoToast: false);
+				GameSystem.Instance.SceneController.ReloadAllImages();
+			}
+
+			HeadingLabel("Resolution");
+
+			resolutionMenu.OnGUI();
+		}
+
+		private void GameplayTabOnGUI()
+		{
+			if (this.radioCensorshipLevel.OnGUIFragment(GetGlobal("GCensor")) is int censorLevel)
+			{
+				SetGlobal("GCensor", censorLevel);
+			};
+
+			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
+			{
+				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
+			};
+		}
+
+
+		private void AudioTabOnGUI()
+		{
+			this.audioOptionsMenu.OnGUI();
+
+			HeadingLabel("Advanced Options");
+
+			this.audioOptionsMenu.AdvancedOnGUI();
+		}
+
+
+		private void TroubleShootingTabOnGUI()
+		{
+			Label("Save Files and Log Files");
+			MODMenuSupport.ShowSupportButtons(content => Button(content));
+
+			HeadingLabel("Developer Tools");
+
+			if(showDeveloperSubmenu)
+			{
+				OnGUIRestoreSettings();
+
+				Label("Developer Debug Menu");
+				GUILayout.BeginHorizontal();
+				if (Button(new GUIContent("Toggle debug menu (Shift-F9)", "Toggle the debug menu")))
+				{
+					modMenu.ToggleDebugMenu();
+				}
+				if (Button(new GUIContent("Toggle flag menu (Shift-F10)", "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true.")))
+				{
+					MODActions.ToggleFlagMenu();
+				}
+				GUILayout.EndHorizontal();
+			}
+			else
+			{
+				if (Button(new GUIContent("Show Developer Tools: Only click if asked by developers", "Show the Developer Tools.\n\nOnly click this button if you're asked to by the developers.")))
+				{
+					showDeveloperSubmenu = true;
+				}
+			}
 		}
 
 		private void OnGUIRestoreSettings()
