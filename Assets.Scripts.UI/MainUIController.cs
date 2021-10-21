@@ -121,7 +121,15 @@ namespace Assets.Scripts.UI
 			{
 				ShowCarret();
 			}
-			string defaultText = BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 ? "windo_filter_adv" : "windo_filter";
+			string defaultText = "windo_filter";
+			if(BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
+			{
+				defaultText = "windo_filter_adv";
+			}
+			else if(BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				defaultText = "windo_filter_nvladv";
+			}
 			string text = defaultText;
 			if (BurikoMemory.Instance.IsMemory("WindowBackground"))
 			{
