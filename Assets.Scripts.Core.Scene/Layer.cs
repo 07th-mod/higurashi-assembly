@@ -370,6 +370,13 @@ namespace Assets.Scripts.Core.Scene
 			this.alignment = alignment;
 			this.aspectRatio = (float)width / height;
 			cachedStretchToFit = stretchToFit;
+
+			// Do not rotate character sprites when using 4:3 letterboxing as current method does not handle it properly
+			if (ryukishiClamp)
+			{
+				targetAngle = 0;
+				transform.localRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+			}
 		}
 
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
@@ -523,6 +530,12 @@ namespace Assets.Scripts.Core.Scene
 
 		public void SetAngle(float angle, float wait)
 		{
+			// Do not rotate character sprites when using 4:3 letterboxing as current method does not handle it properly
+			if(cachedRyukishiClamp)
+			{
+				return;
+			}
+
 			base.transform.localRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
 			targetAngle = angle;
 			GameSystem.Instance.RegisterAction(delegate
