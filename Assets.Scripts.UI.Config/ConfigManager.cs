@@ -18,7 +18,9 @@ namespace Assets.Scripts.UI.Config
 
 		private UIPanel panel;
 
-		private IEnumerator LeaveScreen(LeaveConfigDelegate callback)
+		public float PanelAlpha() => panel.alpha;
+
+		private IEnumerator LeaveScreen(ConfigManager.LeaveConfigDelegate callback)
 		{
 			panel = Panel.GetComponent<UIPanel>();
 			LeanTween.value(Panel, UpdateAlpha, 1f, 0f, 0.3f);
@@ -56,6 +58,14 @@ namespace Assets.Scripts.UI.Config
 			GameSystem.Instance.MainUIController.FadeOut(0.3f, isBlocking: false);
 			GameSystem.Instance.SceneController.HideFace(0.3f);
 			GameSystem.Instance.ExecuteActions();
+			if (GameSystem.Instance.ConfigMenuFontSize > 0)
+			{
+				foreach (TextRefresher text in Panel.GetComponentsInChildren<TextRefresher>())
+				{
+					text.SetFontSize(GameSystem.Instance.ConfigMenuFontSize);
+				}
+			}
+			yield break;
 		}
 
 		public void Open(int screen, bool msgWindow)

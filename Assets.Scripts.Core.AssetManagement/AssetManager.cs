@@ -1,5 +1,7 @@
 using Assets.Scripts.Core.Audio;
+using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
+using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,13 +11,56 @@ using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
 {
-	public class AssetManager
-	{
+
+	/// <summary>
+	/// Stores an ordered list of paths for the engine to check when trying to find an asset
+	/// </summary>
+	public class PathCascadeList {
+		public readonly string nameEN;
+		public readonly string nameJP;
+		public readonly string[] paths;
+		public PathCascadeList(string nameEN, string nameJP, string[] paths)
+		{
+			this.nameEN = nameEN;
+			this.nameJP = nameJP;
+			this.paths = paths;
+		}
+
+		public bool PrimaryFolder(out string primaryFolder)
+		{
+			if(paths.Length == 0)
+			{
+				primaryFolder = "";
+				return false;
+			}
+
+			primaryFolder = paths[0];
+			return true;
+		}
+
+		public bool IsInstalled(string rootPath)
+		{
+			if (!PrimaryFolder(out string primaryFolder))
+			{
+				return false;
+			}
+
+			return Directory.Exists(Path.Combine(rootPath, primaryFolder));
+		}
+	}
+
+	public class AssetManager {
 		private static AssetManager _instance;
 
-		public bool UseNewArt = true;
+		public List<PathCascadeList> Artsets = new List<PathCascadeList>();
+		public int CurrentArtsetIndex = 0;
+		public int ArtsetCount => Artsets.Count == 0 ? 2 : Artsets.Count;
+		public PathCascadeList CurrentArtset => GetArtset(CurrentArtsetIndex);
+		public bool ShouldSerializeArtsets = false;
 
 		private Texture2D windowTexture;
+		private string windowTexturePath = string.Empty;
+		private Texture2D dummyTexture;
 
 		private string assetPath = Application.streamingAssetsPath;
 
@@ -28,6 +73,82 @@ namespace Assets.Scripts.Core.AssetManagement
 		private List<string> scriptList = new List<string>();
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
+
+		public string debugLastBGM { get; private set; } = "No BGM played yet";
+		public string debugLastSE { get; private set; } = "No SE played yet";
+		public string debugLastVoice { get; private set; } = "No voice played yet";
+		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
+
+		/// <summary>
+		/// Get the artset at the given index
+		/// </summary>
+		/// <param name="index">The index of the artset to get</param>
+		/// <returns></returns>
+		public PathCascadeList GetArtset(int index)
+		{
+			// To maintain compatibility with scripts that don't specify artsets, if none have been added act like the base game
+			if (Artsets.Count == 0)
+			{
+				if (index == 0)
+				{
+					return new PathCascadeList("Console", "ゲーム機", new string[] { "CG" });
+				}
+				if (index == 1)
+				{
+					return new PathCascadeList("Remake", "リメーク", new string[] { "CGAlt", "CG" });
+				}
+			}
+			if (index >= 0 && index < Artsets.Count)
+			{
+				return Artsets[index];
+			}
+			return new PathCascadeList("Unknown (" + index + ")", "不明(" + index + ")", new string[] { "CG" });
+		}
+
+		public void AddArtset(PathCascadeList artset)
+		{
+			Artsets.Add(artset);
+		}
+
+		public void ClearArtsets()
+		{
+			Artsets.Clear();
+		}
+
+		/// <summary>
+		/// Gets the path to an asset with the given name in the given artset, or null if none are found
+		/// </summary>
+		/// <returns>A path to an on-disk asset or null</returns>
+		public string PathToAssetWithName(string name, PathCascadeList artset)
+		{
+			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
+
+			// If OG backgrounds are enabled, always check OGBackgrounds first.
+			if (backgroundSetIndex == 1)
+			{
+				string filePath = Path.Combine(Path.Combine(assetPath, "OGBackgrounds"), name);
+				if (File.Exists(filePath))
+				{
+					return filePath;
+				}
+			}
+
+			foreach (var artSetPath in artset.paths)
+			{
+				// If console backgrounds are enabled, don't check OGBackgrounds
+				if (backgroundSetIndex == 0 && artSetPath == "OGBackgrounds")
+				{
+					continue;
+				}
+
+				string filePath = Path.Combine(Path.Combine(assetPath, artSetPath), name);
+				if (File.Exists(filePath))
+				{
+					return filePath;
+				}
+			}
+			return null;
+		}
 
 		public void CompileFolder(string srcDir, string destDir)
 		{
@@ -127,6 +248,26 @@ namespace Assets.Scripts.Core.AssetManagement
 					}
 				}
 			}
+
+			// If we want to use the game just to compile scripts in an automated manner, we need
+			// some way to terminate the game after scripts are compiled.
+			// The below code will terminate the game after scripts are compiled if "quitaftercompile"
+			// is passed as a command-line argument to the game
+			// The code will also try to write a higu_script_compile_status.txt as proof that
+			// the scripts really did compile OK
+			if (Environment.GetCommandLineArgs().Contains("quitaftercompile"))
+			{
+				GameSystem.Instance.CanExit = true;
+				try
+				{
+					System.IO.File.WriteAllText("higu_script_compile_status.txt", "Compile OK");
+				}
+				catch
+				{
+
+				}
+				Application.Quit();
+			}
 		}
 
 		private string GetArchiveNameByAudioType(Assets.Scripts.Core.Audio.AudioType audioType)
@@ -195,48 +336,46 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadTexture(string textureName)
 		{
+			return LoadTexture(textureName, out _);
+		}
+
+		public Texture2D LoadTexture(string textureName, out string texturePath)
+		{
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
+				texturePath = windowTexturePath;
 				return windowTexture;
 			}
-			string path = Path.Combine(assetPath, "CG/" + textureName.ToLower() + "_j.png");
-			string path2 = Path.Combine(assetPath, "CGAlt/" + textureName.ToLower() + "_j.png");
-			string text = Path.Combine(assetPath, "CG/" + textureName.ToLower() + ".png");
-			string path3 = Path.Combine(assetPath, "CGAlt/" + textureName.ToLower() + ".png");
-			byte[] array = new byte[0];
-			bool flag = false;
-			if (!GameSystem.Instance.UseEnglishText)
+			string path = null;
+
+			// Load path from current artset
+			if (path == null && !GameSystem.Instance.UseEnglishText)
 			{
-				if (UseNewArt && File.Exists(path2))
-				{
-					array = File.ReadAllBytes(path2);
-					flag = true;
-				}
-				else if (File.Exists(path))
-				{
-					array = File.ReadAllBytes(path);
-					flag = true;
-				}
+				path = PathToAssetWithName(textureName.ToLower() + "_j.png", CurrentArtset);
 			}
-			if (!flag)
+
+			if (path == null)
 			{
-				if (UseNewArt && File.Exists(path3))
-				{
-					array = File.ReadAllBytes(path3);
-				}
-				else
-				{
-					if (!File.Exists(text))
-					{
-						Logger.LogWarning("Could not find texture asset " + text);
-						return null;
-					}
-					array = File.ReadAllBytes(text);
-				}
+				path = PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
 			}
+
+			if (path == null)
+			{
+				Logger.LogWarning("Could not find texture asset " + textureName.ToLower() + " in " + CurrentArtset.nameEN);
+				// When returning null here, most functions won't crash, but this call chain does crash:
+				// OperationDrawSpriteWithFiltering() -> DrawSpriteWithFiltering() -> DrawLayerWithMask()
+				// Returning a dummy texture instead of null prevents these crashes
+				if (dummyTexture == null)
+				{
+					dummyTexture = new Texture2D(0, 0, TextureFormat.ARGB32, mipmap: true);
+				}
+				texturePath = "dummy_texture";
+				return dummyTexture;
+			}
+			byte[] array = File.ReadAllBytes(path);
 			if (array == null || array.Length == 0)
 			{
-				throw new Exception("Failed loading texture " + textureName.ToLower());
+				throw new Exception("Failed loading texture " + path);
 			}
 			byte[] array2 = new byte[4];
 			Buffer.BlockCopy(array, 16, array2, 0, 4);
@@ -252,7 +391,9 @@ namespace Assets.Scripts.Core.AssetManagement
 			if (textureName == "windo_filter")
 			{
 				windowTexture = texture2D;
+				windowTexturePath = path;
 			}
+			texturePath = path;
 			return texture2D;
 		}
 
@@ -278,10 +419,85 @@ namespace Assets.Scripts.Core.AssetManagement
 			return cubemap;
 		}
 
-		public string GetAudioFilePath(string filename, Assets.Scripts.Core.Audio.AudioType type)
+		public string getAssetFromCascade(string filenameAnyCase, PathCascadeList cascade, out bool exists)
 		{
-			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
-			return Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()).Replace("\\", "/");
+			// Assume that all files are lowercase on disk, but are sometimes not fully lowercase in the game script or as args to this function
+			string filename = filenameAnyCase.ToLower();
+
+			exists = false;
+
+			// Use the first file that exists. If none exist, return the last one.
+			string relativePath = "INVALID ASSET PATH";
+			foreach (string assetSubFolder in cascade.paths)
+			{
+				relativePath = Path.Combine(assetSubFolder, filename);
+				if (File.Exists(Path.Combine(assetPath, relativePath)))
+				{
+					exists = true;
+					break;
+				}
+			}
+
+			return relativePath;
+		}
+
+		public string _GetAudioFilePath(string filename, Audio.AudioType type, out bool exists, out bool flagValid)
+		{
+			switch (type)
+			{
+				case Audio.AudioType.BGM:
+					{
+						flagValid = MODAudioSet.Instance.GetBGMCascade(BurikoMemory.Instance.GetGlobalFlag("GAltBGM").IntValue(), out PathCascadeList cascade);
+						return getAssetFromCascade(filename, cascade, out exists);
+					}
+
+				case Audio.AudioType.SE:
+				case Audio.AudioType.System:
+					{
+						flagValid = MODAudioSet.Instance.GetSECascade(BurikoMemory.Instance.GetGlobalFlag("GAltSE").IntValue(), out PathCascadeList cascade);
+						return getAssetFromCascade(filename, cascade, out exists);
+					}
+
+				case Audio.AudioType.Voice:
+					{
+						int voiceFlag = BurikoMemory.Instance.GetGlobalFlag("GAltVoicePriority").IntValue();
+						if (BurikoMemory.Instance.GetGlobalFlag("GAltVoice").IntValue() == 0)
+						{
+							voiceFlag = 0;
+						}
+						flagValid = MODAudioSet.Instance.GetVoiceCascade(voiceFlag, out PathCascadeList cascade);
+						return getAssetFromCascade(filename, cascade, out exists);
+					}
+
+				default:
+					Debug.Log($"_GetAudioFilePath(): Cannot play '{filename}' due to unknown AudioType '{type}' - ignoring this file");
+					exists = false;
+					flagValid = true;
+					return "";
+			}
+		}
+
+		public string GetAudioFilePath(string filename, Audio.AudioType type)
+		{
+			string relativePath = _GetAudioFilePath(filename, type, out bool exists, out bool flagValid);
+			string debugRelativePath = $"{relativePath} ({(exists ? "File exists" : "File does not exist!")}, {(flagValid ? "Flag Valid" : "Unknown Flag!")})";
+			// Record the last played BGM and SE only for debugging purposes
+			switch (type)
+			{
+				case Audio.AudioType.BGM:
+					debugLastBGM = debugRelativePath;
+					break;
+				case Audio.AudioType.SE:
+					debugLastSE = debugRelativePath;
+					break;
+				case Audio.AudioType.Voice:
+					debugLastVoice = debugRelativePath;
+					break;
+				default:
+					debugLastOtherAudio = debugRelativePath;
+					break;
+			}
+			return Path.Combine(assetPath, relativePath);
 		}
 
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)

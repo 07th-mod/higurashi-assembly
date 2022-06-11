@@ -1,3 +1,4 @@
+using MOD.Scripts.Core;
 using System;
 using System.Collections;
 using System.IO;
@@ -71,6 +72,17 @@ namespace Assets.Scripts.Core.Scene
 
 		private int lastWidth;
 
+		private int lastHeight;
+
+		private IEnumerator MODLipSyncCoroutine;
+
+		public Scene MODActiveScene => GetActiveScene();
+
+		static SceneController()
+		{
+			UpperLayerRange = 32;
+		}
+
 		public Layer GetIfInUse(int id)
 		{
 			if (layers[id] != null && !LayerPool.IsInPool(layers[id].gameObject) && layers[id].IsInUse)
@@ -89,6 +101,7 @@ namespace Assets.Scripts.Core.Scene
 			Layer layer = LayerPool.ActivateLayer();
 			layer.name = "Layer " + id;
 			layer.activeScene = activeScene;
+			layer.LayerID = id;
 			layers[id] = layer;
 			return layer;
 		}
@@ -163,8 +176,13 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
 		{
+			if (MODSkipImage(textureName))
+			{
+				return;
+			}
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				while (layer2.FadingOut)
 				{
@@ -200,6 +218,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				if (!layer2.IsInUse)
 				{
@@ -211,6 +230,14 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
+			Layer layer2 = GetLayer(layer);
+			while (layer2.FadingOut)
+			{
+				layer2.HideLayer();
+				layer2 = GetLayer(layer);
+			}
+			layer2.FadeLayerWithMask(mask, style, wait, isblocking);
 			gameSystem.RegisterAction(delegate
 			{
 				Layer layer2 = GetLayer(layer);
@@ -228,6 +255,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				while (layer2.FadingOut)
 				{
@@ -271,6 +299,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveBustshot(int layer, string textureName, int x, int y, int z, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			int x2 = (int)layer2.transform.localPosition.x;
 			int y2 = (int)layer2.transform.localPosition.y;
@@ -297,6 +326,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				GetLayer(layer).FadeLayerWithMask(mask, style, wait, isblocking);
 				gameSystem.ExecuteActions();
 			});
@@ -304,8 +334,14 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSpriteWithFiltering(int layer, string texture, string mask, int x, int y, int overridew, int overrideh, int style, int priority, float wait, bool isBlocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				UpdateLayerMask(layer2, priority);
 				Vector2? forceSize = null;
@@ -321,6 +357,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeSprite(int layer, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer ifInUse = GetIfInUse(layer);
 			if (ifInUse != null)
 			{
@@ -330,8 +367,14 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSprite(int layer, string texture, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int angle, int style, float alpha, int priority, float wait, bool isblocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
 			gameSystem.RegisterAction(delegate
 			{
+				MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 				Layer layer2 = GetLayer(layer);
 				if (layer2.IsInUse)
 				{
@@ -361,7 +404,13 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBG(string texture, float wait, bool isblocking)
 		{
-			GetActiveScene().BackgroundLayer.DrawLayer(texture, 0, 0, 0, null, null, 0f, isBustshot: false, 0, wait, isblocking);
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
+			Scene scene = GetActiveScene();
+			scene.BackgroundLayer.DrawLayer(texture, 0, 0, 0, null, null, 0f, /*isBustshot:*/ false, 0, wait, isblocking);
 		}
 
 		public void SetFaceToUpperLayer(bool isUpper)
@@ -419,6 +468,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSceneWithMask(string backgroundfilename, string maskname, int style, float time)
 		{
+			if (MODSkipImage(backgroundfilename))
+			{
+				return;
+			}
+
 			SwapActiveScenes();
 			Scene s = GetActiveScene();
 			s.UpdateRange(0f);
@@ -437,6 +491,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawScene(string backgroundfilename, float time)
 		{
+			if (MODSkipImage(backgroundfilename))
+			{
+				return;
+			}
+
 			SwapActiveScenes();
 			Scene s = GetActiveScene();
 			s.GetComponent<Camera>().enabled = false;
@@ -515,11 +574,14 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ShakeBustshot(int layer, float speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
 		{
-			Shaker.ShakeObject(GetLayer(layer).gameObject, speed, level, attenuation, vector, loopcount, isblocking);
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
+			Layer layer2 = GetLayer(layer);
+			Shaker.ShakeObject(layer2.gameObject, speed, level, attenuation, vector, loopcount, isblocking);
 		}
 
 		public void StopBustshotShake(int layer)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Shaker component = GetLayer(layer).GetComponent<Shaker>();
 			if (component != null)
 			{
@@ -636,6 +698,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void HideAllLayers(float time)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateIdsForAll();
 			for (int i = 0; i < 32; i++)
 			{
 				if (layers[i] != null && layers[i].IsInUse)
@@ -817,6 +880,14 @@ namespace Assets.Scripts.Core.Scene
 			{
 				componentsInChildren[i].ReloadTexture();
 			}
+
+			// Force Unity to unload unused assets.
+			// Higuarshi will do this if you play the game normally each time ExecuteActions()
+			// is called (it appears as "Unloading 7 unused Assets to reduce memory usage." in the log).
+			// However, if you don't advance the text, it won't ever clean up.
+			// Eventually, you can run out of memory if this function is repeatedly
+			// called (for example, constantly toggling art styles)
+			Resources.UnloadUnusedAssets();
 		}
 
 		private Scene GetActiveScene()
@@ -830,6 +901,7 @@ namespace Assets.Scripts.Core.Scene
 
 		private void SwapActiveScenes()
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateIdsForAll();
 			if (activeScene == 0)
 			{
 				activeScene = 1;
@@ -868,19 +940,114 @@ namespace Assets.Scripts.Core.Scene
 			FragmentController = new FragmentController();
 		}
 
+		public void UpdateScreenSize() {
+			float screenAspectRatio = Screen.width / (float)Screen.height;
+			float gameAspectRatio = GameSystem.Instance.AspectRatio;
+			float scale = (!(gameAspectRatio > screenAspectRatio)) ? 1f : (gameAspectRatio / screenAspectRatio);
+			float num6 = 2f / (scale * 480f);
+			base.gameObject.transform.localScale = new Vector3(num6, num6, num6);
+			GameSystem.Instance.MainUIController.UpdateGuiScale(1 / scale, 1 / scale);
+			lastWidth = Screen.width;
+			lastHeight = Screen.height;
+		}
+
 		private void Update()
 		{
-			if (Screen.width != lastWidth)
+			if (Screen.width != lastWidth || Screen.height != lastHeight)
 			{
-				Vector2 screenSize = NGUITools.screenSize;
-				float num = screenSize.x / screenSize.y;
-				float num2 = GameSystem.Instance.AspectRatio * 480f;
-				float num3 = 480f;
-				float num4 = (num2 / num3 > num) ? ((float)Mathf.RoundToInt(num2 / num)) : num3;
-				float num5 = 2f / num4;
-				base.gameObject.transform.localScale = new Vector3(num5, num5, num5);
-				lastWidth = Screen.width;
+				UpdateScreenSize();
 			}
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile)
+		{
+			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
+			string str = audiofile.Replace(".ogg", ".txt");
+			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
+			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
+			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
+			string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
+			if (File.Exists(path))
+			{
+				StreamReader streamReader = new StreamReader(path);
+				string text = streamReader.ReadLine();
+				string[] exparray = text.Split(',');
+				streamReader.Close();
+				for (int k = 0; k < exparray.Length; k++)
+				{
+					if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+					{
+						break;
+					}
+					if (exparray[k] == string.Empty)
+					{
+						exparray[k] = "0";
+					}
+					if (k > 1 && !exparray[k].Equals(exparray[k - 1]))
+					{
+						switch (exparray[k])
+						{
+						case "2":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp2, coroutineId);
+							break;
+						case "1":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
+							break;
+						case "0":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+							break;
+						}
+					}
+					yield return (object)new WaitForSeconds(0.0666f);
+				}
+			}
+			else
+			{
+				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+				yield return (object)new WaitForSeconds(0.25f);
+				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
+				yield return (object)new WaitForSeconds(0.25f);
+				int k = 0;
+				if (GameSystem.Instance.AudioController.IsVoicePlaying(audiolayer))
+				{
+					k = (int)(GameSystem.Instance.AudioController.GetRemainingVoicePlayTime(audiolayer) * 10f);
+				}
+				if (k >= 5)
+				{
+					for (int i = 0; i < k - 5; i += 5)
+					{
+						if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+						{
+							break;
+						}
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+						yield return (object)new WaitForSeconds(0.25f);
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
+						yield return (object)new WaitForSeconds(0.25f);
+					}
+				}
+			}
+			MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+		}
+
+		public void MODLipSyncStart(int character, int audiolayer, string audiofile)
+		{
+			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile);
+			StartCoroutine(MODLipSyncCoroutine);
+		}
+
+		private bool MODSkipImage(string backgroundfilename)
+		{
+			if(Buriko.BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() == 1 && backgroundfilename.Contains("scene/"))
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

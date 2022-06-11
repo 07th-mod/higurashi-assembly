@@ -66,7 +66,7 @@ namespace Assets.Scripts.UI.Tips
 			}
 			else
 			{
-				tipsTitleText.text = (GameSystem.Instance.UseEnglishText ? "No new tips available." : "入手ＴＩＰＳはありません");
+				tipsTitleText.text = ((!GameSystem.Instance.UseEnglishText) ? "入手ＴＩＰＳはありません" : "No new tips available.");
 			}
 		}
 
@@ -141,6 +141,7 @@ namespace Assets.Scripts.UI.Tips
 			default:
 				throw new ArgumentOutOfRangeException("tipstype for TipsManager.Show() must be  between 0 and 2 (" + tipstype + " given)");
 			}
+			tipsTitleText.font = GameSystem.Instance.MainUIController.GetCurrentFont();
 			page = 0;
 			numPages = Mathf.CeilToInt((float)tipsData.TipsAvailable / 8f) - 1;
 			if (numPages < 0)

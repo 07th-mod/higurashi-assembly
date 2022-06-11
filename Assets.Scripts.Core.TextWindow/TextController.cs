@@ -1,5 +1,6 @@
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core.TextWindow;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -99,8 +100,10 @@ namespace Assets.Scripts.Core.TextWindow
 				return Vector3.zero;
 			}
 			TMP_LineInfo tMP_LineInfo = TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1];
-			float x = TextArea.gameObject.transform.localPosition.x + (float)Mathf.RoundToInt(20f + TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1].lineExtents.max.x);
-			float y = TextArea.gameObject.transform.localPosition.y + TextArea.textInfo.characterInfo[tMP_LineInfo.lastCharacterIndex].baseLine + 12f;
+			Vector3 localPosition = TextArea.gameObject.transform.localPosition;
+			float x = localPosition.x + Mathf.RoundToInt(20f + TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1].lineExtents.max.x);
+			Vector3 localPosition2 = TextArea.gameObject.transform.localPosition;
+			float y = localPosition2.y + TextArea.textInfo.characterInfo[tMP_LineInfo.lastCharacterIndex].baseLine + 12f;
 			return new Vector3(x, y, 0f);
 		}
 
@@ -376,6 +379,12 @@ namespace Assets.Scripts.Core.TextWindow
 
 		private void CreateText(string name, string text, BurikoTextModes textMode, bool noUpdate = false)
 		{
+			if (textMode == BurikoTextModes.Continue)
+			{
+				MODTextController.MODLineContinueDetect = true;
+			}
+			bool mODLineContinueDetect = MODTextController.MODLineContinueDetect;
+			int mODCurrentVoiceLayerDetect = MODTextController.MODCurrentVoiceLayerDetect;
 			isFading = (!gameSystem.IsSkipping && !noUpdate);
 			string text2 = string.Format(NameFormat, name);
 			if (appendNext)
@@ -434,6 +443,21 @@ namespace Assets.Scripts.Core.TextWindow
 			if (gameSystem.IsAuto && flag)
 			{
 				SetAutoTextWait();
+			}
+			if (gameSystem.IsAuto && mODLineContinueDetect && GameSystem.Instance.AudioController.IsVoicePlaying(mODCurrentVoiceLayerDetect))
+			{
+				switch (textMode)
+				{
+				case BurikoTextModes.Continue:
+					break;
+				case BurikoTextModes.Normal:
+				case BurikoTextModes.WaitForInput:
+				case BurikoTextModes.ContinueAftertyping:
+				case BurikoTextModes.WaitThenContinue:
+					GameSystem.Instance.AddWait(new Wait(GameSystem.Instance.AudioController.GetRemainingVoicePlayTime(mODCurrentVoiceLayerDetect), WaitTypes.WaitForVoice, null));
+					MODTextController.MODLineContinueDetect = false;
+					break;
+				}
 			}
 		}
 

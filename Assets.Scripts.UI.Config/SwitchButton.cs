@@ -1,6 +1,7 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Config
@@ -51,7 +52,7 @@ namespace Assets.Scripts.UI.Config
 				flag = GameSystem.Instance.UseSystemSounds;
 				break;
 			case ConfigButtonType.ArtStyle:
-				flag = AssetManager.Instance.UseNewArt;
+				flag = AssetManager.Instance.CurrentArtsetIndex > 0;
 				break;
 			case ConfigButtonType.Language:
 				flag = GameSystem.Instance.UseEnglishText;
@@ -155,9 +156,7 @@ namespace Assets.Scripts.UI.Config
 				GameSystem.Instance.TextController.SwapLanguages();
 				break;
 			case ConfigButtonType.ArtStyle:
-				AssetManager.Instance.UseNewArt = !AssetManager.Instance.UseNewArt;
-				BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.UseNewArt ? 1 : 0);
-				GameSystem.Instance.SceneController.ReloadAllImages();
+				MODSystem.instance.modTextureController.ToggleArtStyle(allowMoreThan2: false);
 				break;
 			case ConfigButtonType.AutoHideUI:
 			{
@@ -179,6 +178,12 @@ namespace Assets.Scripts.UI.Config
 
 		private void Prepare()
 		{
+			// One of the buttons in the config menu has the wrong disabledColor and I don't feel like trying to modify it in the asset bundle
+			if (Obj1.Button.disabledColor.r < 0.9)
+			{
+				Obj1.Button.disabledColor = Obj2.Button.disabledColor;
+			}
+
 			Obj1.RegisterSwitchController(this);
 			Obj2.RegisterSwitchController(this);
 			UpdateButtonValues();

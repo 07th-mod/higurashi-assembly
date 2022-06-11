@@ -10,7 +10,7 @@ namespace Assets.Scripts.Core.SteamWorks
 
 		public static void Load()
 		{
-			List<string> list = AssetManager.Instance.LoadTextDataLines("achievements.txt");
+			List<string> list = File.ReadAllLines(Path.Combine(Application.streamingAssetsPath, Path.Combine("Data", "achievements.txt"))).ToList();
 			Debug.Log("Loading achievements.");
 			achievements = new Achievement_t[list.Count];
 			for (int i = 0; i < list.Count; i++)

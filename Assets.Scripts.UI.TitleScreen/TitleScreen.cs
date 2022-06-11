@@ -2,6 +2,7 @@ using Assets.Scripts.Core.Buriko;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Assets.Scripts.UI.TitleScreen
 {

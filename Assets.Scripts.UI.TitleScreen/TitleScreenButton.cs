@@ -28,7 +28,10 @@ namespace Assets.Scripts.UI.TitleScreen
 		private void OnClick()
 		{
 			GameSystem gameSystem = GameSystem.Instance;
-			if (gameSystem.GameState != GameState.TitleScreen || time > 0f || UICamera.currentTouchID < -1)
+
+			if(gameSystem.MODIgnoreInputs) { return; }
+
+			if (gameSystem.GameState == GameState.TitleScreen && !(time > 0f) && UICamera.currentTouchID >= -1)
 			{
 				return;
 			}
@@ -102,7 +105,7 @@ namespace Assets.Scripts.UI.TitleScreen
 
 		private void LateUpdate()
 		{
-			button.isEnabled = (GameSystem.Instance.GameState == GameState.TitleScreen && !IsLeaving);
+			button.isEnabled = (!GameSystem.Instance.MODIgnoreInputs && GameSystem.Instance.GameState == GameState.TitleScreen && !IsLeaving);
 			if (!isReady && time < 0f)
 			{
 				if (!button.enabled)
