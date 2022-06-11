@@ -82,7 +82,9 @@ namespace MOD.Scripts.Core.State
 			{
 				return gameObject.AddComponent<AVProMovieRenderer>();
 			}
-			return gameObject.AddComponent<TextureMovieRenderer>();
+
+			throw new System.Exception("Video playback not support on linux/osx - tell the devleopers to update the mod!");
+			//return gameObject.AddComponent<TextureMovieRenderer>();
 		}
 
 		private void SetupBackgroundLayerForVideo()
