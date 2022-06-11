@@ -271,24 +271,14 @@ namespace Assets.Scripts.Core
 
 		public static string GetSavePath()
 		{
-			string savePath;
-			if (Application.platform == RuntimePlatform.OSXPlayer)
-			{
-				savePath = Application.persistentDataPath;
-			}
-			else if (Application.platform == RuntimePlatform.LinuxPlayer)
-			{
-				savePath = Application.persistentDataPath;
-			}
-			if (_savepath == "")
-			{
-				_savepath = Application.persistentDataPath;
-			}
+			string savePath = Application.persistentDataPath;
+
 			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
 			if (!string.IsNullOrEmpty(subdir))
 			{
 				savePath = Path.Combine(savePath, subdir);
 			}
+
 			Directory.CreateDirectory(savePath);
 			return savePath;
 		}

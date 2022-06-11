@@ -30,7 +30,7 @@ namespace Assets.Scripts.Core.History
 		/// <param name="font">The font the text will be rendered with (fonts have different widths which means different line wrappings)</param>
 		/// <param name="text">The text that will be attempted to be displayed</param>
 		/// <returns>The number of lines the given text will take up if displayed in the given location with the given font</returns>
-		private static int CalculateHeight(TextMeshPro targetLocation, TextMeshProFont font, string text)
+		private static int CalculateHeight(TextMeshPro targetLocation, TMP_FontAsset font, string text)
 		{
 			targetLocation.font = font;
 			targetLocation.text = text;

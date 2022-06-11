@@ -187,7 +187,7 @@ namespace RenderHeads.Media.AVProVideo
 			}
 			if (texture2D == null)
 			{
-				texture2D = new Texture2D(inputTexture.width, inputTexture.height, TextureFormat.ARGB32, mipmap: false);
+				texture2D = new Texture2D(inputTexture.width, inputTexture.height, TextureFormat.ARGB32, mipChain: false);
 			}
 			RenderTexture.active = temporary;
 			texture2D.ReadPixels(new Rect(0f, 0f, (float)inputTexture.width, (float)inputTexture.height), 0, 0, recalculateMipMaps: false);

@@ -567,7 +567,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			else
 			{
-				AudioController.Instance.FadeOutBGM(channel, num, waitForFade);
+				AudioController.Instance.FadeOutBGM(channel, time, waitForFade);
 			}
 			return BurikoVariable.Null;
 		}

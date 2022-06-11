@@ -396,32 +396,15 @@ namespace Assets.Scripts.Core.Scene
 			cachedIsBustShot = isBustshot;
 			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
 			Texture2D maskTexture = AssetManager.Instance.LoadTexture(maskName);
-			material.shader = shaderMasked;
-			SetPrimaryTexture(texture2D);
-			SetMaskTexture(maskTexture);
-			PrimaryName = textureName;
-			MaskName = maskName;
-			startRange = 0f;
-			targetRange = 1f;
-			targetAlpha = 1f;
-			targetAngle = 0f;
-			shaderType = 0;
-			EnsureCorrectlySizedMesh(
-				width: texture2D.width, height: texture2D.height,
-				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
-				origin: origin,
-				forceSize: forceSize,
-				isBustShot: isBustshot,
-				finalXOffset: x,
-				texturePath: texturePath
-			);
-			SetRange(startRange);
-			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
+			if (texture2D == null)
+			{
+				throw new Exception("Failed to load texture: " + textureName);
+			}
 			GameSystem.Instance.RegisterAction(delegate
 			{
 				material.shader = shaderMasked;
-				SetPrimaryTexture(tex);
-				SetMaskTexture(texmask);
+				SetPrimaryTexture(texture2D);
+				SetMaskTexture(maskTexture);
 				PrimaryName = textureName;
 				MaskName = maskName;
 				startRange = 0f;
@@ -429,37 +412,15 @@ namespace Assets.Scripts.Core.Scene
 				targetAlpha = 1f;
 				targetAngle = 0f;
 				shaderType = 0;
-				if (mesh == null)
-				{
-					alignment = LayerAlignment.AlignCenter;
-					if ((x != 0 || y != 0) && !isBustshot)
-					{
-						alignment = LayerAlignment.AlignTopleft;
-					}
-					if (!forceSize.HasValue)
-					{
-						if (origin.HasValue)
-						{
-							CreateMesh(tex.width, tex.height, origin.GetValueOrDefault());
-						}
-						else
-						{
-							CreateMesh(tex.width, tex.height, alignment);
-						}
-					}
-					else
-					{
-						ForceSize = forceSize;
-						if (origin.HasValue)
-						{
-							CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), origin.GetValueOrDefault());
-						}
-						else
-						{
-							CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), alignment);
-						}
-					}
-				}
+				EnsureCorrectlySizedMesh(
+					width: texture2D.width, height: texture2D.height,
+					alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+					origin: origin,
+					forceSize: forceSize,
+					isBustShot: isBustshot,
+					finalXOffset: x,
+					texturePath: texturePath
+				);
 				SetRange(startRange);
 				base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
 				targetPosition = base.transform.localPosition;
@@ -746,15 +707,9 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ReloadTexture()
 		{
-			if (PrimaryName == "")
+			if (PrimaryName == string.Empty)
 			{
 				HideLayer();
-				return;
-			}
-			Texture2D texture2D = AssetManager.Instance.LoadTexture(PrimaryName);
-			if (texture2D == null)
-			{
-				Logger.LogError("Failed to load texture " + PrimaryName);
 			}
 			else
 			{

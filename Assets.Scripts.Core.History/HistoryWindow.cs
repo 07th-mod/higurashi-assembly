@@ -182,7 +182,6 @@ namespace Assets.Scripts.Core.History
 					position.y += 30 * lineNum;
 					textButton.gameObject.transform.localPosition = position;
 				}
-				Labels[i].text = text;
 			}
 		}
 
@@ -224,7 +223,7 @@ namespace Assets.Scripts.Core.History
 			lineInLastHistoryIndex = GetLinesInHistoryItemAtIndex(lastHistoryIndex) - 1;
 
 			textButtons = new HistoryTextButton[totalLinesInWindow];
-			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
+			TMP_FontAsset currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
 			for (int i = 0; i < textButtons.Length; i++)
 			{
 				GameObject tmp = Instantiate(Labels[0].gameObject);

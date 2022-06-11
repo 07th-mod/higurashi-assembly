@@ -367,7 +367,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				// Returning a dummy texture instead of null prevents these crashes
 				if (dummyTexture == null)
 				{
-					dummyTexture = new Texture2D(0, 0, TextureFormat.ARGB32, mipmap: true);
+					dummyTexture = new Texture2D(0, 0, TextureFormat.ARGB32, mipChain: true);
 				}
 				texturePath = "dummy_texture";
 				return dummyTexture;

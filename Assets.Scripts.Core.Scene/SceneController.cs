@@ -231,13 +231,6 @@ namespace Assets.Scripts.Core.Scene
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
 			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
-			Layer layer2 = GetLayer(layer);
-			while (layer2.FadingOut)
-			{
-				layer2.HideLayer();
-				layer2 = GetLayer(layer);
-			}
-			layer2.FadeLayerWithMask(mask, style, wait, isblocking);
 			gameSystem.RegisterAction(delegate
 			{
 				Layer layer2 = GetLayer(layer);

@@ -274,7 +274,7 @@ namespace RenderHeads.Media.AVProVideo
 				}
 			}
 			_mesh.uv = array;
-			_mesh.UploadMeshData(markNoLogerReadable: false);
+			_mesh.UploadMeshData(markNoLongerReadable: false);
 		}
 	}
 }

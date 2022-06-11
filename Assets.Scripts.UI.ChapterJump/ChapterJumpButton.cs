@@ -95,8 +95,6 @@ namespace Assets.Scripts.UI.ChapterJump
 			}
 			GetComponent<TextMeshPro>().text =  GameSystem.Instance.ChooseJapaneseEnglish(japanese: Japanese, english: English);
 
-			GetComponent<TextMeshPro>().text.ForceMeshUpdate(); // keep this??
-
 			if (!(base.name == "Return")
 			    && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue()
 			    // Note: ArcNumbers are set *after* chapters so the jump to the next one should be open
