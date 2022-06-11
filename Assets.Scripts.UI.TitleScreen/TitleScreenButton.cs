@@ -31,7 +31,7 @@ namespace Assets.Scripts.UI.TitleScreen
 
 			if(gameSystem.MODIgnoreInputs) { return; }
 
-			if (gameSystem.GameState == GameState.TitleScreen && !(time > 0f) && UICamera.currentTouchID >= -1)
+			if (gameSystem.GameState != GameState.TitleScreen || time > 0f || UICamera.currentTouchID < -1)
 			{
 				return;
 			}
