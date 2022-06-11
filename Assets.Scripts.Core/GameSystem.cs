@@ -195,7 +195,13 @@ namespace Assets.Scripts.Core
 		// Set to True to ignore normal gameplay inputs:
 		// - Disables normal inputs (e.g to advance text) in main GameSystem loop
 		// - Disables some GUI inputs by manually added checks in each button type
-		public bool MODIgnoreInputs;
+		private bool _MODIgnoreInputs;
+		public bool MODIgnoreInputs
+		{
+			get => _MODIgnoreInputs;
+			private set => _MODIgnoreInputs = value;
+		}
+		public bool SetMODIgnoreInputs(bool value) => _MODIgnoreInputs = value;
 
 		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
 		// so use private ones with public accessors
