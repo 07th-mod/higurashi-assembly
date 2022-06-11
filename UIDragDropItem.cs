@@ -235,10 +235,10 @@ public class UIDragDropItem : MonoBehaviour
 			{
 				mCollider2D.enabled = true;
 			}
-			UIDragDropContainer uIDragDropContainer = (!(bool)surface) ? null : NGUITools.FindInParents<UIDragDropContainer>(surface);
+			UIDragDropContainer uIDragDropContainer = surface ? NGUITools.FindInParents<UIDragDropContainer>(surface) : null;
 			if (uIDragDropContainer != null)
 			{
-				mTrans.parent = ((!(uIDragDropContainer.reparentTarget != null)) ? uIDragDropContainer.transform : uIDragDropContainer.reparentTarget);
+				mTrans.parent = ((uIDragDropContainer.reparentTarget != null) ? uIDragDropContainer.reparentTarget : uIDragDropContainer.transform);
 				Vector3 localPosition = mTrans.localPosition;
 				localPosition.z = 0f;
 				mTrans.localPosition = localPosition;

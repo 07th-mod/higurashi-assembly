@@ -156,7 +156,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveSprite(int x, int y, int z, int alpha, float wait, bool isblocking)
 		{
-			targetalpha = (float)alpha / 256f;
+			targetalpha = 0f + (float)alpha / 256f;
 			float @float = material.GetFloat("_Alpha");
 			if (!Mathf.Approximately(targetalpha, @float))
 			{
@@ -171,10 +171,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				targetscale = 1f + (float)z / -100f;
 			}
-			float x2 = (float)x;
-			float y2 = (float)y;
-			Vector3 localPosition = base.transform.localPosition;
-			endpos = new Vector3(x2, y2, localPosition.z);
+			endpos = new Vector3(x, y, base.transform.localPosition.z);
 			iTween.ScaleTo(base.gameObject, iTween.Hash("scale", new Vector3(targetscale, targetscale, 1f), "time", wait, "islocal", true));
 			iTween.MoveTo(base.gameObject, iTween.Hash("position", endpos, "time", wait, "islocal", true));
 			if (isblocking)
@@ -209,7 +206,7 @@ namespace Assets.Scripts.Core.Scene
 				{
 					num = 1f + (float)z / -100f;
 				}
-				base.transform.localPosition = new Vector3((float)x, (float)(y * -1), (float)priority * -0.1f);
+				base.transform.localPosition = new Vector3(x, y * -1, (float)priority * -0.1f);
 				base.transform.localScale = new Vector3(num, num, 1f);
 				material.SetTexture("_MainTex", texture2D);
 				if (wait > 0f)
@@ -218,14 +215,14 @@ namespace Assets.Scripts.Core.Scene
 				}
 				else
 				{
-					material.SetFloat("_Alpha", (float)alpha / 256f);
+					material.SetFloat("_Alpha", 0f + (float)alpha / 256f);
 				}
 			}
 		}
 
 		public void DrawBustshot(string textureName, float x, float y, float z, float oldx, float oldy, float oldz, bool move, int priority, float wait, bool isblocking)
 		{
-			Vector3 localPosition = (!move) ? new Vector3(x, y, (float)priority * -0.1f) : new Vector3(oldx, oldy, (float)priority * -0.1f);
+			Vector3 localPosition = move ? new Vector3(oldx, oldy, (float)priority * -0.1f) : new Vector3(x, y, (float)priority * -0.1f);
 			base.transform.localPosition = localPosition;
 			endpos = new Vector3(x, y, (float)priority * -0.1f);
 			SetTextureCrossFade(textureName, wait, LayerAlignment.AlignCenter);

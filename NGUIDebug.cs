@@ -58,7 +58,7 @@ public class NGUIDebug : MonoBehaviour
 
 	public static void Log(params object[] objs)
 	{
-		string text = string.Empty;
+		string text = "";
 		for (int i = 0; i < objs.Length; i++)
 		{
 			text = ((i != 0) ? (text + ", " + objs[i].ToString()) : (text + objs[i].ToString()));
@@ -88,7 +88,7 @@ public class NGUIDebug : MonoBehaviour
 		{
 			if (mRayDebug && UICamera.hoveredObject != null && Application.isPlaying)
 			{
-				GUILayout.Label("Last Hit: " + NGUITools.GetHierarchy(UICamera.hoveredObject).Replace("\"", string.Empty));
+				GUILayout.Label("Last Hit: " + NGUITools.GetHierarchy(UICamera.hoveredObject).Replace("\"", ""));
 			}
 			return;
 		}

@@ -38,7 +38,7 @@ public class UIAnchor : MonoBehaviour
 
 	private Animation mAnim;
 
-	private Rect mRect = default(Rect);
+	private Rect mRect;
 
 	private UIRoot mRoot;
 
@@ -87,29 +87,21 @@ public class UIAnchor : MonoBehaviour
 			return;
 		}
 		bool flag = false;
-		UIWidget uIWidget = (!(container == null)) ? container.GetComponent<UIWidget>() : null;
-		UIPanel uIPanel = (!(container == null) || !(uIWidget == null)) ? container.GetComponent<UIPanel>() : null;
+		UIWidget uIWidget = (container == null) ? null : container.GetComponent<UIWidget>();
+		UIPanel uIPanel = (container == null && uIWidget == null) ? null : container.GetComponent<UIPanel>();
 		if (uIWidget != null)
 		{
 			Bounds bounds = uIWidget.CalculateBounds(container.transform.parent);
-			ref Rect reference = ref mRect;
-			Vector3 min = bounds.min;
-			reference.x = min.x;
-			ref Rect reference2 = ref mRect;
-			Vector3 min2 = bounds.min;
-			reference2.y = min2.y;
-			ref Rect reference3 = ref mRect;
-			Vector3 size = bounds.size;
-			reference3.width = size.x;
-			ref Rect reference4 = ref mRect;
-			Vector3 size2 = bounds.size;
-			reference4.height = size2.y;
+			mRect.x = bounds.min.x;
+			mRect.y = bounds.min.y;
+			mRect.width = bounds.size.x;
+			mRect.height = bounds.size.y;
 		}
 		else if (uIPanel != null)
 		{
 			if (uIPanel.clipping == UIDrawCall.Clipping.None)
 			{
-				float num = (!(mRoot != null)) ? 0.5f : ((float)mRoot.activeHeight / (float)Screen.height * 0.5f);
+				float num = (mRoot != null) ? ((float)mRoot.activeHeight / (float)Screen.height * 0.5f) : 0.5f;
 				mRect.xMin = (float)(-Screen.width) * num;
 				mRect.yMin = (float)(-Screen.height) * num;
 				mRect.xMax = 0f - mRect.xMin;
@@ -127,19 +119,11 @@ public class UIAnchor : MonoBehaviour
 		else if (container != null)
 		{
 			Transform parent = container.transform.parent;
-			Bounds bounds2 = (!(parent != null)) ? NGUIMath.CalculateRelativeWidgetBounds(container.transform) : NGUIMath.CalculateRelativeWidgetBounds(parent, container.transform);
-			ref Rect reference5 = ref mRect;
-			Vector3 min3 = bounds2.min;
-			reference5.x = min3.x;
-			ref Rect reference6 = ref mRect;
-			Vector3 min4 = bounds2.min;
-			reference6.y = min4.y;
-			ref Rect reference7 = ref mRect;
-			Vector3 size3 = bounds2.size;
-			reference7.width = size3.x;
-			ref Rect reference8 = ref mRect;
-			Vector3 size4 = bounds2.size;
-			reference8.height = size4.y;
+			Bounds bounds2 = (parent != null) ? NGUIMath.CalculateRelativeWidgetBounds(parent, container.transform) : NGUIMath.CalculateRelativeWidgetBounds(container.transform);
+			mRect.x = bounds2.min.x;
+			mRect.y = bounds2.min.y;
+			mRect.width = bounds2.size.x;
+			mRect.height = bounds2.size.y;
 		}
 		else
 		{
@@ -191,8 +175,7 @@ public class UIAnchor : MonoBehaviour
 				vector.x = Mathf.Round(vector.x);
 				vector.y = Mathf.Round(vector.y);
 			}
-			Vector3 vector2 = uiCamera.WorldToScreenPoint(mTrans.position);
-			vector.z = vector2.z;
+			vector.z = uiCamera.WorldToScreenPoint(mTrans.position).z;
 			vector = uiCamera.ScreenToWorldPoint(vector);
 		}
 		else
@@ -211,8 +194,7 @@ public class UIAnchor : MonoBehaviour
 					vector = parent2.TransformPoint(vector);
 				}
 			}
-			Vector3 position = mTrans.position;
-			vector.z = position.z;
+			vector.z = mTrans.position.z;
 		}
 		if (mTrans.position != vector)
 		{

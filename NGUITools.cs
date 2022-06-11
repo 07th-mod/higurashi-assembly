@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class NGUITools
@@ -14,12 +13,6 @@ public static class NGUITools
 	private static float mGlobalVolume = 1f;
 
 	private static Vector3[] mSides = new Vector3[4];
-
-	[CompilerGenerated]
-	private static Comparison<UIWidget> _003C_003Ef__mg_0024cache0;
-
-	[CompilerGenerated]
-	private static Comparison<UIPanel> _003C_003Ef__mg_0024cache1;
 
 	public static float soundVolume
 	{
@@ -134,7 +127,7 @@ public static class NGUITools
 	{
 		if (obj == null)
 		{
-			return string.Empty;
+			return "";
 		}
 		string text = obj.name;
 		while (obj.transform.parent != null)
@@ -287,10 +280,7 @@ public static class NGUITools
 		{
 			Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
 			box.center = bounds.center;
-			Vector3 size = bounds.size;
-			float x = size.x;
-			Vector3 size2 = bounds.size;
-			box.size = new Vector3(x, size2.y, 0f);
+			box.size = new Vector3(bounds.size.x, bounds.size.y, 0f);
 		}
 	}
 
@@ -305,14 +295,13 @@ public static class NGUITools
 				Vector3[] localCorners = component.localCorners;
 				box.offset = Vector3.Lerp(localCorners[0], localCorners[2], 0.5f);
 				box.size = localCorners[2] - localCorners[0];
-				return;
 			}
-			Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
-			box.offset = bounds.center;
-			Vector3 size = bounds.size;
-			float x = size.x;
-			Vector3 size2 = bounds.size;
-			box.size = new Vector2(x, size2.y);
+			else
+			{
+				Bounds bounds = NGUIMath.CalculateRelativeWidgetBounds(gameObject.transform, considerInactive);
+				box.offset = bounds.center;
+				box.size = new Vector2(bounds.size.x, bounds.size.y);
+			}
 		}
 	}
 
@@ -455,9 +444,9 @@ public static class NGUITools
 			if (component != null)
 			{
 				UIPanel[] componentsInChildren = go.GetComponentsInChildren<UIPanel>(includeInactive: true);
-				foreach (UIPanel uIPanel in componentsInChildren)
+				for (int i = 0; i < componentsInChildren.Length; i++)
 				{
-					uIPanel.depth += adjustment;
+					componentsInChildren[i].depth += adjustment;
 				}
 				return 1;
 			}
@@ -582,7 +571,7 @@ public static class NGUITools
 
 	public static UIPanel CreateUI(Transform trans, bool advanced3D, int layer)
 	{
-		UIRoot uIRoot = (!(trans != null)) ? null : FindInParents<UIRoot>(trans.gameObject);
+		UIRoot uIRoot = (trans != null) ? FindInParents<UIRoot>(trans.gameObject) : null;
 		if (uIRoot == null && UIRoot.list.Count > 0)
 		{
 			foreach (UIRoot item in UIRoot.list)
@@ -645,7 +634,7 @@ public static class NGUITools
 			}
 			Camera camera2 = AddChild<Camera>(uIRoot.gameObject, undo: false);
 			camera2.gameObject.AddComponent<UICamera>();
-			camera2.clearFlags = ((!flag) ? CameraClearFlags.Color : CameraClearFlags.Depth);
+			camera2.clearFlags = (flag ? CameraClearFlags.Depth : CameraClearFlags.Color);
 			camera2.backgroundColor = Color.grey;
 			camera2.cullingMask = num2;
 			camera2.depth = num + 1f;
@@ -717,16 +706,16 @@ public static class NGUITools
 	public static T AddWidget<T>(GameObject go) where T : UIWidget
 	{
 		int depth = CalculateNextDepth(go);
-		T result = AddChild<T>(go);
-		result.width = 100;
-		result.height = 100;
-		result.depth = depth;
-		return result;
+		T val = AddChild<T>(go);
+		val.width = 100;
+		val.height = 100;
+		val.depth = depth;
+		return val;
 	}
 
 	public static UISprite AddSprite(GameObject go, UIAtlas atlas, string spriteName)
 	{
-		UISpriteData uISpriteData = (!(atlas != null)) ? null : atlas.GetSprite(spriteName);
+		UISpriteData uISpriteData = (atlas != null) ? atlas.GetSprite(spriteName) : null;
 		UISprite uISprite = AddWidget<UISprite>(go);
 		uISprite.type = ((uISpriteData != null && uISpriteData.hasBorder) ? UIBasicSprite.Type.Sliced : UIBasicSprite.Type.Simple);
 		uISprite.atlas = atlas;
@@ -753,7 +742,7 @@ public static class NGUITools
 	{
 		if (go == null)
 		{
-			return (T)null;
+			return null;
 		}
 		T component = go.GetComponent<T>();
 		if ((UnityEngine.Object)component == (UnityEngine.Object)null)
@@ -772,7 +761,7 @@ public static class NGUITools
 	{
 		if (trans == null)
 		{
-			return (T)null;
+			return null;
 		}
 		return trans.GetComponentInParent<T>();
 	}
@@ -787,8 +776,7 @@ public static class NGUITools
 		{
 			if (obj is GameObject)
 			{
-				GameObject gameObject = obj as GameObject;
-				gameObject.transform.parent = null;
+				(obj as GameObject).transform.parent = null;
 			}
 			UnityEngine.Object.Destroy(obj);
 		}
@@ -865,8 +853,7 @@ public static class NGUITools
 		int i = 0;
 		for (int childCount = t.childCount; i < childCount; i++)
 		{
-			Transform child = t.GetChild(i);
-			if (child.gameObject.activeSelf)
+			if (t.GetChild(i).gameObject.activeSelf)
 			{
 				return;
 			}
@@ -874,8 +861,7 @@ public static class NGUITools
 		int j = 0;
 		for (int childCount2 = t.childCount; j < childCount2; j++)
 		{
-			Transform child2 = t.GetChild(j);
-			Activate(child2, compatibilityMode: true);
+			Activate(t.GetChild(j), compatibilityMode: true);
 		}
 	}
 
@@ -929,8 +915,7 @@ public static class NGUITools
 			int i = 0;
 			for (int childCount = transform.childCount; i < childCount; i++)
 			{
-				Transform child = transform.GetChild(i);
-				Activate(child);
+				Activate(transform.GetChild(i));
 			}
 		}
 		else
@@ -938,8 +923,7 @@ public static class NGUITools
 			int j = 0;
 			for (int childCount2 = transform.childCount; j < childCount2; j++)
 			{
-				Transform child2 = transform.GetChild(j);
-				Deactivate(child2);
+				Deactivate(transform.GetChild(j));
 			}
 		}
 	}
@@ -947,21 +931,33 @@ public static class NGUITools
 	[Obsolete("Use NGUITools.GetActive instead")]
 	public static bool IsActive(Behaviour mb)
 	{
-		return mb != null && mb.enabled && mb.gameObject.activeInHierarchy;
+		if (mb != null && mb.enabled)
+		{
+			return mb.gameObject.activeInHierarchy;
+		}
+		return false;
 	}
 
 	[DebuggerHidden]
 	[DebuggerStepThrough]
 	public static bool GetActive(Behaviour mb)
 	{
-		return (bool)mb && mb.enabled && mb.gameObject.activeInHierarchy;
+		if ((bool)mb && mb.enabled)
+		{
+			return mb.gameObject.activeInHierarchy;
+		}
+		return false;
 	}
 
 	[DebuggerHidden]
 	[DebuggerStepThrough]
 	public static bool GetActive(GameObject go)
 	{
-		return (bool)go && go.activeInHierarchy;
+		if ((bool)go)
+		{
+			return go.activeInHierarchy;
+		}
+		return false;
 	}
 
 	[DebuggerHidden]
@@ -978,8 +974,7 @@ public static class NGUITools
 		int i = 0;
 		for (int childCount = transform.childCount; i < childCount; i++)
 		{
-			Transform child = transform.GetChild(i);
-			SetLayer(child.gameObject, layer);
+			SetLayer(transform.GetChild(i).gameObject, layer);
 		}
 	}
 
@@ -1226,17 +1221,23 @@ public static class NGUITools
 		{
 			text = text.Substring(num + 1);
 		}
-		return (!string.IsNullOrEmpty(method)) ? (text + "/" + method) : text;
+		if (!string.IsNullOrEmpty(method))
+		{
+			return text + "/" + method;
+		}
+		return text;
 	}
 
 	public static void Execute<T>(GameObject go, string funcName) where T : Component
 	{
 		T[] components = go.GetComponents<T>();
-		T[] array = components;
-		for (int i = 0; i < array.Length; i++)
+		foreach (T val in components)
 		{
-			T obj = array[i];
-			obj.GetType().GetMethod(funcName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(obj, null);
+			MethodInfo method = val.GetType().GetMethod(funcName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			if (method != null)
+			{
+				method.Invoke(val, null);
+			}
 		}
 	}
 

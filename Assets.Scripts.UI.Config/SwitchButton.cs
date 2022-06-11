@@ -17,7 +17,7 @@ namespace Assets.Scripts.UI.Config
 
 		public bool IsVoiceSwitch;
 
-		public string GlobalValue = string.Empty;
+		public string GlobalValue = "";
 
 		private bool isReady;
 
@@ -170,7 +170,7 @@ namespace Assets.Scripts.UI.Config
 			{
 				val = ((BurikoMemory.Instance.GetGlobalFlag(GlobalValue).IntValue() == 0) ? 1 : 0);
 			}
-			if (GlobalValue != string.Empty)
+			if (GlobalValue != "")
 			{
 				BurikoMemory.Instance.SetGlobalFlag(GlobalValue, val);
 			}

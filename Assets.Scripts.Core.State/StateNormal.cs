@@ -39,10 +39,8 @@ namespace Assets.Scripts.Core.State
 				}
 				gameSystem.IsSkipping = true;
 				gameSystem.IsForceSkip = true;
-				if (gameSystem.WaitList.Count > 0)
-				{
-					return true;
-				}
+				_ = gameSystem.WaitList.Count;
+				_ = 0;
 				return true;
 			}
 			if (gameSystem.IsForceSkip)
@@ -59,7 +57,7 @@ namespace Assets.Scripts.Core.State
 				gameSystem.SwitchToViewMode();
 				return false;
 			}
-			if (Input.GetAxis("Mouse ScrollWheel") > 0f || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.PageUp))
+			if ((Input.GetAxis("Mouse ScrollWheel") > 0f && gameSystem.IsInWindowBounds) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.PageUp))
 			{
 				if (!gameSystem.MessageBoxVisible && gameSystem.GameState == GameState.Normal)
 				{
@@ -68,7 +66,7 @@ namespace Assets.Scripts.Core.State
 				gameSystem.SwitchToHistoryScreen();
 				return false;
 			}
-			if (Input.GetMouseButtonDown(0) || Input.GetAxis("Mouse ScrollWheel") < 0f || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.PageDown) || Input.GetKeyDown(KeyCode.KeypadEnter))
+			if (((Input.GetMouseButtonDown(0) || Input.GetAxis("Mouse ScrollWheel") < 0f) && gameSystem.IsInWindowBounds) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.PageDown) || Input.GetKeyDown(KeyCode.KeypadEnter))
 			{
 				if (gameSystem.IsSkipping)
 				{
@@ -89,7 +87,7 @@ namespace Assets.Scripts.Core.State
 				}
 				return false;
 			}
-			if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
+			if ((Input.GetMouseButtonDown(1) && gameSystem.IsInWindowBounds) || Input.GetKeyDown(KeyCode.Escape))
 			{
 				if (!gameSystem.MessageBoxVisible && gameSystem.GameState == GameState.Normal)
 				{

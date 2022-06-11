@@ -106,7 +106,17 @@ public class UIScrollView : MonoBehaviour
 
 	public UIPanel panel => mPanel;
 
-	public bool isDragging => mPressed && mDragStarted;
+	public bool isDragging
+	{
+		get
+		{
+			if (mPressed)
+			{
+				return mDragStarted;
+			}
+			return false;
+		}
+	}
 
 	public virtual Bounds bounds
 	{
@@ -122,21 +132,46 @@ public class UIScrollView : MonoBehaviour
 		}
 	}
 
-	public bool canMoveHorizontally => movement == Movement.Horizontal || movement == Movement.Unrestricted || (movement == Movement.Custom && customMovement.x != 0f);
+	public bool canMoveHorizontally
+	{
+		get
+		{
+			if (movement != 0 && movement != Movement.Unrestricted)
+			{
+				if (movement == Movement.Custom)
+				{
+					return customMovement.x != 0f;
+				}
+				return false;
+			}
+			return true;
+		}
+	}
 
-	public bool canMoveVertically => movement == Movement.Vertical || movement == Movement.Unrestricted || (movement == Movement.Custom && customMovement.y != 0f);
+	public bool canMoveVertically
+	{
+		get
+		{
+			if (movement != Movement.Vertical && movement != Movement.Unrestricted)
+			{
+				if (movement == Movement.Custom)
+				{
+					return customMovement.y != 0f;
+				}
+				return false;
+			}
+			return true;
+		}
+	}
 
 	public virtual bool shouldMoveHorizontally
 	{
 		get
 		{
-			Vector3 size = bounds.size;
-			float num = size.x;
+			float num = bounds.size.x;
 			if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
 			{
-				float num2 = num;
-				Vector2 clipSoftness = mPanel.clipSoftness;
-				num = num2 + clipSoftness.x * 2f;
+				num += mPanel.clipSoftness.x * 2f;
 			}
 			return Mathf.RoundToInt(num - mPanel.width) > 0;
 		}
@@ -146,13 +181,10 @@ public class UIScrollView : MonoBehaviour
 	{
 		get
 		{
-			Vector3 size = bounds.size;
-			float num = size.y;
+			float num = bounds.size.y;
 			if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
 			{
-				float num2 = num;
-				Vector2 clipSoftness = mPanel.clipSoftness;
-				num = num2 + clipSoftness.y * 2f;
+				num += mPanel.clipSoftness.y * 2f;
 			}
 			return Mathf.RoundToInt(num - mPanel.height) > 0;
 		}
@@ -172,30 +204,26 @@ public class UIScrollView : MonoBehaviour
 			}
 			Vector4 finalClipRegion = mPanel.finalClipRegion;
 			Bounds bounds = this.bounds;
-			float num = (finalClipRegion.z != 0f) ? (finalClipRegion.z * 0.5f) : ((float)Screen.width);
-			float num2 = (finalClipRegion.w != 0f) ? (finalClipRegion.w * 0.5f) : ((float)Screen.height);
+			float num = (finalClipRegion.z == 0f) ? ((float)Screen.width) : (finalClipRegion.z * 0.5f);
+			float num2 = (finalClipRegion.w == 0f) ? ((float)Screen.height) : (finalClipRegion.w * 0.5f);
 			if (canMoveHorizontally)
 			{
-				Vector3 min = bounds.min;
-				if (min.x < finalClipRegion.x - num)
+				if (bounds.min.x < finalClipRegion.x - num)
 				{
 					return true;
 				}
-				Vector3 max = bounds.max;
-				if (max.x > finalClipRegion.x + num)
+				if (bounds.max.x > finalClipRegion.x + num)
 				{
 					return true;
 				}
 			}
 			if (canMoveVertically)
 			{
-				Vector3 min2 = bounds.min;
-				if (min2.y < finalClipRegion.y - num2)
+				if (bounds.min.y < finalClipRegion.y - num2)
 				{
 					return true;
 				}
-				Vector3 max2 = bounds.max;
-				if (max2.y > finalClipRegion.y + num2)
+				if (bounds.max.y > finalClipRegion.y + num2)
 				{
 					return true;
 				}
@@ -262,12 +290,12 @@ public class UIScrollView : MonoBehaviour
 			if (horizontalScrollBar != null)
 			{
 				EventDelegate.Add(horizontalScrollBar.onChange, OnScrollBar);
-				horizontalScrollBar.alpha = ((showScrollBars != 0 && !shouldMoveHorizontally) ? 0f : 1f);
+				horizontalScrollBar.alpha = ((showScrollBars == ShowCondition.Always || shouldMoveHorizontally) ? 1f : 0f);
 			}
 			if (verticalScrollBar != null)
 			{
 				EventDelegate.Add(verticalScrollBar.onChange, OnScrollBar);
-				verticalScrollBar.alpha = ((showScrollBars != 0 && !shouldMoveVertically) ? 0f : 1f);
+				verticalScrollBar.alpha = ((showScrollBars == ShowCondition.Always || shouldMoveVertically) ? 1f : 0f);
 			}
 		}
 	}
@@ -367,44 +395,40 @@ public class UIScrollView : MonoBehaviour
 				f = Mathf.Round(f);
 				if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
 				{
-					float num2 = f;
-					Vector2 clipSoftness = mPanel.clipSoftness;
-					f = num2 - clipSoftness.x;
+					f -= mPanel.clipSoftness.x;
 				}
 				float contentSize = vector2.x - vector.x;
 				float viewSize = f * 2f;
 				float x = vector.x;
 				float x2 = vector2.x;
-				float num3 = finalClipRegion.x - f;
-				float num4 = finalClipRegion.x + f;
-				x = num3 - x;
-				x2 -= num4;
+				float num2 = finalClipRegion.x - f;
+				float num3 = finalClipRegion.x + f;
+				x = num2 - x;
+				x2 -= num3;
 				UpdateScrollbars(horizontalScrollBar, x, x2, contentSize, viewSize, inverted: false);
 			}
 			if (verticalScrollBar != null && vector2.y > vector.y)
 			{
 				Vector4 finalClipRegion2 = mPanel.finalClipRegion;
-				int num5 = Mathf.RoundToInt(finalClipRegion2.w);
-				if ((num5 & 1) != 0)
+				int num4 = Mathf.RoundToInt(finalClipRegion2.w);
+				if ((num4 & 1) != 0)
 				{
-					num5--;
+					num4--;
 				}
-				float f2 = (float)num5 * 0.5f;
+				float f2 = (float)num4 * 0.5f;
 				f2 = Mathf.Round(f2);
 				if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
 				{
-					float num6 = f2;
-					Vector2 clipSoftness2 = mPanel.clipSoftness;
-					f2 = num6 - clipSoftness2.y;
+					f2 -= mPanel.clipSoftness.y;
 				}
 				float contentSize2 = vector2.y - vector.y;
 				float viewSize2 = f2 * 2f;
 				float y = vector.y;
 				float y2 = vector2.y;
-				float num7 = finalClipRegion2.y - f2;
-				float num8 = finalClipRegion2.y + f2;
-				y = num7 - y;
-				y2 -= num8;
+				float num5 = finalClipRegion2.y - f2;
+				float num6 = finalClipRegion2.y + f2;
+				y = num5 - y;
+				y2 -= num6;
 				UpdateScrollbars(verticalScrollBar, y, y2, contentSize2, viewSize2, inverted: true);
 			}
 		}
@@ -427,14 +451,14 @@ public class UIScrollView : MonoBehaviour
 			contentMin = Mathf.Clamp01(contentMin / contentSize);
 			contentMax = Mathf.Clamp01(contentMax / contentSize);
 			num = contentMin + contentMax;
-			slider.value = (inverted ? ((!(num > 0.001f)) ? 0f : (1f - contentMin / num)) : ((!(num > 0.001f)) ? 1f : (contentMin / num)));
+			slider.value = ((!inverted) ? ((num > 0.001f) ? (contentMin / num) : 1f) : ((num > 0.001f) ? (1f - contentMin / num) : 0f));
 		}
 		else
 		{
 			contentMin = Mathf.Clamp01((0f - contentMin) / contentSize);
 			contentMax = Mathf.Clamp01((0f - contentMax) / contentSize);
 			num = contentMin + contentMax;
-			slider.value = (inverted ? ((!(num > 0.001f)) ? 0f : (1f - contentMin / num)) : ((!(num > 0.001f)) ? 1f : (contentMin / num)));
+			slider.value = ((!inverted) ? ((num > 0.001f) ? (contentMin / num) : 1f) : ((num > 0.001f) ? (1f - contentMin / num) : 0f));
 			if (contentSize > 0f)
 			{
 				contentMin = Mathf.Clamp01(contentMin / contentSize);
@@ -458,68 +482,46 @@ public class UIScrollView : MonoBehaviour
 		}
 		DisableSpring();
 		Bounds bounds = this.bounds;
-		Vector3 min = bounds.min;
-		float x2 = min.x;
-		Vector3 max = bounds.max;
-		if (x2 == max.x)
-		{
-			return;
-		}
-		Vector3 min2 = bounds.min;
-		float y2 = min2.y;
-		Vector3 max2 = bounds.max;
-		if (y2 == max2.y)
+		if (bounds.min.x == bounds.max.x || bounds.min.y == bounds.max.y)
 		{
 			return;
 		}
 		Vector4 finalClipRegion = mPanel.finalClipRegion;
 		float num = finalClipRegion.z * 0.5f;
 		float num2 = finalClipRegion.w * 0.5f;
-		Vector3 min3 = bounds.min;
-		float num3 = min3.x + num;
-		Vector3 max3 = bounds.max;
-		float num4 = max3.x - num;
-		Vector3 min4 = bounds.min;
-		float num5 = min4.y + num2;
-		Vector3 max4 = bounds.max;
-		float num6 = max4.y - num2;
+		float num3 = bounds.min.x + num;
+		float num4 = bounds.max.x - num;
+		float num5 = bounds.min.y + num2;
+		float num6 = bounds.max.y - num2;
 		if (mPanel.clipping == UIDrawCall.Clipping.SoftClip)
 		{
-			float num7 = num3;
-			Vector2 clipSoftness = mPanel.clipSoftness;
-			num3 = num7 - clipSoftness.x;
-			float num8 = num4;
-			Vector2 clipSoftness2 = mPanel.clipSoftness;
-			num4 = num8 + clipSoftness2.x;
-			float num9 = num5;
-			Vector2 clipSoftness3 = mPanel.clipSoftness;
-			num5 = num9 - clipSoftness3.y;
-			float num10 = num6;
-			Vector2 clipSoftness4 = mPanel.clipSoftness;
-			num6 = num10 + clipSoftness4.y;
+			num3 -= mPanel.clipSoftness.x;
+			num4 += mPanel.clipSoftness.x;
+			num5 -= mPanel.clipSoftness.y;
+			num6 += mPanel.clipSoftness.y;
 		}
-		float num11 = Mathf.Lerp(num3, num4, x);
-		float num12 = Mathf.Lerp(num6, num5, y);
+		float num7 = Mathf.Lerp(num3, num4, x);
+		float num8 = Mathf.Lerp(num6, num5, y);
 		if (!updateScrollbars)
 		{
 			Vector3 localPosition = mTrans.localPosition;
 			if (canMoveHorizontally)
 			{
-				localPosition.x += finalClipRegion.x - num11;
+				localPosition.x += finalClipRegion.x - num7;
 			}
 			if (canMoveVertically)
 			{
-				localPosition.y += finalClipRegion.y - num12;
+				localPosition.y += finalClipRegion.y - num8;
 			}
 			mTrans.localPosition = localPosition;
 		}
 		if (canMoveHorizontally)
 		{
-			finalClipRegion.x = num11;
+			finalClipRegion.x = num7;
 		}
 		if (canMoveVertically)
 		{
-			finalClipRegion.y = num12;
+			finalClipRegion.y = num8;
 		}
 		Vector4 baseClipRegion = mPanel.baseClipRegion;
 		mPanel.clipOffset = new Vector2(finalClipRegion.x - baseClipRegion.x, finalClipRegion.y - baseClipRegion.y);
@@ -553,8 +555,8 @@ public class UIScrollView : MonoBehaviour
 			mIgnoreCallbacks = true;
 			mCalculatedBounds = false;
 			Vector2 pivotOffset = NGUIMath.GetPivotOffset(contentPivot);
-			float x = (!(horizontalScrollBar != null)) ? pivotOffset.x : horizontalScrollBar.value;
-			float y = (!(verticalScrollBar != null)) ? (1f - pivotOffset.y) : verticalScrollBar.value;
+			float x = (horizontalScrollBar != null) ? horizontalScrollBar.value : pivotOffset.x;
+			float y = (verticalScrollBar != null) ? verticalScrollBar.value : (1f - pivotOffset.y);
 			SetDragAmount(x, y, updateScrollbars: false);
 			UpdateScrollbars(recalculateBounds: true);
 			mIgnoreCallbacks = false;
@@ -566,8 +568,8 @@ public class UIScrollView : MonoBehaviour
 		if (!mIgnoreCallbacks)
 		{
 			mIgnoreCallbacks = true;
-			float x = (!(horizontalScrollBar != null)) ? 0f : horizontalScrollBar.value;
-			float y = (!(verticalScrollBar != null)) ? 0f : verticalScrollBar.value;
+			float x = (horizontalScrollBar != null) ? horizontalScrollBar.value : 0f;
+			float y = (verticalScrollBar != null) ? verticalScrollBar.value : 0f;
 			SetDragAmount(x, y, updateScrollbars: false);
 			mIgnoreCallbacks = false;
 		}
@@ -678,7 +680,7 @@ public class UIScrollView : MonoBehaviour
 				onDragStarted();
 			}
 		}
-		Ray ray = (!smoothDragStart) ? UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos) : UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos - mDragStartOffset);
+		Ray ray = smoothDragStart ? UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos - mDragStartOffset) : UICamera.currentCamera.ScreenPointToRay(UICamera.currentTouch.pos);
 		float enter = 0f;
 		if (!mPlane.Raycast(ray, out enter))
 		{
@@ -733,7 +735,7 @@ public class UIScrollView : MonoBehaviour
 		}
 		if (restrictWithinPanel && mPanel.clipping != 0 && dragEffect != DragEffect.MomentumAndSpring)
 		{
-			RestrictWithinBounds(/*instant:*/ true, canMoveHorizontally, canMoveVertically);
+			RestrictWithinBounds(instant: true, canMoveHorizontally, canMoveVertically);
 		}
 	}
 
@@ -770,7 +772,7 @@ public class UIScrollView : MonoBehaviour
 			if ((bool)verticalScrollBar)
 			{
 				float alpha = verticalScrollBar.alpha;
-				alpha += ((!flag) ? ((0f - deltaTime) * 3f) : (deltaTime * 6f));
+				alpha += (flag ? (deltaTime * 6f) : ((0f - deltaTime) * 3f));
 				alpha = Mathf.Clamp01(alpha);
 				if (verticalScrollBar.alpha != alpha)
 				{
@@ -780,7 +782,7 @@ public class UIScrollView : MonoBehaviour
 			if ((bool)horizontalScrollBar)
 			{
 				float alpha2 = horizontalScrollBar.alpha;
-				alpha2 += ((!flag2) ? ((0f - deltaTime) * 3f) : (deltaTime * 6f));
+				alpha2 += (flag2 ? (deltaTime * 6f) : ((0f - deltaTime) * 3f));
 				alpha2 = Mathf.Clamp01(alpha2);
 				if (horizontalScrollBar.alpha != alpha2)
 				{
@@ -831,7 +833,7 @@ public class UIScrollView : MonoBehaviour
 					}
 					else
 					{
-						RestrictWithinBounds(/*instant:*/ false, canMoveHorizontally, canMoveVertically);
+						RestrictWithinBounds(instant: false, canMoveHorizontally, canMoveVertically);
 					}
 				}
 				if (onMomentumMove != null)

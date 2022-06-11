@@ -93,8 +93,12 @@ public class UIRoot : MonoBehaviour
 					screenSize.y = maximumHeight;
 					screenSize.x = screenSize.y * num;
 				}
-				int num2 = Mathf.RoundToInt((!shrinkPortraitUI || !(screenSize.y > screenSize.x)) ? screenSize.y : (screenSize.y / num));
-				return (!adjustByDPI) ? num2 : NGUIMath.AdjustByDPI(num2);
+				int num2 = Mathf.RoundToInt((shrinkPortraitUI && screenSize.y > screenSize.x) ? (screenSize.y / num) : screenSize.y);
+				if (!adjustByDPI)
+				{
+					return num2;
+				}
+				return NGUIMath.AdjustByDPI(num2);
 			}
 			Constraint constraint = this.constraint;
 			if (constraint == Constraint.FitHeight)
@@ -109,9 +113,17 @@ public class UIRoot : MonoBehaviour
 			case Constraint.FitWidth:
 				return Mathf.RoundToInt((float)manualWidth / num3);
 			case Constraint.Fit:
-				return (!(num4 > num3)) ? manualHeight : Mathf.RoundToInt((float)manualWidth / num3);
+				if (!(num4 > num3))
+				{
+					return manualHeight;
+				}
+				return Mathf.RoundToInt((float)manualWidth / num3);
 			case Constraint.Fill:
-				return (!(num4 < num3)) ? manualHeight : Mathf.RoundToInt((float)manualWidth / num3);
+				if (!(num4 < num3))
+				{
+					return manualHeight;
+				}
+				return Mathf.RoundToInt((float)manualWidth / num3);
 			default:
 				return manualHeight;
 			}
@@ -122,16 +134,23 @@ public class UIRoot : MonoBehaviour
 	{
 		get
 		{
-			Vector2 screenSize = NGUITools.screenSize;
-			int num = Mathf.RoundToInt(screenSize.y);
-			return (num != -1) ? GetPixelSizeAdjustment(num) : 1f;
+			int num = Mathf.RoundToInt(NGUITools.screenSize.y);
+			if (num != -1)
+			{
+				return GetPixelSizeAdjustment(num);
+			}
+			return 1f;
 		}
 	}
 
 	public static float GetPixelSizeAdjustment(GameObject go)
 	{
 		UIRoot uIRoot = NGUITools.FindInParents<UIRoot>(go);
-		return (!(uIRoot != null)) ? 1f : uIRoot.pixelSizeAdjustment;
+		if (!(uIRoot != null))
+		{
+			return 1f;
+		}
+		return uIRoot.pixelSizeAdjustment;
 	}
 
 	public float GetPixelSizeAdjustment(int height)

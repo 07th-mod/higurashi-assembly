@@ -51,7 +51,11 @@ public class UIButton : UIButtonColor
 				return true;
 			}
 			Collider2D component2 = GetComponent<Collider2D>();
-			return (bool)component2 && component2.enabled;
+			if ((bool)component2)
+			{
+				return component2.enabled;
+			}
+			return false;
 		}
 		set
 		{
@@ -211,7 +215,7 @@ public class UIButton : UIButtonColor
 				SetSprite(mNormalSprite);
 				break;
 			case State.Hover:
-				SetSprite((!string.IsNullOrEmpty(hoverSprite)) ? hoverSprite : mNormalSprite);
+				SetSprite(string.IsNullOrEmpty(hoverSprite) ? mNormalSprite : hoverSprite);
 				break;
 			case State.Pressed:
 				SetSprite(pressedSprite);
@@ -229,7 +233,7 @@ public class UIButton : UIButtonColor
 				SetSprite(mNormalSprite2D);
 				break;
 			case State.Hover:
-				SetSprite((!(hoverSprite2D == null)) ? hoverSprite2D : mNormalSprite2D);
+				SetSprite((hoverSprite2D == null) ? mNormalSprite2D : hoverSprite2D);
 				break;
 			case State.Pressed:
 				SetSprite(pressedSprite2D);

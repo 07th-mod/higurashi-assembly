@@ -31,10 +31,10 @@ namespace Assets.Scripts.UI.Config
 			{
 				button = GetComponent<UIButton>();
 			}
-			button.normalSprite = ((!language) ? JapaneseNormal : EnglishNormal);
-			button.hoverSprite = ((!language) ? JapaneseHover : EnglishHover);
-			button.pressedSprite = ((!language) ? JapaneseDown : EnglishDown);
-			button.disabledSprite = ((!language) ? JapaneseDisabled : EnglishDisabled);
+			button.normalSprite = (language ? EnglishNormal : JapaneseNormal);
+			button.hoverSprite = (language ? EnglishHover : JapaneseHover);
+			button.pressedSprite = (language ? EnglishDown : JapaneseDown);
+			button.disabledSprite = (language ? EnglishDisabled : JapaneseDisabled);
 		}
 
 		public void Start()

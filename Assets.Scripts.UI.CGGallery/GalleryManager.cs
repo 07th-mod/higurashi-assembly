@@ -164,36 +164,30 @@ namespace Assets.Scripts.UI.CGGallery
 			}
 		};
 
-		private IEnumerator DoClose(GalleryManager.GalleryCloseCallback callback)
+		private IEnumerator DoClose(GalleryCloseCallback callback)
 		{
 			yield return null;
 			yield return null;
-			this.GalleryHeader.PlayReverse();
-			this.GalleryPanel.PlayReverse();
-			this.Background.PlayReverse();
+			GalleryHeader.PlayReverse();
+			GalleryPanel.PlayReverse();
+			Background.PlayReverse();
 			yield return new WaitForSeconds(0.3f);
-			if (callback != null)
-			{
-				callback();
-			}
-			UnityEngine.Object.Destroy(base.gameObject);
-			yield break;
+			callback?.Invoke();
+			Object.Destroy(base.gameObject);
 		}
 
 		private IEnumerator DoHide()
 		{
 			yield return null;
-			this.BlackZone.PlayForward();
+			BlackZone.PlayForward();
 			yield return new WaitForSeconds(0.3f);
-			yield break;
 		}
 
 		private IEnumerator DoUnhide()
 		{
 			yield return null;
-			this.BlackZone.PlayReverse();
+			BlackZone.PlayReverse();
 			yield return new WaitForSeconds(0.3f);
-			yield break;
 		}
 
 		public void Hide()
@@ -215,10 +209,9 @@ namespace Assets.Scripts.UI.CGGallery
 		{
 			yield return null;
 			yield return null;
-			this.GalleryHeader.PlayForward();
-			this.GalleryPanel.PlayForward();
-			this.Background.PlayForward();
-			yield break;
+			GalleryHeader.PlayForward();
+			GalleryPanel.PlayForward();
+			Background.PlayForward();
 		}
 
 		public void Open()

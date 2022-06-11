@@ -22,30 +22,33 @@ namespace Assets.Scripts.UI.Prompt
 
 		private void OnClick()
 		{
-			if (isEnabled && GameSystem.Instance.GameState == GameState.DialogPrompt && !(time > 0f) && UICamera.currentTouchID >= -1)
+			if (!isEnabled || GameSystem.Instance.GameState != GameState.DialogPrompt || time > 0f || UICamera.currentTouchID < -1)
 			{
-				switch (base.name)
-				{
-				case "_Yes":
-					promptController.Hide(affirmative: true);
-					break;
-				case "_No":
-					promptController.Hide(affirmative: false);
-					break;
-				default:
-					Debug.Log("Button ID not found: " + base.name);
-					break;
-				}
-				AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
-				isEnabled = false;
+				return;
 			}
+			string name = base.name;
+			if (!(name == "_Yes"))
+			{
+				if (name == "_No")
+				{
+					promptController.Hide(affirmative: false);
+				}
+				else
+				{
+					Debug.Log("Button ID not found: " + base.name);
+				}
+			}
+			else
+			{
+				promptController.Hide(affirmative: true);
+			}
+			AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
+			isEnabled = false;
 		}
 
 		private void OnHover(bool hover)
 		{
-			if (isEnabled)
-			{
-			}
+			_ = isEnabled;
 		}
 
 		private void Update()

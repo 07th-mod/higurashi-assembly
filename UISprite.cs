@@ -23,7 +23,17 @@ public class UISprite : UIBasicSprite
 	[NonSerialized]
 	private bool mSpriteSet;
 
-	public override Material material => (!(mAtlas != null)) ? null : mAtlas.spriteMaterial;
+	public override Material material
+	{
+		get
+		{
+			if (!(mAtlas != null))
+			{
+				return null;
+			}
+			return mAtlas.spriteMaterial;
+		}
+	}
 
 	public UIAtlas atlas
 	{
@@ -47,7 +57,7 @@ public class UISprite : UIBasicSprite
 				if (!string.IsNullOrEmpty(mSpriteName))
 				{
 					string spriteName = mSpriteName;
-					mSpriteName = string.Empty;
+					mSpriteName = "";
 					this.spriteName = spriteName;
 					MarkAsChanged();
 				}
@@ -67,7 +77,7 @@ public class UISprite : UIBasicSprite
 			{
 				if (!string.IsNullOrEmpty(mSpriteName))
 				{
-					mSpriteName = string.Empty;
+					mSpriteName = "";
 					mSprite = null;
 					mChanged = true;
 					mSpriteSet = false;
@@ -115,7 +125,17 @@ public class UISprite : UIBasicSprite
 		}
 	}
 
-	public override float pixelSize => (!(mAtlas != null)) ? 1f : mAtlas.pixelSize;
+	public override float pixelSize
+	{
+		get
+		{
+			if (!(mAtlas != null))
+			{
+				return 1f;
+			}
+			return mAtlas.pixelSize;
+		}
+	}
 
 	public override int minWidth
 	{
@@ -130,7 +150,7 @@ public class UISprite : UIBasicSprite
 				{
 					num += atlasSprite.paddingLeft + atlasSprite.paddingRight;
 				}
-				return Mathf.Max(base.minWidth, ((num & 1) != 1) ? num : (num + 1));
+				return Mathf.Max(base.minWidth, ((num & 1) == 1) ? (num + 1) : num);
 			}
 			return base.minWidth;
 		}
@@ -149,7 +169,7 @@ public class UISprite : UIBasicSprite
 				{
 					num += atlasSprite.paddingTop + atlasSprite.paddingBottom;
 				}
-				return Mathf.Max(base.minHeight, ((num & 1) != 1) ? num : (num + 1));
+				return Mathf.Max(base.minHeight, ((num & 1) == 1) ? (num + 1) : num);
 			}
 			return base.minHeight;
 		}
@@ -208,7 +228,7 @@ public class UISprite : UIBasicSprite
 					num4 -= (float)num6 * num10;
 				}
 			}
-			Vector4 vector = (!(mAtlas != null)) ? Vector4.zero : (border * pixelSize);
+			Vector4 vector = (mAtlas != null) ? (border * pixelSize) : Vector4.zero;
 			float num11 = vector.x + vector.z;
 			float num12 = vector.y + vector.w;
 			float x = Mathf.Lerp(num, num3 - num11, mDrawRegion.x);
@@ -219,7 +239,17 @@ public class UISprite : UIBasicSprite
 		}
 	}
 
-	public override bool premultipliedAlpha => mAtlas != null && mAtlas.premultipliedAlpha;
+	public override bool premultipliedAlpha
+	{
+		get
+		{
+			if (mAtlas != null)
+			{
+				return mAtlas.premultipliedAlpha;
+			}
+			return false;
+		}
+	}
 
 	public UISpriteData GetAtlasSprite()
 	{
@@ -268,7 +298,7 @@ public class UISprite : UIBasicSprite
 		}
 		else
 		{
-			mSpriteName = ((mSprite == null) ? string.Empty : mSprite.name);
+			mSpriteName = ((mSprite != null) ? mSprite.name : "");
 			mSprite = sp;
 		}
 	}

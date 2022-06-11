@@ -42,7 +42,17 @@ public class UIPlayAnimation : MonoBehaviour
 
 	private bool dragHighlight;
 
-	private bool dualState => trigger == Trigger.OnPress || trigger == Trigger.OnHover;
+	private bool dualState
+	{
+		get
+		{
+			if (trigger != Trigger.OnPress)
+			{
+				return trigger == Trigger.OnHover;
+			}
+			return true;
+		}
+	}
 
 	private void Awake()
 	{
@@ -202,7 +212,7 @@ public class UIPlayAnimation : MonoBehaviour
 
 	public void Play(bool forward, bool onlyIfDifferent)
 	{
-		if (!(bool)target && !(bool)animator)
+		if (!target && !animator)
 		{
 			return;
 		}
@@ -219,8 +229,8 @@ public class UIPlayAnimation : MonoBehaviour
 			UICamera.selectedObject = null;
 		}
 		int num = 0 - playDirection;
-		Direction direction = (Direction)((!forward) ? num : ((int)playDirection));
-		ActiveAnimation activeAnimation = (!(bool)target) ? ActiveAnimation.Play(animator, clipName, direction, ifDisabledOnPlay, disableWhenFinished) : ActiveAnimation.Play(target, clipName, direction, ifDisabledOnPlay, disableWhenFinished);
+		Direction direction = (Direction)(forward ? ((int)playDirection) : num);
+		ActiveAnimation activeAnimation = target ? ActiveAnimation.Play(target, clipName, direction, ifDisabledOnPlay, disableWhenFinished) : ActiveAnimation.Play(animator, clipName, direction, ifDisabledOnPlay, disableWhenFinished);
 		if (activeAnimation != null)
 		{
 			if (resetOnPlay)

@@ -92,8 +92,7 @@ public class UIButtonMessage : MonoBehaviour
 			int i = 0;
 			for (int num = componentsInChildren.Length; i < num; i++)
 			{
-				Transform transform = componentsInChildren[i];
-				transform.gameObject.SendMessage(functionName, base.gameObject, SendMessageOptions.DontRequireReceiver);
+				componentsInChildren[i].gameObject.SendMessage(functionName, base.gameObject, SendMessageOptions.DontRequireReceiver);
 			}
 		}
 		else

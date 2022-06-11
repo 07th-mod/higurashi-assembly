@@ -86,7 +86,7 @@ public class UIDragObject : MonoBehaviour
 
 	private void FindPanel()
 	{
-		panelRegion = ((!(target != null)) ? null : UIPanel.Find(target.transform.parent));
+		panelRegion = ((target != null) ? UIPanel.Find(target.transform.parent) : null);
 		if (panelRegion == null)
 		{
 			restrictWithinPanel = false;
@@ -97,8 +97,7 @@ public class UIDragObject : MonoBehaviour
 	{
 		if ((bool)contentRect)
 		{
-			Transform cachedTransform = panelRegion.cachedTransform;
-			Matrix4x4 worldToLocalMatrix = cachedTransform.worldToLocalMatrix;
+			Matrix4x4 worldToLocalMatrix = panelRegion.cachedTransform.worldToLocalMatrix;
 			Vector3[] worldCorners = contentRect.worldCorners;
 			for (int i = 0; i < 4; i++)
 			{
@@ -140,7 +139,7 @@ public class UIDragObject : MonoBehaviour
 				}
 				CancelSpring();
 				Transform transform = UICamera.currentCamera.transform;
-				mPlane = new Plane(((!(panelRegion != null)) ? transform.rotation : panelRegion.cachedTransform.rotation) * Vector3.back, UICamera.lastWorldPosition);
+				mPlane = new Plane(((panelRegion != null) ? panelRegion.cachedTransform.rotation : transform.rotation) * Vector3.back, UICamera.lastWorldPosition);
 			}
 		}
 		else if (mPressed && mTouchID == UICamera.currentTouchID)
@@ -272,7 +271,7 @@ public class UIDragObject : MonoBehaviour
 			localPosition.z = Mathf.RoundToInt(localPosition.z);
 			target.localPosition = localPosition;
 		}
-		mTargetPos = ((!(target != null)) ? Vector3.zero : target.position);
+		mTargetPos = ((target != null) ? target.position : Vector3.zero);
 		mMomentum = Vector3.zero;
 		mScroll = Vector3.zero;
 	}

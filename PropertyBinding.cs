@@ -93,7 +93,7 @@ public class PropertyBinding : MonoBehaviour
 		}
 		else
 		{
-			if (source.GetPropertyType() != target.GetPropertyType())
+			if (!(source.GetPropertyType() == target.GetPropertyType()))
 			{
 				return;
 			}

@@ -66,14 +66,8 @@ public class UIDraggableCamera : MonoBehaviour
 		Vector3 position2 = new Vector3(mCam.rect.xMax * (float)Screen.width, mCam.rect.yMax * (float)Screen.height, 0f);
 		position = mCam.ScreenToWorldPoint(position);
 		position2 = mCam.ScreenToWorldPoint(position2);
-		Vector3 min = mBounds.min;
-		float x = min.x;
-		Vector3 min2 = mBounds.min;
-		Vector2 minRect = new Vector2(x, min2.y);
-		Vector3 max = mBounds.max;
-		float x2 = max.x;
-		Vector3 max2 = mBounds.max;
-		Vector2 maxRect = new Vector2(x2, max2.y);
+		Vector2 minRect = new Vector2(mBounds.min.x, mBounds.min.y);
+		Vector2 maxRect = new Vector2(mBounds.max.x, mBounds.max.y);
 		return NGUIMath.ConstrainRect(minRect, maxRect, position, position2);
 	}
 

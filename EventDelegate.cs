@@ -191,7 +191,15 @@ public class EventDelegate
 			{
 				Cache();
 			}
-			return (mRawDelegate && mCachedCallback != null) || (mTarget != null && !string.IsNullOrEmpty(mMethodName));
+			if (!mRawDelegate || mCachedCallback == null)
+			{
+				if (mTarget != null)
+				{
+					return !string.IsNullOrEmpty(mMethodName);
+				}
+				return false;
+			}
+			return true;
 		}
 	}
 
@@ -212,7 +220,11 @@ public class EventDelegate
 				return false;
 			}
 			MonoBehaviour monoBehaviour = mTarget;
-			return monoBehaviour == null || monoBehaviour.enabled;
+			if (!(monoBehaviour == null))
+			{
+				return monoBehaviour.enabled;
+			}
+			return true;
 		}
 	}
 
@@ -237,7 +249,11 @@ public class EventDelegate
 
 	private static bool IsValid(Callback callback)
 	{
-		return callback != null && callback.Method != null;
+		if (callback != null)
+		{
+			return callback.Method != null;
+		}
+		return false;
 	}
 
 	public override bool Equals(object obj)
@@ -254,12 +270,20 @@ public class EventDelegate
 				return true;
 			}
 			MonoBehaviour y = callback.Target as MonoBehaviour;
-			return mTarget == y && string.Equals(mMethodName, GetMethodName(callback));
+			if (mTarget == y)
+			{
+				return string.Equals(mMethodName, GetMethodName(callback));
+			}
+			return false;
 		}
 		if (obj is EventDelegate)
 		{
 			EventDelegate eventDelegate = obj as EventDelegate;
-			return mTarget == eventDelegate.mTarget && string.Equals(mMethodName, eventDelegate.mMethodName);
+			if (mTarget == eventDelegate.mTarget)
+			{
+				return string.Equals(mMethodName, eventDelegate.mMethodName);
+			}
+			return false;
 		}
 		return false;
 	}
@@ -390,15 +414,7 @@ public class EventDelegate
 				catch (ArgumentException ex)
 				{
 					string text = "Error calling ";
-					if (mTarget == null)
-					{
-						text += mMethod.Name;
-					}
-					else
-					{
-						string text2 = text;
-						text = text2 + mTarget.GetType() + "." + mMethod.Name;
-					}
+					text = ((!(mTarget == null)) ? (text + mTarget.GetType() + "." + mMethod.Name) : (text + mMethod.Name));
 					text = text + ": " + ex.Message;
 					text += "\n  Expected: ";
 					ParameterInfo[] parameters = mMethod.GetParameters();
@@ -469,7 +485,11 @@ public class EventDelegate
 			}
 			return text + "/[delegate]";
 		}
-		return (!mRawDelegate) ? null : "[delegate]";
+		if (!mRawDelegate)
+		{
+			return null;
+		}
+		return "[delegate]";
 	}
 
 	public static void Execute(List<EventDelegate> list)
@@ -606,7 +626,7 @@ public class EventDelegate
 			}
 			EventDelegate eventDelegate2 = new EventDelegate(ev.target, ev.methodName);
 			eventDelegate2.oneShot = oneShot;
-			if (ev.mParameters != null && ev.mParameters.Length > 0)
+			if (ev.mParameters != null && ev.mParameters.Length != 0)
 			{
 				eventDelegate2.mParameters = new Parameter[ev.mParameters.Length];
 				for (int j = 0; j < ev.mParameters.Length; j++)

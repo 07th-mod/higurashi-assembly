@@ -30,24 +30,24 @@ namespace Assets.Scripts.UI.SaveLoad
 			SaveButton.isEnabled = manager.CanSave();
 			LoadButton.isEnabled = manager.CanLoad();
 			DeleteButton.isEnabled = true;
-			string empty = string.Empty;
+			string text = "";
 			if (GameSystem.Instance.UseEnglishText)
 			{
-				empty = entry.Text;
-				if (empty == string.Empty)
+				text = entry.Text;
+				if (text == "")
 				{
-					empty = entry.TextJp;
+					text = entry.TextJp;
 				}
 			}
 			else
 			{
-				empty = entry.TextJp;
-				if (empty == string.Empty)
+				text = entry.TextJp;
+				if (text == "")
 				{
-					empty = entry.Text;
+					text = entry.Text;
 				}
 			}
-			BottomLabel.text = empty.Replace("\n", " ").TrimStart(' ', '\n');
+			BottomLabel.text = text.Replace("\n", " ").TrimStart(' ', '\n');
 			SaveTexture.mainTexture = AssetManager.Instance.LoadScreenshot(Path.GetFileNameWithoutExtension(entry.Path) + ".png");
 		}
 
@@ -56,7 +56,7 @@ namespace Assets.Scripts.UI.SaveLoad
 			SaveButton.isEnabled = manager.CanSave();
 			LoadButton.isEnabled = false;
 			DeleteButton.isEnabled = false;
-			BottomLabel.text = string.Empty;
+			BottomLabel.text = "";
 			SaveTexture.mainTexture = AssetManager.Instance.LoadTexture("no_data");
 		}
 
@@ -72,17 +72,15 @@ namespace Assets.Scripts.UI.SaveLoad
 					lastDate = DateTime.Now;
 					DisableButton();
 				}
+				return;
 			}
-			else
+			isEnabled = true;
+			if (!(saveInfo.Time == lastDate))
 			{
-				isEnabled = true;
-				if (!(saveInfo.Time == lastDate))
-				{
-					lastDate = saveInfo.Time;
-					EnableEntry(saveInfo);
-					LoadButton.GetComponent<SaveLoadButton>().Prepare(slotnum, manager);
-					DeleteButton.GetComponent<SaveLoadButton>().Prepare(slotnum, manager);
-				}
+				lastDate = saveInfo.Time;
+				EnableEntry(saveInfo);
+				LoadButton.GetComponent<SaveLoadButton>().Prepare(slotnum, manager);
+				DeleteButton.GetComponent<SaveLoadButton>().Prepare(slotnum, manager);
 			}
 		}
 

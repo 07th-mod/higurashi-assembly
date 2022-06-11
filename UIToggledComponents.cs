@@ -38,8 +38,7 @@ public class UIToggledComponents : MonoBehaviour
 				target = null;
 			}
 		}
-		UIToggle component = GetComponent<UIToggle>();
-		EventDelegate.Add(component.onChange, Toggle);
+		EventDelegate.Add(GetComponent<UIToggle>().onChange, Toggle);
 	}
 
 	public void Toggle()
@@ -48,13 +47,11 @@ public class UIToggledComponents : MonoBehaviour
 		{
 			for (int i = 0; i < activate.Count; i++)
 			{
-				MonoBehaviour monoBehaviour = activate[i];
-				monoBehaviour.enabled = UIToggle.current.value;
+				activate[i].enabled = UIToggle.current.value;
 			}
 			for (int j = 0; j < deactivate.Count; j++)
 			{
-				MonoBehaviour monoBehaviour2 = deactivate[j];
-				monoBehaviour2.enabled = !UIToggle.current.value;
+				deactivate[j].enabled = !UIToggle.current.value;
 			}
 		}
 	}

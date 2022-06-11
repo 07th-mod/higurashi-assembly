@@ -20,13 +20,11 @@ public class UICenterOnClick : MonoBehaviour
 			Vector3 pos = -uIPanel.cachedTransform.InverseTransformPoint(base.transform.position);
 			if (!component.canMoveHorizontally)
 			{
-				Vector3 localPosition = uIPanel.cachedTransform.localPosition;
-				pos.x = localPosition.x;
+				pos.x = uIPanel.cachedTransform.localPosition.x;
 			}
 			if (!component.canMoveVertically)
 			{
-				Vector3 localPosition2 = uIPanel.cachedTransform.localPosition;
-				pos.y = localPosition2.y;
+				pos.y = uIPanel.cachedTransform.localPosition.y;
 			}
 			SpringPanel.Begin(uIPanel.cachedGameObject, pos, 6f);
 		}

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/UI/NGUI Label")]
@@ -42,7 +41,7 @@ public class UILabel : UIWidget
 	[HideInInspector]
 	[Multiline(6)]
 	[SerializeField]
-	private string mText = string.Empty;
+	private string mText = "";
 
 	[HideInInspector]
 	[SerializeField]
@@ -157,9 +156,6 @@ public class UILabel : UIWidget
 
 	private static BetterList<int> mTempIndices = new BetterList<int>();
 
-	[CompilerGenerated]
-	private static Font.FontTextureRebuildCallback _003C_003Ef__mg_0024cache0;
-
 	private bool shouldBeProcessed
 	{
 		get
@@ -180,9 +176,29 @@ public class UILabel : UIWidget
 		}
 	}
 
-	public override bool isAnchoredHorizontally => base.isAnchoredHorizontally || mOverflow == Overflow.ResizeFreely;
+	public override bool isAnchoredHorizontally
+	{
+		get
+		{
+			if (!base.isAnchoredHorizontally)
+			{
+				return mOverflow == Overflow.ResizeFreely;
+			}
+			return true;
+		}
+	}
 
-	public override bool isAnchoredVertically => base.isAnchoredVertically || mOverflow == Overflow.ResizeFreely || mOverflow == Overflow.ResizeHeight;
+	public override bool isAnchoredVertically
+	{
+		get
+		{
+			if (!base.isAnchoredVertically && mOverflow != Overflow.ResizeFreely)
+			{
+				return mOverflow == Overflow.ResizeHeight;
+			}
+			return true;
+		}
+	}
 
 	public override Material material
 	{
@@ -252,7 +268,11 @@ public class UILabel : UIWidget
 			{
 				return mTrueTypeFont;
 			}
-			return (!(mFont != null)) ? null : mFont.dynamicFont;
+			if (!(mFont != null))
+			{
+				return null;
+			}
+			return mFont.dynamicFont;
 		}
 		set
 		{
@@ -277,7 +297,11 @@ public class UILabel : UIWidget
 	{
 		get
 		{
-			return (!(mFont != null)) ? ((UnityEngine.Object)mTrueTypeFont) : ((UnityEngine.Object)mFont);
+			if (!(mFont != null))
+			{
+				return mTrueTypeFont;
+			}
+			return mFont;
 		}
 		set
 		{
@@ -309,7 +333,7 @@ public class UILabel : UIWidget
 			{
 				if (!string.IsNullOrEmpty(mText))
 				{
-					mText = string.Empty;
+					mText = "";
 					MarkAsChanged();
 					ProcessAndRequest();
 				}
@@ -327,7 +351,21 @@ public class UILabel : UIWidget
 		}
 	}
 
-	public int defaultFontSize => (trueTypeFont != null) ? mFontSize : ((!(mFont != null)) ? 16 : mFont.defaultSize);
+	public int defaultFontSize
+	{
+		get
+		{
+			if (!(trueTypeFont != null))
+			{
+				if (!(mFont != null))
+				{
+					return 16;
+				}
+				return mFont.defaultSize;
+			}
+			return mFontSize;
+		}
+	}
 
 	public int fontSize
 	{
@@ -734,7 +772,17 @@ public class UILabel : UIWidget
 		}
 	}
 
-	private bool isValid => mFont != null || mTrueTypeFont != null;
+	private bool isValid
+	{
+		get
+		{
+			if (!(mFont != null))
+			{
+				return mTrueTypeFont != null;
+			}
+			return true;
+		}
+	}
 
 	protected override void OnInit()
 	{
@@ -805,14 +853,10 @@ public class UILabel : UIWidget
 		for (int j = 0; j < mList.size; j++)
 		{
 			UILabel uILabel2 = mList[j];
-			if (uILabel2 != null)
+			if (uILabel2 != null && uILabel2.trueTypeFont != null)
 			{
-				Font trueTypeFont2 = uILabel2.trueTypeFont;
-				if (trueTypeFont2 != null)
-				{
-					uILabel2.RemoveFromPanel();
-					uILabel2.CreatePanel();
-				}
+				uILabel2.RemoveFromPanel();
+				uILabel2.CreatePanel();
 			}
 		}
 	}
@@ -924,25 +968,15 @@ public class UILabel : UIWidget
 		shouldBeProcessed = false;
 		float num = mDrawRegion.z - mDrawRegion.x;
 		float num2 = mDrawRegion.w - mDrawRegion.y;
-		NGUIText.rectWidth = ((!legacyMode) ? base.width : ((mMaxLineWidth == 0) ? 1000000 : mMaxLineWidth));
-		NGUIText.rectHeight = ((!legacyMode) ? base.height : ((mMaxLineHeight == 0) ? 1000000 : mMaxLineHeight));
-		NGUIText.regionWidth = ((num == 1f) ? NGUIText.rectWidth : Mathf.RoundToInt((float)NGUIText.rectWidth * num));
-		NGUIText.regionHeight = ((num2 == 1f) ? NGUIText.rectHeight : Mathf.RoundToInt((float)NGUIText.rectHeight * num2));
-		int value;
-		if (legacyMode)
-		{
-			Vector3 localScale = base.cachedTransform.localScale;
-			value = Mathf.RoundToInt(localScale.x);
-		}
-		else
-		{
-			value = defaultFontSize;
-		}
-		mPrintedSize = Mathf.Abs(value);
+		NGUIText.rectWidth = ((!legacyMode) ? base.width : ((mMaxLineWidth != 0) ? mMaxLineWidth : 1000000));
+		NGUIText.rectHeight = ((!legacyMode) ? base.height : ((mMaxLineHeight != 0) ? mMaxLineHeight : 1000000));
+		NGUIText.regionWidth = ((num != 1f) ? Mathf.RoundToInt((float)NGUIText.rectWidth * num) : NGUIText.rectWidth);
+		NGUIText.regionHeight = ((num2 != 1f) ? Mathf.RoundToInt((float)NGUIText.rectHeight * num2) : NGUIText.rectHeight);
+		mPrintedSize = Mathf.Abs(legacyMode ? Mathf.RoundToInt(base.cachedTransform.localScale.x) : defaultFontSize);
 		mScale = 1f;
 		if (NGUIText.regionWidth < 1 || NGUIText.regionHeight < 0)
 		{
-			mProcessedText = string.Empty;
+			mProcessedText = "";
 			return;
 		}
 		bool flag = trueTypeFont != null;
@@ -951,7 +985,7 @@ public class UILabel : UIWidget
 			UIRoot root = base.root;
 			if (root != null)
 			{
-				mDensity = ((!(root != null)) ? 1f : root.pixelSizeAdjustment);
+				mDensity = ((root != null) ? root.pixelSizeAdjustment : 1f);
 			}
 		}
 		else
@@ -986,7 +1020,7 @@ public class UILabel : UIWidget
 				else
 				{
 					mScale = (float)num3 / (float)mPrintedSize;
-					NGUIText.fontScale = ((!flag) ? ((float)mFontSize / (float)mFont.defaultSize * mScale) : mScale);
+					NGUIText.fontScale = (flag ? mScale : ((float)mFontSize / (float)mFont.defaultSize * mScale));
 				}
 				NGUIText.Update(request: false);
 				bool flag2 = NGUIText.WrapText(mText, out mProcessedText, keepCharCount: true);
@@ -1050,7 +1084,7 @@ public class UILabel : UIWidget
 		else
 		{
 			base.cachedTransform.localScale = Vector3.one;
-			mProcessedText = string.Empty;
+			mProcessedText = "";
 			mScale = 1f;
 		}
 		if (full)
@@ -1160,7 +1194,7 @@ public class UILabel : UIWidget
 			if (mTempVerts.size > 0)
 			{
 				ApplyOffset(mTempVerts, 0);
-				int result = (!precise) ? NGUIText.GetApproximateCharacterIndex(mTempVerts, mTempIndices, localPos) : NGUIText.GetExactCharacterIndex(mTempVerts, mTempIndices, localPos);
+				int result = precise ? NGUIText.GetExactCharacterIndex(mTempVerts, mTempIndices, localPos) : NGUIText.GetApproximateCharacterIndex(mTempVerts, mTempIndices, localPos);
 				mTempVerts.Clear();
 				mTempIndices.Clear();
 				NGUIText.bitmapFont = null;
@@ -1210,8 +1244,7 @@ public class UILabel : UIWidget
 				int num3 = num2 - num;
 				if (num3 > 0)
 				{
-					string text = mText.Substring(num, num3);
-					return NGUIText.StripSymbols(text);
+					return NGUIText.StripSymbols(mText.Substring(num, num3));
 				}
 			}
 		}
@@ -1433,7 +1466,7 @@ public class UILabel : UIWidget
 	{
 		Color color = mEffectColor;
 		color.a *= finalAlpha;
-		Color32 color2 = (!(bitmapFont != null) || !bitmapFont.premultipliedAlphaShader) ? color : NGUITools.ApplyPMA(color);
+		Color32 color2 = (bitmapFont != null && bitmapFont.premultipliedAlphaShader) ? NGUITools.ApplyPMA(color) : color;
 		for (int i = start; i < end; i++)
 		{
 			verts.Add(verts.buffer[i]);
@@ -1451,7 +1484,7 @@ public class UILabel : UIWidget
 			}
 			Color color4 = color;
 			color4.a = (float)(int)color3.a / 255f * color.a;
-			cols.buffer[i] = ((!(bitmapFont != null) || !bitmapFont.premultipliedAlphaShader) ? color4 : NGUITools.ApplyPMA(color4));
+			cols.buffer[i] = ((bitmapFont != null && bitmapFont.premultipliedAlphaShader) ? NGUITools.ApplyPMA(color4) : color4);
 		}
 	}
 
@@ -1486,7 +1519,7 @@ public class UILabel : UIWidget
 	{
 		if (UIPopupList.current != null)
 		{
-			text = ((!UIPopupList.current.isLocalized) ? UIPopupList.current.value : Localization.Get(UIPopupList.current.value));
+			text = (UIPopupList.current.isLocalized ? Localization.Get(UIPopupList.current.value) : UIPopupList.current.value);
 		}
 	}
 
@@ -1525,7 +1558,7 @@ public class UILabel : UIWidget
 		NGUIText.maxLines = mMaxLineCount;
 		NGUIText.spacingX = mSpacingX;
 		NGUIText.spacingY = mSpacingY;
-		NGUIText.fontScale = ((!flag) ? ((float)mFontSize / (float)mFont.defaultSize * mScale) : mScale);
+		NGUIText.fontScale = (flag ? mScale : ((float)mFontSize / (float)mFont.defaultSize * mScale));
 		if (mFont != null)
 		{
 			NGUIText.bitmapFont = mFont;
@@ -1558,7 +1591,7 @@ public class UILabel : UIWidget
 			UIRoot root = base.root;
 			if (root != null)
 			{
-				NGUIText.pixelDensity = ((!(root != null)) ? 1f : root.pixelSizeAdjustment);
+				NGUIText.pixelDensity = ((root != null) ? root.pixelSizeAdjustment : 1f);
 			}
 		}
 		else

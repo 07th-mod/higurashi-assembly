@@ -201,7 +201,7 @@ public class UIPlayTween : MonoBehaviour
 	public void Play(bool forward)
 	{
 		mActive = 0;
-		GameObject gameObject = (!(tweenTarget == null)) ? tweenTarget : base.gameObject;
+		GameObject gameObject = (tweenTarget == null) ? base.gameObject : tweenTarget;
 		if (!NGUITools.GetActive(gameObject))
 		{
 			if (ifDisabledOnPlay != EnableCondition.EnableThenPlay)
@@ -210,7 +210,7 @@ public class UIPlayTween : MonoBehaviour
 			}
 			NGUITools.SetActive(gameObject, state: true);
 		}
-		mTweens = ((!includeChildren) ? gameObject.GetComponents<UITweener>() : gameObject.GetComponentsInChildren<UITweener>());
+		mTweens = (includeChildren ? gameObject.GetComponentsInChildren<UITweener>() : gameObject.GetComponents<UITweener>());
 		if (mTweens.Length == 0)
 		{
 			if (disableWhenFinished != 0)

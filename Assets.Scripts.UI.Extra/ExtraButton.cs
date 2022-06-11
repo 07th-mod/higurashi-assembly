@@ -26,52 +26,39 @@ namespace Assets.Scripts.UI.Extra
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ExtraScreen)
+			if (!isActive || UICamera.currentTouchID < -1 || GameSystem.Instance.GameState != GameState.ExtraScreen)
 			{
-				StateExtraScreen stateExtraScreen = GameSystem.Instance.GetStateObject() as StateExtraScreen;
-				if (stateExtraScreen != null)
+				return;
+			}
+			StateExtraScreen stateExtraScreen = GameSystem.Instance.GetStateObject() as StateExtraScreen;
+			if (stateExtraScreen == null)
+			{
+				return;
+			}
+			string name = base.name;
+			if (!(name == "CastReview"))
+			{
+				if (!(name == "StaffRoom"))
 				{
-					string name = base.name;
-					if (name != null)
+					if (name == "Continue")
 					{
-						if (!(name == "CastReview"))
-						{
-							if (!(name == "ChapterJump"))
-							{
-								if (!(name == "ViewTips"))
-								{
-									if (name == "Continue")
-									{
-										stateExtraScreen.RequestLeave();
-										BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
-										AudioController.Instance.ClearTempAudio();
-										AudioController.Instance.FadeOutBGM(0, 1000, waitForFade: false);
-										BurikoScriptSystem.Instance.JumpToBlock("Title");
-									}
-								}
-								else
-								{
-									stateExtraScreen.RequestLeave();
-									BurikoMemory.Instance.SetFlag("TipsMode", 5);
-									BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
-								}
-							}
-							else
-							{
-								stateExtraScreen.RequestLeave();
-								GameSystem.Instance.AddWait(new Wait(0.5f, WaitTypes.WaitForTime, delegate
-								{
-									GameSystem.Instance.PushStateObject(new StateChapterJump());
-								}));
-							}
-						}
-						else
-						{
-							stateExtraScreen.RequestLeave();
-							BurikoScriptSystem.Instance.CallScript("staffroom");
-						}
+						stateExtraScreen.RequestLeave();
+						BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+						AudioController.Instance.ClearTempAudio();
+						AudioController.Instance.FadeOutBGM(0, 1000, waitForFade: false);
+						BurikoScriptSystem.Instance.JumpToBlock("Title");
 					}
 				}
+				else
+				{
+					stateExtraScreen.RequestLeave();
+					BurikoScriptSystem.Instance.CallScript("staffroom");
+				}
+			}
+			else
+			{
+				stateExtraScreen.RequestLeave();
+				BurikoScriptSystem.Instance.CallScript("omake");
 			}
 		}
 
@@ -93,7 +80,7 @@ namespace Assets.Scripts.UI.Extra
 		private void Awake()
 		{
 			button = GetComponent<UIButton>();
-			if (base.name == "CastReview" && !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue())
+			if (base.name == "StaffRoom" && (!BurikoMemory.Instance.GetGlobalFlag("GCastReview").BoolValue() || !BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue()))
 			{
 				base.gameObject.SetActive(value: false);
 			}

@@ -59,12 +59,12 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		public void SetTransitionMask(string maskname)
+		public void SetTransitionMask(string maskname, int style)
 		{
 			sceneMaterial.shader = maskShader;
-			Texture2D texture = AssetManager.Instance.LoadTexture(maskname);
-			sceneMaterial.SetTexture("_Mask", texture);
-			sceneMaterial.SetFloat("_Fuzzyness", 0.45f);
+			Texture2D value = AssetManager.Instance.LoadTexture(maskname);
+			sceneMaterial.SetTexture("_Mask", value);
+			sceneMaterial.SetFloat("_Fuzzyness", (style == 1) ? 0.01f : 0.75f);
 			UpdateRange(0f);
 		}
 
@@ -123,8 +123,7 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator ChangeShader(Shader target)
 		{
 			yield return new WaitForEndOfFrame();
-			this.sceneMaterial.shader = target;
-			yield break;
+			sceneMaterial.shader = target;
 		}
 
 		private void Awake()

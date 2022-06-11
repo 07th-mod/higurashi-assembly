@@ -1,6 +1,4 @@
 using AnimationOrTween;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,7 +25,7 @@ public class ActiveAnimation : MonoBehaviour
 
 	private Animator mAnimator;
 
-	private string mClip = string.Empty;
+	private string mClip = "";
 
 	private float playbackTime => Mathf.Clamp01(mAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
 
@@ -54,41 +52,28 @@ public class ActiveAnimation : MonoBehaviour
 				}
 				return false;
 			}
-			IEnumerator enumerator = mAnim.GetEnumerator();
-			try
+			foreach (AnimationState item in mAnim)
 			{
-				while (enumerator.MoveNext())
+				if (mAnim.IsPlaying(item.name))
 				{
-					AnimationState animationState = (AnimationState)enumerator.Current;
-					if (mAnim.IsPlaying(animationState.name))
+					if (mLastDirection == Direction.Forward)
 					{
-						if (mLastDirection == Direction.Forward)
+						if (item.time < item.length)
 						{
-							if (animationState.time < animationState.length)
-							{
-								return true;
-							}
-						}
-						else
-						{
-							if (mLastDirection != Direction.Reverse)
-							{
-								return true;
-							}
-							if (animationState.time > 0f)
-							{
-								return true;
-							}
+							return true;
 						}
 					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable;
-				if ((disposable = (enumerator as IDisposable)) != null)
-				{
-					disposable.Dispose();
+					else
+					{
+						if (mLastDirection != Direction.Reverse)
+						{
+							return true;
+						}
+						if (item.time > 0f)
+						{
+							return true;
+						}
+					}
 				}
 			}
 			return false;
@@ -99,35 +84,22 @@ public class ActiveAnimation : MonoBehaviour
 	{
 		if (mAnim != null)
 		{
-			IEnumerator enumerator = mAnim.GetEnumerator();
-			try
+			foreach (AnimationState item in mAnim)
 			{
-				while (enumerator.MoveNext())
+				if (mLastDirection == Direction.Forward)
 				{
-					AnimationState animationState = (AnimationState)enumerator.Current;
-					if (mLastDirection == Direction.Forward)
-					{
-						animationState.time = animationState.length;
-					}
-					else if (mLastDirection == Direction.Reverse)
-					{
-						animationState.time = 0f;
-					}
+					item.time = item.length;
 				}
-			}
-			finally
-			{
-				IDisposable disposable;
-				if ((disposable = (enumerator as IDisposable)) != null)
+				else if (mLastDirection == Direction.Reverse)
 				{
-					disposable.Dispose();
+					item.time = 0f;
 				}
 			}
 			mAnim.Sample();
 		}
 		else if (mAnimator != null)
 		{
-			mAnimator.Play(mClip, 0, (mLastDirection != Direction.Forward) ? 0f : 1f);
+			mAnimator.Play(mClip, 0, (mLastDirection == Direction.Forward) ? 1f : 0f);
 		}
 	}
 
@@ -135,34 +107,21 @@ public class ActiveAnimation : MonoBehaviour
 	{
 		if (mAnim != null)
 		{
-			IEnumerator enumerator = mAnim.GetEnumerator();
-			try
+			foreach (AnimationState item in mAnim)
 			{
-				while (enumerator.MoveNext())
+				if (mLastDirection == Direction.Reverse)
 				{
-					AnimationState animationState = (AnimationState)enumerator.Current;
-					if (mLastDirection == Direction.Reverse)
-					{
-						animationState.time = animationState.length;
-					}
-					else if (mLastDirection == Direction.Forward)
-					{
-						animationState.time = 0f;
-					}
+					item.time = item.length;
 				}
-			}
-			finally
-			{
-				IDisposable disposable;
-				if ((disposable = (enumerator as IDisposable)) != null)
+				else if (mLastDirection == Direction.Forward)
 				{
-					disposable.Dispose();
+					item.time = 0f;
 				}
 			}
 		}
 		else if (mAnimator != null)
 		{
-			mAnimator.Play(mClip, 0, (mLastDirection != Direction.Reverse) ? 0f : 1f);
+			mAnimator.Play(mClip, 0, (mLastDirection == Direction.Reverse) ? 1f : 0f);
 		}
 	}
 
@@ -184,7 +143,7 @@ public class ActiveAnimation : MonoBehaviour
 		}
 		if (mAnimator != null)
 		{
-			mAnimator.Update((mLastDirection != Direction.Reverse) ? deltaTime : (0f - deltaTime));
+			mAnimator.Update((mLastDirection == Direction.Reverse) ? (0f - deltaTime) : deltaTime);
 			if (isPlaying)
 			{
 				return;
@@ -200,44 +159,31 @@ public class ActiveAnimation : MonoBehaviour
 				return;
 			}
 			bool flag = false;
-			IEnumerator enumerator = mAnim.GetEnumerator();
-			try
+			foreach (AnimationState item in mAnim)
 			{
-				while (enumerator.MoveNext())
+				if (mAnim.IsPlaying(item.name))
 				{
-					AnimationState animationState = (AnimationState)enumerator.Current;
-					if (mAnim.IsPlaying(animationState.name))
+					float num = item.speed * deltaTime;
+					item.time += num;
+					if (num < 0f)
 					{
-						float num = animationState.speed * deltaTime;
-						animationState.time += num;
-						if (num < 0f)
-						{
-							if (animationState.time > 0f)
-							{
-								flag = true;
-							}
-							else
-							{
-								animationState.time = 0f;
-							}
-						}
-						else if (animationState.time < animationState.length)
+						if (item.time > 0f)
 						{
 							flag = true;
 						}
 						else
 						{
-							animationState.time = animationState.length;
+							item.time = 0f;
 						}
 					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable;
-				if ((disposable = (enumerator as IDisposable)) != null)
-				{
-					disposable.Dispose();
+					else if (item.time < item.length)
+					{
+						flag = true;
+					}
+					else
+					{
+						item.time = item.length;
+					}
 				}
 			}
 			mAnim.Sample();
@@ -289,33 +235,20 @@ public class ActiveAnimation : MonoBehaviour
 			{
 				mAnim.Play(clipName);
 			}
-			IEnumerator enumerator = mAnim.GetEnumerator();
-			try
+			foreach (AnimationState item in mAnim)
 			{
-				while (enumerator.MoveNext())
+				if (string.IsNullOrEmpty(clipName) || item.name == clipName)
 				{
-					AnimationState animationState = (AnimationState)enumerator.Current;
-					if (string.IsNullOrEmpty(clipName) || animationState.name == clipName)
+					float num = Mathf.Abs(item.speed);
+					item.speed = num * (float)playDirection;
+					if (playDirection == Direction.Reverse && item.time == 0f)
 					{
-						float num = Mathf.Abs(animationState.speed);
-						animationState.speed = num * (float)playDirection;
-						if (playDirection == Direction.Reverse && animationState.time == 0f)
-						{
-							animationState.time = animationState.length;
-						}
-						else if (playDirection == Direction.Forward && animationState.time == animationState.length)
-						{
-							animationState.time = 0f;
-						}
+						item.time = item.length;
 					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable;
-				if ((disposable = (enumerator as IDisposable)) != null)
-				{
-					disposable.Dispose();
+					else if (playDirection == Direction.Forward && item.time == item.length)
+					{
+						item.time = 0f;
+					}
 				}
 			}
 			mLastDirection = playDirection;
@@ -333,7 +266,7 @@ public class ActiveAnimation : MonoBehaviour
 			mNotify = true;
 			mLastDirection = playDirection;
 			mClip = clipName;
-			mAnimator.Play(mClip, 0, (playDirection != Direction.Forward) ? 1f : 0f);
+			mAnimator.Play(mClip, 0, (playDirection == Direction.Forward) ? 0f : 1f);
 		}
 	}
 

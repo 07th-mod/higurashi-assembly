@@ -42,9 +42,9 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("CallSection", new OpType(BurikoOperations.CallSection, "s"));
 			paramLookup.Add("ShiftSection", new OpType(BurikoOperations.ShiftSection, "s"));
 			paramLookup.Add("JumpSection", new OpType(BurikoOperations.JumpSection, "s"));
-			paramLookup.Add("Return", new OpType(BurikoOperations.Return, string.Empty));
+			paramLookup.Add("Return", new OpType(BurikoOperations.Return, ""));
 			paramLookup.Add("Wait", new OpType(BurikoOperations.Wait, "i"));
-			paramLookup.Add("WaitForInput", new OpType(BurikoOperations.WaitForInput, string.Empty));
+			paramLookup.Add("WaitForInput", new OpType(BurikoOperations.WaitForInput, ""));
 			paramLookup.Add("SetValidityOfInput", new OpType(BurikoOperations.SetValidityOfInput, "b"));
 			paramLookup.Add("SetValidityOfSkipping", new OpType(BurikoOperations.SetValidityOfSkipping, "b"));
 			paramLookup.Add("SetValidityOfSaving", new OpType(BurikoOperations.SetValidityOfSaving, "b"));
@@ -53,12 +53,12 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("ActivateScreenEffectForcedly", new OpType(BurikoOperations.ActivateScreenEffectForcedly, "b"));
 			paramLookup.Add("OutputLine", new OpType(BurikoOperations.OutputLine, "ssssi"));
 			paramLookup.Add("OutputLineAll", new OpType(BurikoOperations.OutputLineAll, "ssi"));
-			paramLookup.Add("ClearMessage", new OpType(BurikoOperations.ClearMessage, string.Empty));
+			paramLookup.Add("ClearMessage", new OpType(BurikoOperations.ClearMessage, ""));
 			paramLookup.Add("SetFontOfMessage", new OpType(BurikoOperations.SetFontOfMessage, "iii"));
 			paramLookup.Add("SetSpeedOfMessage", new OpType(BurikoOperations.SetSpeedOfMessage, "bi"));
 			paramLookup.Add("SetStyleOfMessageSwinging", new OpType(BurikoOperations.SetStyleOfMessageSwinging, "i"));
-			paramLookup.Add("DisableWindow", new OpType(BurikoOperations.DisableWindow, string.Empty));
-			paramLookup.Add("DisplayWindow", new OpType(BurikoOperations.DisplayWindow, string.Empty));
+			paramLookup.Add("DisableWindow", new OpType(BurikoOperations.DisableWindow, ""));
+			paramLookup.Add("DisplayWindow", new OpType(BurikoOperations.DisplayWindow, ""));
 			paramLookup.Add("HideWindow", new OpType(BurikoOperations.HideWindow, "i"));
 			paramLookup.Add("SpringText", new OpType(BurikoOperations.SpringText, "ii"));
 			paramLookup.Add("SetColorOfMessage", new OpType(BurikoOperations.SetColorOfMessage, "biii"));
@@ -113,6 +113,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("EnableHorizontalGradation", new OpType(BurikoOperations.EnableHorizontalGradation, "iib"));
 			paramLookup.Add("DisableGradation", new OpType(BurikoOperations.DisableGradation, "ib"));
 			paramLookup.Add("EnlargeScreen", new OpType(BurikoOperations.EnlargeScreen, "iiiibib"));
+			paramLookup.Add("MoveScreen", new OpType(BurikoOperations.MoveScreen, "iiib"));
 			paramLookup.Add("DisableEffector", new OpType(BurikoOperations.DisableEffector, "ib"));
 			paramLookup.Add("EnableBlur", new OpType(BurikoOperations.EnableBlur, "iib"));
 			paramLookup.Add("DisableBlur", new OpType(BurikoOperations.DisableBlur, "ib"));
@@ -123,18 +124,18 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("FadeBustshotWithFiltering", new OpType(BurikoOperations.FadeBustshotWithFiltering, "isibiiib"));
 			paramLookup.Add("SetDrawingPointOfMessage", new OpType(BurikoOperations.SetDrawingPointOfMessage, "ii"));
 			paramLookup.Add("Negative", new OpType(BurikoOperations.Negative, "ib"));
-			paramLookup.Add("EnableJumpingOfReturnIcon", new OpType(BurikoOperations.EnableJumpingOfReturnIcon, string.Empty));
+			paramLookup.Add("EnableJumpingOfReturnIcon", new OpType(BurikoOperations.EnableJumpingOfReturnIcon, ""));
 			paramLookup.Add("SetValidityOfWindowDisablingWhenGraphicsControl", new OpType(BurikoOperations.SetValidityOfWindowDisablingWhenGraphicsControl, "b"));
 			paramLookup.Add("SetValidityOfInterface", new OpType(BurikoOperations.SetValidityOfInterface, "b"));
-			paramLookup.Add("ShowExtras", new OpType(BurikoOperations.ViewExtras, string.Empty));
-			paramLookup.Add("ShowChapterScreen", new OpType(BurikoOperations.ViewChapterScreen, string.Empty));
+			paramLookup.Add("ShowExtras", new OpType(BurikoOperations.ViewExtras, ""));
+			paramLookup.Add("ShowChapterScreen", new OpType(BurikoOperations.ViewChapterScreen, ""));
 			paramLookup.Add("ShowTips", new OpType(BurikoOperations.ViewTips, "i"));
-			paramLookup.Add("ShowChapterPreview", new OpType(BurikoOperations.ChapterPreview, string.Empty));
+			paramLookup.Add("ShowChapterPreview", new OpType(BurikoOperations.ChapterPreview, ""));
 			paramLookup.Add("SavePoint", new OpType(BurikoOperations.SavePoint, "ss"));
 			paramLookup.Add("SetValidityOfTextFade", new OpType(BurikoOperations.SetTextFade, "b"));
-			paramLookup.Add("LanguagePrompt", new OpType(BurikoOperations.LanguagePrompt, string.Empty));
+			paramLookup.Add("LanguagePrompt", new OpType(BurikoOperations.LanguagePrompt, ""));
 			paramLookup.Add("GetAchievement", new OpType(BurikoOperations.GetAchievement, "s"));
-			paramLookup.Add("CheckTipsAchievements", new OpType(BurikoOperations.CheckTipsAchievements, string.Empty));
+			paramLookup.Add("CheckTipsAchievements", new OpType(BurikoOperations.CheckTipsAchievements, ""));
 			paramLookup.Add("SetFontId", new OpType(BurikoOperations.SetFontId, "i"));
 			paramLookup.Add("SetCharSpacing", new OpType(BurikoOperations.SetCharSpacing, "i"));
 			paramLookup.Add("SetLineSpacing", new OpType(BurikoOperations.SetLineSpacing, "i"));
@@ -153,11 +154,12 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("FadeAllBustshots2", new OpType(BurikoOperations.FadeAllBustshots2, "ib"));
 			paramLookup.Add("FadeAllBustshots3", new OpType(BurikoOperations.FadeAllBustshots3, "ib"));
 			paramLookup.Add("BlurOffOn", new OpType(BurikoOperations.BlurOffOn, "ii"));
-			paramLookup.Add("TitleScreen", new OpType(BurikoOperations.TitleScreen, string.Empty));
-			paramLookup.Add("OpenGallery", new OpType(BurikoOperations.OpenGallery, string.Empty));
-			paramLookup.Add("HideGallery", new OpType(BurikoOperations.HideGallery, string.Empty));
-			paramLookup.Add("RevealGallery", new OpType(BurikoOperations.RevealGallery, string.Empty));
-			paramLookup.Add("CloseGallery", new OpType(BurikoOperations.CloseGallery, string.Empty));
+			paramLookup.Add("TitleScreen", new OpType(BurikoOperations.TitleScreen, ""));
+			paramLookup.Add("LoadTitleScreen", new OpType(BurikoOperations.LoadTitleScreen, ""));
+			paramLookup.Add("OpenGallery", new OpType(BurikoOperations.OpenGallery, ""));
+			paramLookup.Add("HideGallery", new OpType(BurikoOperations.HideGallery, ""));
+			paramLookup.Add("RevealGallery", new OpType(BurikoOperations.RevealGallery, ""));
+			paramLookup.Add("CloseGallery", new OpType(BurikoOperations.CloseGallery, ""));
 			paramLookup.Add("SetSkipAll", new OpType(BurikoOperations.SetSkipAll, "b"));
 			paramLookup.Add("SetNameFormat", new OpType(BurikoOperations.SetNameFormat, "s"));
 			paramLookup.Add("SetScreenAspect", new OpType(BurikoOperations.SetScreenAspect, "s"));
@@ -166,12 +168,12 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("StopFragment", new OpType(BurikoOperations.StopFragment, "i"));
 			paramLookup.Add("DrawSpriteFixedSize", new OpType(BurikoOperations.DrawSpriteFixedSize, "issiiiiiiiibbiiiib"));
 			paramLookup.Add("DrawSpriteWithFilteringFixedSize", new OpType(BurikoOperations.DrawSpriteWithFilteringFixedSize, "issiiiiibbiiiib"));
-			paramLookup.Add("Update", new OpType(BurikoOperations.Update, string.Empty));
-			paramLookup.Add("FragmentViewChapterScreen", new OpType(BurikoOperations.FragmentViewChapterScreen, string.Empty));
-			paramLookup.Add("FragmentListScreen", new OpType(BurikoOperations.FragmentListScreen, string.Empty));
+			paramLookup.Add("Update", new OpType(BurikoOperations.Update, ""));
+			paramLookup.Add("FragmentViewChapterScreen", new OpType(BurikoOperations.FragmentViewChapterScreen, ""));
+			paramLookup.Add("FragmentListScreen", new OpType(BurikoOperations.FragmentListScreen, ""));
 			paramLookup.Add("SetWindowBackground", new OpType(BurikoOperations.SetWindowBackground, "s"));
 			paramLookup.Add("JumpScriptSection", new OpType(BurikoOperations.JumpScriptSection, "ss"));
-			paramLookup.Add("Break", new OpType(BurikoOperations.Break, string.Empty));
+			paramLookup.Add("Break", new OpType(BurikoOperations.Break, ""));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

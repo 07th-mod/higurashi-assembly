@@ -48,7 +48,7 @@ namespace Assets.Scripts.UI
 
 		public void UpdateGuiPosition(int x, int y)
 		{
-			mainuiPanel.transform.localPosition = new Vector3((float)x, (float)y, 0f);
+			mainuiPanel.transform.localPosition = new Vector3(x, y, 0f);
 		}
 
 		public void UpdateBlackBars()
@@ -116,19 +116,16 @@ namespace Assets.Scripts.UI
 				bgLayer.HideLayer();
 				bgLayer = null;
 			}
-			else
+			if (bgLayer == null)
 			{
-				if (bgLayer == null)
-				{
-					bgLayer = LayerPool.ActivateLayer();
-				}
-				bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
-				bgLayer.transform.parent = GameSystem.Instance.SceneController.FacePanel.transform;
-				bgLayer.SetPriority(62);
-				bgLayer.name = "Window Background";
-				bgLayer.IsStatic = true;
-				bgLayer.DrawLayer(text, 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, time, /*isBlocking:*/ false);
+				bgLayer = LayerPool.ActivateLayer();
 			}
+			bgLayer.gameObject.layer = LayerMask.NameToLayer("Scene3");
+			bgLayer.transform.parent = GameSystem.Instance.SceneController.FacePanel.transform;
+			bgLayer.SetPriority(62);
+			bgLayer.name = "Window Background";
+			bgLayer.IsStatic = true;
+			bgLayer.DrawLayer(text, 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, isBustshot: false, 0, time, isBlocking: false);
 		}
 
 		private void HideLayerBackground(float time)
@@ -139,22 +136,20 @@ namespace Assets.Scripts.UI
 				{
 					bgLayer.FadeTo(0f, time);
 				}
+				return;
 			}
-			else
+			if (Mathf.Approximately(time, 0f))
 			{
-				if (Mathf.Approximately(time, 0f))
-				{
-					if (bgLayer != null)
-					{
-						bgLayer.FadeTo(0f, time);
-					}
-				}
-				else if (bgLayer != null)
+				if (bgLayer != null)
 				{
 					bgLayer.FadeTo(0f, time);
 				}
-				HideCarret();
 			}
+			else if (bgLayer != null)
+			{
+				bgLayer.FadeTo(0f, time);
+			}
+			HideCarret();
 		}
 
 		public void ShowMessageBox()
@@ -221,14 +216,13 @@ namespace Assets.Scripts.UI
 
 		private IEnumerator QuickSaveAnimation()
 		{
-			this.QuickSaveIcon.SetActive(true);
-			TweenAlpha t = this.QuickSaveIcon.GetComponent<TweenAlpha>();
+			QuickSaveIcon.SetActive(value: true);
+			TweenAlpha t = QuickSaveIcon.GetComponent<TweenAlpha>();
 			t.PlayForward();
 			yield return new WaitForSeconds(3f);
 			t.PlayReverse();
 			yield return new WaitForSeconds(0.5f);
-			this.QuickSaveIcon.SetActive(false);
-			yield break;
+			QuickSaveIcon.SetActive(value: false);
 		}
 
 		public void ShowQuickSaveIcon()
@@ -238,48 +232,45 @@ namespace Assets.Scripts.UI
 
 		public void SetCharSpacing(int spacing)
 		{
-			TextWindow.characterSpacing = (float)spacing;
+			TextWindow.characterSpacing = spacing;
 		}
 
 		public void SetLineSpacing(int spacing)
 		{
-			TextWindow.lineSpacing = (float)spacing;
+			TextWindow.lineSpacing = spacing;
 		}
 
 		public void SetFontSize(int size)
 		{
-			TextWindow.fontSize = (float)size;
+			TextWindow.fontSize = size;
 		}
 
 		public void SetWindowPos(int x, int y)
 		{
-			TextWindow.gameObject.transform.localPosition = new Vector3((float)x, (float)y, 0f);
+			TextWindow.gameObject.transform.localPosition = new Vector3(x, y, 0f);
 		}
 
 		public void SetWindowSize(int x, int y)
 		{
-			TextContainer textContainer = TextWindow.textContainer;
-			textContainer.width = (float)x;
-			textContainer.height = (float)y;
+			TextWindow.rectTransform.sizeDelta = new Vector2(x, y);
 		}
 
 		public void SetWindowMargins(int left, int top, int right, int bottom)
 		{
-			TextContainer textContainer = TextWindow.textContainer;
-			textContainer.margins.Set((float)left, (float)top, (float)right, (float)bottom);
+			TextWindow.margin = new Vector4(left, top, right, bottom);
 		}
 
-		public TextMeshProFont GetEnglishFont()
+		public TMP_FontAsset GetEnglishFont()
 		{
-			return Resources.Load<TextMeshProFont>(FontList[altFontId]);
+			return Resources.Load<TMP_FontAsset>(FontList[altFontId]);
 		}
 
-		public TextMeshProFont GetJapaneseFont()
+		public TMP_FontAsset GetJapaneseFont()
 		{
-			return Resources.Load<TextMeshProFont>(FontList[0]);
+			return Resources.Load<TMP_FontAsset>(FontList[0]);
 		}
 
-		public TextMeshProFont GetCurrentFont()
+		public TMP_FontAsset GetCurrentFont()
 		{
 			return TextWindow.font;
 		}
@@ -289,11 +280,11 @@ namespace Assets.Scripts.UI
 			altFontId = id;
 			if (language)
 			{
-				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[altFontId]);
+				TextWindow.font = Resources.Load<TMP_FontAsset>(FontList[altFontId]);
 			}
 			else
 			{
-				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
+				TextWindow.font = Resources.Load<TMP_FontAsset>(FontList[0]);
 			}
 		}
 
@@ -302,11 +293,11 @@ namespace Assets.Scripts.UI
 			language = GameSystem.Instance.UseEnglishText;
 			if (language)
 			{
-				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[altFontId]);
+				TextWindow.font = Resources.Load<TMP_FontAsset>(FontList[altFontId]);
 			}
 			else
 			{
-				TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
+				TextWindow.font = Resources.Load<TMP_FontAsset>(FontList[0]);
 			}
 		}
 
@@ -364,18 +355,12 @@ namespace Assets.Scripts.UI
 			{
 				num2 = 334;
 			}
-			Vector3 localPosition = SkipMarker.transform.localPosition;
-			float x = Mathf.Lerp(localPosition.x, (float)num, Time.deltaTime * 10f);
-			Vector3 localPosition2 = SkipMarker.transform.localPosition;
-			Vector3 localPosition3 = new Vector3(x, localPosition2.y, 0f);
-			Vector3 localPosition4 = AutoMarker.transform.localPosition;
-			float x2 = Mathf.Lerp(localPosition4.x, (float)num2, Time.deltaTime * 10f);
-			Vector3 localPosition5 = AutoMarker.transform.localPosition;
-			Vector3 localPosition6 = new Vector3(x2, localPosition5.y, 0f);
-			SkipMarker.transform.localPosition = localPosition3;
-			AutoMarker.transform.localPosition = localPosition6;
-			SkipMarker.SetActive(!(localPosition3.x > 400f));
-			AutoMarker.SetActive(!(localPosition6.x > 400f));
+			Vector3 localPosition = new Vector3(Mathf.Lerp(SkipMarker.transform.localPosition.x, num, Time.deltaTime * 10f), SkipMarker.transform.localPosition.y, 0f);
+			Vector3 localPosition2 = new Vector3(Mathf.Lerp(AutoMarker.transform.localPosition.x, num2, Time.deltaTime * 10f), AutoMarker.transform.localPosition.y, 0f);
+			SkipMarker.transform.localPosition = localPosition;
+			AutoMarker.transform.localPosition = localPosition2;
+			SkipMarker.SetActive(!(localPosition.x > 400f));
+			AutoMarker.SetActive(!(localPosition2.x > 400f));
 			if (carretVisible)
 			{
 				ShowCarret();
@@ -385,11 +370,11 @@ namespace Assets.Scripts.UI
 				language = GameSystem.Instance.UseEnglishText;
 				if (language)
 				{
-					TextWindow.font = Resources.Load<TextMeshProFont>(FontList[altFontId]);
+					TextWindow.font = Resources.Load<TMP_FontAsset>(FontList[altFontId]);
 				}
 				else
 				{
-					TextWindow.font = Resources.Load<TextMeshProFont>(FontList[0]);
+					TextWindow.font = Resources.Load<TMP_FontAsset>(FontList[0]);
 				}
 			}
 		}

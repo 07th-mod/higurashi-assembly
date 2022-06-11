@@ -114,8 +114,7 @@ public class UIKeyNavigation : MonoBehaviour
 				continue;
 			}
 			Vector3 direction = GetCenter(uIKeyNavigation.gameObject) - center;
-			float num2 = Vector3.Dot(myDir, direction.normalized);
-			if (!(num2 < 0.707f))
+			if (!(Vector3.Dot(myDir, direction.normalized) < 0.707f))
 			{
 				direction = transform.InverseTransformDirection(direction);
 				if (horizontal)

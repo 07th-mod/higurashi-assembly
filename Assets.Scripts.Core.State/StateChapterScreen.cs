@@ -39,7 +39,7 @@ namespace Assets.Scripts.Core.State
 
 		public void OnLeaveState()
 		{
-			Debug.Log("OnLeave StateChapterScreen " + isLeaving);
+			Debug.Log("OnLeave StateChapterScreen " + isLeaving.ToString());
 			if (!isLeaving)
 			{
 				chapterScreen.Hide(delegate

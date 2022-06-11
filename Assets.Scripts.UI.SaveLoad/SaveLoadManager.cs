@@ -30,26 +30,22 @@ namespace Assets.Scripts.UI.SaveLoad
 
 		private bool restoreUI;
 
-		private IEnumerator LeaveSaveLoad(SaveLoadManager.SaveLoadLeaveCallback callback)
+		private IEnumerator LeaveSaveLoad(SaveLoadLeaveCallback callback)
 		{
-			LeanTween.value(this.Panel.gameObject, delegate(float f)
+			LeanTween.value(Panel.gameObject, delegate(float f)
 			{
-				this.Panel.alpha = f;
+				Panel.alpha = f;
 			}, 1f, 0f, 0.5f);
-			if (this.restoreUI)
+			if (restoreUI)
 			{
 				GameSystem.Instance.MainUIController.FadeIn(0.3f);
 				GameSystem.Instance.SceneController.RevealFace(0.3f);
 				GameSystem.Instance.ExecuteActions();
 			}
 			yield return new WaitForSeconds(0.5f);
-			if (callback != null)
-			{
-				callback();
-			}
+			callback?.Invoke();
 			UnityEngine.Object.Destroy(base.gameObject);
 			UnityEngine.Object.Destroy(this);
-			yield break;
 		}
 
 		public void Leave(SaveLoadLeaveCallback callback)
@@ -61,8 +57,7 @@ namespace Assets.Scripts.UI.SaveLoad
 		{
 			yield return null;
 			yield return null;
-			this.ChangePage(this.curPage);
-			yield break;
+			ChangePage(curPage);
 		}
 
 		private void DoSave(int slot)
@@ -147,14 +142,13 @@ namespace Assets.Scripts.UI.SaveLoad
 
 		private IEnumerator DoOpen()
 		{
-			this.Panel.alpha = 0f;
+			Panel.alpha = 0f;
 			yield return null;
 			yield return null;
-			LeanTween.value(this.Panel.gameObject, delegate(float f)
+			LeanTween.value(Panel.gameObject, delegate(float f)
 			{
-				this.Panel.alpha = f;
+				Panel.alpha = f;
 			}, 0f, 1f, 0.5f);
-			yield break;
 		}
 
 		public void Open(bool doRestoreUI)

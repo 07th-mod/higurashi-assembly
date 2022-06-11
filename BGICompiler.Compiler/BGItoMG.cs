@@ -95,13 +95,10 @@ namespace BGICompiler.Compiler
 					ParseIf(child);
 					break;
 				case "OPERATION":
-				{
 					Cmd_LineNum(child.Line);
 					OutputCmd(BurikoCommands.Operation);
-					OperationHandler operationHandler = new OperationHandler();
-					operationHandler.ParseOperation(child);
+					new OperationHandler().ParseOperation(child);
 					break;
-				}
 				case "VARDECL":
 					ParseVarDecl(child);
 					break;
@@ -118,12 +115,8 @@ namespace BGICompiler.Compiler
 		public void ParseAssignment(ITree tree)
 		{
 			OutputCmd(BurikoCommands.Assignment);
-			ITree child = tree.GetChild(0);
-			BGIValue bGIValue = new BGIValue(child);
-			bGIValue.Output();
-			ITree child2 = tree.GetChild(1);
-			BGIValue bGIValue2 = new BGIValue(child2);
-			bGIValue2.Output();
+			new BGIValue(tree.GetChild(0)).Output();
+			new BGIValue(tree.GetChild(1)).Output();
 		}
 
 		public void ParseVarDecl(ITree tree)
@@ -141,8 +134,7 @@ namespace BGICompiler.Compiler
 				{
 					throw new Exception($"{child2.Line}: Invalid variable declaration!");
 				}
-				BGIValue bGIValue = new BGIValue(child2.GetChild(0));
-				bGIValue.Output();
+				new BGIValue(child2.GetChild(0)).Output();
 			}
 			else
 			{
@@ -196,11 +188,7 @@ namespace BGICompiler.Compiler
 
 		public void Compile(string script)
 		{
-			ANTLRStringStream input = new ANTLRStringStream(script);
-			bgitestLexer tokenSource = new bgitestLexer(input);
-			CommonTokenStream input2 = new CommonTokenStream(tokenSource);
-			bgitestParser bgitestParser = new bgitestParser(input2);
-			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope = bgitestParser.program();
+			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope = new bgitestParser(new CommonTokenStream(new bgitestLexer(new ANTLRStringStream(script)))).program();
 			Mstream = new MemoryStream();
 			Output = new BinaryWriter(Mstream);
 			CommonTree tree = astParserRuleReturnScope.Tree;
@@ -228,12 +216,12 @@ namespace BGICompiler.Compiler
 
 		public string Preprocessor(string[] lines)
 		{
-			string text = string.Empty;
+			string text = "";
 			int num = 0;
 			foreach (string text2 in lines)
 			{
 				text += "\r\n";
-				if (text2 == string.Empty || text2.StartsWith("//") || (num == 0 && text2.StartsWith("#")))
+				if (text2 == "" || text2.StartsWith("//") || (num == 0 && text2.StartsWith("#")))
 				{
 					continue;
 				}
@@ -264,13 +252,9 @@ namespace BGICompiler.Compiler
 						text3 = text3.Substring(0, text3.Length - 1);
 					}
 					bool flag = true;
-					if (text3.Contains("\t"))
+					if (text3.Contains("\t") && string.IsNullOrEmpty(text3.Split('\t')[0].Trim()))
 					{
-						string[] array = text3.Split('\t');
-						if (string.IsNullOrEmpty(array[0].Trim()))
-						{
-							flag = false;
-						}
+						flag = false;
 					}
 					if (flag)
 					{

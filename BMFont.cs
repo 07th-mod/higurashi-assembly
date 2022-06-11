@@ -81,7 +81,17 @@ public class BMFont
 		}
 	}
 
-	public int glyphCount => isValid ? mSaved.Count : 0;
+	public int glyphCount
+	{
+		get
+		{
+			if (!isValid)
+			{
+				return 0;
+			}
+			return mSaved.Count;
+		}
+	}
 
 	public string spriteName
 	{

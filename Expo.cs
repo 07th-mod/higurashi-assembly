@@ -4,12 +4,20 @@ internal class Expo : Ease
 {
 	public static double EaseIn(double t, double b, double c, double d)
 	{
-		return (t != 0.0) ? (c * Math.Pow(2.0, 10.0 * (t / d - 1.0)) + b - c * 0.001) : b;
+		if (t != 0.0)
+		{
+			return c * Math.Pow(2.0, 10.0 * (t / d - 1.0)) + b - c * 0.001;
+		}
+		return b;
 	}
 
 	public static double EaseOut(double t, double b, double c, double d)
 	{
-		return (t != d) ? (c * (0.0 - Math.Pow(2.0, -10.0 * t / d) + 1.0) + b) : (b + c);
+		if (t != d)
+		{
+			return c * (0.0 - Math.Pow(2.0, -10.0 * t / d) + 1.0) + b;
+		}
+		return b + c;
 	}
 
 	public static double EaseInOut(double t, double b, double c, double d)

@@ -30,7 +30,17 @@ public class UITooltip : MonoBehaviour
 
 	protected UIWidget[] mWidgets;
 
-	public static bool isVisible => mInstance != null && mInstance.mTarget == 1f;
+	public static bool isVisible
+	{
+		get
+		{
+			if (mInstance != null)
+			{
+				return mInstance.mTarget == 1f;
+			}
+			return false;
+		}
+	}
 
 	private void Awake()
 	{
@@ -86,10 +96,10 @@ public class UITooltip : MonoBehaviour
 		int i = 0;
 		for (int num = mWidgets.Length; i < num; i++)
 		{
-			UIWidget uIWidget = mWidgets[i];
-			Color color = uIWidget.color;
+			UIWidget obj = mWidgets[i];
+			Color color = obj.color;
 			color.a = val;
-			uIWidget.color = color;
+			obj.color = color;
 		}
 	}
 
@@ -119,9 +129,7 @@ public class UITooltip : MonoBehaviour
 			{
 				mPos.x = Mathf.Clamp01(mPos.x / (float)Screen.width);
 				mPos.y = Mathf.Clamp01(mPos.y / (float)Screen.height);
-				float orthographicSize = uiCamera.orthographicSize;
-				Vector3 lossyScale = mTrans.parent.lossyScale;
-				float num = orthographicSize / lossyScale.y;
+				float num = uiCamera.orthographicSize / mTrans.parent.lossyScale.y;
 				float num2 = (float)Screen.height * 0.5f / num;
 				Vector2 vector = new Vector2(num2 * mSize.x / (float)Screen.width, num2 * mSize.y / (float)Screen.height);
 				mPos.x = Mathf.Min(mPos.x, 1f - vector.x);

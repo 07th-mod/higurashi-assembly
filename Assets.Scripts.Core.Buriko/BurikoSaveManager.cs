@@ -8,21 +8,6 @@ namespace Assets.Scripts.Core.Buriko
 	{
 		private readonly Dictionary<int, SaveEntry> saveList;
 
-		public BurikoSaveManager()
-		{
-			saveList = new Dictionary<int, SaveEntry>();
-			for (int i = 0; i < 100; i++)
-			{
-				string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", i.ToString("D3")));
-				GetSaveData(i, path);
-			}
-			for (int j = 0; j < 3; j++)
-			{
-				string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", j.ToString("D1")));
-				GetSaveData(j + 100, path2);
-			}
-		}
-
 		public SaveEntry GetSaveInfoInSlot(int slot)
 		{
 			if (!saveList.ContainsKey(slot))
@@ -58,37 +43,35 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				try
 				{
-					SaveEntry saveEntry = new SaveEntry();
-					saveEntry.Path = path;
-					SaveEntry saveEntry2 = saveEntry;
+					SaveEntry saveEntry = new SaveEntry
+					{
+						Path = path
+					};
 					byte[] array = File.ReadAllBytes(path);
 					MGHelper.KeyEncode(array);
-					byte[] buffer = CLZF2.Decompress(array);
-					using (MemoryStream input = new MemoryStream(buffer))
+					using (MemoryStream input = new MemoryStream(CLZF2.Decompress(array)))
 					{
 						using (BinaryReader binaryReader = new BinaryReader(input))
 						{
-							string a = new string(binaryReader.ReadChars(4));
-							if (a != "MGSV")
+							if (new string(binaryReader.ReadChars(4)) != "MGSV")
 							{
 								throw new FileLoadException("Save file does not appear to be valid! Invalid header.");
 							}
-							int num = binaryReader.ReadInt32();
-							if (num != 1)
+							if (binaryReader.ReadInt32() != 1)
 							{
 								throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
 							}
-							saveEntry2.Time = DateTime.FromBinary(binaryReader.ReadInt64());
+							saveEntry.Time = DateTime.FromBinary(binaryReader.ReadInt64());
 							string textJp = binaryReader.ReadString();
-							string text = saveEntry2.Text = binaryReader.ReadString();
-							saveEntry2.TextJp = textJp;
+							string text = saveEntry.Text = binaryReader.ReadString();
+							saveEntry.TextJp = textJp;
 						}
 					}
 					if (saveList.ContainsKey(slot))
 					{
 						saveList.Remove(slot);
 					}
-					saveList.Add(slot, saveEntry2);
+					saveList.Add(slot, saveEntry);
 				}
 				catch (Exception ex)
 				{
@@ -101,6 +84,21 @@ namespace Assets.Scripts.Core.Buriko
 		public void UpdateSaveSlot(int slot)
 		{
 			GetSaveData(path: (slot >= 100) ? Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", (slot - 100).ToString("D1"))) : Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", slot.ToString("D3"))), slot: slot);
+		}
+
+		public BurikoSaveManager()
+		{
+			saveList = new Dictionary<int, SaveEntry>();
+			for (int i = 0; i < 100; i++)
+			{
+				string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", i.ToString("D3")));
+				GetSaveData(i, path);
+			}
+			for (int j = 0; j < 3; j++)
+			{
+				string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", j.ToString("D1")));
+				GetSaveData(j + 100, path2);
+			}
 		}
 	}
 }

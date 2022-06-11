@@ -44,7 +44,7 @@ public class SpringPosition : MonoBehaviour
 
 	private void Update()
 	{
-		float deltaTime = (!ignoreTimeScale) ? Time.deltaTime : RealTime.deltaTime;
+		float deltaTime = ignoreTimeScale ? RealTime.deltaTime : Time.deltaTime;
 		if (worldSpace)
 		{
 			if (mThreshold == 0f)

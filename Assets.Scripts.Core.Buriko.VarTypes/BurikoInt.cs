@@ -29,8 +29,7 @@ namespace Assets.Scripts.Core.Buriko.VarTypes
 
 		public IEnumerator<BurikoVariable> GetObjects()
 		{
-			return (from s in intlist
-			select new BurikoVariable(s)).GetEnumerator();
+			return intlist.Select((int s) => new BurikoVariable(s)).GetEnumerator();
 		}
 
 		public BurikoVariable GetObject(BurikoReference reference)
@@ -61,21 +60,22 @@ namespace Assets.Scripts.Core.Buriko.VarTypes
 			{
 				throw new Exception("Cannot serialize while Stringlist is null!");
 			}
-			BsonWriter bsonWriter = new BsonWriter(ms);
-			bsonWriter.CloseOutput = false;
-			using (BsonWriter jsonWriter = bsonWriter)
+			using (BsonWriter jsonWriter = new BsonWriter(ms)
 			{
-				JsonSerializer jsonSerializer = new JsonSerializer();
-				jsonSerializer.Serialize(jsonWriter, intlist);
+				CloseOutput = false
+			})
+			{
+				new JsonSerializer().Serialize(jsonWriter, intlist);
 			}
 		}
 
 		public void DeSerialize(MemoryStream ms)
 		{
-			BsonReader bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			bsonReader.ReadRootValueAsArray = true;
-			using (BsonReader reader = bsonReader)
+			using (BsonReader reader = new BsonReader(ms)
+			{
+				CloseInput = false,
+				ReadRootValueAsArray = true
+			})
 			{
 				JsonSerializer jsonSerializer = new JsonSerializer();
 				intlist = jsonSerializer.Deserialize<List<int>>(reader);

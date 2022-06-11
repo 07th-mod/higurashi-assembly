@@ -51,7 +51,11 @@ public class TweenVolume : UITweener
 	{
 		get
 		{
-			return (!(audioSource != null)) ? 0f : mSource.volume;
+			if (!(audioSource != null))
+			{
+				return 0f;
+			}
+			return mSource.volume;
 		}
 		set
 		{

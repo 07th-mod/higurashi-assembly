@@ -94,7 +94,7 @@ namespace Assets.Scripts.Core.Scene
 		public void ShakeScene(int speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
 		{
 			StopShake();
-			float num = (float)(speed * loopcount);
+			float num = speed * loopcount;
 			if (loopcount == 0)
 			{
 				num = 2.14748365E+09f;
@@ -139,21 +139,19 @@ namespace Assets.Scripts.Core.Scene
 			{
 				Logger.LogWarning("Failed to load mask '" + mask + "' for scene transition! Falling back to fade.");
 				FadeScene(time);
+				return;
 			}
-			else
-			{
-				SceneMaterial.shader = SceneTransitionShader;
-				SceneMaterial.SetTexture("_Mask", texture2D);
-				SceneMaterial.SetFloat("_Range", 0f);
-				SceneMaterial.SetFloat("_Fuzzyness", 0.32f);
-				iTween.ValueTo(base.gameObject, iTween.Hash("from", 0, "to", 1, "time", time / 1000f, "onupdate", "UpdateFadeProgress", "oncomplete", "HideScene"));
-				GameSystem.Instance.AddWait(new Wait(time / 1000f, WaitTypes.WaitForScene, HideScene));
-			}
+			SceneMaterial.shader = SceneTransitionShader;
+			SceneMaterial.SetTexture("_Mask", texture2D);
+			SceneMaterial.SetFloat("_Range", 0f);
+			SceneMaterial.SetFloat("_Fuzzyness", 0.32f);
+			iTween.ValueTo(base.gameObject, iTween.Hash("from", 0, "to", 1, "time", time / 1000f, "onupdate", "UpdateFadeProgress", "oncomplete", "HideScene"));
+			GameSystem.Instance.AddWait(new Wait(time / 1000f, WaitTypes.WaitForScene, HideScene));
 		}
 
 		public void ChangeSceneDepth(int depth)
 		{
-			sceneCamera.depth = (float)depth;
+			sceneCamera.depth = depth;
 		}
 
 		public void UpdateFadeProgress(float progress)
@@ -189,7 +187,7 @@ namespace Assets.Scripts.Core.Scene
 			int num = 1 << layerNum;
 			sceneCamera.cullingMask = num;
 			uiCamera.eventReceiverMask = num;
-			sceneCamera.depth = (float)scenenum;
+			sceneCamera.depth = scenenum;
 			LayerCount = layercount;
 			for (int i = 0; i <= LayerCount; i++)
 			{

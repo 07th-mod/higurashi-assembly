@@ -24,7 +24,17 @@ public class UIAtlas : MonoBehaviour
 
 		public float paddingBottom;
 
-		public bool hasPadding => paddingLeft != 0f || paddingRight != 0f || paddingTop != 0f || paddingBottom != 0f;
+		public bool hasPadding
+		{
+			get
+			{
+				if (paddingLeft == 0f && paddingRight == 0f && paddingTop == 0f)
+				{
+					return paddingBottom != 0f;
+				}
+				return true;
+			}
+		}
 	}
 
 	private enum Coordinates
@@ -65,7 +75,11 @@ public class UIAtlas : MonoBehaviour
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? material : mReplacement.spriteMaterial;
+			if (!(mReplacement != null))
+			{
+				return material;
+			}
+			return mReplacement.spriteMaterial;
 		}
 		set
 		{
@@ -131,13 +145,31 @@ public class UIAtlas : MonoBehaviour
 		}
 	}
 
-	public Texture texture => (mReplacement != null) ? mReplacement.texture : ((!(material != null)) ? null : material.mainTexture);
+	public Texture texture
+	{
+		get
+		{
+			if (!(mReplacement != null))
+			{
+				if (!(material != null))
+				{
+					return null;
+				}
+				return material.mainTexture;
+			}
+			return mReplacement.texture;
+		}
+	}
 
 	public float pixelSize
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? mPixelSize : mReplacement.pixelSize;
+			if (!(mReplacement != null))
+			{
+				return mPixelSize;
+			}
+			return mReplacement.pixelSize;
 		}
 		set
 		{
@@ -215,7 +247,11 @@ public class UIAtlas : MonoBehaviour
 					return mSprites[value];
 				}
 				MarkSpriteListAsChanged();
-				return (!mSpriteIndices.TryGetValue(name, out value)) ? null : mSprites[value];
+				if (!mSpriteIndices.TryGetValue(name, out value))
+				{
+					return null;
+				}
+				return mSprites[value];
 			}
 			int i = 0;
 			for (int count = mSprites.Count; i < count; i++)
@@ -337,7 +373,11 @@ public class UIAtlas : MonoBehaviour
 		{
 			return true;
 		}
-		return mReplacement != null && mReplacement.References(atlas);
+		if (!(mReplacement != null))
+		{
+			return false;
+		}
+		return mReplacement.References(atlas);
 	}
 
 	public static bool CheckIfRelated(UIAtlas a, UIAtlas b)
@@ -346,7 +386,11 @@ public class UIAtlas : MonoBehaviour
 		{
 			return false;
 		}
-		return a == b || a.References(b) || b.References(a);
+		if (!(a == b) && !a.References(b))
+		{
+			return b.References(a);
+		}
+		return true;
 	}
 
 	public void MarkAsChanged()
@@ -402,8 +446,8 @@ public class UIAtlas : MonoBehaviour
 		if (mSprites.Count == 0 && sprites.Count > 0 && (bool)material)
 		{
 			Texture mainTexture = material.mainTexture;
-			int width = (!(mainTexture != null)) ? 512 : mainTexture.width;
-			int height = (!(mainTexture != null)) ? 512 : mainTexture.height;
+			int width = (mainTexture != null) ? mainTexture.width : 512;
+			int height = (mainTexture != null) ? mainTexture.height : 512;
 			for (int i = 0; i < sprites.Count; i++)
 			{
 				Sprite sprite = sprites[i];

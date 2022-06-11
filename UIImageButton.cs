@@ -20,7 +20,11 @@ public class UIImageButton : MonoBehaviour
 		get
 		{
 			Collider component = GetComponent<Collider>();
-			return (bool)component && component.enabled;
+			if ((bool)component)
+			{
+				return component.enabled;
+			}
+			return false;
 		}
 		set
 		{
@@ -71,7 +75,7 @@ public class UIImageButton : MonoBehaviour
 		{
 			if (isEnabled)
 			{
-				SetSprite((!UICamera.IsHighlighted(base.gameObject)) ? normalSprite : hoverSprite);
+				SetSprite(UICamera.IsHighlighted(base.gameObject) ? hoverSprite : normalSprite);
 			}
 			else
 			{
@@ -84,7 +88,7 @@ public class UIImageButton : MonoBehaviour
 	{
 		if (isEnabled && target != null)
 		{
-			SetSprite((!isOver) ? normalSprite : hoverSprite);
+			SetSprite(isOver ? hoverSprite : normalSprite);
 		}
 	}
 

@@ -84,8 +84,8 @@ namespace Assets.Scripts.UI.Fragments
 				}
 				else if (GameSystem.Instance.GameState == GameState.FragmentScreen)
 				{
-					manager.ShowTitle((!GameSystem.Instance.UseEnglishText) ? fragment.TitleJp : fragment.Title);
-					manager.ShowDescription((!GameSystem.Instance.UseEnglishText) ? fragment.DescriptionJp : fragment.Description);
+					manager.ShowTitle(GameSystem.Instance.UseEnglishText ? fragment.Title : fragment.TitleJp);
+					manager.ShowDescription(GameSystem.Instance.UseEnglishText ? fragment.Description : fragment.DescriptionJp);
 				}
 			}
 		}

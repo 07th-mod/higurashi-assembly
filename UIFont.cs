@@ -53,7 +53,11 @@ public class UIFont : MonoBehaviour
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? mFont : mReplacement.bmFont;
+			if (!(mReplacement != null))
+			{
+				return mFont;
+			}
+			return mReplacement.bmFont;
 		}
 		set
 		{
@@ -72,7 +76,15 @@ public class UIFont : MonoBehaviour
 	{
 		get
 		{
-			return (mReplacement != null) ? mReplacement.texWidth : ((mFont == null) ? 1 : mFont.texWidth);
+			if (!(mReplacement != null))
+			{
+				if (mFont == null)
+				{
+					return 1;
+				}
+				return mFont.texWidth;
+			}
+			return mReplacement.texWidth;
 		}
 		set
 		{
@@ -91,7 +103,15 @@ public class UIFont : MonoBehaviour
 	{
 		get
 		{
-			return (mReplacement != null) ? mReplacement.texHeight : ((mFont == null) ? 1 : mFont.texHeight);
+			if (!(mReplacement != null))
+			{
+				if (mFont == null)
+				{
+					return 1;
+				}
+				return mFont.texHeight;
+			}
+			return mReplacement.texHeight;
 		}
 		set
 		{
@@ -106,15 +126,43 @@ public class UIFont : MonoBehaviour
 		}
 	}
 
-	public bool hasSymbols => (mReplacement != null) ? mReplacement.hasSymbols : (mSymbols != null && mSymbols.Count != 0);
+	public bool hasSymbols
+	{
+		get
+		{
+			if (!(mReplacement != null))
+			{
+				if (mSymbols != null)
+				{
+					return mSymbols.Count != 0;
+				}
+				return false;
+			}
+			return mReplacement.hasSymbols;
+		}
+	}
 
-	public List<BMSymbol> symbols => (!(mReplacement != null)) ? mSymbols : mReplacement.symbols;
+	public List<BMSymbol> symbols
+	{
+		get
+		{
+			if (!(mReplacement != null))
+			{
+				return mSymbols;
+			}
+			return mReplacement.symbols;
+		}
+	}
 
 	public UIAtlas atlas
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? mAtlas : mReplacement.atlas;
+			if (!(mReplacement != null))
+			{
+				return mAtlas;
+			}
+			return mReplacement.atlas;
 		}
 		set
 		{
@@ -188,13 +236,7 @@ public class UIFont : MonoBehaviour
 	}
 
 	[Obsolete("Use UIFont.premultipliedAlphaShader instead")]
-	public bool premultipliedAlpha
-	{
-		get
-		{
-			return premultipliedAlphaShader;
-		}
-	}
+	public bool premultipliedAlpha => premultipliedAlphaShader;
 
 	public bool premultipliedAlphaShader
 	{
@@ -247,7 +289,11 @@ public class UIFont : MonoBehaviour
 				return mReplacement.texture;
 			}
 			Material material = this.material;
-			return (!(material != null)) ? null : (material.mainTexture as Texture2D);
+			if (!(material != null))
+			{
+				return null;
+			}
+			return material.mainTexture as Texture2D;
 		}
 	}
 
@@ -259,7 +305,11 @@ public class UIFont : MonoBehaviour
 			{
 				return mReplacement.uvRect;
 			}
-			return (!(mAtlas != null) || sprite == null) ? new Rect(0f, 0f, 1f, 1f) : mUVRect;
+			if (!(mAtlas != null) || sprite == null)
+			{
+				return new Rect(0f, 0f, 1f, 1f);
+			}
+			return mUVRect;
 		}
 		set
 		{
@@ -279,7 +329,11 @@ public class UIFont : MonoBehaviour
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? mFont.spriteName : mReplacement.spriteName;
+			if (!(mReplacement != null))
+			{
+				return mFont.spriteName;
+			}
+			return mReplacement.spriteName;
 		}
 		set
 		{
@@ -295,7 +349,17 @@ public class UIFont : MonoBehaviour
 		}
 	}
 
-	public bool isValid => mDynamicFont != null || mFont.isValid;
+	public bool isValid
+	{
+		get
+		{
+			if (!(mDynamicFont != null))
+			{
+				return mFont.isValid;
+			}
+			return true;
+		}
+	}
 
 	[Obsolete("Use UIFont.defaultSize instead")]
 	public int size
@@ -406,13 +470,27 @@ public class UIFont : MonoBehaviour
 		}
 	}
 
-	public bool isDynamic => (!(mReplacement != null)) ? (mDynamicFont != null) : mReplacement.isDynamic;
+	public bool isDynamic
+	{
+		get
+		{
+			if (!(mReplacement != null))
+			{
+				return mDynamicFont != null;
+			}
+			return mReplacement.isDynamic;
+		}
+	}
 
 	public Font dynamicFont
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? mDynamicFont : mReplacement.dynamicFont;
+			if (!(mReplacement != null))
+			{
+				return mDynamicFont;
+			}
+			return mReplacement.dynamicFont;
 		}
 		set
 		{
@@ -436,7 +514,11 @@ public class UIFont : MonoBehaviour
 	{
 		get
 		{
-			return (!(mReplacement != null)) ? mDynamicFontStyle : mReplacement.dynamicFontStyle;
+			if (!(mReplacement != null))
+			{
+				return mDynamicFontStyle;
+			}
+			return mReplacement.dynamicFontStyle;
 		}
 		set
 		{
@@ -470,10 +552,9 @@ public class UIFont : MonoBehaviour
 
 	private void Trim()
 	{
-		Texture texture = mAtlas.texture;
-		if (texture != null && mSprite != null)
+		if (mAtlas.texture != null && mSprite != null)
 		{
-			Rect rect = NGUIMath.ConvertToPixels(mUVRect, this.texture.width, this.texture.height, round: true);
+			Rect rect = NGUIMath.ConvertToPixels(mUVRect, texture.width, texture.height, round: true);
 			Rect rect2 = new Rect(mSprite.x, mSprite.y, mSprite.width, mSprite.height);
 			int xMin = Mathf.RoundToInt(rect2.xMin - rect.xMin);
 			int yMin = Mathf.RoundToInt(rect2.yMin - rect.yMin);
@@ -493,7 +574,11 @@ public class UIFont : MonoBehaviour
 		{
 			return true;
 		}
-		return mReplacement != null && mReplacement.References(font);
+		if (!(mReplacement != null))
+		{
+			return false;
+		}
+		return mReplacement.References(font);
 	}
 
 	public static bool CheckIfRelated(UIFont a, UIFont b)
@@ -506,7 +591,11 @@ public class UIFont : MonoBehaviour
 		{
 			return true;
 		}
-		return a == b || a.References(b) || b.References(a);
+		if (!(a == b) && !a.References(b))
+		{
+			return b.References(a);
+		}
+		return true;
 	}
 
 	public void MarkAsChanged()
@@ -609,8 +698,7 @@ public class UIFont : MonoBehaviour
 
 	public void AddSymbol(string sequence, string spriteName)
 	{
-		BMSymbol symbol = GetSymbol(sequence, createIfMissing: true);
-		symbol.spriteName = spriteName;
+		GetSymbol(sequence, createIfMissing: true).spriteName = spriteName;
 		MarkAsChanged();
 	}
 

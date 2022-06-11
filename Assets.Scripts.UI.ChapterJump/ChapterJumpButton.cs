@@ -30,18 +30,19 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ChapterJumpScreen)
+			if (!isActive || UICamera.currentTouchID < -1 || GameSystem.Instance.GameState != GameState.ChapterJumpScreen)
 			{
-				StateChapterJump stateChapterJump = GameSystem.Instance.GetStateObject() as StateChapterJump;
-				if (stateChapterJump != null)
+				return;
+			}
+			StateChapterJump stateChapterJump = GameSystem.Instance.GetStateObject() as StateChapterJump;
+			if (stateChapterJump != null)
+			{
+				stateChapterJump.RequestLeave();
+				if (!(base.name == "Return"))
 				{
-					stateChapterJump.RequestLeave();
-					if (!(base.name == "Return"))
-					{
-						BurikoMemory.Instance.SetFlag("s_jump", ChapterNumber);
-						Debug.Log("Setting chapter to " + ChapterNumber);
-						BurikoScriptSystem.Instance.JumpToBlock("Game");
-					}
+					BurikoMemory.Instance.SetFlag("s_jump", ChapterNumber);
+					Debug.Log("Setting chapter to " + ChapterNumber);
+					BurikoScriptSystem.Instance.JumpToBlock("Game");
 				}
 			}
 		}
@@ -63,8 +64,11 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void Start()
 		{
-			TextMeshPro component = GetComponent<TextMeshPro>();
-			component.text = ((!GameSystem.Instance.UseEnglishText) ? Japanese : English);
+			if (TextMesh == null)
+			{
+				TextMesh = GetComponent<MeshRenderer>();
+			}
+			GetComponent<TextMeshPro>().text = (GameSystem.Instance.UseEnglishText ? English : Japanese);
 			if (!(base.name == "Return"))
 			{
 				if (BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear").BoolValue())

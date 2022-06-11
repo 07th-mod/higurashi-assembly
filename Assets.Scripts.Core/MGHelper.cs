@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using UnityEngine;
 
@@ -21,7 +20,7 @@ namespace Assets.Scripts.Core
 			69
 		};
 
-		private static string _savepath = string.Empty;
+		private static string _savepath = "";
 
 		private static bool isD3d9;
 
@@ -82,13 +81,13 @@ namespace Assets.Scripts.Core
 			{
 			case LayerAlignment.AlignTopleft:
 				vector = new Vector3(0f, 0f, 0f);
-				vector2 = new Vector3((float)width, 0f, 0f);
-				vector3 = new Vector3((float)width, (float)(-height), 0f);
-				vector4 = new Vector3(0f, (float)(-height), 0f);
+				vector2 = new Vector3(width, 0f, 0f);
+				vector3 = new Vector3(width, -height, 0f);
+				vector4 = new Vector3(0f, -height, 0f);
 				break;
 			case LayerAlignment.AlignBottomCenter:
-				vector = new Vector3(0f - num, (float)height, 0f);
-				vector2 = new Vector3(num, (float)height, 0f);
+				vector = new Vector3(0f - num, height, 0f);
+				vector2 = new Vector3(num, height, 0f);
 				vector3 = new Vector3(num, 0f, 0f);
 				vector4 = new Vector3(0f - num, 0f, 0f);
 				break;
@@ -174,10 +173,8 @@ namespace Assets.Scripts.Core
 			br.Write(v.HasValue);
 			if (v.HasValue)
 			{
-				Vector2 value = v.Value;
-				br.Write(value.x);
-				Vector2 value2 = v.Value;
-				br.Write(value2.y);
+				br.Write(v.Value.x);
+				br.Write(v.Value.y);
 			}
 		}
 
@@ -238,15 +235,9 @@ namespace Assets.Scripts.Core
 			{
 				return Application.persistentDataPath;
 			}
-			if (_savepath == string.Empty)
+			if (_savepath == "")
 			{
-				string text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				if (!Directory.Exists(text) || text == string.Empty)
-				{
-					text = Environment.ExpandEnvironmentVariables("%appdata%");
-				}
-				_savepath = Path.Combine(text, "Mangagamer\\higurashi08");
-				Directory.CreateDirectory(_savepath);
+				_savepath = Application.persistentDataPath;
 			}
 			return _savepath;
 		}
@@ -483,8 +474,9 @@ namespace Assets.Scripts.Core
 				return 417357;
 			case "selp_dd_0070":
 				return 71684;
+			default:
+				return 0;
 			}
-			return 0;
 		}
 
 		public static float Remap(this float value, float from1, float to1, float from2, float to2)

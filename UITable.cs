@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/Interaction/Table")]
@@ -48,18 +47,6 @@ public class UITable : UIWidgetContainer
 	protected bool mInitDone;
 
 	protected bool mReposition;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache0;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache1;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache2;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache3;
 
 	public bool repositionNow
 	{
@@ -151,7 +138,7 @@ public class UITable : UIWidgetContainer
 		float num = 0f;
 		float num2 = 0f;
 		int num3 = (columns <= 0) ? 1 : (children.Count / columns + 1);
-		int num4 = (columns <= 0) ? children.Count : columns;
+		int num4 = (columns > 0) ? columns : children.Count;
 		Bounds[,] array = new Bounds[num3, num4];
 		Bounds[] array2 = new Bounds[num4];
 		Bounds[] array3 = new Bounds[num3];
@@ -185,66 +172,26 @@ public class UITable : UIWidgetContainer
 			Bounds bounds3 = array2[num5];
 			Bounds bounds4 = array3[num6];
 			Vector3 localPosition = transform2.localPosition;
-			float num7 = num;
-			Vector3 extents = bounds2.extents;
-			float num8 = num7 + extents.x;
-			Vector3 center = bounds2.center;
-			localPosition.x = num8 - center.x;
-			float x = localPosition.x;
-			Vector3 max = bounds2.max;
-			float x2 = max.x;
-			Vector3 min = bounds2.min;
-			float num9 = x2 - min.x;
-			Vector3 max2 = bounds3.max;
-			float num10 = num9 - max2.x;
-			Vector3 min2 = bounds3.min;
-			localPosition.x = x - (Mathf.Lerp(0f, num10 + min2.x, pivotOffset.x) - padding.x);
+			localPosition.x = num + bounds2.extents.x - bounds2.center.x;
+			localPosition.x -= Mathf.Lerp(0f, bounds2.max.x - bounds2.min.x - bounds3.max.x + bounds3.min.x, pivotOffset.x) - padding.x;
 			if (direction == Direction.Down)
 			{
-				float num11 = 0f - num2;
-				Vector3 extents2 = bounds2.extents;
-				float num12 = num11 - extents2.y;
-				Vector3 center2 = bounds2.center;
-				localPosition.y = num12 - center2.y;
-				float y = localPosition.y;
-				Vector3 max3 = bounds2.max;
-				float y2 = max3.y;
-				Vector3 min3 = bounds2.min;
-				float num13 = y2 - min3.y;
-				Vector3 max4 = bounds4.max;
-				float num14 = num13 - max4.y;
-				Vector3 min4 = bounds4.min;
-				localPosition.y = y + (Mathf.Lerp(num14 + min4.y, 0f, pivotOffset.y) - padding.y);
+				localPosition.y = 0f - num2 - bounds2.extents.y - bounds2.center.y;
+				localPosition.y += Mathf.Lerp(bounds2.max.y - bounds2.min.y - bounds4.max.y + bounds4.min.y, 0f, pivotOffset.y) - padding.y;
 			}
 			else
 			{
-				float num15 = num2;
-				Vector3 extents3 = bounds2.extents;
-				float num16 = num15 + extents3.y;
-				Vector3 center3 = bounds2.center;
-				localPosition.y = num16 - center3.y;
-				float y3 = localPosition.y;
-				Vector3 max5 = bounds2.max;
-				float y4 = max5.y;
-				Vector3 min5 = bounds2.min;
-				float num17 = y4 - min5.y;
-				Vector3 max6 = bounds4.max;
-				float num18 = num17 - max6.y;
-				Vector3 min6 = bounds4.min;
-				localPosition.y = y3 - (Mathf.Lerp(0f, num18 + min6.y, pivotOffset.y) - padding.y);
+				localPosition.y = num2 + bounds2.extents.y - bounds2.center.y;
+				localPosition.y -= Mathf.Lerp(0f, bounds2.max.y - bounds2.min.y - bounds4.max.y + bounds4.min.y, pivotOffset.y) - padding.y;
 			}
-			float num19 = num;
-			Vector3 size = bounds3.size;
-			num = num19 + (size.x + padding.x * 2f);
+			num += bounds3.size.x + padding.x * 2f;
 			transform2.localPosition = localPosition;
 			if (++num5 >= columns && columns > 0)
 			{
 				num5 = 0;
 				num6++;
 				num = 0f;
-				float num20 = num2;
-				Vector3 size2 = bounds4.size;
-				num2 = num20 + (size2.y + padding.y * 2f);
+				num2 += bounds4.size.y + padding.y * 2f;
 			}
 		}
 		if (pivot == UIWidget.Pivot.TopLeft)
@@ -253,10 +200,8 @@ public class UITable : UIWidgetContainer
 		}
 		pivotOffset = NGUIMath.GetPivotOffset(pivot);
 		Bounds bounds5 = NGUIMath.CalculateRelativeWidgetBounds(base.transform);
-		Vector3 size3 = bounds5.size;
-		float num21 = Mathf.Lerp(0f, size3.x, pivotOffset.x);
-		Vector3 size4 = bounds5.size;
-		float num22 = Mathf.Lerp(0f - size4.y, 0f, pivotOffset.y);
+		float num7 = Mathf.Lerp(0f, bounds5.size.x, pivotOffset.x);
+		float num8 = Mathf.Lerp(0f - bounds5.size.y, 0f, pivotOffset.y);
 		Transform transform3 = base.transform;
 		for (int k = 0; k < transform3.childCount; k++)
 		{
@@ -264,13 +209,13 @@ public class UITable : UIWidgetContainer
 			SpringPosition component = child.GetComponent<SpringPosition>();
 			if (component != null)
 			{
-				component.target.x -= num21;
-				component.target.y -= num22;
+				component.target.x -= num7;
+				component.target.y -= num8;
 				continue;
 			}
 			Vector3 localPosition2 = child.localPosition;
-			localPosition2.x -= num21;
-			localPosition2.y -= num22;
+			localPosition2.x -= num7;
+			localPosition2.y -= num8;
 			child.localPosition = localPosition2;
 		}
 	}

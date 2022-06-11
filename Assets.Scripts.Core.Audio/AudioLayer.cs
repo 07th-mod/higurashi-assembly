@@ -137,20 +137,19 @@ namespace Assets.Scripts.Core.Audio
 				return -1f;
 			}
 			long decodedPosition = vorbisReader.DecodedPosition;
-			long totalSamples = vorbisReader.TotalSamples;
-			return (float)(totalSamples - decodedPosition) / (float)vorbisReader.SampleRate;
+			return (float)(vorbisReader.TotalSamples - decodedPosition) / (float)vorbisReader.SampleRate;
 		}
 
 		private IEnumerator WaitForLoad()
 		{
 			yield return new WaitForFixedUpdate();
 			yield return new WaitForFixedUpdate();
-			foreach (IVorbisStreamStatus vorbisStreamStatus in this.vorbisReader.Stats)
+			IVorbisStreamStatus[] stats = vorbisReader.Stats;
+			for (int i = 0; i < stats.Length; i++)
 			{
-				Debug.Log(vorbisStreamStatus.TotalPages);
+				Debug.Log(stats[i].TotalPages);
 			}
-			this.isReady = true;
-			yield break;
+			isReady = true;
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)
@@ -240,20 +239,21 @@ namespace Assets.Scripts.Core.Audio
 			{
 				OnFinishLoading();
 			}
-			if (isReady)
+			if (!isReady)
 			{
-				volume = audioController.GetVolumeByType(audioType);
-				audioSource.volume = volume * subVolume;
-				if (vorbisReader.DecodedPosition >= vorbisReader.TotalSamples)
+				return;
+			}
+			volume = audioController.GetVolumeByType(audioType);
+			audioSource.volume = volume * subVolume;
+			if (vorbisReader.DecodedPosition >= vorbisReader.TotalSamples)
+			{
+				if (audioSource.loop)
 				{
-					if (audioSource.loop)
-					{
-						vorbisReader.DecodedPosition = loopPoint;
-					}
-					else
-					{
-						OnAudioEnd();
-					}
+					vorbisReader.DecodedPosition = loopPoint;
+				}
+				else
+				{
+					OnAudioEnd();
 				}
 			}
 		}

@@ -29,22 +29,30 @@ namespace Assets.Scripts.UI.Fragments
 				return;
 			}
 			StateFragmentList stateFragmentList = instance.GetStateObject() as StateFragmentList;
-			if (stateFragmentList != null)
+			if (stateFragmentList == null)
 			{
-				switch (base.name)
+				return;
+			}
+			string name = base.name;
+			if (!(name == "PageLeft"))
+			{
+				if (!(name == "PageRight"))
 				{
-				case "PageLeft":
-					manager.ChangePage(-1);
-					break;
-				case "PageRight":
-					manager.ChangePage(1);
-					break;
-				case "ExitButton":
-					stateFragmentList.RequestLeave();
-					BurikoMemory.Instance.SetFlag("TipsMode", 0);
-					instance.CanSave = true;
-					break;
+					if (name == "ExitButton")
+					{
+						stateFragmentList.RequestLeave();
+						BurikoMemory.Instance.SetFlag("TipsMode", 0);
+						instance.CanSave = true;
+					}
 				}
+				else
+				{
+					manager.ChangePage(1);
+				}
+			}
+			else
+			{
+				manager.ChangePage(-1);
 			}
 		}
 	}

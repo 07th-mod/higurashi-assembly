@@ -35,59 +35,6 @@ namespace Assets.Scripts.Core.Buriko
 			private set;
 		}
 
-		public BurikoMemory()
-		{
-			memorylist = new Dictionary<string, BurikoMemoryEntry>();
-			string value = AssetManager.Instance.LoadTextDataString("localflags.txt");
-			List<BurikoFlagInfo> list = JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(value);
-			foreach (BurikoFlagInfo item in list)
-			{
-				if (variableReference.ContainsKey(item.Name))
-				{
-					Debug.LogError("Local variable " + item.Name + " already exists!");
-				}
-				else
-				{
-					variableReference.Add(item.Name, item.Id);
-				}
-			}
-			string value2 = AssetManager.Instance.LoadTextDataString("globalflags.txt");
-			List<BurikoFlagInfo> list2 = JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(value2);
-			foreach (BurikoFlagInfo item2 in list2)
-			{
-				if (variableReference.ContainsKey(item2.Name))
-				{
-					Debug.LogError("Local variable " + item2.Name + " already exists!");
-				}
-				else
-				{
-					variableReference.Add(item2.Name, item2.Id);
-				}
-			}
-			SetGlobalFlag("GMessageSpeed", 50);
-			SetGlobalFlag("GAutoSpeed", 50);
-			SetGlobalFlag("GAutoAdvSpeed", 50);
-			SetGlobalFlag("GWindowOpacity", 50);
-			SetGlobalFlag("GUsePrompts", 1);
-			SetGlobalFlag("GSlowSkip", 0);
-			SetGlobalFlag("GSkipUnread", 0);
-			SetGlobalFlag("GClickDuringAuto", 0);
-			SetGlobalFlag("GRightClickMenu", 1);
-			SetGlobalFlag("GVoiceVolume", 75);
-			SetGlobalFlag("GBGMVolume", 50);
-			SetGlobalFlag("GSEVolume", 50);
-			SetGlobalFlag("GCutVoiceOnClick", 0);
-			SetGlobalFlag("GUseSystemSound", 1);
-			SetGlobalFlag("GLanguage", 1);
-			SetGlobalFlag("GArtStyle", 1);
-			SetGlobalFlag("GHideButtons", 0);
-			SetGlobalFlag("GLastSavePage", 0);
-			SetFlag("LTextFade", 1);
-			SetFlag("LTextColor", new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue).ToInt());
-			Instance = this;
-			LoadGlobals();
-		}
-
 		private void LoadFlags()
 		{
 			for (int i = 0; i < 11; i++)
@@ -105,18 +52,14 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			int count = memorylist.Count;
 			scopeLevel--;
-			memorylist = (from a in memorylist
-			where a.Value.Scope <= scopeLevel
-			select a).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
+			memorylist = memorylist.Where((KeyValuePair<string, BurikoMemoryEntry> a) => a.Value.Scope <= scopeLevel).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
 			Debug.Log($"Dropping scope changed the number of objects in memory from {count} to {memorylist.Count}");
 		}
 
 		public void ResetScope()
 		{
 			scopeLevel = 0;
-			memorylist = (from a in memorylist
-			where a.Value.Scope <= scopeLevel
-			select a).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
+			memorylist = memorylist.Where((KeyValuePair<string, BurikoMemoryEntry> a) => a.Value.Scope <= scopeLevel).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
 		}
 
 		public bool SeenCG(string cg)
@@ -198,6 +141,7 @@ namespace Assets.Scripts.Core.Buriko
 			flags.Clear();
 			Color32 color = new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);
 			Instance.SetFlag("LTextColor", color.ToInt());
+			Instance.SetFlag("LTextFade", 1);
 		}
 
 		public BurikoVariable GetFlag(string flagname)
@@ -286,9 +230,10 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
 				{
-					BsonWriter bsonWriter = new BsonWriter(memoryStream);
-					bsonWriter.CloseOutput = false;
-					using (BsonWriter jsonWriter = bsonWriter)
+					using (BsonWriter jsonWriter = new BsonWriter(memoryStream)
+					{
+						CloseOutput = false
+					})
 					{
 						JsonSerializer jsonSerializer = new JsonSerializer();
 						binaryWriter.Write(memorylist.Count);
@@ -340,15 +285,17 @@ namespace Assets.Scripts.Core.Buriko
 				burikoObject.DeSerialize(ms);
 				memorylist.Add(key, new BurikoMemoryEntry(scope, burikoObject));
 			}
-			BsonReader bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			using (BsonReader reader = bsonReader)
+			using (BsonReader reader = new BsonReader(ms)
 			{
-				Dictionary<string, int> dictionary = jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
+				CloseInput = false
+			})
+			{
+				jsonSerializer.Deserialize<Dictionary<string, int>>(reader);
 			}
-			bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			using (BsonReader reader2 = bsonReader)
+			using (BsonReader reader2 = new BsonReader(ms)
+			{
+				CloseInput = false
+			})
 			{
 				flags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader2);
 			}
@@ -360,69 +307,71 @@ namespace Assets.Scripts.Core.Buriko
 			if (!File.Exists(path))
 			{
 				SetGlobalFlag("GUsePrompts", 1);
+				return;
 			}
-			else
+			byte[] array = File.ReadAllBytes(path);
+			MGHelper.KeyEncode(array);
+			byte[] buffer = CLZF2.Decompress(array);
+			try
 			{
-				byte[] array = File.ReadAllBytes(path);
-				MGHelper.KeyEncode(array);
-				byte[] buffer = CLZF2.Decompress(array);
-				try
+				JsonSerializer jsonSerializer = new JsonSerializer();
+				using (MemoryStream stream = new MemoryStream(buffer))
 				{
-					JsonSerializer jsonSerializer = new JsonSerializer();
-					using (MemoryStream stream = new MemoryStream(buffer))
+					using (BsonReader reader = new BsonReader(stream)
 					{
-						BsonReader bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						using (BsonReader reader = bsonReader)
-						{
-							globalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
-						}
-						bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						bsonReader.ReadRootValueAsArray = true;
-						using (BsonReader reader2 = bsonReader)
-						{
-							cgflags = jsonSerializer.Deserialize<List<string>>(reader2);
-						}
-						bsonReader = new BsonReader(stream);
-						bsonReader.CloseInput = false;
-						using (BsonReader reader3 = bsonReader)
-						{
-							readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader3);
-						}
+						CloseInput = false
+					})
+					{
+						globalFlags = jsonSerializer.Deserialize<Dictionary<int, int>>(reader);
+					}
+					using (BsonReader reader2 = new BsonReader(stream)
+					{
+						CloseInput = false,
+						ReadRootValueAsArray = true
+					})
+					{
+						cgflags = jsonSerializer.Deserialize<List<string>>(reader2);
+					}
+					using (BsonReader reader3 = new BsonReader(stream)
+					{
+						CloseInput = false
+					})
+					{
+						readText = jsonSerializer.Deserialize<Dictionary<string, List<int>>>(reader3);
 					}
 				}
-				catch (Exception arg)
-				{
-					Debug.LogWarning("Failed to load global data! Exception: " + arg);
-					return;
-				}
-				try
-				{
-					GameSystem.Instance.TextController.TextSpeed = GetGlobalFlag("GMessageSpeed").IntValue();
-					GameSystem.Instance.TextController.AutoSpeed = GetGlobalFlag("GAutoSpeed").IntValue();
-					GameSystem.Instance.TextController.AutoPageSpeed = GetGlobalFlag("GAutoAdvSpeed").IntValue();
-					GameSystem.Instance.MessageWindowOpacity = (float)GetGlobalFlag("GWindowOpacity").IntValue() / 100f;
-					GameSystem.Instance.UsePrompts = GetGlobalFlag("GUsePrompts").BoolValue();
-					GameSystem.Instance.SkipModeDelay = GetGlobalFlag("GSlowSkip").BoolValue();
-					GameSystem.Instance.SkipUnreadMessages = GetGlobalFlag("GSkipUnread").BoolValue();
-					GameSystem.Instance.ClickDuringAuto = GetGlobalFlag("GClickDuringAuto").BoolValue();
-					GameSystem.Instance.RightClickMenu = GetGlobalFlag("GRightClickMenu").BoolValue();
-					GameSystem.Instance.AudioController.VoiceVolume = (float)GetGlobalFlag("GVoiceVolume").IntValue() / 100f;
-					GameSystem.Instance.AudioController.BGMVolume = (float)GetGlobalFlag("GBGMVolume").IntValue() / 100f;
-					GameSystem.Instance.AudioController.SoundVolume = (float)GetGlobalFlag("GSEVolume").IntValue() / 100f;
-					GameSystem.Instance.AudioController.SystemVolume = (float)GetGlobalFlag("GSEVolume").IntValue() / 100f;
-					GameSystem.Instance.StopVoiceOnClick = GetGlobalFlag("GCutVoiceOnClick").BoolValue();
-					GameSystem.Instance.UseSystemSounds = GetGlobalFlag("GUseSystemSound").BoolValue();
-					GameSystem.Instance.UseEnglishText = GetGlobalFlag("GLanguage").BoolValue();
-					AssetManager.Instance.UseNewArt = GetGlobalFlag("GArtStyle").BoolValue();
-					GameSystem.Instance.AudioController.RefreshLayerVolumes();
-				}
-				catch (Exception message)
-				{
-					Debug.LogWarning(message);
-				}
 			}
+			catch (Exception arg)
+			{
+				Debug.LogWarning("Failed to load global data! Exception: " + arg);
+				return;
+			}
+			try
+			{
+				GameSystem.Instance.TextController.TextSpeed = GetGlobalFlag("GMessageSpeed").IntValue();
+				GameSystem.Instance.TextController.AutoSpeed = GetGlobalFlag("GAutoSpeed").IntValue();
+				GameSystem.Instance.TextController.AutoPageSpeed = GetGlobalFlag("GAutoAdvSpeed").IntValue();
+				GameSystem.Instance.MessageWindowOpacity = (float)GetGlobalFlag("GWindowOpacity").IntValue() / 100f;
+				GameSystem.Instance.UsePrompts = GetGlobalFlag("GUsePrompts").BoolValue();
+				GameSystem.Instance.SkipModeDelay = GetGlobalFlag("GSlowSkip").BoolValue();
+				GameSystem.Instance.SkipUnreadMessages = GetGlobalFlag("GSkipUnread").BoolValue();
+				GameSystem.Instance.ClickDuringAuto = GetGlobalFlag("GClickDuringAuto").BoolValue();
+				GameSystem.Instance.RightClickMenu = GetGlobalFlag("GRightClickMenu").BoolValue();
+				GameSystem.Instance.AudioController.VoiceVolume = (float)GetGlobalFlag("GVoiceVolume").IntValue() / 100f;
+				GameSystem.Instance.AudioController.BGMVolume = (float)GetGlobalFlag("GBGMVolume").IntValue() / 100f;
+				GameSystem.Instance.AudioController.SoundVolume = (float)GetGlobalFlag("GSEVolume").IntValue() / 100f;
+				GameSystem.Instance.AudioController.SystemVolume = (float)GetGlobalFlag("GSEVolume").IntValue() / 100f;
+				GameSystem.Instance.StopVoiceOnClick = GetGlobalFlag("GCutVoiceOnClick").BoolValue();
+				GameSystem.Instance.UseSystemSounds = GetGlobalFlag("GUseSystemSound").BoolValue();
+				GameSystem.Instance.UseEnglishText = GetGlobalFlag("GLanguage").BoolValue();
+				AssetManager.Instance.UseNewArt = GetGlobalFlag("GArtStyle").BoolValue();
+				GameSystem.Instance.AudioController.RefreshLayerVolumes();
+			}
+			catch (Exception message)
+			{
+				Debug.LogWarning(message);
+			}
+			Debug.Log(string.Format("Saikoroshi: {0} Hirukowashi: {1} Batsukoishi: {2}", GetGlobalFlag("GSaikoroshi"), GetGlobalFlag("GHirukowashi"), GetGlobalFlag("GBatsukoishi")));
 		}
 
 		public void SaveGlobals()
@@ -442,6 +391,55 @@ namespace Assets.Scripts.Core.Buriko
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
 			File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+		}
+
+		public BurikoMemory()
+		{
+			memorylist = new Dictionary<string, BurikoMemoryEntry>();
+			foreach (BurikoFlagInfo item in JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(AssetManager.Instance.LoadTextDataString("localflags.txt")))
+			{
+				if (variableReference.ContainsKey(item.Name))
+				{
+					Debug.LogError("Local variable " + item.Name + " already exists!");
+				}
+				else
+				{
+					variableReference.Add(item.Name, item.Id);
+				}
+			}
+			foreach (BurikoFlagInfo item2 in JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(AssetManager.Instance.LoadTextDataString("globalflags.txt")))
+			{
+				if (variableReference.ContainsKey(item2.Name))
+				{
+					Debug.LogError("Local variable " + item2.Name + " already exists!");
+				}
+				else
+				{
+					variableReference.Add(item2.Name, item2.Id);
+				}
+			}
+			SetGlobalFlag("GMessageSpeed", 50);
+			SetGlobalFlag("GAutoSpeed", 50);
+			SetGlobalFlag("GAutoAdvSpeed", 50);
+			SetGlobalFlag("GWindowOpacity", 50);
+			SetGlobalFlag("GUsePrompts", 1);
+			SetGlobalFlag("GSlowSkip", 0);
+			SetGlobalFlag("GSkipUnread", 0);
+			SetGlobalFlag("GClickDuringAuto", 0);
+			SetGlobalFlag("GRightClickMenu", 1);
+			SetGlobalFlag("GVoiceVolume", 75);
+			SetGlobalFlag("GBGMVolume", 50);
+			SetGlobalFlag("GSEVolume", 50);
+			SetGlobalFlag("GCutVoiceOnClick", 0);
+			SetGlobalFlag("GUseSystemSound", 1);
+			SetGlobalFlag("GLanguage", 1);
+			SetGlobalFlag("GArtStyle", 1);
+			SetGlobalFlag("GHideButtons", 0);
+			SetGlobalFlag("GLastSavePage", 0);
+			SetFlag("LTextFade", 1);
+			SetFlag("LTextColor", new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue).ToInt());
+			Instance = this;
+			LoadGlobals();
 		}
 	}
 }

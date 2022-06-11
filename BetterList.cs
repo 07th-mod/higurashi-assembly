@@ -23,21 +23,25 @@ public class BetterList<T>
 		}
 	}
 
+	[DebuggerHidden]
 	[DebuggerStepThrough]
 	public IEnumerator<T> GetEnumerator()
 	{
 		if (buffer != null)
 		{
-			for (int i = 0; i < size; i++)
+			int i = 0;
+			while (i < size)
 			{
 				yield return buffer[i];
+				int num = i + 1;
+				i = num;
 			}
 		}
 	}
 
 	private void AllocateMore()
 	{
-		T[] array = (buffer == null) ? new T[32] : new T[Mathf.Max(buffer.Length << 1, 32)];
+		T[] array = (buffer != null) ? new T[Mathf.Max(buffer.Length << 1, 32)] : new T[32];
 		if (buffer != null && size > 0)
 		{
 			buffer.CopyTo(array, 0);

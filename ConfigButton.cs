@@ -11,24 +11,29 @@ public class ConfigButton : MonoBehaviour
 
 	private void OnClick()
 	{
-		if (!(cooldown > 0f) && UICamera.currentTouchID >= -1)
+		if (cooldown > 0f || UICamera.currentTouchID < -1)
 		{
-			switch (base.name)
-			{
-			case "Return":
-				GameSystem.Instance.LeaveConfigScreen(null);
-				break;
-			}
-			AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
-			cooldown = 1f;
+			return;
 		}
+		string name = base.name;
+		if (!(name == "Return"))
+		{
+			if (name == "Switch")
+			{
+			}
+		}
+		else
+		{
+			GameSystem.Instance.LeaveConfigScreen(null);
+		}
+		AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
+		cooldown = 1f;
 	}
 
 	private void OnHover(bool ishover)
 	{
-		if (!(cooldown > 0f))
-		{
-		}
+		_ = cooldown;
+		_ = 0f;
 	}
 
 	private void Start()

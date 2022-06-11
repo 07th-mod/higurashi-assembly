@@ -43,7 +43,7 @@ namespace Assets.Scripts.Core.State
 
 		public void OnLeaveState()
 		{
-			Debug.Log("OnLeave StateExtraScreen " + isLeaving);
+			Debug.Log("OnLeave StateExtraScreen " + isLeaving.ToString());
 			if (!isLeaving)
 			{
 				extraScreen.Hide(delegate

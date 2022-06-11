@@ -13,7 +13,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				num *= -1;
 			}
-			base.transform.localPosition = new Vector3((float)num, 0f, 0f);
+			base.transform.localPosition = new Vector3(num, 0f, 0f);
 		}
 	}
 }

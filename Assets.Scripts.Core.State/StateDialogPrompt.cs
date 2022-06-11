@@ -27,17 +27,15 @@ namespace Assets.Scripts.Core.State
 					gameSystem.PopStateStack();
 				});
 				gameSystem.ExecuteActions();
+				return;
 			}
-			else
+			GameObject gameObject = UnityEngine.Object.Instantiate(gameSystem.PromptPrefab);
+			promptController = gameObject.GetComponent<PromptController>();
+			if (promptController == null)
 			{
-				GameObject gameObject = UnityEngine.Object.Instantiate(gameSystem.PromptPrefab);
-				promptController = gameObject.GetComponent<PromptController>();
-				if (promptController == null)
-				{
-					throw new Exception("Failed to instantiate promptController!");
-				}
-				promptController.Open(type, onYes, onNo);
+				throw new Exception("Failed to instantiate promptController!");
 			}
+			promptController.Open(type, onYes, onNo);
 		}
 
 		public PromptController GetPromptController()

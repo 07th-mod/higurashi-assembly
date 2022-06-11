@@ -23,35 +23,34 @@ namespace Assets.Scripts.UI.Tips
 		private void OnClick()
 		{
 			GameSystem instance = GameSystem.Instance;
-			if (instance.GameState == GameState.TipsScreen && isEnabled && manager.isActive && UICamera.currentTouchID >= -1)
+			if (instance.GameState != GameState.TipsScreen || !isEnabled || !manager.isActive || UICamera.currentTouchID < -1)
 			{
-				StateViewTips stateViewTips = instance.GetStateObject() as StateViewTips;
-				if (stateViewTips != null)
+				return;
+			}
+			StateViewTips stateViewTips = instance.GetStateObject() as StateViewTips;
+			if (stateViewTips == null)
+			{
+				return;
+			}
+			string name = base.name;
+			if (!(name == "PageLeft"))
+			{
+				if (!(name == "PageRight"))
 				{
-					string name = base.name;
-					if (name != null)
+					if (name == "ExitButton")
 					{
-						if (!(name == "PageLeft"))
-						{
-							if (!(name == "PageRight"))
-							{
-								if (name == "ExitButton")
-								{
-									stateViewTips.RequestLeave();
-									instance.CanSave = true;
-								}
-							}
-							else
-							{
-								manager.ChangePage(1);
-							}
-						}
-						else
-						{
-							manager.ChangePage(-1);
-						}
+						stateViewTips.RequestLeave();
+						instance.CanSave = true;
 					}
 				}
+				else
+				{
+					manager.ChangePage(1);
+				}
+			}
+			else
+			{
+				manager.ChangePage(-1);
 			}
 		}
 	}

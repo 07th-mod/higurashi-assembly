@@ -51,9 +51,9 @@ public class Polygon : MonoBehaviour
 	{
 		if (Application.isPlaying)
 		{
-			GetComponent<MeshCollider>().sharedMesh = GenerateMesh(PolygonCollider.GenerateFront, PolygonCollider.GenerateBack, PolygonCollider.GenerateSides, PolygonCollider.Extrude, PolygonCollider.Elevation, /*useNormals:*/ true, /*useUVS:*/ true, Vector2.one, Vector2.one, Vector2.one);
+			GetComponent<MeshCollider>().sharedMesh = GenerateMesh(PolygonCollider.GenerateFront, PolygonCollider.GenerateBack, PolygonCollider.GenerateSides, PolygonCollider.Extrude, PolygonCollider.Elevation, useNormals: true, useUVS: true, Vector2.one, Vector2.one, Vector2.one);
 		}
-		Mesh mesh = GenerateMesh(PolygonMesh.GenerateFront, PolygonMesh.GenerateBack, PolygonMesh.GenerateSides, PolygonMesh.Extrude, PolygonMesh.Elevation, /*useNormals:*/ true, /*useUVS:*/ true, FrontUVScale, BackUVScale, SideUVScale);
+		Mesh mesh = GenerateMesh(PolygonMesh.GenerateFront, PolygonMesh.GenerateBack, PolygonMesh.GenerateSides, PolygonMesh.Extrude, PolygonMesh.Elevation, useNormals: true, useUVS: true, FrontUVScale, BackUVScale, SideUVScale);
 		GetComponent<MeshFilter>().mesh = mesh;
 	}
 
@@ -138,7 +138,7 @@ public class Polygon : MonoBehaviour
 					{
 						Vector2 vector3 = Points[l];
 						num4 += (vector3 - b3).magnitude;
-						list2.Add(new Vector2((float)k * extrude * sideUVScale.x, ((l != 0) ? num4 : num3) * sideUVScale.y));
+						list2.Add(new Vector2((float)k * extrude * sideUVScale.x, ((l == 0) ? num3 : num4) * sideUVScale.y));
 						list2.Add(new Vector2((float)k * extrude * sideUVScale.x, num4 * sideUVScale.y));
 						b3 = vector3;
 					}
@@ -171,32 +171,36 @@ public class Polygon : MonoBehaviour
 		}
 		if (sides)
 		{
-			int item = num2 + Points.Count * 0 + Points.Count * 2 - 1;
+			int num5 = num2;
+			_ = Points.Count;
+			int item = num5 + 0 + Points.Count * 2 - 1;
 			int item2 = num2 + Points.Count * 2 + Points.Count * 2 - 1;
 			for (int n = 0; n < Points.Count; n++)
 			{
-				int num5 = num2 + Points.Count * 0 + n * 2;
-				int num6 = num2 + Points.Count * 2 + n * 2;
+				int num6 = num2;
+				_ = Points.Count;
+				int num7 = num6 + 0 + n * 2;
+				int num8 = num2 + Points.Count * 2 + n * 2;
 				if (counterClockwise)
 				{
 					list3.Add(item);
-					list3.Add(num5);
+					list3.Add(num7);
 					list3.Add(item2);
-					list3.Add(num5);
-					list3.Add(num6);
+					list3.Add(num7);
+					list3.Add(num8);
 					list3.Add(item2);
 				}
 				else
 				{
 					list3.Add(item);
 					list3.Add(item2);
-					list3.Add(num5);
-					list3.Add(num5);
+					list3.Add(num7);
+					list3.Add(num7);
 					list3.Add(item2);
-					list3.Add(num6);
+					list3.Add(num8);
 				}
-				item = num5 + 1;
-				item2 = num6 + 1;
+				item = num7 + 1;
+				item2 = num8 + 1;
 			}
 		}
 		mesh.triangles = list3.ToArray();
@@ -205,42 +209,42 @@ public class Polygon : MonoBehaviour
 			List<Vector3> list4 = new List<Vector3>();
 			if (front)
 			{
-				for (int num7 = 0; num7 < Points.Count; num7++)
+				for (int num9 = 0; num9 < Points.Count; num9++)
 				{
 					list4.Add(Vector3.back);
 				}
 			}
 			if (back)
 			{
-				for (int num8 = 0; num8 < Points.Count; num8++)
+				for (int num10 = 0; num10 < Points.Count; num10++)
 				{
 					list4.Add(Vector3.forward);
 				}
 			}
 			if (sides)
 			{
-				for (int num9 = 0; num9 < 2; num9++)
+				for (int num11 = 0; num11 < 2; num11++)
 				{
-					for (int num10 = 0; num10 < Points.Count; num10++)
+					for (int num12 = 0; num12 < Points.Count; num12++)
 					{
-						Vector2 a5 = Points[(num10 + Points.Count - 1) % Points.Count];
-						Vector2 vector4 = Points[num10];
-						Vector2 b4 = Points[(num10 + 1) % Points.Count];
+						Vector2 a5 = Points[(num12 + Points.Count - 1) % Points.Count];
+						Vector2 vector4 = Points[num12];
+						Vector2 b4 = Points[(num12 + 1) % Points.Count];
 						Vector2 normalized = (a5 - vector4).normalized;
 						Vector2 normalized2 = (vector4 - b4).normalized;
 						Vector2 vector5 = new Vector3(normalized.y, 0f - normalized.x, 0f).normalized;
 						Vector2 vector6 = new Vector3(normalized2.y, 0f - normalized2.x, 0f).normalized;
-						Vector2 vector7 = (vector5 + vector6).normalized;
+						Vector2 normalized3 = (vector5 + vector6).normalized;
 						if (counterClockwise)
 						{
-							vector7 *= -1f;
+							normalized3 *= -1f;
 							vector5 *= -1f;
 							vector6 *= -1f;
 						}
 						if (Vector2.Dot(vector5, vector6) > Mathf.Cos((float)Math.PI / 180f * SmoothAngle))
 						{
-							list4.Add(vector7);
-							list4.Add(vector7);
+							list4.Add(normalized3);
+							list4.Add(normalized3);
 						}
 						else
 						{

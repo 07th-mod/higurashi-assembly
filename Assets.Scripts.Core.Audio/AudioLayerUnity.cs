@@ -100,9 +100,13 @@ namespace Assets.Scripts.Core.Audio
 			}
 			if (audioClip != null)
 			{
-				UnityEngine.Object.Destroy(audioClip);
+				AudioClip ac = audioClip;
+				GameSystem.Instance.RegisterAction(delegate
+				{
+					UnityEngine.Object.Destroy(ac);
+				});
 			}
-			loadedName = string.Empty;
+			loadedName = "";
 			audioClip = null;
 			iTween.Stop(base.gameObject);
 		}
@@ -131,25 +135,24 @@ namespace Assets.Scripts.Core.Audio
 
 		private IEnumerator WaitForLoad(string filename, AudioType type)
 		{
-			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
-			if (!File.Exists(path))
+			string audioFilePath = AssetManager.Instance.GetAudioFilePath(filename, type);
+			if (!File.Exists(audioFilePath))
 			{
-				Debug.Log("Audio file does not exist: " + path);
+				Debug.Log("Audio file does not exist: " + audioFilePath);
 				yield break;
 			}
-			WWW audioLoader = new WWW("file:///" + path);
+			WWW audioLoader = new WWW("file:///" + audioFilePath);
 			yield return audioLoader;
-			this.loadedName = filename;
-			audioClip = audioLoader.GetAudioClip(false, type == AudioType.BGM);
+			loadedName = filename;
+			audioClip = audioLoader.GetAudioClip(threeD: false, type == AudioType.BGM);
 			while (audioClip.loadState != AudioDataLoadState.Loaded)
 			{
 				yield return null;
 			}
-			this.isLoading = false;
-			this.isLoaded = true;
-			this.loadCoroutine = null;
-			this.OnFinishLoading();
-			yield break;
+			isLoading = false;
+			isLoaded = true;
+			loadCoroutine = null;
+			OnFinishLoading();
 		}
 
 		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)

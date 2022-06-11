@@ -58,10 +58,10 @@ public abstract class UIBasicSprite : UIWidget
 	protected Flip mFlip;
 
 	[NonSerialized]
-	private Rect mInnerUV = default(Rect);
+	private Rect mInnerUV;
 
 	[NonSerialized]
-	private Rect mOuterUV = default(Rect);
+	private Rect mOuterUV;
 
 	public AdvancedType centerType = AdvancedType.Sliced;
 
@@ -150,7 +150,7 @@ public abstract class UIBasicSprite : UIWidget
 			{
 				Vector4 vector = border * pixelSize;
 				int num = Mathf.RoundToInt(vector.x + vector.z);
-				return Mathf.Max(base.minWidth, ((num & 1) != 1) ? num : (num + 1));
+				return Mathf.Max(base.minWidth, ((num & 1) == 1) ? (num + 1) : num);
 			}
 			return base.minWidth;
 		}
@@ -164,7 +164,7 @@ public abstract class UIBasicSprite : UIWidget
 			{
 				Vector4 vector = border * pixelSize;
 				int num = Mathf.RoundToInt(vector.y + vector.w);
-				return Mathf.Max(base.minHeight, ((num & 1) != 1) ? num : (num + 1));
+				return Mathf.Max(base.minHeight, ((num & 1) == 1) ? (num + 1) : num);
 			}
 			return base.minHeight;
 		}
@@ -191,7 +191,11 @@ public abstract class UIBasicSprite : UIWidget
 		get
 		{
 			Vector4 border = this.border;
-			return border.x != 0f || border.y != 0f || border.z != 0f || border.w != 0f;
+			if (border.x == 0f && border.y == 0f && border.z == 0f)
+			{
+				return border.w != 0f;
+			}
+			return true;
 		}
 	}
 
@@ -362,56 +366,56 @@ public abstract class UIBasicSprite : UIWidget
 		{
 			return;
 		}
-		Vector2 a = new Vector2(mInnerUV.width * (float)mainTexture.width, mInnerUV.height * (float)mainTexture.height);
-		a *= pixelSize;
-		if (mainTexture == null || a.x < 2f || a.y < 2f)
+		Vector2 vector = new Vector2(mInnerUV.width * (float)mainTexture.width, mInnerUV.height * (float)mainTexture.height);
+		vector *= pixelSize;
+		if (mainTexture == null || vector.x < 2f || vector.y < 2f)
 		{
 			return;
 		}
 		Color32 drawingColor = this.drawingColor;
 		Vector4 drawingDimensions = this.drawingDimensions;
-		Vector4 vector = default(Vector4);
+		Vector4 vector2 = default(Vector4);
 		if (mFlip == Flip.Horizontally || mFlip == Flip.Both)
 		{
-			vector.x = mInnerUV.xMax;
-			vector.z = mInnerUV.xMin;
+			vector2.x = mInnerUV.xMax;
+			vector2.z = mInnerUV.xMin;
 		}
 		else
 		{
-			vector.x = mInnerUV.xMin;
-			vector.z = mInnerUV.xMax;
+			vector2.x = mInnerUV.xMin;
+			vector2.z = mInnerUV.xMax;
 		}
 		if (mFlip == Flip.Vertically || mFlip == Flip.Both)
 		{
-			vector.y = mInnerUV.yMax;
-			vector.w = mInnerUV.yMin;
+			vector2.y = mInnerUV.yMax;
+			vector2.w = mInnerUV.yMin;
 		}
 		else
 		{
-			vector.y = mInnerUV.yMin;
-			vector.w = mInnerUV.yMax;
+			vector2.y = mInnerUV.yMin;
+			vector2.w = mInnerUV.yMax;
 		}
 		float x = drawingDimensions.x;
 		float num = drawingDimensions.y;
-		float x2 = vector.x;
-		float y = vector.y;
-		for (; num < drawingDimensions.w; num += a.y)
+		float x2 = vector2.x;
+		float y = vector2.y;
+		for (; num < drawingDimensions.w; num += vector.y)
 		{
 			x = drawingDimensions.x;
-			float num2 = num + a.y;
-			float y2 = vector.w;
+			float num2 = num + vector.y;
+			float y2 = vector2.w;
 			if (num2 > drawingDimensions.w)
 			{
-				y2 = Mathf.Lerp(vector.y, vector.w, (drawingDimensions.w - num) / a.y);
+				y2 = Mathf.Lerp(vector2.y, vector2.w, (drawingDimensions.w - num) / vector.y);
 				num2 = drawingDimensions.w;
 			}
-			for (; x < drawingDimensions.z; x += a.x)
+			for (; x < drawingDimensions.z; x += vector.x)
 			{
-				float num3 = x + a.x;
-				float x3 = vector.z;
+				float num3 = x + vector.x;
+				float x3 = vector2.z;
 				if (num3 > drawingDimensions.z)
 				{
-					x3 = Mathf.Lerp(vector.x, vector.z, (drawingDimensions.z - x) / a.x);
+					x3 = Mathf.Lerp(vector2.x, vector2.z, (drawingDimensions.z - x) / vector.x);
 					num3 = drawingDimensions.z;
 				}
 				verts.Add(new Vector3(x, num));
@@ -527,7 +531,7 @@ public abstract class UIBasicSprite : UIWidget
 					mTempUVs[1].y = Mathf.Lerp(drawingUVs.y, drawingUVs.w, t2);
 					mTempUVs[2].y = mTempUVs[1].y;
 					mTempUVs[3].y = mTempUVs[0].y;
-					float value = mInvert ? (mFillAmount * 2f - (float)(1 - j)) : (fillAmount * 2f - (float)j);
+					float value = (!mInvert) ? (fillAmount * 2f - (float)j) : (mFillAmount * 2f - (float)(1 - j));
 					if (RadialCut(mTempPos, mTempUVs, Mathf.Clamp01(value), !mInvert, NGUIMath.RepeatIndex(j + 3, 4)))
 					{
 						for (int k = 0; k < 4; k++)
@@ -584,7 +588,7 @@ public abstract class UIBasicSprite : UIWidget
 					mTempUVs[1].y = Mathf.Lerp(drawingUVs.y, drawingUVs.w, t8);
 					mTempUVs[2].y = mTempUVs[1].y;
 					mTempUVs[3].y = mTempUVs[0].y;
-					float value2 = (!mInvert) ? (mFillAmount * 4f - (float)(3 - NGUIMath.RepeatIndex(l + 2, 4))) : (mFillAmount * 4f - (float)NGUIMath.RepeatIndex(l + 2, 4));
+					float value2 = mInvert ? (mFillAmount * 4f - (float)NGUIMath.RepeatIndex(l + 2, 4)) : (mFillAmount * 4f - (float)(3 - NGUIMath.RepeatIndex(l + 2, 4)));
 					if (RadialCut(mTempPos, mTempUVs, Mathf.Clamp01(value2), mInvert, NGUIMath.RepeatIndex(l + 2, 4)))
 					{
 						for (int m = 0; m < 4; m++)
@@ -621,15 +625,15 @@ public abstract class UIBasicSprite : UIWidget
 		}
 		Color32 drawingColor = this.drawingColor;
 		Vector4 drawingDimensions = this.drawingDimensions;
-		Vector2 a = new Vector2(mInnerUV.width * (float)mainTexture.width, mInnerUV.height * (float)mainTexture.height);
-		a *= pixelSize;
-		if (a.x < 1f)
+		Vector2 vector2 = new Vector2(mInnerUV.width * (float)mainTexture.width, mInnerUV.height * (float)mainTexture.height);
+		vector2 *= pixelSize;
+		if (vector2.x < 1f)
 		{
-			a.x = 1f;
+			vector2.x = 1f;
 		}
-		if (a.y < 1f)
+		if (vector2.y < 1f)
 		{
-			a.y = 1f;
+			vector2.y = 1f;
 		}
 		mTempPos[0].x = drawingDimensions.x;
 		mTempPos[0].y = drawingDimensions.y;
@@ -691,23 +695,23 @@ public abstract class UIBasicSprite : UIWidget
 						float y2 = mTempPos[num2].y;
 						float x3 = mTempUVs[i].x;
 						float y3 = mTempUVs[j].y;
-						for (float num3 = y; num3 < y2; num3 += a.y)
+						for (float num3 = y; num3 < y2; num3 += vector2.y)
 						{
 							float num4 = x;
 							float num5 = mTempUVs[num2].y;
-							float num6 = num3 + a.y;
+							float num6 = num3 + vector2.y;
 							if (num6 > y2)
 							{
-								num5 = Mathf.Lerp(y3, num5, (y2 - num3) / a.y);
+								num5 = Mathf.Lerp(y3, num5, (y2 - num3) / vector2.y);
 								num6 = y2;
 							}
-							for (; num4 < x2; num4 += a.x)
+							for (; num4 < x2; num4 += vector2.x)
 							{
-								float num7 = num4 + a.x;
+								float num7 = num4 + vector2.x;
 								float num8 = mTempUVs[num].x;
 								if (num7 > x2)
 								{
-									num8 = Mathf.Lerp(x3, num8, (x2 - num4) / a.x);
+									num8 = Mathf.Lerp(x3, num8, (x2 - num4) / vector2.x);
 									num7 = x2;
 								}
 								Fill(verts, uvs, cols, num4, num7, num3, num6, x3, num8, y3, num5, drawingColor);
@@ -730,13 +734,13 @@ public abstract class UIBasicSprite : UIWidget
 						float x6 = mTempUVs[i].x;
 						float y6 = mTempUVs[j].y;
 						float y7 = mTempUVs[num2].y;
-						for (float num9 = x4; num9 < x5; num9 += a.x)
+						for (float num9 = x4; num9 < x5; num9 += vector2.x)
 						{
-							float num10 = num9 + a.x;
+							float num10 = num9 + vector2.x;
 							float num11 = mTempUVs[num].x;
 							if (num10 > x5)
 							{
-								num11 = Mathf.Lerp(x6, num11, (x5 - num9) / a.x);
+								num11 = Mathf.Lerp(x6, num11, (x5 - num9) / vector2.x);
 								num10 = x5;
 							}
 							Fill(verts, uvs, cols, num9, num10, y4, y5, x6, num11, y6, y7, drawingColor);
@@ -758,13 +762,13 @@ public abstract class UIBasicSprite : UIWidget
 						float x9 = mTempUVs[i].x;
 						float x10 = mTempUVs[num].x;
 						float y10 = mTempUVs[j].y;
-						for (float num12 = y8; num12 < y9; num12 += a.y)
+						for (float num12 = y8; num12 < y9; num12 += vector2.y)
 						{
 							float num13 = mTempUVs[num2].y;
-							float num14 = num12 + a.y;
+							float num14 = num12 + vector2.y;
 							if (num14 > y9)
 							{
-								num13 = Mathf.Lerp(y10, num13, (y9 - num12) / a.y);
+								num13 = Mathf.Lerp(y10, num13, (y9 - num12) / vector2.y);
 								num14 = y9;
 							}
 							Fill(verts, uvs, cols, x7, x8, num12, num14, x9, x10, y10, num13, drawingColor);

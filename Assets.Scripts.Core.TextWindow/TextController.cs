@@ -34,29 +34,23 @@ namespace Assets.Scripts.Core.TextWindow
 
 		private float timePerLine = 1f;
 
-		private string txt = string.Empty;
+		private string txt = "";
 
-		private string englishtext = string.Empty;
+		private string englishtext = "";
 
-		private string japanesetext = string.Empty;
+		private string japanesetext = "";
 
-		private string englishprev = string.Empty;
+		private string englishprev = "";
 
-		private string japaneseprev = string.Empty;
+		private string japaneseprev = "";
 
-		public string NameFormat = string.Empty;
+		public string NameFormat = "";
 
 		public static Color32 TextColor = Color.white;
 
 		private BurikoTextModes lastMode;
 
 		private List<TextCharacter> charList = new List<TextCharacter>();
-
-		public TextController()
-		{
-			gameSystem = GameSystem.Instance;
-			TextArea = GameObject.FindGameObjectWithTag("TextArea").GetComponent<TextMeshPro>();
-		}
 
 		public bool IsTyping()
 		{
@@ -100,15 +94,13 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public Vector3 GetCarretPosition()
 		{
-			if (TextArea.text == string.Empty)
+			if (TextArea.text == "")
 			{
 				return Vector3.zero;
 			}
 			TMP_LineInfo tMP_LineInfo = TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1];
-			Vector3 localPosition = TextArea.gameObject.transform.localPosition;
-			float x = localPosition.x + (float)Mathf.RoundToInt(20f + TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1].lineExtents.max.x);
-			Vector3 localPosition2 = TextArea.gameObject.transform.localPosition;
-			float y = localPosition2.y + TextArea.textInfo.characterInfo[tMP_LineInfo.lastCharacterIndex].baseLine + 12f;
+			float x = TextArea.gameObject.transform.localPosition.x + (float)Mathf.RoundToInt(20f + TextArea.textInfo.lineInfo[TextArea.textInfo.lineCount - 1].lineExtents.max.x);
+			float y = TextArea.gameObject.transform.localPosition.y + TextArea.textInfo.characterInfo[tMP_LineInfo.lastCharacterIndex].baseLine + 12f;
 			return new Vector3(x, y, 0f);
 		}
 
@@ -126,6 +118,39 @@ namespace Assets.Scripts.Core.TextWindow
 		{
 			appendNext = append;
 			prevAppendState = append;
+		}
+
+		public void TypeTextImmediatelyNoClear(string text, BurikoTextModes textMode)
+		{
+			if (appendNext)
+			{
+				txt = text;
+				if (GameSystem.Instance.UseEnglishText)
+				{
+					englishprev = text;
+				}
+				else
+				{
+					japaneseprev = text;
+				}
+			}
+			else
+			{
+				txt = text;
+				if (GameSystem.Instance.UseEnglishText)
+				{
+					englishprev = text;
+				}
+				else
+				{
+					japaneseprev = text;
+				}
+			}
+			string text2 = txt;
+			foreach (char character in text2)
+			{
+				charList.Add(new TextCharacter(character, 0f, 0f));
+			}
 		}
 
 		public void TypeTextImmediately(string text)
@@ -217,21 +242,21 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public void ClearText()
 		{
-			TextArea.text = string.Empty;
+			TextArea.text = "";
 			appendNext = false;
 			charList.Clear();
 			isFading = false;
 			englishprev = englishtext;
 			japaneseprev = japanesetext;
-			englishtext = string.Empty;
-			japanesetext = string.Empty;
-			txt = string.Empty;
+			englishtext = "";
+			japanesetext = "";
+			txt = "";
 			AudioController.Instance.ClearVoiceQueue();
 		}
 
 		public void UpdateTextArea()
 		{
-			string text = string.Empty;
+			string text = "";
 			if (textTimeRemaining <= 0f)
 			{
 				if (isFading)
@@ -245,7 +270,7 @@ namespace Assets.Scripts.Core.TextWindow
 			}
 			foreach (TextCharacter char2 in charList)
 			{
-				text = ((!isFading) ? (text + char2.GetCharacter()) : (text + char2.GetCharacter(Time.deltaTime)));
+				text = ((!isFading) ? (text + char2.GetCharacter().ToString()) : (text + char2.GetCharacter(Time.deltaTime)));
 			}
 			if (textTimeRemaining > 0f)
 			{
@@ -258,7 +283,7 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public void SetTextPoint(int x, int y)
 		{
-			string text = string.Empty;
+			string text = "";
 			int num = 0;
 			if (!appendNext)
 			{
@@ -291,18 +316,23 @@ namespace Assets.Scripts.Core.TextWindow
 		private void AddText(string str, int displayimmediate, bool isFade, bool addToTime)
 		{
 			float num = (float)(100 - TextSpeed) / 100f * 2f;
+			float num2 = num;
 			if (gameSystem.IsAuto)
 			{
 				num = (float)(100 - AutoSpeed) / 100f * 2f;
 			}
 			if (OverrideTextSpeed != -1)
 			{
-				num = (float)(100 - OverrideTextSpeed) / 100f * 2f;
+				num = (float)(128 - OverrideTextSpeed) / 128f * 2f;
+				if (num < 0.1f && num2 > 0.1f)
+				{
+					num = 0.1f;
+				}
 			}
-			int num2 = 1;
+			int num3 = 1;
 			if (!GameSystem.Instance.UseEnglishText)
 			{
-				num2 = 2;
+				num3 = 2;
 			}
 			bool flag = false;
 			bool flag2 = false;
@@ -316,7 +346,7 @@ namespace Assets.Scripts.Core.TextWindow
 				{
 					flag2 = true;
 				}
-				if (!isFade || flag || flag2)
+				if (!isFade | flag | flag2)
 				{
 					charList.Add(new TextCharacter(c, 0f, 0f));
 					if (c == '>')
@@ -338,31 +368,39 @@ namespace Assets.Scripts.Core.TextWindow
 					charList.Add(new TextCharacter(c, textTimeRemaining, textTimeRemaining + timeForFade));
 					if (addToTime)
 					{
-						textTimeRemaining += timePerChar * num * (float)num2;
+						textTimeRemaining += timePerChar * num * (float)num3;
 					}
 				}
 			}
 		}
 
-		private void CreateText(string name, string text, BurikoTextModes textMode)
+		private void CreateText(string name, string text, BurikoTextModes textMode, bool noUpdate = false)
 		{
-			isFading = !gameSystem.IsSkipping;
+			isFading = (!gameSystem.IsSkipping && !noUpdate);
 			string text2 = string.Format(NameFormat, name);
 			if (appendNext)
 			{
 				int length = txt.Length;
 				txt += text;
 				string text3 = txt;
-				string str = text3.Substring(length);
-				AddText(str, 0, isFading, addToTime: true);
+				string text4 = text3.Substring(length);
+				if (noUpdate)
+				{
+					AddText(text4, text4.Length, isFade: false, addToTime: false);
+				}
+				else
+				{
+					AddText(text4, 0, isFading, addToTime: true);
+				}
 				txt = text3;
 			}
 			else
 			{
 				charList.Clear();
+				string text3 = text;
 				int length2 = text2.Length;
-				AddText(text, length2, isFading, addToTime: true);
-				txt = text;
+				AddText(text3, length2, isFading, addToTime: true);
+				txt = text3;
 			}
 			if (isFading)
 			{
@@ -376,7 +414,7 @@ namespace Assets.Scripts.Core.TextWindow
 					break;
 				}
 			}
-			else
+			else if (!noUpdate)
 			{
 				UpdateTextArea();
 			}
@@ -416,7 +454,7 @@ namespace Assets.Scripts.Core.TextWindow
 			}
 		}
 
-		public void SetText(string name, string text, BurikoTextModes textMode, int language)
+		public void SetText(string name, string text, BurikoTextModes textMode, int language, bool skipUpdate = false)
 		{
 			if (!appendNext)
 			{
@@ -433,8 +471,9 @@ namespace Assets.Scripts.Core.TextWindow
 				{
 					japanesetext = text;
 				}
+				return;
 			}
-			else if (language == 2 && !GameSystem.Instance.UseEnglishText)
+			if (language == 2 && !GameSystem.Instance.UseEnglishText)
 			{
 				if (englishprev.EndsWith(",") || englishprev.EndsWith(".") || englishprev.EndsWith("!") || englishprev.EndsWith("?"))
 				{
@@ -453,72 +492,83 @@ namespace Assets.Scripts.Core.TextWindow
 				{
 					englishtext = text;
 				}
+				return;
+			}
+			if (textTimeRemaining < 0f)
+			{
+				textTimeRemaining = 0f;
+				isFading = false;
+			}
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				englishprev = txt;
+				englishtext += text;
 			}
 			else
 			{
-				if (textTimeRemaining < 0f)
+				japaneseprev = txt;
+				japanesetext += text;
+			}
+			prevAppendState = appendNext;
+			if (language == 0)
+			{
+				if (!GameSystem.Instance.UseEnglishText)
 				{
-					textTimeRemaining = 0f;
-					isFading = false;
-				}
-				if (GameSystem.Instance.UseEnglishText)
-				{
-					englishprev = txt;
-					englishtext += text;
+					englishprev = englishtext;
 				}
 				else
 				{
-					japaneseprev = txt;
+					japaneseprev = japanesetext;
+				}
+				if (appendNext)
+				{
+					englishtext += text;
 					japanesetext += text;
 				}
-				prevAppendState = appendNext;
-				if (language == 0)
+				else
 				{
-					if (!GameSystem.Instance.UseEnglishText)
-					{
-						englishprev = englishtext;
-					}
-					else
-					{
-						japaneseprev = japanesetext;
-					}
-					if (appendNext)
-					{
-						englishtext += text;
-						japanesetext += text;
-					}
-					else
-					{
-						englishtext = text;
-						japanesetext = text;
-					}
+					englishtext = text;
+					japanesetext = text;
 				}
-				if (!gameSystem.MessageBoxVisible)
+			}
+			if (!gameSystem.MessageBoxVisible)
+			{
+				if (skipUpdate)
 				{
-					if (gameSystem.IsSkipping)
-					{
-						gameSystem.MainUIController.ShowMessageBox();
-						CreateText(name, text, textMode);
-						appendNext = (textMode != BurikoTextModes.Normal);
-						gameSystem.ExecuteActions();
-					}
-					else
-					{
-						gameSystem.MainUIController.FadeIn(0.2f);
-						gameSystem.AddWait(new Wait(0.2f, WaitTypes.WaitForMove, delegate
-						{
-							CreateText(name, text, textMode);
-							appendNext = (textMode != BurikoTextModes.Normal);
-						}));
-					}
+					CreateText(name, text, textMode, noUpdate: true);
+					appendNext = (textMode != BurikoTextModes.Normal);
+					gameSystem.ExecuteActions();
+					return;
+				}
+				if (gameSystem.IsSkipping)
+				{
+					gameSystem.MainUIController.ShowMessageBox();
+					CreateText(name, text, textMode);
+					appendNext = (textMode != BurikoTextModes.Normal);
+					gameSystem.ExecuteActions();
 				}
 				else
 				{
-					CreateText(name, text, textMode);
-					appendNext = (textMode != BurikoTextModes.Normal);
+					gameSystem.MainUIController.FadeIn(0.2f);
+					gameSystem.AddWait(new Wait(0.2f, WaitTypes.WaitForMove, delegate
+					{
+						CreateText(name, text, textMode);
+						appendNext = (textMode != BurikoTextModes.Normal);
+					}));
 				}
-				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				CreateText(name, text, textMode);
+				appendNext = (textMode != BurikoTextModes.Normal);
+			}
+			gameSystem.ExecuteActions();
+		}
+
+		public TextController()
+		{
+			gameSystem = GameSystem.Instance;
+			TextArea = GameObject.FindGameObjectWithTag("TextArea").GetComponent<TextMeshPro>();
 		}
 
 		public void Update()

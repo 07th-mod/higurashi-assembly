@@ -44,7 +44,11 @@ public class TweenPosition : UITweener
 	{
 		get
 		{
-			return (!worldSpace) ? cachedTransform.localPosition : cachedTransform.position;
+			if (!worldSpace)
+			{
+				return cachedTransform.localPosition;
+			}
+			return cachedTransform.position;
 		}
 		set
 		{

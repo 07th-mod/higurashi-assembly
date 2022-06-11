@@ -88,7 +88,7 @@ public class UIInput : MonoBehaviour
 	protected string mValue;
 
 	[NonSerialized]
-	protected string mDefaultText = string.Empty;
+	protected string mDefaultText = "";
 
 	[NonSerialized]
 	protected Color mDefaultColor = Color.white;
@@ -105,9 +105,9 @@ public class UIInput : MonoBehaviour
 	[NonSerialized]
 	protected bool mLoadSavedValue = true;
 
-	protected static int mDrawStart;
+	protected static int mDrawStart = 0;
 
-	protected static string mLastIME = string.Empty;
+	protected static string mLastIME = "";
 
 	[NonSerialized]
 	protected int mSelectionStart;
@@ -131,7 +131,7 @@ public class UIInput : MonoBehaviour
 	protected float mLastAlpha;
 
 	[NonSerialized]
-	protected string mCached = string.Empty;
+	protected string mCached = "";
 
 	[NonSerialized]
 	protected int mSelectMe = -1;
@@ -160,7 +160,17 @@ public class UIInput : MonoBehaviour
 		}
 	}
 
-	public bool inputShouldBeHidden => hideInput && label != null && !label.multiLine && inputType != InputType.Password;
+	public bool inputShouldBeHidden
+	{
+		get
+		{
+			if (hideInput && label != null && !label.multiLine)
+			{
+				return inputType != InputType.Password;
+			}
+			return false;
+		}
+	}
 
 	[Obsolete("Use UIInput.value instead")]
 	public string text
@@ -264,7 +274,11 @@ public class UIInput : MonoBehaviour
 	{
 		get
 		{
-			return (!isSelected) ? value.Length : mSelectionEnd;
+			if (!isSelected)
+			{
+				return value.Length;
+			}
+			return mSelectionEnd;
 		}
 		set
 		{
@@ -280,7 +294,11 @@ public class UIInput : MonoBehaviour
 	{
 		get
 		{
-			return (!isSelected) ? value.Length : mSelectionStart;
+			if (!isSelected)
+			{
+				return value.Length;
+			}
+			return mSelectionStart;
 		}
 		set
 		{
@@ -296,7 +314,11 @@ public class UIInput : MonoBehaviour
 	{
 		get
 		{
-			return (!isSelected) ? value.Length : mSelectionEnd;
+			if (!isSelected)
+			{
+				return value.Length;
+			}
+			return mSelectionEnd;
 		}
 		set
 		{
@@ -314,7 +336,7 @@ public class UIInput : MonoBehaviour
 	{
 		if (string.IsNullOrEmpty(val))
 		{
-			return string.Empty;
+			return "";
 		}
 		StringBuilder stringBuilder = new StringBuilder(val.Length);
 		for (int i = 0; i < val.Length; i++)
@@ -344,11 +366,9 @@ public class UIInput : MonoBehaviour
 	{
 		if (selectOnTab != null)
 		{
-			UIKeyNavigation component = GetComponent<UIKeyNavigation>();
-			if (component == null)
+			if (GetComponent<UIKeyNavigation>() == null)
 			{
-				component = base.gameObject.AddComponent<UIKeyNavigation>();
-				component.onDown = selectOnTab;
+				base.gameObject.AddComponent<UIKeyNavigation>().onDown = selectOnTab;
 			}
 			selectOnTab = null;
 			NGUITools.SetDirty(this);
@@ -377,8 +397,7 @@ public class UIInput : MonoBehaviour
 				Debug.LogWarning("Input fields using labels with justified alignment are not supported at this time", this);
 			}
 			mPivot = label.pivot;
-			Vector3 localPosition = label.cachedTransform.localPosition;
-			mPosition = localPosition.x;
+			mPosition = label.cachedTransform.localPosition.x;
 			UpdateLabel();
 		}
 	}
@@ -472,7 +491,7 @@ public class UIInput : MonoBehaviour
 			mDrawStart = 0;
 			mSelectionStart = ((!selectAllTextOnFocus) ? mSelectionEnd : 0);
 			label.color = activeTextColor;
-			Vector2 compositionCursorPos = (!(UICamera.current != null) || !(UICamera.current.cachedCamera != null)) ? label.worldCorners[0] : UICamera.current.cachedCamera.WorldToScreenPoint(label.worldCorners[0]);
+			Vector2 compositionCursorPos = (UICamera.current != null && UICamera.current.cachedCamera != null) ? UICamera.current.cachedCamera.WorldToScreenPoint(label.worldCorners[0]) : label.worldCorners[0];
 			compositionCursorPos.y = (float)Screen.height - compositionCursorPos.y;
 			Input.imeCompositionMode = IMECompositionMode.On;
 			Input.compositionCursorPos = compositionCursorPos;
@@ -497,7 +516,7 @@ public class UIInput : MonoBehaviour
 		}
 		if (mLastIME != compositionString)
 		{
-			mSelectionEnd = ((!string.IsNullOrEmpty(compositionString)) ? (mValue.Length + compositionString.Length) : mSelectionStart);
+			mSelectionEnd = (string.IsNullOrEmpty(compositionString) ? mSelectionStart : (mValue.Length + compositionString.Length));
 			mLastIME = compositionString;
 			UpdateLabel();
 			ExecuteOnChange();
@@ -527,7 +546,7 @@ public class UIInput : MonoBehaviour
 			}
 			mSelectionEnd--;
 		}
-		Insert(string.Empty);
+		Insert("");
 	}
 
 	public virtual bool ProcessEvent(Event ev)
@@ -537,12 +556,12 @@ public class UIInput : MonoBehaviour
 			return false;
 		}
 		RuntimePlatform platform = Application.platform;
-		bool flag = (platform != 0 && platform != RuntimePlatform.OSXPlayer) ? ((ev.modifiers & EventModifiers.Control) != 0) : ((ev.modifiers & EventModifiers.Command) != 0);
+		bool flag = (platform == RuntimePlatform.OSXEditor || platform == RuntimePlatform.OSXPlayer) ? ((ev.modifiers & EventModifiers.Command) != 0) : ((ev.modifiers & EventModifiers.Control) != 0);
 		if ((ev.modifiers & EventModifiers.Alt) != 0)
 		{
 			flag = false;
 		}
-		bool flag2 = (ev.modifiers & EventModifiers.Shift) != EventModifiers.None;
+		bool flag2 = (ev.modifiers & EventModifiers.Shift) != 0;
 		switch (ev.keyCode)
 		{
 		case KeyCode.Backspace:
@@ -561,7 +580,7 @@ public class UIInput : MonoBehaviour
 					}
 					mSelectionEnd++;
 				}
-				Insert(string.Empty);
+				Insert("");
 			}
 			return true;
 		case KeyCode.LeftArrow:
@@ -714,7 +733,7 @@ public class UIInput : MonoBehaviour
 			{
 				ev.Use();
 				NGUITools.clipboard = GetSelection();
-				Insert(string.Empty);
+				Insert("");
 			}
 			return true;
 		case KeyCode.Return:
@@ -797,20 +816,28 @@ public class UIInput : MonoBehaviour
 	protected string GetLeftText()
 	{
 		int num = Mathf.Min(mSelectionStart, mSelectionEnd);
-		return (!string.IsNullOrEmpty(mValue) && num >= 0) ? mValue.Substring(0, num) : string.Empty;
+		if (!string.IsNullOrEmpty(mValue) && num >= 0)
+		{
+			return mValue.Substring(0, num);
+		}
+		return "";
 	}
 
 	protected string GetRightText()
 	{
 		int num = Mathf.Max(mSelectionStart, mSelectionEnd);
-		return (!string.IsNullOrEmpty(mValue) && num < mValue.Length) ? mValue.Substring(num) : string.Empty;
+		if (!string.IsNullOrEmpty(mValue) && num < mValue.Length)
+		{
+			return mValue.Substring(num);
+		}
+		return "";
 	}
 
 	protected string GetSelection()
 	{
 		if (string.IsNullOrEmpty(mValue) || mSelectionStart == mSelectionEnd)
 		{
-			return string.Empty;
+			return "";
 		}
 		int num = Mathf.Min(mSelectionStart, mSelectionEnd);
 		int num2 = Mathf.Max(mSelectionStart, mSelectionEnd);
@@ -821,8 +848,11 @@ public class UIInput : MonoBehaviour
 	{
 		Vector3[] worldCorners = label.worldCorners;
 		Ray currentRay = UICamera.currentRay;
-		float enter;
-		return new Plane(worldCorners[0], worldCorners[1], worldCorners[2]).Raycast(currentRay, out enter) ? (mDrawStart + label.GetCharacterIndexAtPosition(currentRay.GetPoint(enter), precise: false)) : 0;
+		if (!new Plane(worldCorners[0], worldCorners[1], worldCorners[2]).Raycast(currentRay, out float enter))
+		{
+			return 0;
+		}
+		return mDrawStart + label.GetCharacterIndexAtPosition(currentRay.GetPoint(enter), precise: false);
 	}
 
 	protected virtual void OnPress(bool isPressed)
@@ -895,18 +925,18 @@ public class UIInput : MonoBehaviour
 		bool isSelected = this.isSelected;
 		string value = this.value;
 		bool flag = string.IsNullOrEmpty(value) && string.IsNullOrEmpty(Input.compositionString);
-		label.color = ((!flag || isSelected) ? activeTextColor : mDefaultColor);
+		label.color = ((flag && !isSelected) ? mDefaultColor : activeTextColor);
 		string text;
 		if (flag)
 		{
-			text = ((!isSelected) ? mDefaultText : string.Empty);
+			text = (isSelected ? "" : mDefaultText);
 			RestoreLabelPivot();
 		}
 		else
 		{
 			if (inputType == InputType.Password)
 			{
-				text = string.Empty;
+				text = "";
 				string str = "*";
 				if (label.bitmapFont != null && label.bitmapFont.bmFont != null && label.bitmapFont.bmFont.GetGlyph(42) == null)
 				{
@@ -974,7 +1004,7 @@ public class UIInput : MonoBehaviour
 			int num4 = mSelectionEnd - mDrawStart;
 			if (mBlankTex == null)
 			{
-				mBlankTex = new Texture2D(2, 2, TextureFormat.ARGB32, mipmap: false);
+				mBlankTex = new Texture2D(2, 2, TextureFormat.ARGB32, mipChain: false);
 				for (int j = 0; j < 2; j++)
 				{
 					for (int k = 0; k < 2; k++)
@@ -1127,8 +1157,8 @@ public class UIInput : MonoBehaviour
 		}
 		else if (validation == Validation.Name)
 		{
-			char c = (text.Length <= 0) ? ' ' : text[Mathf.Clamp(pos, 0, text.Length - 1)];
-			char c2 = (text.Length <= 0) ? '\n' : text[Mathf.Clamp(pos + 1, 0, text.Length - 1)];
+			char c = (text.Length > 0) ? text[Mathf.Clamp(pos, 0, text.Length - 1)] : ' ';
+			char c2 = (text.Length > 0) ? text[Mathf.Clamp(pos + 1, 0, text.Length - 1)] : '\n';
 			if (ch >= 'a' && ch <= 'z')
 			{
 				if (c == ' ')
@@ -1189,8 +1219,8 @@ public class UIInput : MonoBehaviour
 		if (!string.IsNullOrEmpty(savedAs))
 		{
 			string text = mValue.Replace("\\n", "\n");
-			mValue = string.Empty;
-			value = ((!PlayerPrefs.HasKey(savedAs)) ? text : PlayerPrefs.GetString(savedAs));
+			mValue = "";
+			value = (PlayerPrefs.HasKey(savedAs) ? PlayerPrefs.GetString(savedAs) : text);
 		}
 	}
 }

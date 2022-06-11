@@ -26,7 +26,7 @@ namespace Assets.Scripts.UI.SaveLoad
 		{
 			SaveButton.isEnabled = false;
 			LoadButton.isEnabled = false;
-			BottomLabel.text = string.Empty;
+			BottomLabel.text = "";
 		}
 
 		public void LoadSlot(int slotnum)

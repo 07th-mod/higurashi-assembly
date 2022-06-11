@@ -53,7 +53,11 @@ public class UIToggle : UIWidgetContainer
 	{
 		get
 		{
-			return (!mStarted) ? startsActive : mIsActive;
+			if (!mStarted)
+			{
+				return startsActive;
+			}
+			return mIsActive;
 		}
 		set
 		{
@@ -61,7 +65,7 @@ public class UIToggle : UIWidgetContainer
 			{
 				startsActive = value;
 			}
-			else if (group == 0 || value || optionCanBeNone || !mStarted)
+			else if (((group == 0) | value) || optionCanBeNone || !mStarted)
 			{
 				Set(value);
 			}
@@ -125,7 +129,7 @@ public class UIToggle : UIWidgetContainer
 			}
 			if (Application.isPlaying && activeSprite != null)
 			{
-				activeSprite.alpha = ((!startsActive) ? 0f : 1f);
+				activeSprite.alpha = (startsActive ? 1f : 0f);
 			}
 			if (EventDelegate.IsValid(onChange))
 			{
@@ -160,7 +164,7 @@ public class UIToggle : UIWidgetContainer
 			startsActive = state;
 			if (activeSprite != null)
 			{
-				activeSprite.alpha = ((!state) ? 0f : 1f);
+				activeSprite.alpha = (state ? 1f : 0f);
 			}
 		}
 		else
@@ -196,11 +200,11 @@ public class UIToggle : UIWidgetContainer
 			{
 				if (instantTween || !NGUITools.GetActive(this))
 				{
-					activeSprite.alpha = ((!mIsActive) ? 0f : 1f);
+					activeSprite.alpha = (mIsActive ? 1f : 0f);
 				}
 				else
 				{
-					TweenAlpha.Begin(activeSprite.gameObject, 0.15f, (!mIsActive) ? 0f : 1f);
+					TweenAlpha.Begin(activeSprite.gameObject, 0.15f, mIsActive ? 1f : 0f);
 				}
 			}
 			if (current == null)

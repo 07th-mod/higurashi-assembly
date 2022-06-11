@@ -16,20 +16,6 @@ namespace Assets.Scripts.Core.Scene
 
 		private int backgroundScene = 1;
 
-		public SceneControllerOld()
-		{
-			gameSystem = GameSystem.Instance;
-			for (int i = 0; i < 2; i++)
-			{
-				GameObject gameObject = Object.Instantiate(gameSystem.ScenePrefab);
-				scenes[i] = gameObject.GetComponent<SceneOld>();
-				scenes[i].Initialize(i, 32);
-			}
-			scenes[0].ResetLayer();
-			scenes[1].HideScene();
-			effectCamera = GameObject.FindGameObjectWithTag("EffectCamera");
-		}
-
 		private void SwapScenes()
 		{
 			if (foregroundScene == 0)
@@ -46,15 +32,13 @@ namespace Assets.Scripts.Core.Scene
 
 		public void HideFilmEffector(float time, bool isBlocking)
 		{
-			FilmEffector component = effectCamera.GetComponent<FilmEffector>();
-			component.FadeOut(time, isBlocking);
+			effectCamera.GetComponent<FilmEffector>().FadeOut(time, isBlocking);
 		}
 
 		public void CreateFilmEffector(int effecttype, Color targetColor, int targetpower, int style, float length, bool isBlocking)
 		{
 			effectCamera.GetComponent<Camera>().enabled = true;
-			FilmEffector filmEffector = effectCamera.AddComponent<FilmEffector>();
-			filmEffector.Prepare(effecttype, targetColor, targetpower, style, length, isBlocking);
+			effectCamera.AddComponent<FilmEffector>().Prepare(effecttype, targetColor, targetpower, style, length, isBlocking);
 		}
 
 		public SceneOld GetForegroundScene()
@@ -75,7 +59,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void SetNewSceneFade(string textureName, int time)
 		{
-			scenes[foregroundScene].FadeScene((float)time);
+			scenes[foregroundScene].FadeScene(time);
 			scenes[backgroundScene].SetLayerTextureImmediate(0, textureName);
 			scenes[backgroundScene].ShowScene();
 			UpdateDepth();
@@ -84,11 +68,25 @@ namespace Assets.Scripts.Core.Scene
 
 		public void SetNewSceneFadeWithMask(string textureName, string maskname, int time)
 		{
-			scenes[foregroundScene].FadeSceneWithMask(maskname, (float)time);
+			scenes[foregroundScene].FadeSceneWithMask(maskname, time);
 			scenes[backgroundScene].SetLayerTextureImmediate(0, textureName);
 			scenes[backgroundScene].ShowScene();
 			UpdateDepth();
 			SwapScenes();
+		}
+
+		public SceneControllerOld()
+		{
+			gameSystem = GameSystem.Instance;
+			for (int i = 0; i < 2; i++)
+			{
+				GameObject gameObject = Object.Instantiate(gameSystem.ScenePrefab);
+				scenes[i] = gameObject.GetComponent<SceneOld>();
+				scenes[i].Initialize(i, 32);
+			}
+			scenes[0].ResetLayer();
+			scenes[1].HideScene();
+			effectCamera = GameObject.FindGameObjectWithTag("EffectCamera");
 		}
 	}
 }

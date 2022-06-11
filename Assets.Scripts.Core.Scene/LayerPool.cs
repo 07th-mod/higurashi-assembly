@@ -59,7 +59,7 @@ namespace Assets.Scripts.Core.Scene
 					throw new Exception("Failed to instantiate Layer prefab!");
 				}
 				gameObject.transform.parent = base.transform;
-				gameObject.SetActive(false);
+				gameObject.SetActive(value: false);
 				layerList.Push(gameObject);
 				layerObjList.Add(gameObject);
 			}

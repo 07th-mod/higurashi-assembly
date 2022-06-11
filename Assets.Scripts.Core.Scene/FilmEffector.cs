@@ -22,15 +22,13 @@ namespace Assets.Scripts.Core.Scene
 			if (Mathf.Approximately(time, 0f))
 			{
 				RemoveEffector();
+				return;
 			}
-			else
+			iTween.Stop(base.gameObject);
+			iTween.ValueTo(base.gameObject, iTween.Hash("time", time, "from", Power, "to", 0, "onupdate", "UpdatePower", "oncomplete", "RemoveEffector"));
+			if (isBlocking)
 			{
-				iTween.Stop(base.gameObject);
-				iTween.ValueTo(base.gameObject, iTween.Hash("time", time, "from", Power, "to", 0, "onupdate", "UpdatePower", "oncomplete", "RemoveEffector"));
-				if (isBlocking)
-				{
-					GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForScene, RemoveEffector));
-				}
+				GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForScene, RemoveEffector));
 			}
 		}
 

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -20,15 +19,6 @@ namespace Assets.Scripts.Core
 
 		private static IntPtr _hookID = IntPtr.Zero;
 
-		[CompilerGenerated]
-		private static LowLevelKeyboardProc _003C_003Ef__mg_0024cache0;
-
-		public KeyHook()
-		{
-			_hookID = SetHook(_proc);
-			UnityEngine.Debug.Log("Enabled key hook");
-		}
-
 		private static IntPtr SetHook(LowLevelKeyboardProc proc)
 		{
 			using (Process process = Process.GetCurrentProcess())
@@ -42,21 +32,17 @@ namespace Assets.Scripts.Core
 
 		private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
-			if (nCode >= 0 && wParam == (IntPtr)260)
+			if (nCode >= 0 && wParam == (IntPtr)260 && Marshal.ReadInt32(lParam) == 13 && GameSystem.Instance.HasFocus)
 			{
-				int num = Marshal.ReadInt32(lParam);
-				if (num == 13 && GameSystem.Instance.HasFocus)
+				if (Screen.fullScreen)
 				{
-					if (Screen.fullScreen)
-					{
-						Screen.SetResolution(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"), fullscreen: false);
-					}
-					else
-					{
-						GameSystem.Instance.GoFullscreen();
-					}
-					return (IntPtr)1;
+					Screen.SetResolution(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"), fullscreen: false);
 				}
+				else
+				{
+					GameSystem.Instance.GoFullscreen();
+				}
+				return (IntPtr)1;
 			}
 			return CallNextHookEx(_hookID, nCode, wParam, lParam);
 		}
@@ -73,6 +59,12 @@ namespace Assets.Scripts.Core
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+		public KeyHook()
+		{
+			_hookID = SetHook(_proc);
+			UnityEngine.Debug.Log("Enabled key hook");
+		}
 
 		public void Unhook()
 		{

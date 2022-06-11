@@ -26,55 +26,41 @@ namespace Assets.Scripts.UI.ChapterScreen
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ChapterScreen)
+			if (!isActive || UICamera.currentTouchID < -1 || GameSystem.Instance.GameState != GameState.ChapterScreen)
 			{
-				StateChapterScreen stateChapterScreen = GameSystem.Instance.GetStateObject() as StateChapterScreen;
-				if (stateChapterScreen != null)
-				{
-					string name = base.name;
-					if (name != null)
-					{
-						if (!(name == "NewTips"))
-						{
-							if (!(name == "ViewAllTips"))
-							{
-								if (!(name == "SaveLoad"))
-								{
-									if (!(name == "Fragments"))
-									{
-										if (name == "Continue")
-										{
-											stateChapterScreen.RequestLeave();
-											BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
-											AudioController.Instance.ClearTempAudio();
-										}
-									}
-									else
-									{
-										stateChapterScreen.RequestLeave();
-										BurikoMemory.Instance.SetFlag("TipsMode", 1);
-									}
-								}
-								else
-								{
-									GameSystem.Instance.PushStateObject(new StateSaveLoad(restoreUI: false));
-								}
-							}
-							else
-							{
-								stateChapterScreen.RequestLeave();
-								BurikoMemory.Instance.SetFlag("TipsMode", 3);
-								BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
-							}
-						}
-						else
-						{
-							stateChapterScreen.RequestLeave();
-							BurikoMemory.Instance.SetFlag("TipsMode", 4);
-							BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
-						}
-					}
-				}
+				return;
+			}
+			StateChapterScreen stateChapterScreen = GameSystem.Instance.GetStateObject() as StateChapterScreen;
+			if (stateChapterScreen == null)
+			{
+				return;
+			}
+			string name = base.name;
+			switch (name)
+			{
+			case "NewTips":
+				stateChapterScreen.RequestLeave();
+				BurikoMemory.Instance.SetFlag("TipsMode", 4);
+				BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
+				return;
+			case "ViewAllTips":
+				stateChapterScreen.RequestLeave();
+				BurikoMemory.Instance.SetFlag("TipsMode", 3);
+				BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
+				return;
+			case "SaveLoad":
+				GameSystem.Instance.PushStateObject(new StateSaveLoad(restoreUI: false));
+				return;
+			case "Fragments":
+				stateChapterScreen.RequestLeave();
+				BurikoMemory.Instance.SetFlag("TipsMode", 1);
+				return;
+			}
+			if (name == "Continue")
+			{
+				stateChapterScreen.RequestLeave();
+				BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+				AudioController.Instance.ClearTempAudio();
 			}
 		}
 

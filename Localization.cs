@@ -56,7 +56,7 @@ public static class Localization
 			if (string.IsNullOrEmpty(mLanguage))
 			{
 				string[] knownLanguages = Localization.knownLanguages;
-				mLanguage = PlayerPrefs.GetString("Language", (knownLanguages == null) ? "English" : knownLanguages[0]);
+				mLanguage = PlayerPrefs.GetString("Language", (knownLanguages != null) ? knownLanguages[0] : "English");
 				LoadAndSelect(mLanguage);
 			}
 			return mLanguage;
@@ -72,13 +72,7 @@ public static class Localization
 	}
 
 	[Obsolete("Localization is now always active. You no longer need to check this property.")]
-	public static bool isActive
-	{
-		get
-		{
-			return true;
-		}
-	}
+	public static bool isActive => true;
 
 	private static bool LoadDictionary(string value)
 	{
@@ -304,6 +298,10 @@ public static class Localization
 		{
 			language = PlayerPrefs.GetString("Language", "English");
 		}
-		return mDictionary.ContainsKey(key) || mOldDictionary.ContainsKey(key);
+		if (!mDictionary.ContainsKey(key))
+		{
+			return mOldDictionary.ContainsKey(key);
+		}
+		return true;
 	}
 }

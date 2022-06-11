@@ -60,63 +60,44 @@ namespace Assets.Scripts.UI.Config
 			{
 				Set();
 			}
-			if (!Mathf.Approximately(laststep, slider.value))
+			if (Mathf.Approximately(laststep, slider.value))
 			{
-				laststep = slider.value;
-				int num = (int)(100f * laststep);
-				string name = base.name;
-				if (name != null)
-				{
-					if (!(name == "0-TextSpeed"))
-					{
-						if (!(name == "1-AutoSpeed"))
-						{
-							if (!(name == "2-AutoPageSpeed"))
-							{
-								if (!(name == "3-WindowOpacity"))
-								{
-									if (!(name == "4-BGMVolume"))
-									{
-										if (name == "5-SEVolume")
-										{
-											GameSystem.Instance.AudioController.SoundVolume = laststep;
-											GameSystem.Instance.AudioController.SystemVolume = laststep;
-											GameSystem.Instance.AudioController.RefreshLayerVolumes();
-											BurikoMemory.Instance.SetGlobalFlag("GSEVolume", num);
-										}
-									}
-									else
-									{
-										GameSystem.Instance.AudioController.BGMVolume = laststep;
-										GameSystem.Instance.AudioController.RefreshLayerVolumes();
-										BurikoMemory.Instance.SetGlobalFlag("GBGMVolume", num);
-									}
-								}
-								else
-								{
-									GameSystem.Instance.MessageWindowOpacity = laststep;
-									GameSystem.Instance.MainUIController.SetWindowOpacity(laststep);
-									BurikoMemory.Instance.SetGlobalFlag("GWindowOpacity", num);
-								}
-							}
-							else
-							{
-								GameSystem.Instance.TextController.AutoPageSpeed = num;
-								BurikoMemory.Instance.SetGlobalFlag("GAutoAdvSpeed", num);
-							}
-						}
-						else
-						{
-							GameSystem.Instance.TextController.AutoSpeed = num;
-							BurikoMemory.Instance.SetGlobalFlag("GAutoSpeed", num);
-						}
-					}
-					else
-					{
-						GameSystem.Instance.TextController.TextSpeed = num;
-						BurikoMemory.Instance.SetGlobalFlag("GMessageSpeed", num);
-					}
-				}
+				return;
+			}
+			laststep = slider.value;
+			int num = (int)(100f * laststep);
+			string name = base.name;
+			switch (name)
+			{
+			case "0-TextSpeed":
+				GameSystem.Instance.TextController.TextSpeed = num;
+				BurikoMemory.Instance.SetGlobalFlag("GMessageSpeed", num);
+				return;
+			case "1-AutoSpeed":
+				GameSystem.Instance.TextController.AutoSpeed = num;
+				BurikoMemory.Instance.SetGlobalFlag("GAutoSpeed", num);
+				return;
+			case "2-AutoPageSpeed":
+				GameSystem.Instance.TextController.AutoPageSpeed = num;
+				BurikoMemory.Instance.SetGlobalFlag("GAutoAdvSpeed", num);
+				return;
+			case "3-WindowOpacity":
+				GameSystem.Instance.MessageWindowOpacity = laststep;
+				GameSystem.Instance.MainUIController.SetWindowOpacity(laststep);
+				BurikoMemory.Instance.SetGlobalFlag("GWindowOpacity", num);
+				return;
+			case "4-BGMVolume":
+				GameSystem.Instance.AudioController.BGMVolume = laststep;
+				GameSystem.Instance.AudioController.RefreshLayerVolumes();
+				BurikoMemory.Instance.SetGlobalFlag("GBGMVolume", num);
+				return;
+			}
+			if (name == "5-SEVolume")
+			{
+				GameSystem.Instance.AudioController.SoundVolume = laststep;
+				GameSystem.Instance.AudioController.SystemVolume = laststep;
+				GameSystem.Instance.AudioController.RefreshLayerVolumes();
+				BurikoMemory.Instance.SetGlobalFlag("GSEVolume", num);
 			}
 		}
 	}

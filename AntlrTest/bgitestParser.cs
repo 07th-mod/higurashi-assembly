@@ -806,28 +806,28 @@ namespace AntlrTest
 								PushFollow(Follow._directive_in_program151);
 								astParserRuleReturnScope2 = directive();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope2.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope2.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 2:
 								PushFollow(Follow._block_in_program153);
 								astParserRuleReturnScope3 = block();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							}
 							break;
 						}
@@ -869,9 +869,6 @@ namespace AntlrTest
 			IToken token = null;
 			IToken token2 = null;
 			IToken token3 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token HASH");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token 67");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token STRING");
@@ -909,7 +906,7 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						commonTree = (astParserRuleReturnScope.Tree = null);
 					}
@@ -951,12 +948,6 @@ namespace AntlrTest
 			IToken token5 = null;
 			IToken token6 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
-			CommonTree commonTree5 = null;
-			CommonTree commonTree6 = null;
-			CommonTree commonTree7 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ID");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token LPAREN");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token RPAREN");
@@ -1024,14 +1015,12 @@ namespace AntlrTest
 								num = 1;
 								break;
 							case 39:
-							{
-								int num2 = input.LA(2);
+								input.LA(2);
 								if (EvaluatePredicate(synpred3_bgitest_fragment))
 								{
 									num = 1;
 								}
 								break;
-							}
 							}
 						}
 						finally
@@ -1068,7 +1057,7 @@ namespace AntlrTest
 					{
 						astParserRuleReturnScope.Tree = commonTree;
 						RewriteRuleTokenStream rewriteRuleTokenStream6 = new RewriteRuleTokenStream(adaptor, "token id1", token);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						CommonTree oldRoot = (CommonTree)adaptor.Nil();
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(6, "BLOCK"), oldRoot);
@@ -1185,16 +1174,10 @@ namespace AntlrTest
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope = new AstParserRuleReturnScope<CommonTree, IToken>();
 			astParserRuleReturnScope.Start = input.LT(1);
 			CommonTree commonTree = null;
-			IToken token = null;
-			IToken token2 = null;
-			IToken token3 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope4 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope5 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
 			try
 			{
 				try
@@ -1221,8 +1204,7 @@ namespace AntlrTest
 							default:
 								if (state.backtracking <= 0)
 								{
-									NoViableAltException ex2 = new NoViableAltException(string.Empty, 4, 1, input, 2);
-									throw ex2;
+									throw new NoViableAltException("", 4, 1, input, 2);
 								}
 								state.failed = true;
 								return astParserRuleReturnScope;
@@ -1234,8 +1216,7 @@ namespace AntlrTest
 						default:
 							if (state.backtracking <= 0)
 							{
-								NoViableAltException ex = new NoViableAltException(string.Empty, 4, 0, input, 1);
-								throw ex;
+								throw new NoViableAltException("", 4, 0, input, 1);
 							}
 							state.failed = true;
 							return astParserRuleReturnScope;
@@ -1259,7 +1240,7 @@ namespace AntlrTest
 						{
 							adaptor.AddChild(commonTree, astParserRuleReturnScope2.Tree);
 						}
-						token = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation239);
+						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation239);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -1292,7 +1273,7 @@ namespace AntlrTest
 						{
 							adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
 						}
-						token2 = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation254);
+						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation254);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -1311,7 +1292,7 @@ namespace AntlrTest
 						{
 							adaptor.AddChild(commonTree, astParserRuleReturnScope5.Tree);
 						}
-						token3 = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation263);
+						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation263);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -1327,11 +1308,11 @@ namespace AntlrTest
 					adaptor.SetTokenBoundaries(astParserRuleReturnScope.Tree, astParserRuleReturnScope.Start, astParserRuleReturnScope.Stop);
 					return astParserRuleReturnScope;
 				}
-				catch (RecognitionException ex3)
+				catch (RecognitionException ex)
 				{
-					ReportError(ex3);
-					Recover(input, ex3);
-					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex3);
+					ReportError(ex);
+					Recover(input, ex);
+					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex);
 					return astParserRuleReturnScope;
 				}
 				finally
@@ -1351,7 +1332,6 @@ namespace AntlrTest
 			CommonTree commonTree = null;
 			IToken token = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
-			CommonTree commonTree2 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ID");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule variable");
 			try
@@ -1381,7 +1361,7 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						CommonTree oldRoot = (CommonTree)adaptor.Nil();
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(59, "VARDECL"), oldRoot);
@@ -1425,9 +1405,6 @@ namespace AntlrTest
 			IToken token2 = null;
 			IToken token3 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ID");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token LPAREN");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token RPAREN");
@@ -1460,18 +1437,32 @@ namespace AntlrTest
 						try
 						{
 							int num2 = input.LA(1);
-							if ((num2 >= 19 && num2 <= 20) || num2 == 24 || num2 == 27 || num2 == 31 || num2 == 45 || (num2 >= 62 && num2 <= 64))
+							if (num2 < 19 || num2 > 20)
 							{
-								num = 1;
-							}
-							else if (num2 == 40)
-							{
-								int num3 = input.LA(2);
-								if (EvaluatePredicate(synpred8_bgitest_fragment))
+								switch (num2)
 								{
-									num = 1;
+								case 24:
+								case 27:
+								case 31:
+								case 45:
+								case 62:
+								case 63:
+								case 64:
+									break;
+								default:
+									if (num2 == 40)
+									{
+										input.LA(2);
+										if (EvaluatePredicate(synpred8_bgitest_fragment))
+										{
+											num = 1;
+										}
+									}
+									goto end_IL_00f5;
 								}
 							}
+							num = 1;
+							end_IL_00f5:;
 						}
 						finally
 						{
@@ -1506,7 +1497,7 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						CommonTree oldRoot = (CommonTree)adaptor.Nil();
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(35, "OPERATION"), oldRoot);
@@ -1553,7 +1544,6 @@ namespace AntlrTest
 			IToken token = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
-			CommonTree commonTree2 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ASSIGN");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule variable");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule obj");
@@ -1595,7 +1585,7 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream3 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						CommonTree oldRoot = (CommonTree)adaptor.Nil();
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(5, "ASSIGN"), oldRoot);
@@ -1638,7 +1628,6 @@ namespace AntlrTest
 			IToken token = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
-			CommonTree commonTree2 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token COMMA");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule obj");
 			try
@@ -1651,10 +1640,24 @@ namespace AntlrTest
 						try
 						{
 							int num2 = input.LA(1);
-							if ((num2 >= 19 && num2 <= 20) || num2 == 24 || num2 == 27 || num2 == 31 || num2 == 45 || (num2 >= 62 && num2 <= 64))
+							if (num2 < 19 || num2 > 20)
 							{
-								num = 1;
+								switch (num2)
+								{
+								default:
+									goto end_IL_0048;
+								case 24:
+								case 27:
+								case 31:
+								case 45:
+								case 62:
+								case 63:
+								case 64:
+									break;
+								}
 							}
+							num = 1;
+							end_IL_0048:;
 						}
 						finally
 						{
@@ -1679,8 +1682,7 @@ namespace AntlrTest
 									int num3 = 2;
 									try
 									{
-										int num4 = input.LA(1);
-										if (num4 == 10)
+										if (input.LA(1) == 10)
 										{
 											num3 = 1;
 										}
@@ -1725,7 +1727,7 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						if (rewriteRuleSubtreeStream.HasNext)
 						{
@@ -1778,10 +1780,6 @@ namespace AntlrTest
 			IToken token4 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
-			CommonTree commonTree5 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ID");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token LSQ");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token RSQ");
@@ -1806,8 +1804,7 @@ namespace AntlrTest
 					{
 						try
 						{
-							int num2 = input.LA(1);
-							if (num2 == 28)
+							if (input.LA(1) == 28)
 							{
 								num = 1;
 							}
@@ -1851,21 +1848,20 @@ namespace AntlrTest
 					finally
 					{
 					}
-					int num3 = 2;
+					int num2 = 2;
 					try
 					{
 						try
 						{
-							int num4 = input.LA(1);
-							if (num4 == 61)
+							if (input.LA(1) == 61)
 							{
-								num3 = 1;
+								num2 = 1;
 							}
 						}
 						finally
 						{
 						}
-						if (num3 == 1)
+						if (num2 == 1)
 						{
 							token4 = (IToken)Match(input, 61, Follow._61_in_variable397);
 							if (state.failed)
@@ -1895,9 +1891,9 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream3 = new RewriteRuleSubtreeStream(adaptor, "rule id", (astParserRuleReturnScope2 == null) ? null : astParserRuleReturnScope2.Tree);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream4 = new RewriteRuleSubtreeStream(adaptor, "rule mem", (astParserRuleReturnScope3 == null) ? null : astParserRuleReturnScope3.Tree);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream5 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						RewriteRuleSubtreeStream rewriteRuleSubtreeStream3 = new RewriteRuleSubtreeStream(adaptor, "rule id", astParserRuleReturnScope2?.Tree);
+						RewriteRuleSubtreeStream rewriteRuleSubtreeStream4 = new RewriteRuleSubtreeStream(adaptor, "rule mem", astParserRuleReturnScope3?.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						CommonTree oldRoot = (CommonTree)adaptor.Nil();
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(58, "VAR"), oldRoot);
@@ -1964,64 +1960,45 @@ namespace AntlrTest
 						switch (input.LA(1))
 						{
 						case 31:
-						{
-							int num2 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 24:
-						{
-							int num8 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 19:
-						{
-							int num3 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 45:
-						{
-							int num6 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 63:
-						{
-							int num9 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 64:
-						{
-							int num5 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 62:
-						{
-							int num10 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 20:
-						{
-							int num7 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						case 27:
-						{
-							int num4 = input.LA(2);
+							input.LA(2);
 							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
 							break;
-						}
 						default:
 							if (state.backtracking <= 0)
 							{
-								NoViableAltException ex = new NoViableAltException(string.Empty, 10, 0, input, 1);
-								throw ex;
+								throw new NoViableAltException("", 10, 0, input, 1);
 							}
 							state.failed = true;
 							return astParserRuleReturnScope;
@@ -2070,11 +2047,11 @@ namespace AntlrTest
 					adaptor.SetTokenBoundaries(astParserRuleReturnScope.Tree, astParserRuleReturnScope.Start, astParserRuleReturnScope.Stop);
 					return astParserRuleReturnScope;
 				}
-				catch (RecognitionException ex2)
+				catch (RecognitionException ex)
 				{
-					ReportError(ex2);
-					Recover(input, ex2);
-					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex2);
+					ReportError(ex);
+					Recover(input, ex);
+					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex);
 					return astParserRuleReturnScope;
 				}
 				finally
@@ -2105,16 +2082,6 @@ namespace AntlrTest
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope4 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
-			CommonTree commonTree5 = null;
-			CommonTree commonTree6 = null;
-			CommonTree commonTree7 = null;
-			CommonTree commonTree8 = null;
-			CommonTree commonTree9 = null;
-			CommonTree commonTree10 = null;
-			CommonTree commonTree11 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token MINUS");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token INT");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token HEXINT");
@@ -2164,19 +2131,39 @@ namespace AntlrTest
 							{
 							case 27:
 								num = 9;
-								break;
+								goto end_IL_011b;
 							default:
-								if (num2 != 26 && (num2 < 28 || num2 > 29) && num2 != 31 && num2 != 36 && num2 != 38 && (num2 < 40 || num2 > 42) && num2 != 47 && num2 != 61)
+								switch (num2)
 								{
-									if (state.backtracking <= 0)
+								default:
+									switch (num2)
 									{
-										NoViableAltException ex2 = new NoViableAltException(string.Empty, 11, 8, input, 2);
-										throw ex2;
+									default:
+										if (num2 != 47 && num2 != 61)
+										{
+											if (state.backtracking <= 0)
+											{
+												throw new NoViableAltException("", 11, 8, input, 2);
+											}
+											state.failed = true;
+											return astParserRuleReturnScope;
+										}
+										break;
+									case 31:
+									case 36:
+									case 38:
+									case 40:
+									case 41:
+									case 42:
+										break;
 									}
-									state.failed = true;
-									return astParserRuleReturnScope;
+									break;
+								case 26:
+								case 28:
+								case 29:
+									break;
 								}
-								goto case -1;
+								break;
 							case -1:
 							case 4:
 							case 10:
@@ -2184,9 +2171,9 @@ namespace AntlrTest
 							case 14:
 							case 16:
 							case 17:
-								num = 8;
 								break;
 							}
+							num = 8;
 							break;
 						}
 						case 27:
@@ -2195,12 +2182,12 @@ namespace AntlrTest
 						default:
 							if (state.backtracking <= 0)
 							{
-								NoViableAltException ex = new NoViableAltException(string.Empty, 11, 0, input, 1);
-								throw ex;
+								throw new NoViableAltException("", 11, 0, input, 1);
 							}
 							state.failed = true;
 							return astParserRuleReturnScope;
 						}
+						end_IL_011b:;
 					}
 					finally
 					{
@@ -2229,7 +2216,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream12 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot9 = (CommonTree)adaptor.Nil();
 							oldRoot9 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(56, "TYPEUNARY"), oldRoot9);
@@ -2251,7 +2238,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream10 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot7 = (CommonTree)adaptor.Nil();
 							oldRoot7 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(52, "TYPEINT"), oldRoot7);
@@ -2273,7 +2260,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream9 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot6 = (CommonTree)adaptor.Nil();
 							oldRoot6 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(51, "TYPEHEX"), oldRoot6);
@@ -2295,7 +2282,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream7 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot4 = (CommonTree)adaptor.Nil();
 							oldRoot4 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(55, "TYPESTRING"), oldRoot4);
@@ -2317,7 +2304,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream8 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot5 = (CommonTree)adaptor.Nil();
 							oldRoot5 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(54, "TYPENULL"), oldRoot5);
@@ -2338,7 +2325,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream5 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot2 = (CommonTree)adaptor.Nil();
 							oldRoot2 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(49, "TYPEBOOL"), oldRoot2);
@@ -2360,7 +2347,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream6 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot3 = (CommonTree)adaptor.Nil();
 							oldRoot3 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(49, "TYPEBOOL"), oldRoot3);
@@ -2384,7 +2371,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream13 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot10 = (CommonTree)adaptor.Nil();
 							oldRoot10 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(57, "TYPEVARIABLE"), oldRoot10);
@@ -2408,7 +2395,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream11 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot8 = (CommonTree)adaptor.Nil();
 							oldRoot8 = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(50, "TYPEFUNCTION"), oldRoot8);
@@ -2450,7 +2437,7 @@ namespace AntlrTest
 						if (state.backtracking == 0)
 						{
 							astParserRuleReturnScope.Tree = commonTree;
-							RewriteRuleSubtreeStream rewriteRuleSubtreeStream4 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+							new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 							commonTree = (CommonTree)adaptor.Nil();
 							CommonTree oldRoot = (CommonTree)adaptor.Nil();
 							oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(53, "TYPEMATH"), oldRoot);
@@ -2469,11 +2456,11 @@ namespace AntlrTest
 					adaptor.SetTokenBoundaries(astParserRuleReturnScope.Tree, astParserRuleReturnScope.Start, astParserRuleReturnScope.Stop);
 					return astParserRuleReturnScope;
 				}
-				catch (RecognitionException ex3)
+				catch (RecognitionException ex)
 				{
-					ReportError(ex3);
-					Recover(input, ex3);
-					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex3);
+					ReportError(ex);
+					Recover(input, ex);
+					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex);
 					return astParserRuleReturnScope;
 				}
 				finally
@@ -2550,15 +2537,15 @@ namespace AntlrTest
 								PushFollow(Follow._value_in_op_mult617);
 								astParserRuleReturnScope3 = value();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 2:
 								token2 = (IToken)Match(input, 12, Follow._DIVIDE_in_op_mult625);
 								if (state.failed)
@@ -2573,15 +2560,15 @@ namespace AntlrTest
 								PushFollow(Follow._value_in_op_mult628);
 								astParserRuleReturnScope4 = value();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							}
 							break;
 						}
@@ -2679,15 +2666,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_mult_in_op_add655);
 								astParserRuleReturnScope3 = op_mult();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 2:
 								token2 = (IToken)Match(input, 31, Follow._MINUS_in_op_add663);
 								if (state.failed)
@@ -2702,15 +2689,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_mult_in_op_add666);
 								astParserRuleReturnScope4 = op_mult();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							}
 							break;
 						}
@@ -2838,15 +2825,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare693);
 								astParserRuleReturnScope3 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope3.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 2:
 								token2 = (IToken)Match(input, 36, Follow._OR_in_op_compare701);
 								if (state.failed)
@@ -2861,15 +2848,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare704);
 								astParserRuleReturnScope4 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 3:
 								token3 = (IToken)Match(input, 26, Follow._LEQ_in_op_compare712);
 								if (state.failed)
@@ -2884,15 +2871,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare715);
 								astParserRuleReturnScope5 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope5.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope5.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 4:
 								token4 = (IToken)Match(input, 16, Follow._GEQ_in_op_compare723);
 								if (state.failed)
@@ -2907,15 +2894,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare726);
 								astParserRuleReturnScope6 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope6.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope6.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 5:
 								token5 = (IToken)Match(input, 29, Follow._LTHAN_in_op_compare734);
 								if (state.failed)
@@ -2930,15 +2917,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare737);
 								astParserRuleReturnScope7 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope7.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope7.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 6:
 								token6 = (IToken)Match(input, 17, Follow._GTHAN_in_op_compare745);
 								if (state.failed)
@@ -2953,15 +2940,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare748);
 								astParserRuleReturnScope8 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope8.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope8.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							case 7:
 								token7 = (IToken)Match(input, 14, Follow._EQ_in_op_compare756);
 								if (state.failed)
@@ -2976,15 +2963,15 @@ namespace AntlrTest
 								PushFollow(Follow._op_add_in_op_compare759);
 								astParserRuleReturnScope9 = op_add();
 								PopFollow();
-								if (state.failed)
+								if (!state.failed)
 								{
-									return astParserRuleReturnScope;
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope9.Tree);
+									}
+									continue;
 								}
-								if (state.backtracking == 0)
-								{
-									adaptor.AddChild(commonTree, astParserRuleReturnScope9.Tree);
-								}
-								continue;
+								return astParserRuleReturnScope;
 							}
 							break;
 						}
@@ -3036,14 +3023,6 @@ namespace AntlrTest
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope4 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope5 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope6 = null;
-			CommonTree commonTree2 = null;
-			CommonTree commonTree3 = null;
-			CommonTree commonTree4 = null;
-			CommonTree commonTree5 = null;
-			CommonTree commonTree6 = null;
-			CommonTree commonTree7 = null;
-			CommonTree commonTree8 = null;
-			CommonTree commonTree9 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token 66");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token LPAREN");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token RPAREN");
@@ -3112,8 +3091,7 @@ namespace AntlrTest
 							default:
 								if (state.backtracking <= 0)
 								{
-									NoViableAltException ex = new NoViableAltException(string.Empty, 15, 0, input, 1);
-									throw ex;
+									throw new NoViableAltException("", 15, 0, input, 1);
 								}
 								state.failed = true;
 								return astParserRuleReturnScope;
@@ -3178,10 +3156,9 @@ namespace AntlrTest
 					{
 						try
 						{
-							int num3 = input.LA(1);
-							if (num3 == 65)
+							if (input.LA(1) == 65)
 							{
-								int num4 = input.LA(2);
+								input.LA(2);
 								if (EvaluatePredicate(synpred36_bgitest_fragment))
 								{
 									num2 = 1;
@@ -3202,7 +3179,7 @@ namespace AntlrTest
 							{
 								rewriteRuleTokenStream6.Add(token6);
 							}
-							int num5 = 2;
+							int num3 = 2;
 							try
 							{
 								try
@@ -3210,17 +3187,16 @@ namespace AntlrTest
 									switch (input.LA(1))
 									{
 									case 25:
-										num5 = 1;
+										num3 = 1;
 										break;
 									case 20:
 									case 66:
-										num5 = 2;
+										num3 = 2;
 										break;
 									default:
 										if (state.backtracking <= 0)
 										{
-											NoViableAltException ex2 = new NoViableAltException(string.Empty, 16, 0, input, 1);
-											throw ex2;
+											throw new NoViableAltException("", 16, 0, input, 1);
 										}
 										state.failed = true;
 										return astParserRuleReturnScope;
@@ -3229,7 +3205,7 @@ namespace AntlrTest
 								finally
 								{
 								}
-								switch (num5)
+								switch (num3)
 								{
 								case 1:
 									token7 = (IToken)Match(input, 25, Follow._LCURL_in_if809);
@@ -3288,11 +3264,11 @@ namespace AntlrTest
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream4 = new RewriteRuleSubtreeStream(adaptor, "rule ops1", (astParserRuleReturnScope2 == null) ? null : astParserRuleReturnScope2.Tree);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream5 = new RewriteRuleSubtreeStream(adaptor, "rule op1", (astParserRuleReturnScope3 == null) ? null : astParserRuleReturnScope3.Tree);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream6 = new RewriteRuleSubtreeStream(adaptor, "rule ops2", (astParserRuleReturnScope4 == null) ? null : astParserRuleReturnScope4.Tree);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream7 = new RewriteRuleSubtreeStream(adaptor, "rule op2", (astParserRuleReturnScope5 == null) ? null : astParserRuleReturnScope5.Tree);
-						RewriteRuleSubtreeStream rewriteRuleSubtreeStream8 = new RewriteRuleSubtreeStream(adaptor, "rule retval", (astParserRuleReturnScope == null) ? null : astParserRuleReturnScope.Tree);
+						RewriteRuleSubtreeStream rewriteRuleSubtreeStream4 = new RewriteRuleSubtreeStream(adaptor, "rule ops1", astParserRuleReturnScope2?.Tree);
+						RewriteRuleSubtreeStream rewriteRuleSubtreeStream5 = new RewriteRuleSubtreeStream(adaptor, "rule op1", astParserRuleReturnScope3?.Tree);
+						RewriteRuleSubtreeStream rewriteRuleSubtreeStream6 = new RewriteRuleSubtreeStream(adaptor, "rule ops2", astParserRuleReturnScope4?.Tree);
+						RewriteRuleSubtreeStream rewriteRuleSubtreeStream7 = new RewriteRuleSubtreeStream(adaptor, "rule op2", astParserRuleReturnScope5?.Tree);
+						new RewriteRuleSubtreeStream(adaptor, "rule retval", astParserRuleReturnScope?.Tree);
 						commonTree = (CommonTree)adaptor.Nil();
 						CommonTree oldRoot = (CommonTree)adaptor.Nil();
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(21, "IF"), oldRoot);
@@ -3335,11 +3311,11 @@ namespace AntlrTest
 					adaptor.SetTokenBoundaries(astParserRuleReturnScope.Tree, astParserRuleReturnScope.Start, astParserRuleReturnScope.Stop);
 					return astParserRuleReturnScope;
 				}
-				catch (RecognitionException ex3)
+				catch (RecognitionException ex)
 				{
-					ReportError(ex3);
-					Recover(input, ex3);
-					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex3);
+					ReportError(ex);
+					Recover(input, ex);
+					astParserRuleReturnScope.Tree = (CommonTree)adaptor.ErrorNode(input, astParserRuleReturnScope.Start, input.LT(-1), ex);
 					return astParserRuleReturnScope;
 				}
 				finally
@@ -3358,9 +3334,7 @@ namespace AntlrTest
 				PushFollow(Follow._operations_in_synpred3_bgitest196);
 				operations();
 				PopFollow();
-				if (!state.failed)
-				{
-				}
+				_ = state.failed;
 			}
 			finally
 			{
@@ -3374,9 +3348,7 @@ namespace AntlrTest
 				PushFollow(Follow._parameters_in_synpred8_bgitest302);
 				parameters();
 				PopFollow();
-				if (!state.failed)
-				{
-				}
+				_ = state.failed;
 			}
 			finally
 			{
@@ -3390,9 +3362,7 @@ namespace AntlrTest
 				PushFollow(Follow._op_compare_in_synpred13_bgitest439);
 				op_compare();
 				PopFollow();
-				if (!state.failed)
-				{
-				}
+				_ = state.failed;
 			}
 			finally
 			{
@@ -3401,8 +3371,6 @@ namespace AntlrTest
 
 		private void synpred36_bgitest_fragment()
 		{
-			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope = null;
-			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			try
 			{
 				Match(input, 65, Follow._65_in_synpred36_bgitest805);
@@ -3423,13 +3391,12 @@ namespace AntlrTest
 								num = 2;
 								break;
 							default:
-								if (state.backtracking <= 0)
+								if (state.backtracking > 0)
 								{
-									NoViableAltException ex = new NoViableAltException(string.Empty, 19, 0, input, 1);
-									throw ex;
+									state.failed = true;
+									return;
 								}
-								state.failed = true;
-								return;
+								throw new NoViableAltException("", 19, 0, input, 1);
 							}
 						}
 						finally
@@ -3442,7 +3409,7 @@ namespace AntlrTest
 							if (!state.failed)
 							{
 								PushFollow(Follow._operations_in_synpred36_bgitest813);
-								astParserRuleReturnScope = operations();
+								operations();
 								PopFollow();
 								if (!state.failed)
 								{
@@ -3455,11 +3422,9 @@ namespace AntlrTest
 							break;
 						case 2:
 							PushFollow(Follow._operation_in_synpred36_bgitest822);
-							astParserRuleReturnScope2 = operation();
+							operation();
 							PopFollow();
-							if (!state.failed)
-							{
-							}
+							_ = state.failed;
 							break;
 						}
 					}

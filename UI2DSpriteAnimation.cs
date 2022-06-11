@@ -35,13 +35,13 @@ public class UI2DSpriteAnimation : MonoBehaviour
 
 	public void Play()
 	{
-		if (frames == null || frames.Length <= 0)
+		if (frames == null || frames.Length == 0)
 		{
 			return;
 		}
 		if (!base.enabled && !loop)
 		{
-			int num = (framerate <= 0) ? (mIndex - 1) : (mIndex + 1);
+			int num = (framerate > 0) ? (mIndex + 1) : (mIndex - 1);
 			if (num < 0 || num >= frames.Length)
 			{
 				mIndex = ((framerate < 0) ? (frames.Length - 1) : 0);
@@ -79,11 +79,11 @@ public class UI2DSpriteAnimation : MonoBehaviour
 			{
 				return;
 			}
-			float num = (!ignoreTimeScale) ? Time.time : RealTime.time;
+			float num = ignoreTimeScale ? RealTime.time : Time.time;
 			if (mUpdate < num)
 			{
 				mUpdate = num;
-				int num2 = (framerate <= 0) ? (mIndex - 1) : (mIndex + 1);
+				int num2 = (framerate > 0) ? (mIndex + 1) : (mIndex - 1);
 				if (!loop && (num2 < 0 || num2 >= frames.Length))
 				{
 					base.enabled = false;
@@ -107,7 +107,7 @@ public class UI2DSpriteAnimation : MonoBehaviour
 				return;
 			}
 		}
-		float num = (!ignoreTimeScale) ? Time.time : RealTime.time;
+		float num = ignoreTimeScale ? RealTime.time : Time.time;
 		if (framerate != 0)
 		{
 			mUpdate = num + Mathf.Abs(1f / (float)framerate);

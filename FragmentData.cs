@@ -8,7 +8,6 @@ public static class FragmentData
 
 	public static void Initialize()
 	{
-		string value = AssetManager.Instance.LoadTextDataString("fragmentdata.txt");
-		FragmentDataList = JsonConvert.DeserializeObject<List<FragmentDataEntry>>(value);
+		FragmentDataList = JsonConvert.DeserializeObject<List<FragmentDataEntry>>(AssetManager.Instance.LoadTextDataString("fragmentdata.txt"));
 	}
 }

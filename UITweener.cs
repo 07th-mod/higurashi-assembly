@@ -76,7 +76,7 @@ public abstract class UITweener : MonoBehaviour
 			if (mDuration != duration)
 			{
 				mDuration = duration;
-				mAmountPerDelta = Mathf.Abs((!(duration > 0f)) ? 1000f : (1f / duration)) * Mathf.Sign(mAmountPerDelta);
+				mAmountPerDelta = Mathf.Abs((duration > 0f) ? (1f / duration) : 1000f) * Mathf.Sign(mAmountPerDelta);
 			}
 			return mAmountPerDelta;
 		}
@@ -94,7 +94,17 @@ public abstract class UITweener : MonoBehaviour
 		}
 	}
 
-	public Direction direction => (!(amountPerDelta < 0f)) ? Direction.Forward : Direction.Reverse;
+	public Direction direction
+	{
+		get
+		{
+			if (!(amountPerDelta < 0f))
+			{
+				return Direction.Forward;
+			}
+			return Direction.Reverse;
+		}
+	}
 
 	private void Reset()
 	{
@@ -112,8 +122,8 @@ public abstract class UITweener : MonoBehaviour
 
 	private void Update()
 	{
-		float num = (!ignoreTimeScale) ? Time.deltaTime : RealTime.deltaTime;
-		float num2 = (!ignoreTimeScale) ? Time.time : RealTime.time;
+		float num = ignoreTimeScale ? RealTime.deltaTime : Time.deltaTime;
+		float num2 = ignoreTimeScale ? RealTime.time : Time.time;
 		if (!mStarted)
 		{
 			mStarted = true;
@@ -262,7 +272,7 @@ public abstract class UITweener : MonoBehaviour
 		{
 			num = 1f - BounceLogic(1f - num);
 		}
-		OnUpdate((animationCurve == null) ? num : animationCurve.Evaluate(num), isFinished);
+		OnUpdate((animationCurve != null) ? animationCurve.Evaluate(num) : num, isFinished);
 	}
 
 	private float BounceLogic(float val)
@@ -301,7 +311,7 @@ public abstract class UITweener : MonoBehaviour
 	public void ResetToBeginning()
 	{
 		mStarted = false;
-		mFactor = ((!(amountPerDelta < 0f)) ? 0f : 1f);
+		mFactor = ((amountPerDelta < 0f) ? 1f : 0f);
 		Sample(mFactor, isFinished: false);
 	}
 
@@ -325,7 +335,7 @@ public abstract class UITweener : MonoBehaviour
 		T val = go.GetComponent<T>();
 		if ((UnityEngine.Object)val != (UnityEngine.Object)null && val.tweenGroup != 0)
 		{
-			val = (T)null;
+			val = null;
 			T[] components = go.GetComponents<T>();
 			int i = 0;
 			for (int num = components.Length; i < num; i++)
@@ -335,7 +345,7 @@ public abstract class UITweener : MonoBehaviour
 				{
 					break;
 				}
-				val = (T)null;
+				val = null;
 			}
 		}
 		if ((UnityEngine.Object)val == (UnityEngine.Object)null)
@@ -344,7 +354,7 @@ public abstract class UITweener : MonoBehaviour
 			if ((UnityEngine.Object)val == (UnityEngine.Object)null)
 			{
 				Debug.LogError("Unable to add " + typeof(T) + " to " + NGUITools.GetHierarchy(go), go);
-				return (T)null;
+				return null;
 			}
 		}
 		val.mStarted = false;

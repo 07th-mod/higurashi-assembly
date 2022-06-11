@@ -36,8 +36,7 @@ public class UIToggledObjects : MonoBehaviour
 				target = null;
 			}
 		}
-		UIToggle component = GetComponent<UIToggle>();
-		EventDelegate.Add(component.onChange, Toggle);
+		EventDelegate.Add(GetComponent<UIToggle>().onChange, Toggle);
 	}
 
 	public void Toggle()

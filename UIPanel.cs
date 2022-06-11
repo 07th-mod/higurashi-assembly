@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/UI/NGUI Panel")]
@@ -121,15 +120,6 @@ public class UIPanel : UIRect
 
 	private bool mForced;
 
-	[CompilerGenerated]
-	private static Comparison<UIPanel> _003C_003Ef__mg_0024cache0;
-
-	[CompilerGenerated]
-	private static Comparison<UIPanel> _003C_003Ef__mg_0024cache1;
-
-	[CompilerGenerated]
-	private static Comparison<UIWidget> _003C_003Ef__mg_0024cache2;
-
 	public static int nextUnusedDepth
 	{
 		get
@@ -140,7 +130,11 @@ public class UIPanel : UIRect
 			{
 				num = Mathf.Max(num, list[i].depth);
 			}
-			return (num != int.MinValue) ? (num + 1) : 0;
+			if (num != int.MinValue)
+			{
+				return num + 1;
+			}
+			return 0;
 		}
 	}
 
@@ -197,27 +191,23 @@ public class UIPanel : UIRect
 		}
 	}
 
-	public float width
-	{
-		get
-		{
-			Vector2 viewSize = GetViewSize();
-			return viewSize.x;
-		}
-	}
+	public float width => GetViewSize().x;
 
-	public float height
-	{
-		get
-		{
-			Vector2 viewSize = GetViewSize();
-			return viewSize.y;
-		}
-	}
+	public float height => GetViewSize().y;
 
 	public bool halfPixelOffset => mHalfPixelOffset;
 
-	public bool usedForUI => base.anchorCamera != null && mCam.orthographic;
+	public bool usedForUI
+	{
+		get
+		{
+			if (base.anchorCamera != null)
+			{
+				return mCam.orthographic;
+			}
+			return false;
+		}
+	}
 
 	public Vector3 drawCallOffset
 	{
@@ -270,18 +260,22 @@ public class UIPanel : UIRect
 		}
 	}
 
-	public bool hasClipping => mClipping == UIDrawCall.Clipping.SoftClip || mClipping == UIDrawCall.Clipping.TextureMask;
+	public bool hasClipping
+	{
+		get
+		{
+			if (mClipping != UIDrawCall.Clipping.SoftClip)
+			{
+				return mClipping == UIDrawCall.Clipping.TextureMask;
+			}
+			return true;
+		}
+	}
 
 	public bool hasCumulativeClipping => clipCount != 0;
 
 	[Obsolete("Use 'hasClipping' or 'hasCumulativeClipping' instead")]
-	public bool clipsChildren
-	{
-		get
-		{
-			return hasCumulativeClipping;
-		}
-	}
+	public bool clipsChildren => hasCumulativeClipping;
 
 	public Vector2 clipOffset
 	{
@@ -342,7 +336,7 @@ public class UIPanel : UIRect
 			if (Mathf.Abs(mClipRange.x - value.x) > 0.001f || Mathf.Abs(mClipRange.y - value.y) > 0.001f || Mathf.Abs(mClipRange.z - value.z) > 0.001f || Mathf.Abs(mClipRange.w - value.w) > 0.001f)
 			{
 				mResized = true;
-				mCullTime = ((mCullTime != 0f) ? (RealTime.time + 0.15f) : 0.001f);
+				mCullTime = ((mCullTime == 0f) ? 0.001f : (RealTime.time + 0.15f));
 				mClipRange = value;
 				mMatrixFrame = -1;
 				UIScrollView component = GetComponent<UIScrollView>();
@@ -468,7 +462,11 @@ public class UIPanel : UIRect
 			{
 				return 1;
 			}
-			return (a.GetInstanceID() >= b.GetInstanceID()) ? 1 : (-1);
+			if (a.GetInstanceID() >= b.GetInstanceID())
+			{
+				return 1;
+			}
+			return -1;
 		}
 		return 0;
 	}
@@ -477,7 +475,7 @@ public class UIPanel : UIRect
 	{
 		mResized = true;
 		mMatrixFrame = -1;
-		mCullTime = ((mCullTime != 0f) ? (RealTime.time + 0.15f) : 0.001f);
+		mCullTime = ((mCullTime == 0f) ? 0.001f : (RealTime.time + 0.15f));
 		int i = 0;
 		for (int count = list.Count; i < count; i++)
 		{
@@ -545,7 +543,7 @@ public class UIPanel : UIRect
 		{
 			mAlphaFrameID = frameID;
 			UIRect parent = base.parent;
-			finalAlpha = ((!(base.parent != null)) ? mAlpha : (parent.CalculateFinalAlpha(frameID) * mAlpha));
+			finalAlpha = ((base.parent != null) ? (parent.CalculateFinalAlpha(frameID) * mAlpha) : mAlpha);
 		}
 		return finalAlpha;
 	}
@@ -741,7 +739,7 @@ public class UIPanel : UIRect
 	private void FindParent()
 	{
 		Transform parent = base.cachedTransform.parent;
-		mParentPanel = ((!(parent != null)) ? null : NGUITools.FindInParents<UIPanel>(parent.gameObject));
+		mParentPanel = ((parent != null) ? NGUITools.FindInParents<UIPanel>(parent.gameObject) : null);
 	}
 
 	public override void ParentHasChanged()
@@ -771,7 +769,7 @@ public class UIPanel : UIRect
 		FindParent();
 		if (GetComponent<Rigidbody>() == null && mParentPanel == null)
 		{
-			UICamera uICamera = (!(base.anchorCamera != null)) ? null : mCam.GetComponent<UICamera>();
+			UICamera uICamera = (base.anchorCamera != null) ? mCam.GetComponent<UICamera>() : null;
 			if (uICamera != null && (uICamera.eventType == UICamera.EventType.UI_3D || uICamera.eventType == UICamera.EventType.World_3D))
 			{
 				Rigidbody rigidbody = base.gameObject.AddComponent<Rigidbody>();
@@ -864,15 +862,7 @@ public class UIPanel : UIRect
 			if ((bool)leftAnchor.target)
 			{
 				Vector3[] sides2 = leftAnchor.GetSides(parent);
-				if (sides2 != null)
-				{
-					num = NGUIMath.Lerp(sides2[0].x, sides2[2].x, leftAnchor.relative) + (float)leftAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos = GetLocalPos(leftAnchor, parent);
-					num = localPos.x + (float)leftAnchor.absolute;
-				}
+				num = ((sides2 == null) ? (GetLocalPos(leftAnchor, parent).x + (float)leftAnchor.absolute) : (NGUIMath.Lerp(sides2[0].x, sides2[2].x, leftAnchor.relative) + (float)leftAnchor.absolute));
 			}
 			else
 			{
@@ -881,15 +871,7 @@ public class UIPanel : UIRect
 			if ((bool)rightAnchor.target)
 			{
 				Vector3[] sides3 = rightAnchor.GetSides(parent);
-				if (sides3 != null)
-				{
-					num2 = NGUIMath.Lerp(sides3[0].x, sides3[2].x, rightAnchor.relative) + (float)rightAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos2 = GetLocalPos(rightAnchor, parent);
-					num2 = localPos2.x + (float)rightAnchor.absolute;
-				}
+				num2 = ((sides3 == null) ? (GetLocalPos(rightAnchor, parent).x + (float)rightAnchor.absolute) : (NGUIMath.Lerp(sides3[0].x, sides3[2].x, rightAnchor.relative) + (float)rightAnchor.absolute));
 			}
 			else
 			{
@@ -898,15 +880,7 @@ public class UIPanel : UIRect
 			if ((bool)bottomAnchor.target)
 			{
 				Vector3[] sides4 = bottomAnchor.GetSides(parent);
-				if (sides4 != null)
-				{
-					num3 = NGUIMath.Lerp(sides4[3].y, sides4[1].y, bottomAnchor.relative) + (float)bottomAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos3 = GetLocalPos(bottomAnchor, parent);
-					num3 = localPos3.y + (float)bottomAnchor.absolute;
-				}
+				num3 = ((sides4 == null) ? (GetLocalPos(bottomAnchor, parent).y + (float)bottomAnchor.absolute) : (NGUIMath.Lerp(sides4[3].y, sides4[1].y, bottomAnchor.relative) + (float)bottomAnchor.absolute));
 			}
 			else
 			{
@@ -915,15 +889,7 @@ public class UIPanel : UIRect
 			if ((bool)topAnchor.target)
 			{
 				Vector3[] sides5 = topAnchor.GetSides(parent);
-				if (sides5 != null)
-				{
-					num4 = NGUIMath.Lerp(sides5[3].y, sides5[1].y, topAnchor.relative) + (float)topAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos4 = GetLocalPos(topAnchor, parent);
-					num4 = localPos4.y + (float)topAnchor.absolute;
-				}
+				num4 = ((sides5 == null) ? (GetLocalPos(topAnchor, parent).y + (float)topAnchor.absolute) : (NGUIMath.Lerp(sides5[3].y, sides5[1].y, topAnchor.relative) + (float)topAnchor.absolute));
 			}
 			else
 			{
@@ -1221,20 +1187,20 @@ public class UIPanel : UIRect
 			drawCallClipRange.x -= 0.5f;
 			drawCallClipRange.y += 0.5f;
 		}
-		Vector3 vector;
+		Vector3 position;
 		if (usedForUI)
 		{
 			Transform parent = base.cachedTransform.parent;
-			vector = base.cachedTransform.localPosition;
+			position = base.cachedTransform.localPosition;
 			if (parent != null)
 			{
-				vector = parent.TransformPoint(vector);
+				position = parent.TransformPoint(position);
 			}
-			vector += drawCallOffset;
+			position += drawCallOffset;
 		}
 		else
 		{
-			vector = cachedTransform.position;
+			position = cachedTransform.position;
 		}
 		Quaternion rotation = cachedTransform.rotation;
 		Vector3 lossyScale = cachedTransform.lossyScale;
@@ -1242,10 +1208,10 @@ public class UIPanel : UIRect
 		{
 			UIDrawCall uIDrawCall = drawCalls[i];
 			Transform cachedTransform2 = uIDrawCall.cachedTransform;
-			cachedTransform2.position = vector;
+			cachedTransform2.position = position;
 			cachedTransform2.rotation = rotation;
 			cachedTransform2.localScale = lossyScale;
-			uIDrawCall.renderQueue = ((renderQueue != RenderQueue.Explicit) ? (startingRenderQueue + i) : startingRenderQueue);
+			uIDrawCall.renderQueue = ((renderQueue == RenderQueue.Explicit) ? startingRenderQueue : (startingRenderQueue + i));
 			uIDrawCall.alwaysOnScreen = (alwaysOnScreen && (mClipping == UIDrawCall.Clipping.None || mClipping == UIDrawCall.Clipping.ConstrainButDontClip));
 			uIDrawCall.sortingOrder = mSortingOrder;
 			uIDrawCall.clipTexture = mClipTexture;
@@ -1322,8 +1288,8 @@ public class UIPanel : UIRect
 		for (int i = 0; i < drawCalls.Count; i++)
 		{
 			UIDrawCall uIDrawCall = drawCalls[i];
-			int num = (i != 0) ? (drawCalls[i - 1].depthEnd + 1) : int.MinValue;
-			int num2 = (i + 1 != drawCalls.Count) ? (drawCalls[i + 1].depthStart - 1) : int.MaxValue;
+			int num = (i == 0) ? int.MinValue : (drawCalls[i - 1].depthEnd + 1);
+			int num2 = (i + 1 == drawCalls.Count) ? int.MaxValue : (drawCalls[i + 1].depthStart - 1);
 			if (num > depth || num2 < depth)
 			{
 				continue;
@@ -1371,12 +1337,11 @@ public class UIPanel : UIRect
 			int num = widgets.Count;
 			while (num > 0)
 			{
-				if (UIWidget.PanelCompareFunc(w, widgets[--num]) == -1)
+				if (UIWidget.PanelCompareFunc(w, widgets[--num]) != -1)
 				{
-					continue;
+					widgets.Insert(num + 1, w);
+					break;
 				}
-				widgets.Insert(num + 1, w);
-				break;
 			}
 		}
 		FindDrawCall(w);
@@ -1427,8 +1392,8 @@ public class UIPanel : UIRect
 
 	public bool ConstrainTargetToBounds(Transform target, ref Bounds targetBounds, bool immediate)
 	{
-		Vector3 vector = targetBounds.min;
-		Vector3 vector2 = targetBounds.max;
+		Vector3 min = targetBounds.min;
+		Vector3 max = targetBounds.max;
 		float num = 1f;
 		if (mClipping == UIDrawCall.Clipping.None)
 		{
@@ -1440,16 +1405,16 @@ public class UIPanel : UIRect
 		}
 		if (num != 1f)
 		{
-			vector /= num;
-			vector2 /= num;
+			min /= num;
+			max /= num;
 		}
-		Vector3 vector3 = CalculateConstrainOffset(vector, vector2) * num;
-		if (vector3.sqrMagnitude > 0f)
+		Vector3 vector = CalculateConstrainOffset(min, max) * num;
+		if (vector.sqrMagnitude > 0f)
 		{
 			if (immediate)
 			{
-				target.localPosition += vector3;
-				targetBounds.center += vector3;
+				target.localPosition += vector;
+				targetBounds.center += vector;
 				SpringPosition component = target.GetComponent<SpringPosition>();
 				if (component != null)
 				{
@@ -1458,7 +1423,7 @@ public class UIPanel : UIRect
 			}
 			else
 			{
-				SpringPosition springPosition = SpringPosition.Begin(target.gameObject, target.localPosition + vector3, 13f);
+				SpringPosition springPosition = SpringPosition.Begin(target.gameObject, target.localPosition + vector, 13f);
 				springPosition.ignoreTimeScale = true;
 				springPosition.worldSpace = false;
 			}
@@ -1475,7 +1440,7 @@ public class UIPanel : UIRect
 
 	public static UIPanel Find(Transform trans)
 	{
-		return Find(trans, /*createIfMissing:*/ false, -1);
+		return Find(trans, createIfMissing: false, -1);
 	}
 
 	public static UIPanel Find(Transform trans, bool createIfMissing)
@@ -1490,18 +1455,22 @@ public class UIPanel : UIRect
 		{
 			return uIPanel;
 		}
-		return (!createIfMissing) ? null : NGUITools.CreateUI(trans, /*advanced3D:*/ false, layer);
+		if (!createIfMissing)
+		{
+			return null;
+		}
+		return NGUITools.CreateUI(trans, advanced3D: false, layer);
 	}
 
 	private Vector2 GetWindowSize()
 	{
 		UIRoot root = base.root;
-		Vector2 vector = NGUITools.screenSize;
+		Vector2 screenSize = NGUITools.screenSize;
 		if (root != null)
 		{
-			vector *= root.GetPixelSizeAdjustment(Mathf.RoundToInt(vector.y));
+			screenSize *= root.GetPixelSizeAdjustment(Mathf.RoundToInt(screenSize.y));
 		}
-		return vector;
+		return screenSize;
 	}
 
 	public Vector2 GetViewSize()

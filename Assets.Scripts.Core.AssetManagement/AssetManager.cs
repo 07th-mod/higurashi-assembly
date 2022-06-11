@@ -79,8 +79,8 @@ namespace Assets.Scripts.Core.AssetManagement
 					return;
 				}
 			}
-			string[] array2 = files2;
-			foreach (string path in array2)
+			array = files2;
+			foreach (string path in array)
 			{
 				string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(path);
 				if (!list.Contains(fileNameWithoutExtension3))
@@ -95,15 +95,15 @@ namespace Assets.Scripts.Core.AssetManagement
 		{
 			string path = Path.Combine(assetPath, "Scripts");
 			string text = Path.Combine(assetPath, "Update");
-			string text2 = Path.Combine(assetPath, "CompiledScripts");
+			Path.Combine(assetPath, "CompiledScripts");
 			string destDir = Path.Combine(assetPath, "CompiledUpdateScripts");
-			string[] files = Directory.GetFiles(path, "*.txt");
-			string[] files2 = Directory.GetFiles(text, "*.txt");
+			Directory.GetFiles(path, "*.txt");
+			Directory.GetFiles(text, "*.txt");
 			Debug.Log("Checking update scripts for updates...");
 			CompileFolder(text, destDir);
-			string[] files3 = Directory.GetFiles(Path.Combine(assetPath, "CompiledScripts"));
-			string[] files4 = Directory.GetFiles(Path.Combine(assetPath, "CompiledUpdateScripts"));
-			string[] array = files3;
+			string[] files = Directory.GetFiles(Path.Combine(assetPath, "CompiledScripts"));
+			string[] files2 = Directory.GetFiles(Path.Combine(assetPath, "CompiledUpdateScripts"));
+			string[] array = files;
 			foreach (string path2 in array)
 			{
 				if (!(Path.GetExtension(path2) != ".mg"))
@@ -115,8 +115,8 @@ namespace Assets.Scripts.Core.AssetManagement
 					}
 				}
 			}
-			string[] array2 = files4;
-			foreach (string path3 in array2)
+			array = files2;
+			foreach (string path3 in array)
 			{
 				if (!(Path.GetExtension(path3) != ".mg"))
 				{
@@ -158,42 +158,39 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadScreenshot(string filename)
 		{
-			string savePath = MGHelper.GetSavePath();
-			string path = Path.Combine(savePath, filename.ToLower());
-			if (File.Exists(path))
+			string path = Path.Combine(MGHelper.GetSavePath(), filename.ToLower());
+			if (!File.Exists(path))
 			{
-				try
-				{
-					byte[] array = File.ReadAllBytes(path);
-					byte[] array2 = new byte[4];
-					Buffer.BlockCopy(array, 16, array2, 0, 4);
-					int width = ReadLittleEndianInt32(array2);
-					Buffer.BlockCopy(array, 20, array2, 0, 4);
-					int height = ReadLittleEndianInt32(array2);
-					Texture2D texture2D = new Texture2D(width, height, TextureFormat.ARGB32, mipmap: false);
-					texture2D.LoadImage(array);
-					texture2D.filterMode = FilterMode.Bilinear;
-					texture2D.wrapMode = TextureWrapMode.Clamp;
-					return texture2D;
-				}
-				catch (Exception)
-				{
-					return LoadTexture("no_data");
-				}
+				return LoadTexture("no_data");
 			}
-			return LoadTexture("no_data");
+			try
+			{
+				byte[] array = File.ReadAllBytes(path);
+				byte[] array2 = new byte[4];
+				Buffer.BlockCopy(array, 16, array2, 0, 4);
+				int width = ReadLittleEndianInt32(array2);
+				Buffer.BlockCopy(array, 20, array2, 0, 4);
+				int height = ReadLittleEndianInt32(array2);
+				Texture2D texture2D = new Texture2D(width, height, TextureFormat.ARGB32, mipChain: false);
+				texture2D.LoadImage(array);
+				texture2D.filterMode = FilterMode.Bilinear;
+				texture2D.wrapMode = TextureWrapMode.Clamp;
+				return texture2D;
+			}
+			catch (Exception)
+			{
+				return LoadTexture("no_data");
+			}
 		}
 
 		public string LoadTextDataString(string dataName)
 		{
-			string path = Path.Combine(Application.streamingAssetsPath, "Data");
-			return File.ReadAllText(Path.Combine(path, dataName));
+			return File.ReadAllText(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName));
 		}
 
 		public List<string> LoadTextDataLines(string dataName)
 		{
-			string path = Path.Combine(Application.streamingAssetsPath, "Data");
-			return File.ReadAllLines(Path.Combine(path, dataName)).ToList();
+			return File.ReadAllLines(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName)).ToList();
 		}
 
 		public Texture2D LoadTexture(string textureName)
@@ -246,7 +243,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			int width = ReadLittleEndianInt32(array2);
 			Buffer.BlockCopy(array, 20, array2, 0, 4);
 			int height = ReadLittleEndianInt32(array2);
-			Texture2D texture2D = new Texture2D(width, height, TextureFormat.ARGB32, mipmap: true);
+			Texture2D texture2D = new Texture2D(width, height, TextureFormat.ARGB32, mipChain: true);
 			texture2D.mipMapBias = -0.5f;
 			texture2D.LoadImage(array);
 			texture2D.filterMode = FilterMode.Bilinear;
@@ -263,7 +260,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		{
 			Texture2D texture2D = LoadTexture(path);
 			int height = texture2D.height;
-			Cubemap cubemap = new Cubemap(texture2D.height, TextureFormat.RGB24, mipmap: false);
+			Cubemap cubemap = new Cubemap(texture2D.height, TextureFormat.RGB24, mipChain: false);
 			Color[] pixels = texture2D.GetPixels(0, 0, height, height);
 			cubemap.SetPixels(pixels, CubemapFace.PositiveX);
 			pixels = texture2D.GetPixels(height, 0, height, height);
@@ -290,8 +287,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
 		{
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
-			string path = Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
-			return File.ReadAllBytes(path);
+			return File.ReadAllBytes(Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()));
 		}
 
 		public byte[] GetScriptData(string filename)

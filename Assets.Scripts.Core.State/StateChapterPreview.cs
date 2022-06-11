@@ -40,7 +40,7 @@ namespace Assets.Scripts.Core.State
 
 		public void OnLeaveState()
 		{
-			Debug.Log("OnLeave StateChapterPreview " + isLeaving);
+			Debug.Log("OnLeave StateChapterPreview " + isLeaving.ToString());
 			if (!isLeaving)
 			{
 				previewScreen.Hide(delegate

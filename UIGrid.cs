@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/Interaction/Grid")]
@@ -56,15 +55,6 @@ public class UIGrid : UIWidgetContainer
 
 	protected bool mInitDone;
 
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache0;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache1;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache2;
-
 	public bool repositionNow
 	{
 		set
@@ -118,7 +108,11 @@ public class UIGrid : UIWidgetContainer
 	public Transform GetChild(int index)
 	{
 		List<Transform> childList = GetChildList();
-		return (index >= childList.Count) ? null : childList[index];
+		if (index >= childList.Count)
+		{
+			return null;
+		}
+		return childList[index];
 	}
 
 	public int GetIndex(Transform trans)
@@ -191,18 +185,12 @@ public class UIGrid : UIWidgetContainer
 
 	public static int SortHorizontal(Transform a, Transform b)
 	{
-		Vector3 localPosition = a.localPosition;
-		ref float x = ref localPosition.x;
-		Vector3 localPosition2 = b.localPosition;
-		return x.CompareTo(localPosition2.x);
+		return a.localPosition.x.CompareTo(b.localPosition.x);
 	}
 
 	public static int SortVertical(Transform a, Transform b)
 	{
-		Vector3 localPosition = b.localPosition;
-		ref float y = ref localPosition.y;
-		Vector3 localPosition2 = a.localPosition;
-		return y.CompareTo(localPosition2.y);
+		return b.localPosition.y.CompareTo(a.localPosition.y);
 	}
 
 	protected virtual void Sort(List<Transform> list)
@@ -277,7 +265,7 @@ public class UIGrid : UIWidgetContainer
 			}
 			else
 			{
-				vector = ((arrangement != 0) ? new Vector3(cellWidth * (float)num2, (0f - cellHeight) * (float)num, z) : new Vector3(cellWidth * (float)num, (0f - cellHeight) * (float)num2, z));
+				vector = ((arrangement == Arrangement.Horizontal) ? new Vector3(cellWidth * (float)num, (0f - cellHeight) * (float)num2, z) : new Vector3(cellWidth * (float)num2, (0f - cellHeight) * (float)num, z));
 			}
 			if (animateSmoothly && Application.isPlaying && Vector3.SqrMagnitude(transform2.localPosition - vector) >= 0.0001f)
 			{

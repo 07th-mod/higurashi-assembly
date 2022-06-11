@@ -53,41 +53,39 @@ namespace BGICompiler.Compiler
 				if (values[num].Type == BurikoValueType.Null)
 				{
 					num++;
+					continue;
 				}
-				else
+				switch (c)
 				{
-					switch (c)
+				case 'i':
+					if (values[num].Type != BurikoValueType.Int && values[num].Type != BurikoValueType.Bool && values[num].Type != BurikoValueType.Variable && values[num].Type != BurikoValueType.Operation && values[num].Type != BurikoValueType.Math && values[num].Type != BurikoValueType.Unary)
 					{
-					case 'i':
-						if (values[num].Type != BurikoValueType.Int && values[num].Type != BurikoValueType.Bool && values[num].Type != BurikoValueType.Variable && values[num].Type != BurikoValueType.Operation && values[num].Type != BurikoValueType.Math && values[num].Type != BurikoValueType.Unary)
-						{
-							Debug.LogWarning(values[num].Type);
-							return false;
-						}
-						break;
-					case 's':
-						if (values[num].Type != BurikoValueType.String && values[num].Type != BurikoValueType.Variable)
-						{
-							return false;
-						}
-						break;
-					case 'b':
-						if (values[num].Type != BurikoValueType.Bool)
-						{
-							return false;
-						}
-						break;
-					case 'v':
-						if (values[num].Type != BurikoValueType.Variable)
-						{
-							return false;
-						}
-						break;
-					default:
+						Debug.LogWarning(values[num].Type);
 						return false;
 					}
-					num++;
+					break;
+				case 's':
+					if (values[num].Type != BurikoValueType.String && values[num].Type != BurikoValueType.Variable)
+					{
+						return false;
+					}
+					break;
+				case 'b':
+					if (values[num].Type != BurikoValueType.Bool)
+					{
+						return false;
+					}
+					break;
+				case 'v':
+					if (values[num].Type != BurikoValueType.Variable)
+					{
+						return false;
+					}
+					break;
+				default:
+					return false;
 				}
+				num++;
 			}
 			return true;
 		}

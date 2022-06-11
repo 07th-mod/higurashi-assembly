@@ -213,9 +213,29 @@ public class UIProgressBar : UIWidgetContainer
 		}
 	}
 
-	protected bool isHorizontal => mFill == FillDirection.LeftToRight || mFill == FillDirection.RightToLeft;
+	protected bool isHorizontal
+	{
+		get
+		{
+			if (mFill != 0)
+			{
+				return mFill == FillDirection.RightToLeft;
+			}
+			return true;
+		}
+	}
 
-	protected bool isInverted => mFill == FillDirection.RightToLeft || mFill == FillDirection.TopToBottom;
+	protected bool isInverted
+	{
+		get
+		{
+			if (mFill != FillDirection.RightToLeft)
+			{
+				return mFill == FillDirection.TopToBottom;
+			}
+			return true;
+		}
+	}
 
 	protected void Start()
 	{
@@ -305,10 +325,18 @@ public class UIProgressBar : UIWidgetContainer
 			if (isHorizontal)
 			{
 				float num = (localPos.x - localCorners[0].x) / vector.x;
-				return (!isInverted) ? num : (1f - num);
+				if (!isInverted)
+				{
+					return num;
+				}
+				return 1f - num;
 			}
 			float num2 = (localPos.y - localCorners[0].y) / vector.y;
-			return (!isInverted) ? num2 : (1f - num2);
+			if (!isInverted)
+			{
+				return num2;
+			}
+			return 1f - num2;
 		}
 		return value;
 	}
@@ -332,7 +360,7 @@ public class UIProgressBar : UIWidgetContainer
 				}
 				else
 				{
-					mFG.drawRegion = ((!isInverted) ? new Vector4(0f, 0f, value, 1f) : new Vector4(1f - value, 0f, 1f, 1f));
+					mFG.drawRegion = (isInverted ? new Vector4(1f - value, 0f, 1f, 1f) : new Vector4(0f, 0f, value, 1f));
 					mFG.enabled = (value > 0.001f);
 				}
 			}
@@ -347,14 +375,14 @@ public class UIProgressBar : UIWidgetContainer
 			}
 			else
 			{
-				mFG.drawRegion = ((!isInverted) ? new Vector4(0f, 0f, 1f, value) : new Vector4(0f, 1f - value, 1f, 1f));
+				mFG.drawRegion = (isInverted ? new Vector4(0f, 1f - value, 1f, 1f) : new Vector4(0f, 0f, 1f, value));
 				mFG.enabled = (value > 0.001f);
 			}
 		}
 		if (thumb != null && (mFG != null || mBG != null))
 		{
-			Vector3[] array = (!(mFG != null)) ? mBG.localCorners : mFG.localCorners;
-			Vector4 vector = (!(mFG != null)) ? mBG.border : mFG.border;
+			Vector3[] array = (mFG != null) ? mFG.localCorners : mBG.localCorners;
+			Vector4 vector = (mFG != null) ? mFG.border : mBG.border;
 			array[0].x += vector.x;
 			array[1].x += vector.x;
 			array[2].x -= vector.z;
@@ -363,7 +391,7 @@ public class UIProgressBar : UIWidgetContainer
 			array[1].y -= vector.w;
 			array[2].y -= vector.w;
 			array[3].y += vector.y;
-			Transform transform = (!(mFG != null)) ? mBG.cachedTransform : mFG.cachedTransform;
+			Transform transform = (mFG != null) ? mFG.cachedTransform : mBG.cachedTransform;
 			for (int i = 0; i < 4; i++)
 			{
 				array[i] = transform.TransformPoint(array[i]);
@@ -372,13 +400,13 @@ public class UIProgressBar : UIWidgetContainer
 			{
 				Vector3 a = Vector3.Lerp(array[0], array[1], 0.5f);
 				Vector3 b = Vector3.Lerp(array[2], array[3], 0.5f);
-				SetThumbPosition(Vector3.Lerp(a, b, (!isInverted) ? value : (1f - value)));
+				SetThumbPosition(Vector3.Lerp(a, b, isInverted ? (1f - value) : value));
 			}
 			else
 			{
 				Vector3 a2 = Vector3.Lerp(array[0], array[3], 0.5f);
 				Vector3 b2 = Vector3.Lerp(array[1], array[2], 0.5f);
-				SetThumbPosition(Vector3.Lerp(a2, b2, (!isInverted) ? value : (1f - value)));
+				SetThumbPosition(Vector3.Lerp(a2, b2, isInverted ? (1f - value) : value));
 			}
 		}
 	}

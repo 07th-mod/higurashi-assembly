@@ -46,7 +46,17 @@ public class PropertyReference
 		}
 	}
 
-	public bool isValid => mTarget != null && !string.IsNullOrEmpty(mName);
+	public bool isValid
+	{
+		get
+		{
+			if (mTarget != null)
+			{
+				return !string.IsNullOrEmpty(mName);
+			}
+			return false;
+		}
+	}
 
 	public bool isEnabled
 	{
@@ -57,7 +67,11 @@ public class PropertyReference
 				return false;
 			}
 			MonoBehaviour monoBehaviour = mTarget as MonoBehaviour;
-			return monoBehaviour == null || monoBehaviour.enabled;
+			if (!(monoBehaviour == null))
+			{
+				return monoBehaviour.enabled;
+			}
+			return true;
 		}
 	}
 
@@ -97,7 +111,11 @@ public class PropertyReference
 		if (obj is PropertyReference)
 		{
 			PropertyReference propertyReference = obj as PropertyReference;
-			return mTarget == propertyReference.mTarget && string.Equals(mName, propertyReference.mName);
+			if (mTarget == propertyReference.mTarget)
+			{
+				return string.Equals(mName, propertyReference.mName);
+			}
+			return false;
 		}
 		return false;
 	}
@@ -187,7 +205,7 @@ public class PropertyReference
 		{
 			try
 			{
-				if (mProperty == null)
+				if (!(mProperty != null))
 				{
 					mField.SetValue(mTarget, null);
 					return true;
@@ -241,7 +259,11 @@ public class PropertyReference
 			mField = null;
 			mProperty = null;
 		}
-		return mField != null || mProperty != null;
+		if (!(mField != null))
+		{
+			return mProperty != null;
+		}
+		return true;
 	}
 
 	private bool Convert(ref object value)
@@ -291,7 +313,7 @@ public class PropertyReference
 		}
 		if (to == typeof(string))
 		{
-			value = ((value == null) ? "null" : value.ToString());
+			value = ((value != null) ? value.ToString() : "null");
 			return true;
 		}
 		if (value == null)

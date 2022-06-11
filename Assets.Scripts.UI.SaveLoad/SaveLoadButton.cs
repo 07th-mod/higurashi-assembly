@@ -31,13 +31,12 @@ namespace Assets.Scripts.UI.SaveLoad
 			{
 				return;
 			}
-			StateSaveLoad state = gameSystem.GetStateObject() as StateSaveLoad;
-			if (state == null)
+			StateSaveLoad state4 = gameSystem.GetStateObject() as StateSaveLoad;
+			if (state4 == null)
 			{
 				return;
 			}
-			string name = base.name;
-			switch (name)
+			switch (base.name)
 			{
 			case "Save":
 			case "0-Save":
@@ -53,7 +52,7 @@ namespace Assets.Scripts.UI.SaveLoad
 				}
 				StateDialogPrompt state2 = new StateDialogPrompt(PromptType.DialogLoad, delegate
 				{
-					state.Leave(delegate
+					state4.Leave(delegate
 					{
 						StateTitle stateTitle = gameSystem.GetStateObject() as StateTitle;
 						if (!manager.CanSave())
@@ -80,8 +79,8 @@ namespace Assets.Scripts.UI.SaveLoad
 			}
 			case "2-Edit":
 			{
-				SaveEntry d2 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
-				if (d2 == null)
+				SaveEntry d3 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
+				if (d3 == null)
 				{
 					return;
 				}
@@ -95,9 +94,9 @@ namespace Assets.Scripts.UI.SaveLoad
 					PromptController promptController2 = state3.GetPromptController();
 					if (!(promptController2 == null))
 					{
-						string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d2.Path);
+						string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d3.Path);
 						Texture2D image2 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension2 + ".png");
-						promptController2.SetScreenshotDetails(image2, d2.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d2.Text, d2.TextJp);
+						promptController2.SetScreenshotDetails(image2, d3.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d3.Text, d3.TextJp);
 					}
 				});
 				gameSystem.ExecuteActions();
@@ -105,8 +104,8 @@ namespace Assets.Scripts.UI.SaveLoad
 			}
 			case "3-Delete":
 			{
-				SaveEntry d3 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
-				if (d3 == null)
+				SaveEntry d2 = BurikoScriptSystem.Instance.GetSaveInfo(slot);
+				if (d2 == null)
 				{
 					return;
 				}
@@ -121,15 +120,15 @@ namespace Assets.Scripts.UI.SaveLoad
 					PromptController promptController3 = prompt.GetPromptController();
 					if (!(promptController3 == null))
 					{
-						string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d3.Path);
+						string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d2.Path);
 						Texture2D image3 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension3 + ".png");
-						promptController3.SetScreenshotDetails(image3, d3.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d3.Text, d3.TextJp);
+						promptController3.SetScreenshotDetails(image3, d2.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d2.Text, d2.TextJp);
 					}
 				});
 				break;
 			}
 			case "Return":
-				state.Leave(null);
+				state4.Leave(null);
 				break;
 			default:
 				Debug.LogWarning("Unhandled button action!");
@@ -145,9 +144,8 @@ namespace Assets.Scripts.UI.SaveLoad
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if (gameSystem.GameState == GameState.SaveLoadScreen)
-			{
-			}
+			_ = gameSystem.GameState;
+			_ = 10;
 		}
 
 		public void Prepare(int slotnum, SaveLoadManager mg)

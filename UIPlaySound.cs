@@ -36,7 +36,11 @@ public class UIPlaySound : MonoBehaviour
 				return false;
 			}
 			UIButton component = GetComponent<UIButton>();
-			return component == null || component.isEnabled;
+			if (!(component == null))
+			{
+				return component.isEnabled;
+			}
+			return true;
 		}
 	}
 

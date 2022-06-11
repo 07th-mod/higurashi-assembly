@@ -12,11 +12,12 @@ namespace Assets.Scripts.Core.Buriko.Util
 			if (value is BurikoString)
 			{
 				JToken jToken = JToken.FromObject(value);
-				JObject jObject = (JObject)jToken;
-				jObject.AddFirst(new JProperty("type", new JArray(new string[1]
+				JObject obj = (JObject)jToken;
+				object[] content = new string[1]
 				{
 					"BurikoString"
-				})));
+				};
+				obj.AddFirst(new JProperty("type", new JArray(content)));
 				jToken.WriteTo(writer);
 			}
 		}

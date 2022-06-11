@@ -304,9 +304,29 @@ public class UIWidget : UIRect
 		}
 	}
 
-	public bool isVisible => mIsVisibleByPanel && mIsVisibleByAlpha && mIsInFront && finalAlpha > 0.001f && NGUITools.GetActive(this);
+	public bool isVisible
+	{
+		get
+		{
+			if (mIsVisibleByPanel && mIsVisibleByAlpha && mIsInFront && finalAlpha > 0.001f)
+			{
+				return NGUITools.GetActive(this);
+			}
+			return false;
+		}
+	}
 
-	public bool hasVertices => geometry != null && geometry.hasVertices;
+	public bool hasVertices
+	{
+		get
+		{
+			if (geometry != null)
+			{
+				return geometry.hasVertices;
+			}
+			return false;
+		}
+	}
 
 	public Pivot rawPivot
 	{
@@ -344,8 +364,7 @@ public class UIWidget : UIRect
 				Vector3 vector2 = worldCorners[0];
 				Transform cachedTransform = base.cachedTransform;
 				Vector3 vector3 = cachedTransform.position;
-				Vector3 localPosition = cachedTransform.localPosition;
-				float z = localPosition.z;
+				float z = cachedTransform.localPosition.z;
 				vector3.x += vector.x - vector2.x;
 				vector3.y += vector.y - vector2.y;
 				base.cachedTransform.position = vector3;
@@ -395,7 +414,11 @@ public class UIWidget : UIRect
 			{
 				CreatePanel();
 			}
-			return (!(panel != null)) ? mDepth : (mDepth + panel.depth * 1000);
+			if (!(panel != null))
+			{
+				return mDepth;
+			}
+			return mDepth + panel.depth * 1000;
 		}
 	}
 
@@ -463,7 +486,7 @@ public class UIWidget : UIRect
 			float num2 = (0f - pivotOffset.y) * (float)mHeight;
 			float num3 = num + (float)mWidth;
 			float num4 = num2 + (float)mHeight;
-			return new Vector4((mDrawRegion.x != 0f) ? Mathf.Lerp(num, num3, mDrawRegion.x) : num, (mDrawRegion.y != 0f) ? Mathf.Lerp(num2, num4, mDrawRegion.y) : num2, (mDrawRegion.z != 1f) ? Mathf.Lerp(num, num3, mDrawRegion.z) : num3, (mDrawRegion.w != 1f) ? Mathf.Lerp(num2, num4, mDrawRegion.w) : num4);
+			return new Vector4((mDrawRegion.x == 0f) ? num : Mathf.Lerp(num, num3, mDrawRegion.x), (mDrawRegion.y == 0f) ? num2 : Mathf.Lerp(num2, num4, mDrawRegion.y), (mDrawRegion.z == 1f) ? num3 : Mathf.Lerp(num, num3, mDrawRegion.z), (mDrawRegion.w == 1f) ? num4 : Mathf.Lerp(num2, num4, mDrawRegion.w));
 		}
 	}
 
@@ -484,7 +507,11 @@ public class UIWidget : UIRect
 		get
 		{
 			Material material = this.material;
-			return (!(material != null)) ? null : material.mainTexture;
+			if (!(material != null))
+			{
+				return null;
+			}
+			return material.mainTexture;
 		}
 		set
 		{
@@ -497,7 +524,11 @@ public class UIWidget : UIRect
 		get
 		{
 			Material material = this.material;
-			return (!(material != null)) ? null : material.shader;
+			if (!(material != null))
+			{
+				return null;
+			}
+			return material.shader;
 		}
 		set
 		{
@@ -506,20 +537,13 @@ public class UIWidget : UIRect
 	}
 
 	[Obsolete("There is no relative scale anymore. Widgets now have width and height instead")]
-	public Vector2 relativeSize
-	{
-		get
-		{
-			return Vector2.one;
-		}
-	}
+	public Vector2 relativeSize => Vector2.one;
 
 	public bool hasBoxCollider
 	{
 		get
 		{
-			BoxCollider x = GetComponent<Collider>() as BoxCollider;
-			if (x != null)
+			if (GetComponent<Collider>() as BoxCollider != null)
 			{
 				return true;
 			}
@@ -611,7 +635,7 @@ public class UIWidget : UIRect
 			return;
 		}
 		UIRect parent = base.parent;
-		finalAlpha = ((!(base.parent != null)) ? mColor.a : (parent.CalculateFinalAlpha(frameID) * mColor.a));
+		finalAlpha = ((base.parent != null) ? (parent.CalculateFinalAlpha(frameID) * mColor.a) : mColor.a);
 	}
 
 	public override void Invalidate(bool includeChildren)
@@ -633,7 +657,11 @@ public class UIWidget : UIRect
 	public float CalculateCumulativeAlpha(int frameID)
 	{
 		UIRect parent = base.parent;
-		return (!(parent != null)) ? mColor.a : (parent.CalculateFinalAlpha(frameID) * mColor.a);
+		if (!(parent != null))
+		{
+			return mColor.a;
+		}
+		return parent.CalculateFinalAlpha(frameID) * mColor.a;
 	}
 
 	public override void SetRect(float x, float y, float width, float height)
@@ -701,7 +729,11 @@ public class UIWidget : UIRect
 	public static int FullCompareFunc(UIWidget left, UIWidget right)
 	{
 		int num = UIPanel.CompareFunc(left.panel, right.panel);
-		return (num != 0) ? num : PanelCompareFunc(left, right);
+		if (num != 0)
+		{
+			return num;
+		}
+		return PanelCompareFunc(left, right);
 	}
 
 	[DebuggerHidden]
@@ -730,7 +762,11 @@ public class UIWidget : UIRect
 		{
 			return 1;
 		}
-		return (material.GetInstanceID() >= material2.GetInstanceID()) ? 1 : (-1);
+		if (material.GetInstanceID() >= material2.GetInstanceID())
+		{
+			return 1;
+		}
+		return -1;
 	}
 
 	public Bounds CalculateBounds()
@@ -799,7 +835,7 @@ public class UIWidget : UIRect
 	{
 		if (mStarted && panel == null && base.enabled && NGUITools.GetActive(base.gameObject))
 		{
-			panel = UIPanel.Find(base.cachedTransform, /*createIfMissing:*/ true, base.cachedGameObject.layer);
+			panel = UIPanel.Find(base.cachedTransform, createIfMissing: true, base.cachedGameObject.layer);
 			if (panel != null)
 			{
 				mParentFound = false;
@@ -825,7 +861,7 @@ public class UIWidget : UIRect
 		base.ParentHasChanged();
 		if (panel != null)
 		{
-			UIPanel y = UIPanel.Find(base.cachedTransform, /*createIfMissing:*/ true, base.cachedGameObject.layer);
+			UIPanel y = UIPanel.Find(base.cachedTransform, createIfMissing: true, base.cachedGameObject.layer);
 			if (panel != y)
 			{
 				RemoveFromPanel();
@@ -903,15 +939,7 @@ public class UIWidget : UIRect
 			if ((bool)leftAnchor.target)
 			{
 				Vector3[] sides2 = leftAnchor.GetSides(parent);
-				if (sides2 != null)
-				{
-					num = NGUIMath.Lerp(sides2[0].x, sides2[2].x, leftAnchor.relative) + (float)leftAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos2 = GetLocalPos(leftAnchor, parent);
-					num = localPos2.x + (float)leftAnchor.absolute;
-				}
+				num = ((sides2 == null) ? (GetLocalPos(leftAnchor, parent).x + (float)leftAnchor.absolute) : (NGUIMath.Lerp(sides2[0].x, sides2[2].x, leftAnchor.relative) + (float)leftAnchor.absolute));
 			}
 			else
 			{
@@ -920,15 +948,7 @@ public class UIWidget : UIRect
 			if ((bool)rightAnchor.target)
 			{
 				Vector3[] sides3 = rightAnchor.GetSides(parent);
-				if (sides3 != null)
-				{
-					num2 = NGUIMath.Lerp(sides3[0].x, sides3[2].x, rightAnchor.relative) + (float)rightAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos3 = GetLocalPos(rightAnchor, parent);
-					num2 = localPos3.x + (float)rightAnchor.absolute;
-				}
+				num2 = ((sides3 == null) ? (GetLocalPos(rightAnchor, parent).x + (float)rightAnchor.absolute) : (NGUIMath.Lerp(sides3[0].x, sides3[2].x, rightAnchor.relative) + (float)rightAnchor.absolute));
 			}
 			else
 			{
@@ -937,15 +957,7 @@ public class UIWidget : UIRect
 			if ((bool)bottomAnchor.target)
 			{
 				Vector3[] sides4 = bottomAnchor.GetSides(parent);
-				if (sides4 != null)
-				{
-					num3 = NGUIMath.Lerp(sides4[3].y, sides4[1].y, bottomAnchor.relative) + (float)bottomAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos4 = GetLocalPos(bottomAnchor, parent);
-					num3 = localPos4.y + (float)bottomAnchor.absolute;
-				}
+				num3 = ((sides4 == null) ? (GetLocalPos(bottomAnchor, parent).y + (float)bottomAnchor.absolute) : (NGUIMath.Lerp(sides4[3].y, sides4[1].y, bottomAnchor.relative) + (float)bottomAnchor.absolute));
 			}
 			else
 			{
@@ -954,15 +966,7 @@ public class UIWidget : UIRect
 			if ((bool)topAnchor.target)
 			{
 				Vector3[] sides5 = topAnchor.GetSides(parent);
-				if (sides5 != null)
-				{
-					num4 = NGUIMath.Lerp(sides5[3].y, sides5[1].y, topAnchor.relative) + (float)topAnchor.absolute;
-				}
-				else
-				{
-					Vector3 localPos5 = GetLocalPos(topAnchor, parent);
-					num4 = localPos5.y + (float)topAnchor.absolute;
-				}
+				num4 = ((sides5 == null) ? (GetLocalPos(topAnchor, parent).y + (float)topAnchor.absolute) : (NGUIMath.Lerp(sides5[3].y, sides5[1].y, topAnchor.relative) + (float)topAnchor.absolute));
 			}
 			else
 			{
@@ -1081,7 +1085,11 @@ public class UIWidget : UIRect
 		{
 			onChange();
 		}
-		return mMoved || mChanged;
+		if (!mMoved)
+		{
+			return mChanged;
+		}
+		return true;
 	}
 
 	public bool UpdateGeometry(int frame)

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Core.State
 {
-	internal class StateTitle : IGameState
+	public class StateTitle : IGameState
 	{
 		private GameSystem gameSystem;
 

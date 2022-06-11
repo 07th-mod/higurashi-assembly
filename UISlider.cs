@@ -68,7 +68,7 @@ public class UISlider : UIProgressBar
 			}
 			else
 			{
-				mFill = ((!mInverted) ? FillDirection.BottomToTop : FillDirection.TopToBottom);
+				mFill = (mInverted ? FillDirection.TopToBottom : FillDirection.BottomToTop);
 			}
 			direction = Direction.Upgraded;
 		}
@@ -76,19 +76,14 @@ public class UISlider : UIProgressBar
 
 	protected override void OnStart()
 	{
-		GameObject go = (!(mBG != null) || (!(mBG.GetComponent<Collider>() != null) && !(mBG.GetComponent<Collider2D>() != null))) ? base.gameObject : mBG.gameObject;
-		UIEventListener uIEventListener = UIEventListener.Get(go);
-		UIEventListener uIEventListener2 = uIEventListener;
-		uIEventListener2.onPress = (UIEventListener.BoolDelegate)Delegate.Combine(uIEventListener2.onPress, new UIEventListener.BoolDelegate(OnPressBackground));
-		UIEventListener uIEventListener3 = uIEventListener;
-		uIEventListener3.onDrag = (UIEventListener.VectorDelegate)Delegate.Combine(uIEventListener3.onDrag, new UIEventListener.VectorDelegate(OnDragBackground));
+		UIEventListener uIEventListener = UIEventListener.Get((mBG != null && (mBG.GetComponent<Collider>() != null || mBG.GetComponent<Collider2D>() != null)) ? mBG.gameObject : base.gameObject);
+		uIEventListener.onPress = (UIEventListener.BoolDelegate)Delegate.Combine(uIEventListener.onPress, new UIEventListener.BoolDelegate(OnPressBackground));
+		uIEventListener.onDrag = (UIEventListener.VectorDelegate)Delegate.Combine(uIEventListener.onDrag, new UIEventListener.VectorDelegate(OnDragBackground));
 		if (thumb != null && (thumb.GetComponent<Collider>() != null || thumb.GetComponent<Collider2D>() != null) && (mFG == null || thumb != mFG.cachedTransform))
 		{
-			UIEventListener uIEventListener4 = UIEventListener.Get(thumb.gameObject);
-			UIEventListener uIEventListener5 = uIEventListener4;
-			uIEventListener5.onPress = (UIEventListener.BoolDelegate)Delegate.Combine(uIEventListener5.onPress, new UIEventListener.BoolDelegate(OnPressForeground));
-			UIEventListener uIEventListener6 = uIEventListener4;
-			uIEventListener6.onDrag = (UIEventListener.VectorDelegate)Delegate.Combine(uIEventListener6.onDrag, new UIEventListener.VectorDelegate(OnDragForeground));
+			UIEventListener uIEventListener2 = UIEventListener.Get(thumb.gameObject);
+			uIEventListener2.onPress = (UIEventListener.BoolDelegate)Delegate.Combine(uIEventListener2.onPress, new UIEventListener.BoolDelegate(OnPressForeground));
+			uIEventListener2.onDrag = (UIEventListener.VectorDelegate)Delegate.Combine(uIEventListener2.onDrag, new UIEventListener.VectorDelegate(OnDragForeground));
 		}
 	}
 
@@ -121,7 +116,7 @@ public class UISlider : UIProgressBar
 			mCam = UICamera.currentCamera;
 			if (isPressed)
 			{
-				mOffset = ((!(mFG == null)) ? (base.value - ScreenToValue(UICamera.lastTouchPosition)) : 0f);
+				mOffset = ((mFG == null) ? 0f : (base.value - ScreenToValue(UICamera.lastTouchPosition)));
 			}
 			else if (onDragFinished != null)
 			{
@@ -145,7 +140,7 @@ public class UISlider : UIProgressBar
 		{
 			return;
 		}
-		float num = (!((float)numberOfSteps > 1f)) ? 0.125f : (1f / (float)(numberOfSteps - 1));
+		float num = ((float)numberOfSteps > 1f) ? (1f / (float)(numberOfSteps - 1)) : 0.125f;
 		switch (mFill)
 		{
 		case FillDirection.LeftToRight:

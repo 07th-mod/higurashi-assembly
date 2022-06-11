@@ -58,27 +58,26 @@ namespace Assets.Scripts.UI.Prompt
 
 		private IEnumerator LeaveWindow(bool affirmative)
 		{
-			this.ButtonYes.enabled = false;
-			this.ButtonNo.enabled = false;
-			TweenAlpha a = this.DialogPanel.GetComponent<TweenAlpha>();
+			ButtonYes.enabled = false;
+			ButtonNo.enabled = false;
+			TweenAlpha component = DialogPanel.GetComponent<TweenAlpha>();
 			LeanTween.cancel(base.gameObject);
 			LeanTween.value(base.gameObject, delegate(float f)
 			{
-				this.TextMaterial.SetColor("_FaceColor", new Color(0f, 0f, 0f, f));
+				TextMaterial.SetColor("_FaceColor", new Color(0f, 0f, 0f, f));
 			}, 1f, 0f, 0.3f);
-			a.PlayReverse();
-			if (!affirmative && this.noCallback != null)
+			component.PlayReverse();
+			if (!affirmative && noCallback != null)
 			{
-				this.noCallback();
+				noCallback();
 			}
 			yield return new WaitForSeconds(0.5f);
 			GameSystem.Instance.PopStateStack();
-			if (affirmative && this.yesCallback != null)
+			if (affirmative && yesCallback != null)
 			{
-				this.yesCallback();
+				yesCallback();
 			}
-			UnityEngine.Object.Destroy(base.gameObject);
-			yield break;
+			Object.Destroy(base.gameObject);
 		}
 
 		public void Hide(bool affirmative)
@@ -108,34 +107,7 @@ namespace Assets.Scripts.UI.Prompt
 		public void Open(PromptType type, DialogCallback onYes, DialogCallback onNo)
 		{
 			pType = type;
-			if (!GameSystem.Instance.UseEnglishText)
-			{
-				switch (type)
-				{
-				case PromptType.DialogEdit:
-					DialogPromptImage.mainTexture = TextureEditJapanese;
-					break;
-				case PromptType.DialogExit:
-					DialogPromptImage.mainTexture = TextureExitJapanese;
-					break;
-				case PromptType.DialogLoad:
-					DialogPromptImage.mainTexture = TextureLoadJapanese;
-					break;
-				case PromptType.DialogSave:
-					DialogPromptImage.mainTexture = TextureSaveJapanese;
-					break;
-				case PromptType.DialogTitle:
-					DialogPromptImage.mainTexture = TextureTitleJapanese;
-					break;
-				case PromptType.DialogDelete:
-					DialogPromptImage.mainTexture = TextureDeleteJapanese;
-					break;
-				case PromptType.DialogLanguage:
-					DialogPromptImage.mainTexture = TextureLanguage;
-					break;
-				}
-			}
-			else
+			if (GameSystem.Instance.UseEnglishText)
 			{
 				switch (type)
 				{
@@ -162,6 +134,33 @@ namespace Assets.Scripts.UI.Prompt
 					break;
 				}
 			}
+			else
+			{
+				switch (type)
+				{
+				case PromptType.DialogEdit:
+					DialogPromptImage.mainTexture = TextureEditJapanese;
+					break;
+				case PromptType.DialogExit:
+					DialogPromptImage.mainTexture = TextureExitJapanese;
+					break;
+				case PromptType.DialogLoad:
+					DialogPromptImage.mainTexture = TextureLoadJapanese;
+					break;
+				case PromptType.DialogSave:
+					DialogPromptImage.mainTexture = TextureSaveJapanese;
+					break;
+				case PromptType.DialogTitle:
+					DialogPromptImage.mainTexture = TextureTitleJapanese;
+					break;
+				case PromptType.DialogDelete:
+					DialogPromptImage.mainTexture = TextureDeleteJapanese;
+					break;
+				case PromptType.DialogLanguage:
+					DialogPromptImage.mainTexture = TextureLanguage;
+					break;
+				}
+			}
 			DialogPromptImage.MakePixelPerfect();
 			if (type == PromptType.DialogExit || type == PromptType.DialogTitle || type == PromptType.DialogDelete)
 			{
@@ -173,8 +172,8 @@ namespace Assets.Scripts.UI.Prompt
 			{
 				Object.Destroy(BottomBox.GetComponent<UIInput>());
 			}
-			TopBox.text = string.Empty;
-			BottomBox.text = string.Empty;
+			TopBox.text = "";
+			BottomBox.text = "";
 			yesCallback = onYes;
 			noCallback = onNo;
 			if (type == PromptType.DialogLanguage)

@@ -60,19 +60,20 @@ namespace Assets.Scripts.UI
 
 		private void Update()
 		{
-			if (autoHide)
+			if (!autoHide)
 			{
-				GameObject hoveredObject = UICamera.hoveredObject;
-				if (isOpen)
+				return;
+			}
+			GameObject hoveredObject = UICamera.hoveredObject;
+			if (isOpen)
+			{
+				if (hoveredObject == GameSystem.Instance.SceneController.SceneCameras || (GameSystem.Instance.GameState != GameState.Normal && GameSystem.Instance.GameState != GameState.ChoiceScreen))
 				{
-					if (hoveredObject == GameSystem.Instance.SceneController.SceneCameras || (GameSystem.Instance.GameState != GameState.Normal && GameSystem.Instance.GameState != GameState.ChoiceScreen))
-					{
-						CloseWindow();
-					}
-					else if (!(hoveredObject == null) && !hoveredObject.transform.IsChildOf(base.gameObject.transform))
-					{
-						CloseWindow();
-					}
+					CloseWindow();
+				}
+				else if (!(hoveredObject == null) && !hoveredObject.transform.IsChildOf(base.gameObject.transform))
+				{
+					CloseWindow();
 				}
 			}
 		}

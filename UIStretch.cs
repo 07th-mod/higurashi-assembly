@@ -96,30 +96,22 @@ public class UIStretch : MonoBehaviour
 		{
 			return;
 		}
-		UIWidget uIWidget = (!(container == null)) ? container.GetComponent<UIWidget>() : null;
-		UIPanel uIPanel = (!(container == null) || !(uIWidget == null)) ? container.GetComponent<UIPanel>() : null;
+		UIWidget uIWidget = (container == null) ? null : container.GetComponent<UIWidget>();
+		UIPanel uIPanel = (container == null && uIWidget == null) ? null : container.GetComponent<UIPanel>();
 		float num = 1f;
 		if (uIWidget != null)
 		{
 			Bounds bounds = uIWidget.CalculateBounds(base.transform.parent);
-			ref Rect reference = ref mRect;
-			Vector3 min = bounds.min;
-			reference.x = min.x;
-			ref Rect reference2 = ref mRect;
-			Vector3 min2 = bounds.min;
-			reference2.y = min2.y;
-			ref Rect reference3 = ref mRect;
-			Vector3 size = bounds.size;
-			reference3.width = size.x;
-			ref Rect reference4 = ref mRect;
-			Vector3 size2 = bounds.size;
-			reference4.height = size2.y;
+			mRect.x = bounds.min.x;
+			mRect.y = bounds.min.y;
+			mRect.width = bounds.size.x;
+			mRect.height = bounds.size.y;
 		}
 		else if (uIPanel != null)
 		{
 			if (uIPanel.clipping == UIDrawCall.Clipping.None)
 			{
-				float num2 = (!(mRoot != null)) ? 0.5f : ((float)mRoot.activeHeight / (float)Screen.height * 0.5f);
+				float num2 = (mRoot != null) ? ((float)mRoot.activeHeight / (float)Screen.height * 0.5f) : 0.5f;
 				mRect.xMin = (float)(-Screen.width) * num2;
 				mRect.yMin = (float)(-Screen.height) * num2;
 				mRect.xMax = 0f - mRect.xMin;
@@ -137,19 +129,11 @@ public class UIStretch : MonoBehaviour
 		else if (container != null)
 		{
 			Transform parent = base.transform.parent;
-			Bounds bounds2 = (!(parent != null)) ? NGUIMath.CalculateRelativeWidgetBounds(container.transform) : NGUIMath.CalculateRelativeWidgetBounds(parent, container.transform);
-			ref Rect reference5 = ref mRect;
-			Vector3 min3 = bounds2.min;
-			reference5.x = min3.x;
-			ref Rect reference6 = ref mRect;
-			Vector3 min4 = bounds2.min;
-			reference6.y = min4.y;
-			ref Rect reference7 = ref mRect;
-			Vector3 size3 = bounds2.size;
-			reference7.width = size3.x;
-			ref Rect reference8 = ref mRect;
-			Vector3 size4 = bounds2.size;
-			reference8.height = size4.y;
+			Bounds bounds2 = (parent != null) ? NGUIMath.CalculateRelativeWidgetBounds(parent, container.transform) : NGUIMath.CalculateRelativeWidgetBounds(container.transform);
+			mRect.x = bounds2.min.x;
+			mRect.y = bounds2.min.y;
+			mRect.width = bounds2.size.x;
+			mRect.height = bounds2.size.y;
 		}
 		else
 		{
@@ -171,7 +155,7 @@ public class UIStretch : MonoBehaviour
 			num3 *= num5;
 			num4 *= num5;
 		}
-		Vector3 vector = (!(mWidget != null)) ? mTrans.localScale : new Vector3(mWidget.width, mWidget.height);
+		Vector3 vector = (mWidget != null) ? new Vector3(mWidget.width, mWidget.height) : mTrans.localScale;
 		if (style == Style.BasedOnHeight)
 		{
 			vector.x = relativeSize.x * num4;
@@ -180,34 +164,32 @@ public class UIStretch : MonoBehaviour
 		else if (style == Style.FillKeepingRatio)
 		{
 			float num6 = num3 / num4;
-			float num7 = initialSize.x / initialSize.y;
-			if (num7 < num6)
+			if (initialSize.x / initialSize.y < num6)
 			{
-				float num8 = num3 / initialSize.x;
+				float num7 = num3 / initialSize.x;
 				vector.x = num3;
-				vector.y = initialSize.y * num8;
+				vector.y = initialSize.y * num7;
 			}
 			else
 			{
-				float num9 = num4 / initialSize.y;
-				vector.x = initialSize.x * num9;
+				float num8 = num4 / initialSize.y;
+				vector.x = initialSize.x * num8;
 				vector.y = num4;
 			}
 		}
 		else if (style == Style.FitInternalKeepingRatio)
 		{
-			float num10 = num3 / num4;
-			float num11 = initialSize.x / initialSize.y;
-			if (num11 > num10)
+			float num9 = num3 / num4;
+			if (initialSize.x / initialSize.y > num9)
 			{
-				float num12 = num3 / initialSize.x;
+				float num10 = num3 / initialSize.x;
 				vector.x = num3;
-				vector.y = initialSize.y * num12;
+				vector.y = initialSize.y * num10;
 			}
 			else
 			{
-				float num13 = num4 / initialSize.y;
-				vector.x = initialSize.x * num13;
+				float num11 = num4 / initialSize.y;
+				vector.x = initialSize.x * num11;
 				vector.y = num4;
 			}
 		}
@@ -224,9 +206,9 @@ public class UIStretch : MonoBehaviour
 		}
 		if (mSprite != null)
 		{
-			float num14 = (!(mSprite.atlas != null)) ? 1f : mSprite.atlas.pixelSize;
-			vector.x -= borderPadding.x * num14;
-			vector.y -= borderPadding.y * num14;
+			float num12 = (mSprite.atlas != null) ? mSprite.atlas.pixelSize : 1f;
+			vector.x -= borderPadding.x * num12;
+			vector.y -= borderPadding.y * num12;
 			if (style != Style.Vertical)
 			{
 				mSprite.width = Mathf.RoundToInt(vector.x);

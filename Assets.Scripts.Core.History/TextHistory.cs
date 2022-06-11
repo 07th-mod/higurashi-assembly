@@ -14,9 +14,9 @@ namespace Assets.Scripts.Core.History
 
 		private TextMeshPro historyTextMesh;
 
-		private TextMeshProFont fontJapanese;
+		private TMP_FontAsset fontJapanese;
 
-		private TextMeshProFont fontEnglish;
+		private TMP_FontAsset fontEnglish;
 
 		private const int MaxEntries = 100;
 
@@ -31,10 +31,10 @@ namespace Assets.Scripts.Core.History
 		{
 			if (english.StartsWith("\n"))
 			{
-				english = english.Replace("\n", string.Empty);
-				japanese = japanese.Replace("\n", string.Empty);
+				english = english.Replace("\n", "");
+				japanese = japanese.Replace("\n", "");
 				PushHistory();
-				if (english == string.Empty || japanese == string.Empty)
+				if (english == "" || japanese == "")
 				{
 					return;
 				}
@@ -66,6 +66,7 @@ namespace Assets.Scripts.Core.History
 				int num2 = -1;
 				historyTextMesh.font = fontJapanese;
 				historyTextMesh.text = last.TextJapanese;
+				historyTextMesh.ForceMeshUpdate();
 				TMP_TextInfo textInfo = historyTextMesh.GetTextInfo(last.TextJapanese);
 				if (textInfo.lineCount > 4)
 				{
@@ -82,24 +83,22 @@ namespace Assets.Scripts.Core.History
 				{
 					lines.Add(last);
 					last = null;
+					continue;
 				}
-				else
+				string japanese = "";
+				string english = "";
+				if (num > 0)
 				{
-					string japanese = string.Empty;
-					string english = string.Empty;
-					if (num > 0)
-					{
-						japanese = last.TextJapanese.Substring(num);
-						last.TextJapanese = last.TextJapanese.Substring(0, num);
-					}
-					if (num2 > 0)
-					{
-						english = last.TextEnglish.Substring(num2).Trim();
-						last.TextEnglish = last.TextEnglish.Substring(0, num2);
-					}
-					lines.Add(last);
-					last = new HistoryLine(english, japanese, null);
+					japanese = last.TextJapanese.Substring(num);
+					last.TextJapanese = last.TextJapanese.Substring(0, num);
 				}
+				if (num2 > 0)
+				{
+					english = last.TextEnglish.Substring(num2).Trim();
+					last.TextEnglish = last.TextEnglish.Substring(0, num2);
+				}
+				lines.Add(last);
+				last = new HistoryLine(english, japanese, null);
 			}
 			if (lines.Count > 100)
 			{

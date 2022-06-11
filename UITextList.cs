@@ -40,7 +40,17 @@ public class UITextList : MonoBehaviour
 
 	protected int mLastHeight;
 
-	public bool isValid => textLabel != null && textLabel.ambigiousFont != null;
+	public bool isValid
+	{
+		get
+		{
+			if (textLabel != null)
+			{
+				return textLabel.ambigiousFont != null;
+			}
+			return false;
+		}
+	}
 
 	public float scrollValue
 	{
@@ -64,7 +74,17 @@ public class UITextList : MonoBehaviour
 		}
 	}
 
-	protected float lineHeight => (!(textLabel != null)) ? 20f : ((float)(textLabel.fontSize + textLabel.spacingY));
+	protected float lineHeight
+	{
+		get
+		{
+			if (!(textLabel != null))
+			{
+				return 20f;
+			}
+			return textLabel.fontSize + textLabel.spacingY;
+		}
+	}
 
 	protected int scrollHeight
 	{
@@ -193,7 +213,7 @@ public class UITextList : MonoBehaviour
 			UIScrollBar uIScrollBar = scrollBar as UIScrollBar;
 			if (uIScrollBar != null)
 			{
-				uIScrollBar.barSize = ((mTotalLines != 0) ? (1f - (float)scrollHeight / (float)mTotalLines) : 1f);
+				uIScrollBar.barSize = ((mTotalLines == 0) ? 1f : (1f - (float)scrollHeight / (float)mTotalLines));
 			}
 		}
 		UpdateVisibleText();
@@ -207,7 +227,7 @@ public class UITextList : MonoBehaviour
 		}
 		if (mTotalLines == 0)
 		{
-			textLabel.text = string.Empty;
+			textLabel.text = "";
 			return;
 		}
 		int num = Mathf.FloorToInt((float)textLabel.height / lineHeight);

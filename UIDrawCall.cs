@@ -125,13 +125,7 @@ public class UIDrawCall : MonoBehaviour
 	};
 
 	[Obsolete("Use UIDrawCall.activeList")]
-	public static BetterList<UIDrawCall> list
-	{
-		get
-		{
-			return mActiveList;
-		}
-	}
+	public static BetterList<UIDrawCall> list => mActiveList;
 
 	public static BetterList<UIDrawCall> activeList => mActiveList;
 
@@ -160,7 +154,11 @@ public class UIDrawCall : MonoBehaviour
 	{
 		get
 		{
-			return (mRenderer != null) ? mRenderer.sortingOrder : 0;
+			if (!(mRenderer != null))
+			{
+				return 0;
+			}
+			return mRenderer.sortingOrder;
 		}
 		set
 		{
@@ -171,7 +169,17 @@ public class UIDrawCall : MonoBehaviour
 		}
 	}
 
-	public int finalRenderQueue => (!(mDynamicMat != null)) ? mRenderQueue : mDynamicMat.renderQueue;
+	public int finalRenderQueue
+	{
+		get
+		{
+			if (!(mDynamicMat != null))
+			{
+				return mRenderQueue;
+			}
+			return mDynamicMat.renderQueue;
+		}
+	}
 
 	public Transform cachedTransform
 	{
@@ -235,7 +243,17 @@ public class UIDrawCall : MonoBehaviour
 		}
 	}
 
-	public int triangles => (mMesh != null) ? mTriangles : 0;
+	public int triangles
+	{
+		get
+		{
+			if (!(mMesh != null))
+			{
+				return 0;
+			}
+			return mTriangles;
+		}
+	}
 
 	public bool isClipped => mClipCount != 0;
 
@@ -244,7 +262,7 @@ public class UIDrawCall : MonoBehaviour
 		mTextureClip = false;
 		mLegacyShader = false;
 		mClipCount = panel.clipCount;
-		string text = (mShader != null) ? mShader.name : ((!(mMaterial != null)) ? "Unlit/Transparent Colored" : mMaterial.shader.name);
+		string text = (mShader != null) ? mShader.name : ((mMaterial != null) ? mMaterial.shader.name : "Unlit/Transparent Colored");
 		text = text.Replace("GUI/Text Shader", "Unlit/Text");
 		if (text.Length > 2 && text[text.Length - 2] == ' ')
 		{
@@ -258,8 +276,8 @@ public class UIDrawCall : MonoBehaviour
 		{
 			text = text.Substring(7);
 		}
-		text = text.Replace(" (SoftClip)", string.Empty);
-		text = text.Replace(" (TextureClip)", string.Empty);
+		text = text.Replace(" (SoftClip)", "");
+		text = text.Replace(" (TextureClip)", "");
 		if (panel.clipping == Clipping.TextureMask)
 		{
 			mTextureClip = true;
@@ -367,7 +385,7 @@ public class UIDrawCall : MonoBehaviour
 				{
 					mMesh = new Mesh();
 					mMesh.hideFlags = HideFlags.DontSave;
-					mMesh.name = ((!(mMaterial != null)) ? "[NGUI] Mesh" : ("[NGUI] " + mMaterial.name));
+					mMesh.name = ((mMaterial != null) ? ("[NGUI] " + mMaterial.name) : "[NGUI] Mesh");
 					mMesh.MarkDynamic();
 					flag = true;
 				}
@@ -537,8 +555,7 @@ public class UIDrawCall : MonoBehaviour
 						drawCallClipRange2.x -= vector2.x;
 						drawCallClipRange2.y -= vector2.y;
 						Vector3 eulerAngles = panel.cachedTransform.rotation.eulerAngles;
-						Vector3 eulerAngles2 = parentPanel.cachedTransform.rotation.eulerAngles;
-						Vector3 vector3 = eulerAngles2 - eulerAngles;
+						Vector3 vector3 = parentPanel.cachedTransform.rotation.eulerAngles - eulerAngles;
 						vector3.x = NGUIMath.WrapAngle(vector3.x);
 						vector3.y = NGUIMath.WrapAngle(vector3.y);
 						vector3.z = NGUIMath.WrapAngle(vector3.z);
@@ -716,7 +733,7 @@ public class UIDrawCall : MonoBehaviour
 
 	public static void Destroy(UIDrawCall dc)
 	{
-		if (!(bool)dc)
+		if (!dc)
 		{
 			return;
 		}

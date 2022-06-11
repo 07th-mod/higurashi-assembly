@@ -33,30 +33,31 @@ namespace Assets.Scripts.UI.Choice
 			int num2 = 0;
 			while (true)
 			{
-				if (num2 >= count)
+				if (num2 < count)
 				{
-					return;
+					int id = num2;
+					GameObject gameObject2 = UnityEngine.Object.Instantiate(Resources.Load("ChoiceButton")) as GameObject;
+					if (gameObject2 == null)
+					{
+						break;
+					}
+					gameObject2.transform.parent = gameObject.transform;
+					gameObject2.transform.localScale = Vector3.one;
+					gameObject2.transform.localPosition = new Vector3(0f, 170 - num * num2, 0f);
+					ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
+					component.ChangeText(optstrings[num2]);
+					component.SetCallback(this, delegate
+					{
+						GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);
+						GameSystem.Instance.ScriptSystem.SetFlag("LOCALWORK_NO_RESULT", id);
+						Debug.Log("ID: " + id);
+						FinishChoice();
+					});
+					options.Add(gameObject2.GetComponent<ChoiceButton>());
+					num2++;
+					continue;
 				}
-				int id = num2;
-				GameObject gameObject2 = UnityEngine.Object.Instantiate(Resources.Load("ChoiceButton")) as GameObject;
-				if (gameObject2 == null)
-				{
-					break;
-				}
-				gameObject2.transform.parent = gameObject.transform;
-				gameObject2.transform.localScale = Vector3.one;
-				gameObject2.transform.localPosition = new Vector3(0f, (float)(170 - num * num2), 0f);
-				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
-				component.ChangeText(optstrings[num2]);
-				component.SetCallback(this, delegate
-				{
-					GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);
-					GameSystem.Instance.ScriptSystem.SetFlag("LOCALWORK_NO_RESULT", id);
-					Debug.Log("ID: " + id);
-					FinishChoice();
-				});
-				options.Add(gameObject2.GetComponent<ChoiceButton>());
-				num2++;
+				return;
 			}
 			throw new Exception("Failed to instantiate ChoiceButton!");
 		}

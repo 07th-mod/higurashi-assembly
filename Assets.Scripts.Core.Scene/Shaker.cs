@@ -37,8 +37,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			GameSystem.Instance.RegisterAction(delegate
 			{
-				Shaker shaker = target.AddComponent<Shaker>();
-				shaker.StartShake(speed, level, attenuation, vector, loopcount, isblocking);
+				target.AddComponent<Shaker>().StartShake(speed, level, attenuation, vector, loopcount, isblocking);
 			});
 			if (isblocking)
 			{
@@ -52,7 +51,7 @@ namespace Assets.Scripts.Core.Scene
 			infinite = false;
 			srcPos = base.gameObject.transform.localPosition;
 			lastPos = srcPos;
-			intensity = (float)level;
+			intensity = level;
 			attenuation = atten;
 			shaketype = vector;
 			shakedir = false;
@@ -127,31 +126,28 @@ namespace Assets.Scripts.Core.Scene
 
 		private void Update()
 		{
-			if (isActive)
+			if (!isActive)
 			{
-				timetoswitch -= Time.deltaTime;
-				float num = 1f - timetoswitch / timeperswing;
-				float num2 = (float)Sine.EaseInOut((double)num, (double)lastPos.x, (double)(destination.x - lastPos.x), 1.0);
-				float num3 = (float)Sine.EaseInOut((double)num, (double)lastPos.y, (double)(destination.y - lastPos.y), 1.0);
-				Transform transform = base.transform;
-				float x = num2;
-				float y = num3;
-				Vector3 localPosition = base.transform.localPosition;
-				transform.localPosition = new Vector3(x, y, localPosition.z);
-				if (!(timetoswitch > 0f))
+				return;
+			}
+			timetoswitch -= Time.deltaTime;
+			float num = 1f - timetoswitch / timeperswing;
+			float x = (float)Sine.EaseInOut(num, lastPos.x, destination.x - lastPos.x, 1.0);
+			float y = (float)Sine.EaseInOut(num, lastPos.y, destination.y - lastPos.y, 1.0);
+			base.transform.localPosition = new Vector3(x, y, base.transform.localPosition.z);
+			if (!(timetoswitch > 0f))
+			{
+				base.transform.localPosition = destination;
+				if (remainingcount > 0 || infinite)
 				{
-					base.transform.localPosition = destination;
-					if (remainingcount > 0 || infinite)
-					{
-						timetoswitch = timeperswing;
-						UpdateShake();
-						remainingcount--;
-					}
-					else
-					{
-						isActive = false;
-						base.transform.localPosition = srcPos;
-					}
+					timetoswitch = timeperswing;
+					UpdateShake();
+					remainingcount--;
+				}
+				else
+				{
+					isActive = false;
+					base.transform.localPosition = srcPos;
 				}
 			}
 		}

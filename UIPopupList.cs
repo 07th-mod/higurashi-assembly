@@ -177,7 +177,11 @@ public class UIPopupList : UIWidgetContainer
 		get
 		{
 			int num = items.IndexOf(mSelectedItem);
-			return (num >= itemData.Count) ? null : itemData[num];
+			if (num >= itemData.Count)
+			{
+				return null;
+			}
+			return itemData[num];
 		}
 	}
 
@@ -199,7 +203,11 @@ public class UIPopupList : UIWidgetContainer
 		get
 		{
 			UIKeyNavigation component = GetComponent<UIKeyNavigation>();
-			return component == null || !component.enabled;
+			if (!(component == null))
+			{
+				return !component.enabled;
+			}
+			return true;
 		}
 		set
 		{
@@ -211,11 +219,41 @@ public class UIPopupList : UIWidgetContainer
 		}
 	}
 
-	private bool isValid => bitmapFont != null || trueTypeFont != null;
+	private bool isValid
+	{
+		get
+		{
+			if (!(bitmapFont != null))
+			{
+				return trueTypeFont != null;
+			}
+			return true;
+		}
+	}
 
-	private int activeFontSize => (!(trueTypeFont != null) && !(bitmapFont == null)) ? bitmapFont.defaultSize : fontSize;
+	private int activeFontSize
+	{
+		get
+		{
+			if (!(trueTypeFont != null) && !(bitmapFont == null))
+			{
+				return bitmapFont.defaultSize;
+			}
+			return fontSize;
+		}
+	}
 
-	private float activeFontScale => (!(trueTypeFont != null) && !(bitmapFont == null)) ? ((float)fontSize / (float)bitmapFont.defaultSize) : 1f;
+	private float activeFontScale
+	{
+		get
+		{
+			if (!(trueTypeFont != null) && !(bitmapFont == null))
+			{
+				return (float)fontSize / (float)bitmapFont.defaultSize;
+			}
+			return 1f;
+		}
+	}
 
 	public void Clear()
 	{
@@ -281,7 +319,7 @@ public class UIPopupList : UIWidgetContainer
 		}
 		if (textScale != 0f)
 		{
-			fontSize = ((!(bitmapFont != null)) ? 16 : Mathf.RoundToInt((float)bitmapFont.defaultSize * textScale));
+			fontSize = ((bitmapFont != null) ? Mathf.RoundToInt((float)bitmapFont.defaultSize * textScale) : 16);
 			textScale = 0f;
 		}
 		if (trueTypeFont == null && bitmapFont != null && bitmapFont.isDynamic)
@@ -366,8 +404,7 @@ public class UIPopupList : UIWidgetContainer
 			return;
 		}
 		mHighlightedLabel = lbl;
-		UISpriteData atlasSprite = mHighlight.GetAtlasSprite();
-		if (atlasSprite == null)
+		if (mHighlight.GetAtlasSprite() == null)
 		{
 			return;
 		}
@@ -513,10 +550,10 @@ public class UIPopupList : UIWidgetContainer
 			int i = 0;
 			for (int num = componentsInChildren.Length; i < num; i++)
 			{
-				UIWidget uIWidget = componentsInChildren[i];
-				Color color = uIWidget.color;
+				UIWidget obj = componentsInChildren[i];
+				Color color = obj.color;
 				color.a = 0f;
-				TweenColor.Begin(uIWidget.gameObject, 0.15f, color).method = UITweener.Method.EaseOut;
+				TweenColor.Begin(obj.gameObject, 0.15f, color).method = UITweener.Method.EaseOut;
 			}
 			Collider[] componentsInChildren2 = mChild.GetComponentsInChildren<Collider>();
 			int j = 0;
@@ -545,10 +582,9 @@ public class UIPopupList : UIWidgetContainer
 	private void AnimatePosition(UIWidget widget, bool placeAbove, float bottom)
 	{
 		Vector3 localPosition = widget.cachedTransform.localPosition;
-		Vector3 localPosition2 = (!placeAbove) ? new Vector3(localPosition.x, 0f, localPosition.z) : new Vector3(localPosition.x, bottom, localPosition.z);
+		Vector3 localPosition2 = placeAbove ? new Vector3(localPosition.x, bottom, localPosition.z) : new Vector3(localPosition.x, 0f, localPosition.z);
 		widget.cachedTransform.localPosition = localPosition2;
-		GameObject gameObject = widget.gameObject;
-		TweenPosition.Begin(gameObject, 0.15f, localPosition).method = UITweener.Method.EaseOut;
+		TweenPosition.Begin(widget.gameObject, 0.15f, localPosition).method = UITweener.Method.EaseOut;
 	}
 
 	private void AnimateScale(UIWidget widget, bool placeAbove, float bottom)
@@ -630,8 +666,8 @@ public class UIPopupList : UIWidgetContainer
 			float num2 = activeFontSize;
 			float activeFontScale = this.activeFontScale;
 			float num3 = num2 * activeFontScale;
-			float num4 = 0f;
-			float num5 = 0f - padding.y;
+			float a = 0f;
+			float num4 = 0f - padding.y;
 			List<UILabel> list = new List<UILabel>();
 			if (!items.Contains(mSelectedItem))
 			{
@@ -648,20 +684,15 @@ public class UIPopupList : UIWidgetContainer
 				uILabel.trueTypeFont = trueTypeFont;
 				uILabel.fontSize = fontSize;
 				uILabel.fontStyle = fontStyle;
-				uILabel.text = ((!isLocalized) ? text : Localization.Get(text));
+				uILabel.text = (isLocalized ? Localization.Get(text) : text);
 				uILabel.color = textColor;
-				Transform cachedTransform = uILabel.cachedTransform;
-				float num6 = border.x + padding.x;
-				Vector2 pivotOffset = uILabel.pivotOffset;
-				cachedTransform.localPosition = new Vector3(num6 - pivotOffset.x, num5, -1f);
+				uILabel.cachedTransform.localPosition = new Vector3(border.x + padding.x - uILabel.pivotOffset.x, num4, -1f);
 				uILabel.overflowMethod = UILabel.Overflow.ResizeFreely;
 				uILabel.alignment = alignment;
 				list.Add(uILabel);
-				num5 -= num3;
-				num5 -= padding.y;
-				float a = num4;
-				Vector2 printedSize = uILabel.printedSize;
-				num4 = Mathf.Max(a, printedSize.x);
+				num4 -= num3;
+				num4 -= padding.y;
+				a = Mathf.Max(a, uILabel.printedSize.x);
 				UIEventListener uIEventListener = UIEventListener.Get(uILabel.gameObject);
 				uIEventListener.onHover = OnItemHover;
 				uIEventListener.onPress = OnItemPress;
@@ -673,12 +704,10 @@ public class UIPopupList : UIWidgetContainer
 				}
 				mLabelList.Add(uILabel);
 			}
-			float a2 = num4;
-			Vector3 size = bounds.size;
-			num4 = Mathf.Max(a2, size.x * activeFontScale - (border.x + padding.x) * 2f);
-			float num7 = num4;
-			Vector3 vector = new Vector3(num7 * 0.5f, (0f - num2) * 0.5f, 0f);
-			Vector3 vector2 = new Vector3(num7, num3 + padding.y, 1f);
+			a = Mathf.Max(a, bounds.size.x * activeFontScale - (border.x + padding.x) * 2f);
+			float num5 = a;
+			Vector3 vector = new Vector3(num5 * 0.5f, (0f - num2) * 0.5f, 0f);
+			Vector3 vector2 = new Vector3(num5, num3 + padding.y, 1f);
 			int j = 0;
 			for (int count2 = list.Count; j < count2; j++)
 			{
@@ -688,8 +717,7 @@ public class UIPopupList : UIWidgetContainer
 				BoxCollider component = uILabel2.GetComponent<BoxCollider>();
 				if (component != null)
 				{
-					Vector3 center = component.center;
-					vector.z = center.z;
+					vector.z = component.center.z;
 					component.center = vector;
 					component.size = vector2;
 				}
@@ -700,11 +728,11 @@ public class UIPopupList : UIWidgetContainer
 					component2.size = vector2;
 				}
 			}
-			int width = Mathf.RoundToInt(num4);
-			num4 += (border.x + padding.x) * 2f;
-			num5 -= border.y;
-			mBackground.width = Mathf.RoundToInt(num4);
-			mBackground.height = Mathf.RoundToInt(0f - num5 + border.y);
+			int width = Mathf.RoundToInt(a);
+			a += (border.x + padding.x) * 2f;
+			num4 -= border.y;
+			mBackground.width = Mathf.RoundToInt(a);
+			mBackground.height = Mathf.RoundToInt(0f - num4 + border.y);
 			int k = 0;
 			for (int count3 = list.Count; k < count3; k++)
 			{
@@ -712,9 +740,9 @@ public class UIPopupList : UIWidgetContainer
 				uILabel3.overflowMethod = UILabel.Overflow.ShrinkContent;
 				uILabel3.width = width;
 			}
-			float num8 = 2f * atlas.pixelSize;
-			float f = num4 - (border.x + padding.x) * 2f + (float)atlasSprite.borderLeft * num8;
-			float f2 = num3 + num * num8;
+			float num6 = 2f * atlas.pixelSize;
+			float f = a - (border.x + padding.x) * 2f + (float)atlasSprite.borderLeft * num6;
+			float f2 = num3 + num * num6;
 			mHighlight.width = Mathf.RoundToInt(f);
 			mHighlight.height = Mathf.RoundToInt(f2);
 			bool flag = position == Position.Above;
@@ -723,13 +751,12 @@ public class UIPopupList : UIWidgetContainer
 				UICamera uICamera = UICamera.FindCameraForLayer(base.gameObject.layer);
 				if (uICamera != null)
 				{
-					Vector3 vector3 = uICamera.cachedCamera.WorldToViewportPoint(transform.position);
-					flag = (vector3.y < 0.5f);
+					flag = (uICamera.cachedCamera.WorldToViewportPoint(transform.position).y < 0.5f);
 				}
 			}
 			if (isAnimated)
 			{
-				float bottom = num5 + num3;
+				float bottom = num4 + num3;
 				Animate(mHighlight, flag, bottom);
 				int l = 0;
 				for (int count4 = list.Count; l < count4; l++)
@@ -741,13 +768,7 @@ public class UIPopupList : UIWidgetContainer
 			}
 			if (flag)
 			{
-				Transform transform3 = transform2;
-				Vector3 min = bounds.min;
-				float x = min.x;
-				Vector3 max = bounds.max;
-				float y = max.y - num5 - border.y;
-				Vector3 min2 = bounds.min;
-				transform3.localPosition = new Vector3(x, y, min2.z);
+				transform2.localPosition = new Vector3(bounds.min.x, bounds.max.y - num4 - border.y, bounds.min.z);
 			}
 		}
 		else

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/Interaction/Wrap Content")]
@@ -29,15 +27,6 @@ public class UIWrapContent : MonoBehaviour
 	private bool mFirstTime = true;
 
 	private List<Transform> mChildren = new List<Transform>();
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache0;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache1;
-
-	[CompilerGenerated]
-	private static Comparison<Transform> _003C_003Ef__mg_0024cache2;
 
 	protected virtual void Start()
 	{
@@ -121,8 +110,7 @@ public class UIWrapContent : MonoBehaviour
 		int i = 0;
 		for (int count = mChildren.Count; i < count; i++)
 		{
-			Transform transform = mChildren[i];
-			transform.localPosition = ((!mHorizontal) ? new Vector3(0f, -i * itemSize, 0f) : new Vector3(i * itemSize, 0f, 0f));
+			mChildren[i].localPosition = (mHorizontal ? new Vector3(i * itemSize, 0f, 0f) : new Vector3(0f, -i * itemSize, 0f));
 		}
 	}
 
@@ -133,8 +121,7 @@ public class UIWrapContent : MonoBehaviour
 		for (int i = 0; i < 4; i++)
 		{
 			Vector3 position = worldCorners[i];
-			position = mTrans.InverseTransformPoint(position);
-			worldCorners[i] = position;
+			position = (worldCorners[i] = mTrans.InverseTransformPoint(position));
 		}
 		Vector3 vector = Vector3.Lerp(worldCorners[0], worldCorners[2], 0.5f);
 		bool flag = true;
@@ -147,17 +134,16 @@ public class UIWrapContent : MonoBehaviour
 			for (int count = mChildren.Count; j < count; j++)
 			{
 				Transform transform = mChildren[j];
-				Vector3 localPosition = transform.localPosition;
-				float num5 = localPosition.x - vector.x;
+				float num5 = transform.localPosition.x - vector.x;
 				if (num5 < 0f - num)
 				{
-					Vector3 localPosition2 = transform.localPosition;
-					localPosition2.x += num2;
-					num5 = localPosition2.x - vector.x;
-					int num6 = Mathf.RoundToInt(localPosition2.x / (float)itemSize);
+					Vector3 localPosition = transform.localPosition;
+					localPosition.x += num2;
+					num5 = localPosition.x - vector.x;
+					int num6 = Mathf.RoundToInt(localPosition.x / (float)itemSize);
 					if (minIndex == maxIndex || (minIndex <= num6 && num6 <= maxIndex))
 					{
-						transform.localPosition = localPosition2;
+						transform.localPosition = localPosition;
 						UpdateItem(transform, j);
 						transform.name = num6.ToString();
 					}
@@ -168,13 +154,13 @@ public class UIWrapContent : MonoBehaviour
 				}
 				else if (num5 > num)
 				{
-					Vector3 localPosition3 = transform.localPosition;
-					localPosition3.x -= num2;
-					num5 = localPosition3.x - vector.x;
-					int num7 = Mathf.RoundToInt(localPosition3.x / (float)itemSize);
+					Vector3 localPosition2 = transform.localPosition;
+					localPosition2.x -= num2;
+					num5 = localPosition2.x - vector.x;
+					int num7 = Mathf.RoundToInt(localPosition2.x / (float)itemSize);
 					if (minIndex == maxIndex || (minIndex <= num7 && num7 <= maxIndex))
 					{
-						transform.localPosition = localPosition3;
+						transform.localPosition = localPosition2;
 						UpdateItem(transform, j);
 						transform.name = num7.ToString();
 					}
@@ -189,11 +175,7 @@ public class UIWrapContent : MonoBehaviour
 				}
 				if (cullContent)
 				{
-					float num8 = num5;
-					Vector2 clipOffset = mPanel.clipOffset;
-					float x = clipOffset.x;
-					Vector3 localPosition4 = mTrans.localPosition;
-					num5 = num8 + (x - localPosition4.x);
+					num5 += mPanel.clipOffset.x - mTrans.localPosition.x;
 					if (!UICamera.IsPressed(transform.gameObject))
 					{
 						NGUITools.SetActive(transform.gameObject, num5 > num3 && num5 < num4, compatibilityMode: false);
@@ -203,42 +185,41 @@ public class UIWrapContent : MonoBehaviour
 		}
 		else
 		{
-			float num9 = worldCorners[0].y - (float)itemSize;
-			float num10 = worldCorners[2].y + (float)itemSize;
+			float num8 = worldCorners[0].y - (float)itemSize;
+			float num9 = worldCorners[2].y + (float)itemSize;
 			int k = 0;
 			for (int count2 = mChildren.Count; k < count2; k++)
 			{
 				Transform transform2 = mChildren[k];
-				Vector3 localPosition5 = transform2.localPosition;
-				float num11 = localPosition5.y - vector.y;
-				if (num11 < 0f - num)
+				float num10 = transform2.localPosition.y - vector.y;
+				if (num10 < 0f - num)
 				{
-					Vector3 localPosition6 = transform2.localPosition;
-					localPosition6.y += num2;
-					num11 = localPosition6.y - vector.y;
-					int num12 = Mathf.RoundToInt(localPosition6.y / (float)itemSize);
-					if (minIndex == maxIndex || (minIndex <= num12 && num12 <= maxIndex))
+					Vector3 localPosition3 = transform2.localPosition;
+					localPosition3.y += num2;
+					num10 = localPosition3.y - vector.y;
+					int num11 = Mathf.RoundToInt(localPosition3.y / (float)itemSize);
+					if (minIndex == maxIndex || (minIndex <= num11 && num11 <= maxIndex))
 					{
-						transform2.localPosition = localPosition6;
+						transform2.localPosition = localPosition3;
 						UpdateItem(transform2, k);
-						transform2.name = num12.ToString();
+						transform2.name = num11.ToString();
 					}
 					else
 					{
 						flag = false;
 					}
 				}
-				else if (num11 > num)
+				else if (num10 > num)
 				{
-					Vector3 localPosition7 = transform2.localPosition;
-					localPosition7.y -= num2;
-					num11 = localPosition7.y - vector.y;
-					int num13 = Mathf.RoundToInt(localPosition7.y / (float)itemSize);
-					if (minIndex == maxIndex || (minIndex <= num13 && num13 <= maxIndex))
+					Vector3 localPosition4 = transform2.localPosition;
+					localPosition4.y -= num2;
+					num10 = localPosition4.y - vector.y;
+					int num12 = Mathf.RoundToInt(localPosition4.y / (float)itemSize);
+					if (minIndex == maxIndex || (minIndex <= num12 && num12 <= maxIndex))
 					{
-						transform2.localPosition = localPosition7;
+						transform2.localPosition = localPosition4;
 						UpdateItem(transform2, k);
-						transform2.name = num13.ToString();
+						transform2.name = num12.ToString();
 					}
 					else
 					{
@@ -251,14 +232,10 @@ public class UIWrapContent : MonoBehaviour
 				}
 				if (cullContent)
 				{
-					float num14 = num11;
-					Vector2 clipOffset2 = mPanel.clipOffset;
-					float y = clipOffset2.y;
-					Vector3 localPosition8 = mTrans.localPosition;
-					num11 = num14 + (y - localPosition8.y);
+					num10 += mPanel.clipOffset.y - mTrans.localPosition.y;
 					if (!UICamera.IsPressed(transform2.gameObject))
 					{
-						NGUITools.SetActive(transform2.gameObject, num11 > num9 && num11 < num10, compatibilityMode: false);
+						NGUITools.SetActive(transform2.gameObject, num10 > num8 && num10 < num9, compatibilityMode: false);
 					}
 				}
 			}
@@ -282,18 +259,7 @@ public class UIWrapContent : MonoBehaviour
 	{
 		if (onInitializeItem != null)
 		{
-			int num;
-			if (mScroll.movement == UIScrollView.Movement.Vertical)
-			{
-				Vector3 localPosition = item.localPosition;
-				num = Mathf.RoundToInt(localPosition.y / (float)itemSize);
-			}
-			else
-			{
-				Vector3 localPosition2 = item.localPosition;
-				num = Mathf.RoundToInt(localPosition2.x / (float)itemSize);
-			}
-			int realIndex = num;
+			int realIndex = (mScroll.movement == UIScrollView.Movement.Vertical) ? Mathf.RoundToInt(item.localPosition.y / (float)itemSize) : Mathf.RoundToInt(item.localPosition.x / (float)itemSize);
 			onInitializeItem(item.gameObject, index, realIndex);
 		}
 	}

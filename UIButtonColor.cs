@@ -123,7 +123,7 @@ public class UIButtonColor : UIWidgetContainer
 		Renderer component = tweenTarget.GetComponent<Renderer>();
 		if (component != null)
 		{
-			mDefaultColor = ((!Application.isPlaying) ? component.sharedMaterial.color : component.material.color);
+			mDefaultColor = (Application.isPlaying ? component.material.color : component.sharedMaterial.color);
 			mStartingColor = mDefaultColor;
 			return;
 		}

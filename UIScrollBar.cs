@@ -76,7 +76,7 @@ public class UIScrollBar : UISlider
 			}
 			else
 			{
-				mFill = ((!mInverted) ? FillDirection.TopToBottom : FillDirection.BottomToTop);
+				mFill = (mInverted ? FillDirection.BottomToTop : FillDirection.TopToBottom);
 			}
 			mDir = Direction.Upgraded;
 		}
@@ -88,10 +88,8 @@ public class UIScrollBar : UISlider
 		if (mFG != null && mFG.gameObject != base.gameObject && (mFG.GetComponent<Collider>() != null || mFG.GetComponent<Collider2D>() != null))
 		{
 			UIEventListener uIEventListener = UIEventListener.Get(mFG.gameObject);
-			UIEventListener uIEventListener2 = uIEventListener;
-			uIEventListener2.onPress = (UIEventListener.BoolDelegate)Delegate.Combine(uIEventListener2.onPress, new UIEventListener.BoolDelegate(base.OnPressForeground));
-			UIEventListener uIEventListener3 = uIEventListener;
-			uIEventListener3.onDrag = (UIEventListener.VectorDelegate)Delegate.Combine(uIEventListener3.onDrag, new UIEventListener.VectorDelegate(base.OnDragForeground));
+			uIEventListener.onPress = (UIEventListener.BoolDelegate)Delegate.Combine(uIEventListener.onPress, new UIEventListener.BoolDelegate(base.OnPressForeground));
+			uIEventListener.onDrag = (UIEventListener.VectorDelegate)Delegate.Combine(uIEventListener.onDrag, new UIEventListener.VectorDelegate(base.OnDragForeground));
 			mFG.autoResizeBoxCollider = true;
 		}
 	}
@@ -113,7 +111,11 @@ public class UIScrollBar : UISlider
 				{
 					return base.value;
 				}
-				return (!base.isInverted) ? ((localPos.x - t) / num2) : ((t2 - localPos.x) / num2);
+				if (!base.isInverted)
+				{
+					return (localPos.x - t) / num2;
+				}
+				return (t2 - localPos.x) / num2;
 			}
 			t = Mathf.Lerp(localCorners[0].y, localCorners[1].y, t);
 			t2 = Mathf.Lerp(localCorners[3].y, localCorners[2].y, t2);
@@ -122,7 +124,11 @@ public class UIScrollBar : UISlider
 			{
 				return base.value;
 			}
-			return (!base.isInverted) ? ((localPos.y - t) / num3) : ((t2 - localPos.y) / num3);
+			if (!base.isInverted)
+			{
+				return (localPos.y - t) / num3;
+			}
+			return (t2 - localPos.y) / num3;
 		}
 		return base.LocalToValue(localPos);
 	}
@@ -138,11 +144,11 @@ public class UIScrollBar : UISlider
 			float num4 = num2 + num;
 			if (base.isHorizontal)
 			{
-				mFG.drawRegion = ((!base.isInverted) ? new Vector4(num3, 0f, num4, 1f) : new Vector4(1f - num4, 0f, 1f - num3, 1f));
+				mFG.drawRegion = (base.isInverted ? new Vector4(1f - num4, 0f, 1f - num3, 1f) : new Vector4(num3, 0f, num4, 1f));
 			}
 			else
 			{
-				mFG.drawRegion = ((!base.isInverted) ? new Vector4(0f, num3, 1f, num4) : new Vector4(0f, 1f - num4, 1f, 1f - num3));
+				mFG.drawRegion = (base.isInverted ? new Vector4(0f, 1f - num4, 1f, 1f - num3) : new Vector4(0f, num3, 1f, num4));
 			}
 			if (thumb != null)
 			{

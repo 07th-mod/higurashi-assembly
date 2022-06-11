@@ -74,7 +74,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
-			Logger.Log((currentScript == null) ? $"Starting at script {scriptname} (block {blockname})" : $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})");
+			Logger.Log((currentScript != null) ? $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})" : $"Starting at script {scriptname} (block {blockname})");
 			callStack.Clear();
 			scriptname = scriptname.ToLower();
 			if (!scriptFiles.TryGetValue(scriptname + ".mg", out currentScript))
@@ -203,7 +203,7 @@ namespace Assets.Scripts.Core.Buriko
 		public void CopyTempSnapshot()
 		{
 			Debug.Log("CopyTempSnapshot");
-			if (snapshotData.Length > 0)
+			if (snapshotData.Length != 0)
 			{
 				tempSnapshotData = snapshotData;
 				tempSnapshotText[0] = GameSystem.Instance.TextController.GetFullText(0);
@@ -214,7 +214,7 @@ namespace Assets.Scripts.Core.Buriko
 		public void RestoreTempSnapshot()
 		{
 			Debug.Log("RestoreTempSnapshot");
-			if (tempSnapshotData.Length > 0)
+			if (tempSnapshotData.Length != 0)
 			{
 				snapshotData = tempSnapshotData;
 				GameSystem.Instance.TextController.SetFullText(tempSnapshotText[0], 0);
@@ -233,7 +233,7 @@ namespace Assets.Scripts.Core.Buriko
 						binaryWriter.Write("MGSV".ToCharArray(0, 4));
 						binaryWriter.Write(1);
 						binaryWriter.Write(DateTime.Now.ToBinary());
-						if (text == string.Empty)
+						if (text == "")
 						{
 							string fullText = GameSystem.Instance.TextController.GetFullText(0);
 							string fullText2 = GameSystem.Instance.TextController.GetFullText(1);
@@ -249,8 +249,8 @@ namespace Assets.Scripts.Core.Buriko
 						{
 							binaryWriter.Write(text);
 							binaryWriter.Write(text);
-							binaryWriter.Write(string.Empty);
-							binaryWriter.Write(string.Empty);
+							binaryWriter.Write("");
+							binaryWriter.Write("");
 							binaryWriter.Write(value: false);
 						}
 						binaryWriter.Write(callStack.Count);
@@ -279,8 +279,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				byte[] array = File.ReadAllBytes(saveInfoInSlot.Path);
 				MGHelper.KeyEncode(array);
-				byte[] buffer = CLZF2.Decompress(array);
-				MemoryStream memoryStream = new MemoryStream(buffer);
+				MemoryStream memoryStream = new MemoryStream(CLZF2.Decompress(array));
 				MemoryStream memoryStream2 = new MemoryStream();
 				BinaryReader binaryReader = new BinaryReader(memoryStream);
 				BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
@@ -344,13 +343,11 @@ namespace Assets.Scripts.Core.Buriko
 				{
 					using (BinaryReader binaryReader = new BinaryReader(memoryStream))
 					{
-						string a = new string(binaryReader.ReadChars(4));
-						if (a != "MGSV")
+						if (new string(binaryReader.ReadChars(4)) != "MGSV")
 						{
 							throw new FileLoadException("Save file does not appear to be valid! Invalid header.");
 						}
-						int num = binaryReader.ReadInt32();
-						if (num != 1)
+						if (binaryReader.ReadInt32() != 1)
 						{
 							throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
 						}
@@ -359,10 +356,10 @@ namespace Assets.Scripts.Core.Buriko
 						string text2 = binaryReader.ReadString();
 						string text3 = binaryReader.ReadString();
 						string text4 = binaryReader.ReadString();
-						bool flag = binaryReader.ReadBoolean();
+						bool num = binaryReader.ReadBoolean();
 						GameSystem.Instance.TextController.SetPrevText(text3, 0);
 						GameSystem.Instance.TextController.SetPrevText(text4, 1);
-						if (flag)
+						if (num)
 						{
 							if (GameSystem.Instance.UseEnglishText)
 							{
@@ -414,8 +411,12 @@ namespace Assets.Scripts.Core.Buriko
 						GameSystem.Instance.CanSkip = true;
 						GameSystem.Instance.CanInput = true;
 						GameSystem.Instance.CanSave = true;
-						int flag2 = GetFlag("LTextFade");
-						GameSystem.Instance.TextController.SetTextFade(flag2 == 1);
+						int num3 = GetFlag("LTextFade");
+						if (saveInfoInSlot.Time < new DateTime(2022, 5, 1))
+						{
+							num3 = 1;
+						}
+						GameSystem.Instance.TextController.SetTextFade(num3 == 1);
 					}
 				}
 			}

@@ -25,9 +25,8 @@ namespace Assets.Scripts.UI.Config
 
 		private void OnHover(bool ishover)
 		{
-			if (!(cooldown > 0f))
-			{
-			}
+			_ = cooldown;
+			_ = 0f;
 		}
 
 		public void RegisterSwitchController(SwitchButton c)

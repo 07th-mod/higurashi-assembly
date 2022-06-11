@@ -27,8 +27,7 @@ namespace Assets.Scripts.UI.Tips
 				sprite = GetComponent<UISprite>();
 			}
 			string name = $"tips_{t.Id:D3}na_normal";
-			UISpriteData uISpriteData = sprite.atlas.GetSprite(name);
-			if (uISpriteData != null && AssetManager.Instance.UseNewArt)
+			if (sprite.atlas.GetSprite(name) != null && AssetManager.Instance.UseNewArt)
 			{
 				button.normalSprite = $"tips_{t.Id:D3}na_normal";
 				button.hoverSprite = $"tips_{t.Id:D3}na_hover";
@@ -63,7 +62,7 @@ namespace Assets.Scripts.UI.Tips
 				}
 				else if (GameSystem.Instance.GameState == GameState.TipsScreen)
 				{
-					manager.ShowTitle((!GameSystem.Instance.UseEnglishText) ? tip.TitleJp : tip.Title);
+					manager.ShowTitle(GameSystem.Instance.UseEnglishText ? tip.Title : tip.TitleJp);
 				}
 			}
 		}

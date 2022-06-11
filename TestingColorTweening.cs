@@ -6,7 +6,7 @@ public class TestingColorTweening : MonoBehaviour
 	{
 		LeanTween.value(base.gameObject, Color.red, Color.green, 1f).setOnUpdate(OnTweenUpdate).setOnUpdateParam(new object[1]
 		{
-			string.Empty + 2
+			string.Concat(2)
 		});
 	}
 

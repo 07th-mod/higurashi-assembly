@@ -55,18 +55,17 @@ namespace Assets.Scripts.UI.TitleScreen
 			for (int j = 0; j < Sprites.Count; j++)
 			{
 				int i = j;
-				LTDescr lTDescr = LeanTween.value(Sprites[j].gameObject, delegate(float f)
+				LeanTween.value(Sprites[j].gameObject, delegate(float f)
 				{
 					Sprites[i].color = new Color(1f, 1f, 1f, f);
-				}, 0f, 1f, 1f);
-				lTDescr.delay = (float)j * 0.25f;
+				}, 0f, 1f, 1f).delay = (float)j * 0.4f;
 			}
 		}
 
 		public void Enter()
 		{
-			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GFlag_GameClear");
-			BackgroundTexture.mainTexture = (globalFlag.BoolValue() ? BG2 : BG1);
+			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GOmakeUnlock");
+			BackgroundTexture.mainTexture = ((!globalFlag.BoolValue()) ? BG1 : BG2);
 			if (!globalFlag.BoolValue())
 			{
 				Sprites[4].transform.localPosition = new Vector3(0f, 25f, 0f);

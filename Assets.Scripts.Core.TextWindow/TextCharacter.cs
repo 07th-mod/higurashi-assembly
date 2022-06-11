@@ -13,14 +13,6 @@ namespace Assets.Scripts.Core.TextWindow
 
 		private float time;
 
-		public TextCharacter(char character, float start, float end)
-		{
-			ch = character;
-			StartTime = start;
-			FinishTime = end;
-			time = 0f;
-		}
-
 		public char GetCharacter()
 		{
 			return ch;
@@ -32,7 +24,7 @@ namespace Assets.Scripts.Core.TextWindow
 			string text = TextController.TextColor.ToInt().ToString("X6");
 			if (StartTime > time)
 			{
-				return "<#" + text + "00>" + ch;
+				return "<#" + text + "00>" + ch.ToString();
 			}
 			if (ch == ' ')
 			{
@@ -42,15 +34,23 @@ namespace Assets.Scripts.Core.TextWindow
 			{
 				return ch.ToString(CultureInfo.InvariantCulture);
 			}
-			float t = (time - StartTime) / (FinishTime - StartTime);
-			int num = (int)Mathf.Lerp(0f, 255f, t);
-			return "<#" + text + num.ToString("X2") + ">" + ch;
+			float t = Mathf.Clamp01((time - StartTime) / (FinishTime - StartTime));
+			int num = Mathf.Clamp((int)Mathf.Lerp(0f, 255f, t), 0, 255);
+			return "<#" + text + num.ToString("X2") + ">" + ch.ToString();
 		}
 
 		public void Finish()
 		{
 			StartTime = 0f;
 			FinishTime = 0f;
+		}
+
+		public TextCharacter(char character, float start, float end)
+		{
+			ch = character;
+			StartTime = start;
+			FinishTime = end;
+			time = 0f;
 		}
 	}
 }

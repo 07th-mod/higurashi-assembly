@@ -32,9 +32,8 @@ namespace Assets.Scripts.UI.CGGallery
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if (gameSystem.GameState == GameState.CGGallery)
-			{
-			}
+			_ = gameSystem.GameState;
+			_ = 11;
 		}
 
 		public void Prepare(GalleryManager manager, int slot)

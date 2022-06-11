@@ -16,7 +16,17 @@ public class UIGeometry
 
 	public bool hasVertices => verts.size > 0;
 
-	public bool hasTransformed => mRtpVerts != null && mRtpVerts.size > 0 && mRtpVerts.size == verts.size;
+	public bool hasTransformed
+	{
+		get
+		{
+			if (mRtpVerts != null && mRtpVerts.size > 0)
+			{
+				return mRtpVerts.size == verts.size;
+			}
+			return false;
+		}
+	}
 
 	public void Clear()
 	{

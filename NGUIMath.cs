@@ -14,7 +14,15 @@ public static class NGUIMath
 	[DebuggerStepThrough]
 	public static int ClampIndex(int val, int max)
 	{
-		return (val >= 0) ? ((val >= max) ? (max - 1) : val) : 0;
+		if (val >= 0)
+		{
+			if (val >= max)
+			{
+				return max - 1;
+			}
+			return val;
+		}
+		return 0;
 	}
 
 	[DebuggerHidden]
@@ -149,11 +157,7 @@ public static class NGUIMath
 	[DebuggerStepThrough]
 	public static int ColorToInt(Color c)
 	{
-		int num = 0;
-		num |= Mathf.RoundToInt(c.r * 255f) << 24;
-		num |= Mathf.RoundToInt(c.g * 255f) << 16;
-		num |= Mathf.RoundToInt(c.b * 255f) << 8;
-		return num | Mathf.RoundToInt(c.a * 255f);
+		return 0 | (Mathf.RoundToInt(c.r * 255f) << 24) | (Mathf.RoundToInt(c.g * 255f) << 16) | (Mathf.RoundToInt(c.b * 255f) << 8) | Mathf.RoundToInt(c.a * 255f);
 	}
 
 	[DebuggerHidden]
@@ -173,7 +177,7 @@ public static class NGUIMath
 	[DebuggerStepThrough]
 	public static string IntToBinary(int val, int bits)
 	{
-		string text = string.Empty;
+		string text = "";
 		int num = bits;
 		while (num > 0)
 		{
@@ -181,7 +185,7 @@ public static class NGUIMath
 			{
 				text += " ";
 			}
-			text += (((val & (1 << --num)) == 0) ? '0' : '1');
+			text += (((val & (1 << --num)) != 0) ? '1' : '0').ToString();
 		}
 		return text;
 	}
@@ -362,7 +366,7 @@ public static class NGUIMath
 			Matrix4x4 toLocal = relativeTo.worldToLocalMatrix;
 			Vector3 vMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 			Vector3 vMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-			CalculateRelativeWidgetBounds(content, considerInactive, /*isRoot:*/ true, ref toLocal, ref vMin, ref vMax, ref isSet);
+			CalculateRelativeWidgetBounds(content, considerInactive, isRoot: true, ref toLocal, ref vMin, ref vMax, ref isSet);
 			if (isSet)
 			{
 				Bounds result = new Bounds(vMin, Vector3.zero);
@@ -381,7 +385,7 @@ public static class NGUIMath
 		{
 			return;
 		}
-		UIPanel uIPanel = (!isRoot) ? content.GetComponent<UIPanel>() : null;
+		UIPanel uIPanel = isRoot ? null : content.GetComponent<UIPanel>();
 		if (uIPanel != null && !uIPanel.enabled)
 		{
 			return;
@@ -457,7 +461,7 @@ public static class NGUIMath
 		int k = 0;
 		for (int childCount = content.childCount; k < childCount; k++)
 		{
-			CalculateRelativeWidgetBounds(content.GetChild(k), considerInactive, /*isRoot:*/ false, ref toLocal, ref vMin, ref vMax, ref isSet);
+			CalculateRelativeWidgetBounds(content.GetChild(k), considerInactive, isRoot: false, ref toLocal, ref vMin, ref vMax, ref isSet);
 		}
 	}
 
@@ -691,8 +695,7 @@ public static class NGUIMath
 	{
 		int num = Mathf.FloorToInt(x + 0.5f);
 		int num2 = Mathf.FloorToInt(y + 0.5f);
-		Transform cachedTransform = rect.cachedTransform;
-		cachedTransform.localPosition += new Vector3(num, num2);
+		rect.cachedTransform.localPosition += new Vector3(num, num2);
 		int num3 = 0;
 		if ((bool)rect.leftAnchor.target)
 		{
@@ -944,7 +947,7 @@ public static class NGUIMath
 		RuntimePlatform platform = Application.platform;
 		if (num == 0f)
 		{
-			num = ((platform != RuntimePlatform.Android && platform != RuntimePlatform.IPhonePlayer) ? 96f : 160f);
+			num = ((platform == RuntimePlatform.Android || platform == RuntimePlatform.IPhonePlayer) ? 160f : 96f);
 		}
 		int num2 = Mathf.RoundToInt(height * (96f / num));
 		if ((num2 & 1) == 1)
@@ -981,7 +984,7 @@ public static class NGUIMath
 			return pos;
 		}
 		Vector3 vector = camera.ScreenToWorldPoint(pos);
-		return (!(relativeTo != null)) ? vector : relativeTo.InverseTransformPoint(vector);
+		return (relativeTo != null) ? relativeTo.InverseTransformPoint(vector) : vector;
 	}
 
 	public static Vector3 WorldToLocalPoint(Vector3 worldPos, Camera worldCam, Camera uiCam, Transform relativeTo)
@@ -1005,7 +1008,7 @@ public static class NGUIMath
 		worldPos = worldCam.WorldToViewportPoint(worldPos);
 		worldPos = myCam.ViewportToWorldPoint(worldPos);
 		Transform parent = trans.parent;
-		trans.localPosition = ((!(parent != null)) ? worldPos : parent.InverseTransformPoint(worldPos));
+		trans.localPosition = ((parent != null) ? parent.InverseTransformPoint(worldPos) : worldPos);
 	}
 
 	public static void OverlayPosition(this Transform trans, Vector3 worldPos, Camera worldCam)

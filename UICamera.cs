@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [AddComponentMenu("NGUI/UI/NGUI Event System (UICamera)")]
@@ -55,9 +54,29 @@ public class UICamera : MonoBehaviour
 
 		public bool dragStarted;
 
-		public float deltaTime => (!touchBegan) ? 0f : (RealTime.time - pressTime);
+		public float deltaTime
+		{
+			get
+			{
+				if (!touchBegan)
+				{
+					return 0f;
+				}
+				return RealTime.time - pressTime;
+			}
+		}
 
-		public bool isOverUI => current != null && current != fallThrough && NGUITools.FindInParents<UIRoot>(current) != null;
+		public bool isOverUI
+		{
+			get
+			{
+				if (current != null && current != fallThrough)
+				{
+					return NGUITools.FindInParents<UIRoot>(current) != null;
+				}
+				return false;
+			}
+		}
 	}
 
 	public enum EventType
@@ -262,31 +281,20 @@ public class UICamera : MonoBehaviour
 
 	private static bool mNotifying = false;
 
-	[CompilerGenerated]
-	private static BetterList<UICamera>.CompareFunc _003C_003Ef__mg_0024cache0;
-
-	[CompilerGenerated]
-	private static GetKeyStateFunc _003C_003Ef__mg_0024cache1;
-
-	[CompilerGenerated]
-	private static GetKeyStateFunc _003C_003Ef__mg_0024cache2;
-
-	[CompilerGenerated]
-	private static GetKeyStateFunc _003C_003Ef__mg_0024cache3;
-
-	[CompilerGenerated]
-	private static GetAxisFunc _003C_003Ef__mg_0024cache4;
-
 	[Obsolete("Use new OnDragStart / OnDragOver / OnDragOut / OnDragEnd events instead")]
-	public bool stickyPress
+	public bool stickyPress => true;
+
+	public static Ray currentRay
 	{
 		get
 		{
-			return true;
+			if (!(currentCamera != null) || currentTouch == null)
+			{
+				return default(Ray);
+			}
+			return currentCamera.ScreenPointToRay(currentTouch.pos);
 		}
 	}
-
-	public static Ray currentRay => (!(currentCamera != null) || currentTouch == null) ? default(Ray) : currentCamera.ScreenPointToRay(currentTouch.pos);
 
 	[Obsolete("Use delegates instead such as UICamera.onClick, UICamera.onHover, etc.")]
 	public static GameObject genericEventHandler
@@ -406,7 +414,11 @@ public class UICamera : MonoBehaviour
 		get
 		{
 			UICamera eventHandler = UICamera.eventHandler;
-			return (!(eventHandler != null)) ? null : eventHandler.cachedCamera;
+			if (!(eventHandler != null))
+			{
+				return null;
+			}
+			return eventHandler.cachedCamera;
 		}
 	}
 
@@ -465,7 +477,7 @@ public class UICamera : MonoBehaviour
 			mNextScheme = scheme;
 			if (list.size > 0)
 			{
-				UICamera uICamera = (!(mNextSelection != null)) ? list[0] : FindCameraForLayer(mNextSelection.layer);
+				UICamera uICamera = (mNextSelection != null) ? FindCameraForLayer(mNextSelection.layer) : list[0];
 				if (uICamera != null)
 				{
 					uICamera.StartCoroutine(uICamera.ChangeSelection());
@@ -569,7 +581,7 @@ public class UICamera : MonoBehaviour
 			}
 			Ray ray = currentCamera.ScreenPointToRay(inPos);
 			int layerMask = currentCamera.cullingMask & (int)uICamera.eventReceiverMask;
-			float enter = (!(uICamera.rangeDistance > 0f)) ? (currentCamera.farClipPlane - currentCamera.nearClipPlane) : uICamera.rangeDistance;
+			float enter = (uICamera.rangeDistance > 0f) ? uICamera.rangeDistance : (currentCamera.farClipPlane - currentCamera.nearClipPlane);
 			if (uICamera.eventType == EventType.World_3D)
 			{
 				if (!Physics.Raycast(ray, out lastHit, enter, layerMask))
@@ -626,12 +638,9 @@ public class UICamera : MonoBehaviour
 					{
 						if (IsVisible(ref mHits.buffer[k]))
 						{
-							DepthEntry depthEntry = mHits[k];
-							lastHit = depthEntry.hit;
-							DepthEntry depthEntry2 = mHits[k];
-							hoveredObject = depthEntry2.go;
-							DepthEntry depthEntry3 = mHits[k];
-							lastWorldPosition = depthEntry3.point;
+							lastHit = mHits[k].hit;
+							hoveredObject = mHits[k].go;
+							lastWorldPosition = mHits[k].point;
 							mHits.Clear();
 							return true;
 						}
@@ -680,7 +689,7 @@ public class UICamera : MonoBehaviour
 					}
 					Vector3 point = ray.GetPoint(enter);
 					Collider2D collider2D = Physics2D.OverlapPoint(point, layerMask);
-					if (!(bool)collider2D)
+					if (!collider2D)
 					{
 						continue;
 					}
@@ -736,8 +745,7 @@ public class UICamera : MonoBehaviour
 					{
 						if (IsVisible(ref mHits.buffer[m]))
 						{
-							DepthEntry depthEntry4 = mHits[m];
-							hoveredObject = depthEntry4.go;
+							hoveredObject = mHits[m].go;
 							mHits.Clear();
 							return true;
 						}
@@ -984,7 +992,7 @@ public class UICamera : MonoBehaviour
 				else
 				{
 					Transform transform = base.transform;
-					fallThrough = ((!(transform.parent != null)) ? base.gameObject : transform.parent.gameObject);
+					fallThrough = ((transform.parent != null) ? transform.parent.gameObject : base.gameObject);
 				}
 			}
 			cachedCamera.eventMask = 0;
@@ -1039,7 +1047,7 @@ public class UICamera : MonoBehaviour
 		}
 		if (useMouse && mHover != null)
 		{
-			float num = string.IsNullOrEmpty(scrollAxisName) ? 0f : GetAxis(scrollAxisName);
+			float num = (!string.IsNullOrEmpty(scrollAxisName)) ? GetAxis(scrollAxisName) : 0f;
 			if (num != 0f)
 			{
 				if (onScroll != null)
@@ -1104,7 +1112,7 @@ public class UICamera : MonoBehaviour
 				flag2 = true;
 			}
 		}
-		if (flag2 || flag || mNextRaycast < RealTime.time)
+		if ((flag2 | flag) || mNextRaycast < RealTime.time)
 		{
 			mNextRaycast = RealTime.time + 0.02f;
 			if (!Raycast(Input.mousePosition))
@@ -1129,7 +1137,7 @@ public class UICamera : MonoBehaviour
 		{
 			mTooltipTime = 0f;
 		}
-		else if (flag && (!stickyTooltip || flag4))
+		else if (flag && (!stickyTooltip | flag4))
 		{
 			if (mTooltipTime != 0f)
 			{
@@ -1146,7 +1154,7 @@ public class UICamera : MonoBehaviour
 			onMouseMove(currentTouch.delta);
 			currentTouch = null;
 		}
-		if ((flag3 || !flag2) && mHover != null && flag4)
+		if (((flag3 || !flag2) && mHover != null) & flag4)
 		{
 			currentScheme = ControlScheme.Mouse;
 			currentTouch = mMouse[0];
@@ -1165,7 +1173,7 @@ public class UICamera : MonoBehaviour
 		{
 			bool mouseButtonDown = Input.GetMouseButtonDown(l);
 			bool mouseButtonUp = Input.GetMouseButtonUp(l);
-			if (mouseButtonDown || mouseButtonUp)
+			if (mouseButtonDown | mouseButtonUp)
 			{
 				currentScheme = ControlScheme.Mouse;
 			}
@@ -1214,7 +1222,7 @@ public class UICamera : MonoBehaviour
 			bool flag = touch.phase == TouchPhase.Began || currentTouch.touchBegan;
 			bool flag2 = touch.phase == TouchPhase.Canceled || touch.phase == TouchPhase.Ended;
 			currentTouch.touchBegan = false;
-			currentTouch.delta = ((!flag) ? (touch.position - currentTouch.pos) : Vector2.zero);
+			currentTouch.delta = (flag ? Vector2.zero : (touch.position - currentTouch.pos));
 			currentTouch.pos = touch.position;
 			if (!Raycast(currentTouch.pos))
 			{
@@ -1262,7 +1270,7 @@ public class UICamera : MonoBehaviour
 		bool mouseButtonDown = Input.GetMouseButtonDown(0);
 		bool mouseButtonUp = Input.GetMouseButtonUp(0);
 		bool mouseButton = Input.GetMouseButton(0);
-		if (mouseButtonDown || mouseButtonUp || mouseButton)
+		if (mouseButtonDown | mouseButtonUp | mouseButton)
 		{
 			currentTouchID = 1;
 			currentTouch = mMouse[0];
@@ -1272,7 +1280,7 @@ public class UICamera : MonoBehaviour
 				currentTouch.pressTime = RealTime.time;
 			}
 			Vector2 vector = Input.mousePosition;
-			currentTouch.delta = ((!mouseButtonDown) ? (vector - currentTouch.pos) : Vector2.zero);
+			currentTouch.delta = (mouseButtonDown ? Vector2.zero : (vector - currentTouch.pos));
 			currentTouch.pos = vector;
 			if (!Raycast(currentTouch.pos))
 			{
@@ -1329,7 +1337,7 @@ public class UICamera : MonoBehaviour
 			currentKey = submitKey1;
 			flag2 = true;
 		}
-		if (flag || flag2)
+		if (flag | flag2)
 		{
 			currentScheme = ControlScheme.Controller;
 			currentTouch.last = currentTouch.current;
@@ -1366,7 +1374,7 @@ public class UICamera : MonoBehaviour
 		if (num != 0)
 		{
 			currentScheme = ControlScheme.Controller;
-			KeyCode keyCode = (num <= 0) ? KeyCode.DownArrow : KeyCode.UpArrow;
+			KeyCode keyCode = (num > 0) ? KeyCode.UpArrow : KeyCode.DownArrow;
 			if (onKey != null)
 			{
 				onKey(mCurrentSelection, keyCode);
@@ -1376,7 +1384,7 @@ public class UICamera : MonoBehaviour
 		if (num2 != 0)
 		{
 			currentScheme = ControlScheme.Controller;
-			KeyCode keyCode2 = (num2 <= 0) ? KeyCode.LeftArrow : KeyCode.RightArrow;
+			KeyCode keyCode2 = (num2 > 0) ? KeyCode.RightArrow : KeyCode.LeftArrow;
 			if (onKey != null)
 			{
 				onKey(mCurrentSelection, keyCode2);
@@ -1420,8 +1428,8 @@ public class UICamera : MonoBehaviour
 	public void ProcessTouch(bool pressed, bool unpressed)
 	{
 		bool flag = currentScheme == ControlScheme.Mouse;
-		float num = (!flag) ? touchDragThreshold : mouseDragThreshold;
-		float num2 = (!flag) ? touchClickThreshold : mouseClickThreshold;
+		float num = flag ? mouseDragThreshold : touchDragThreshold;
+		float num2 = flag ? mouseClickThreshold : touchClickThreshold;
 		num *= num;
 		num2 *= num2;
 		if (pressed)
@@ -1491,7 +1499,7 @@ public class UICamera : MonoBehaviour
 					ShowTooltip(val: false);
 				}
 				isDragging = true;
-				bool flag3 = currentTouch.clickNotification == ClickNotification.None;
+				bool num3 = currentTouch.clickNotification == ClickNotification.None;
 				if (flag2)
 				{
 					if (onDragStart != null)
@@ -1525,7 +1533,7 @@ public class UICamera : MonoBehaviour
 				Notify(currentTouch.dragged, "OnDrag", currentTouch.delta);
 				currentTouch.last = currentTouch.current;
 				isDragging = false;
-				if (flag3)
+				if (num3)
 				{
 					currentTouch.clickNotification = ClickNotification.None;
 				}

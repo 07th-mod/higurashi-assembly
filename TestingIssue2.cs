@@ -13,7 +13,7 @@ public class TestingIssue2 : MonoBehaviour
 		Debug.Log("id1:" + id + " 2:" + id2);
 		LeanTween.value(base.gameObject, Color.red, Color.green, 1f).setOnUpdate(OnTweenUpdate).setOnUpdateParam(new object[1]
 		{
-			string.Empty + 2
+			string.Concat(2)
 		});
 	}
 

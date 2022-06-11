@@ -9,7 +9,17 @@ public class UISavedOption : MonoBehaviour
 
 	private UIToggle mCheck;
 
-	private string key => (!string.IsNullOrEmpty(keyName)) ? keyName : ("NGUI State: " + base.name);
+	private string key
+	{
+		get
+		{
+			if (!string.IsNullOrEmpty(keyName))
+			{
+				return keyName;
+			}
+			return "NGUI State: " + base.name;
+		}
+	}
 
 	private void Awake()
 	{
@@ -46,8 +56,8 @@ public class UISavedOption : MonoBehaviour
 		int i = 0;
 		for (int num = componentsInChildren.Length; i < num; i++)
 		{
-			UIToggle uIToggle = componentsInChildren[i];
-			uIToggle.value = (uIToggle.name == string2);
+			UIToggle obj = componentsInChildren[i];
+			obj.value = (obj.name == string2);
 		}
 	}
 

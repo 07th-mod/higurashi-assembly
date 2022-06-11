@@ -25,8 +25,7 @@ namespace Assets.Scripts.UI.ChapterPreview
 			{
 				Panel.alpha = f;
 			}, 1f, 0f, 0.8f);
-			LTDescr lTDescr2 = lTDescr;
-			lTDescr2.onComplete = (Action)Delegate.Combine(lTDescr2.onComplete, (Action)delegate
+			lTDescr.onComplete = (Action)Delegate.Combine(lTDescr.onComplete, (Action)delegate
 			{
 				UnityEngine.Object.Destroy(base.gameObject);
 			});

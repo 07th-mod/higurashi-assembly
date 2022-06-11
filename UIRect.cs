@@ -202,11 +202,41 @@ public abstract class UIRect : MonoBehaviour
 		}
 	}
 
-	public bool isFullyAnchored => (bool)leftAnchor.target && (bool)rightAnchor.target && (bool)topAnchor.target && (bool)bottomAnchor.target;
+	public bool isFullyAnchored
+	{
+		get
+		{
+			if ((bool)leftAnchor.target && (bool)rightAnchor.target && (bool)topAnchor.target)
+			{
+				return bottomAnchor.target;
+			}
+			return false;
+		}
+	}
 
-	public virtual bool isAnchoredHorizontally => (bool)leftAnchor.target || (bool)rightAnchor.target;
+	public virtual bool isAnchoredHorizontally
+	{
+		get
+		{
+			if (!leftAnchor.target)
+			{
+				return rightAnchor.target;
+			}
+			return true;
+		}
+	}
 
-	public virtual bool isAnchoredVertically => (bool)bottomAnchor.target || (bool)topAnchor.target;
+	public virtual bool isAnchoredVertically
+	{
+		get
+		{
+			if (!bottomAnchor.target)
+			{
+				return topAnchor.target;
+			}
+			return true;
+		}
+	}
 
 	public virtual bool canBeAnchored => true;
 
@@ -240,7 +270,17 @@ public abstract class UIRect : MonoBehaviour
 		}
 	}
 
-	public bool isAnchored => ((bool)leftAnchor.target || (bool)rightAnchor.target || (bool)topAnchor.target || (bool)bottomAnchor.target) && canBeAnchored;
+	public bool isAnchored
+	{
+		get
+		{
+			if ((bool)leftAnchor.target || (bool)rightAnchor.target || (bool)topAnchor.target || (bool)bottomAnchor.target)
+			{
+				return canBeAnchored;
+			}
+			return false;
+		}
+	}
 
 	public abstract float alpha
 	{
@@ -455,7 +495,7 @@ public abstract class UIRect : MonoBehaviour
 
 	public void SetAnchor(GameObject go)
 	{
-		Transform target = (!(go != null)) ? null : go.transform;
+		Transform target = (go != null) ? go.transform : null;
 		leftAnchor.target = target;
 		rightAnchor.target = target;
 		topAnchor.target = target;
@@ -466,7 +506,7 @@ public abstract class UIRect : MonoBehaviour
 
 	public void SetAnchor(GameObject go, int left, int bottom, int right, int top)
 	{
-		Transform target = (!(go != null)) ? null : go.transform;
+		Transform target = (go != null) ? go.transform : null;
 		leftAnchor.target = target;
 		rightAnchor.target = target;
 		topAnchor.target = target;
@@ -486,10 +526,10 @@ public abstract class UIRect : MonoBehaviour
 	public void ResetAnchors()
 	{
 		mAnchorsCached = true;
-		leftAnchor.rect = ((!(bool)leftAnchor.target) ? null : leftAnchor.target.GetComponent<UIRect>());
-		bottomAnchor.rect = ((!(bool)bottomAnchor.target) ? null : bottomAnchor.target.GetComponent<UIRect>());
-		rightAnchor.rect = ((!(bool)rightAnchor.target) ? null : rightAnchor.target.GetComponent<UIRect>());
-		topAnchor.rect = ((!(bool)topAnchor.target) ? null : topAnchor.target.GetComponent<UIRect>());
+		leftAnchor.rect = (leftAnchor.target ? leftAnchor.target.GetComponent<UIRect>() : null);
+		bottomAnchor.rect = (bottomAnchor.target ? bottomAnchor.target.GetComponent<UIRect>() : null);
+		rightAnchor.rect = (rightAnchor.target ? rightAnchor.target.GetComponent<UIRect>() : null);
+		topAnchor.rect = (topAnchor.target ? topAnchor.target.GetComponent<UIRect>() : null);
 		mCam = NGUITools.FindCameraForLayer(cachedGameObject.layer);
 		FindCameraFor(leftAnchor);
 		FindCameraFor(bottomAnchor);

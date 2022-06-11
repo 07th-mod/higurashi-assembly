@@ -1,7 +1,6 @@
 using Antlr.Runtime.Tree;
 using Assets.Scripts.Core.Buriko;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
@@ -16,48 +15,6 @@ namespace BGICompiler.Compiler
 		private ITree tree;
 
 		private BurikoMathType mathType;
-
-		public BGIValue(ITree treein)
-		{
-			baseTree = treein;
-			tree = treein.GetChild(0);
-			switch (treein.Text)
-			{
-			case "TYPEINT":
-				Type = BurikoValueType.Int;
-				break;
-			case "TYPEHEX":
-				Type = BurikoValueType.Int;
-				break;
-			case "TYPESTRING":
-				Type = BurikoValueType.String;
-				break;
-			case "TYPEBOOL":
-				Type = BurikoValueType.Bool;
-				break;
-			case "TYPENULL":
-				Type = BurikoValueType.Null;
-				break;
-			case "TYPEFUNCTION":
-				Type = BurikoValueType.Operation;
-				break;
-			case "TYPEVARIABLE":
-				Type = BurikoValueType.Variable;
-				baseTree = tree;
-				tree = baseTree.GetChild(0);
-				break;
-			case "TYPEUNARY":
-				Type = BurikoValueType.Unary;
-				break;
-			case "VAR":
-				Type = BurikoValueType.Variable;
-				break;
-			}
-			if (Type == BurikoValueType.None && IsMath(treein.Text))
-			{
-				Type = BurikoValueType.Math;
-			}
-		}
 
 		public bool GetBool()
 		{
@@ -80,41 +37,42 @@ namespace BGICompiler.Compiler
 		{
 			switch (s)
 			{
-				case "==":
-					this.mathType = BurikoMathType.Equals;
-					return true;
-				case "!=":
-					this.mathType = BurikoMathType.NotEquals;
-					return true;
-				case "<=":
-					this.mathType = BurikoMathType.LessThanOrEquals;
-					return true;
-				case ">=":
-					this.mathType = BurikoMathType.GreaterThanOrEquals;
-					return true;
-				case ">":
-					this.mathType = BurikoMathType.GreaterThan;
-					return true;
-				case "<":
-					this.mathType = BurikoMathType.LessThan;
-					return true;
-				case "+":
-					this.mathType = BurikoMathType.Add;
-					return true;
-				case "-":
-					this.mathType = BurikoMathType.Subtract;
-					return true;
-				case "*":
-					this.mathType = BurikoMathType.Multiply;
-					return true;
-				case "/":
-					this.mathType = BurikoMathType.Divide;
-					return true;
-				case "%":
-					this.mathType = BurikoMathType.Modulus;
-					return true;
+			case "==":
+				mathType = BurikoMathType.Equals;
+				return true;
+			case "!=":
+				mathType = BurikoMathType.NotEquals;
+				return true;
+			case "<=":
+				mathType = BurikoMathType.LessThanOrEquals;
+				return true;
+			case ">=":
+				mathType = BurikoMathType.GreaterThanOrEquals;
+				return true;
+			case ">":
+				mathType = BurikoMathType.GreaterThan;
+				return true;
+			case "<":
+				mathType = BurikoMathType.LessThan;
+				return true;
+			case "+":
+				mathType = BurikoMathType.Add;
+				return true;
+			case "-":
+				mathType = BurikoMathType.Subtract;
+				return true;
+			case "*":
+				mathType = BurikoMathType.Multiply;
+				return true;
+			case "/":
+				mathType = BurikoMathType.Divide;
+				return true;
+			case "%":
+				mathType = BurikoMathType.Modulus;
+				return true;
+			default:
+				return false;
 			}
-			return false;
 		}
 
 		public void OutputMath(BinaryWriter output)
@@ -144,40 +102,33 @@ namespace BGICompiler.Compiler
 				output.Write((short)2);
 				output.Write(-1);
 				output.Write(value: false);
+				return;
+			}
+			ITree child = baseTree.GetChild(num);
+			if (child.Text == "INDEX")
+			{
+				new BGIValue(child.GetChild(0)).Output();
+				num++;
 			}
 			else
 			{
-				ITree child = baseTree.GetChild(num);
-				if (child.Text == "INDEX")
-				{
-					BGIValue bGIValue = new BGIValue(child.GetChild(0));
-					bGIValue.Output();
-					num++;
-				}
-				else
-				{
-					output.Write((short)2);
-					output.Write(-1);
-				}
-				if (baseTree.ChildCount <= num)
-				{
-					output.Write(value: false);
-				}
-				else
-				{
-					ITree child2 = baseTree.GetChild(num);
-					if (child2.Text == "MEMBER")
-					{
-						output.Write(value: true);
-						ITree child3 = child2.GetChild(0);
-						BGIValue bGIValue2 = new BGIValue(child3);
-						bGIValue2.Output();
-					}
-					else
-					{
-						output.Write(value: false);
-					}
-				}
+				output.Write((short)2);
+				output.Write(-1);
+			}
+			if (baseTree.ChildCount <= num)
+			{
+				output.Write(value: false);
+				return;
+			}
+			ITree child2 = baseTree.GetChild(num);
+			if (child2.Text == "MEMBER")
+			{
+				output.Write(value: true);
+				new BGIValue(child2.GetChild(0)).Output();
+			}
+			else
+			{
+				output.Write(value: false);
 			}
 		}
 
@@ -218,17 +169,56 @@ namespace BGICompiler.Compiler
 				OutputMath(output);
 				break;
 			case BurikoValueType.Operation:
-			{
 				output.Write((short)Type);
-				OperationHandler operationHandler = new OperationHandler();
-				operationHandler.ParseOperation(tree);
+				new OperationHandler().ParseOperation(tree);
 				break;
-			}
 			case BurikoValueType.Variable:
 				OutputVar(output);
 				break;
 			default:
 				throw new Exception("Unhandled Variable Type " + Type);
+			}
+		}
+
+		public BGIValue(ITree treein)
+		{
+			baseTree = treein;
+			tree = treein.GetChild(0);
+			switch (treein.Text)
+			{
+			case "TYPEINT":
+				Type = BurikoValueType.Int;
+				break;
+			case "TYPEHEX":
+				Type = BurikoValueType.Int;
+				break;
+			case "TYPESTRING":
+				Type = BurikoValueType.String;
+				break;
+			case "TYPEBOOL":
+				Type = BurikoValueType.Bool;
+				break;
+			case "TYPENULL":
+				Type = BurikoValueType.Null;
+				break;
+			case "TYPEFUNCTION":
+				Type = BurikoValueType.Operation;
+				break;
+			case "TYPEVARIABLE":
+				Type = BurikoValueType.Variable;
+				baseTree = tree;
+				tree = baseTree.GetChild(0);
+				break;
+			case "TYPEUNARY":
+				Type = BurikoValueType.Unary;
+				break;
+			case "VAR":
+				Type = BurikoValueType.Variable;
+				break;
+			}
+			if (Type == BurikoValueType.None && IsMath(treein.Text))
+			{
+				Type = BurikoValueType.Math;
 			}
 		}
 	}

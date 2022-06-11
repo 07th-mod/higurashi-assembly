@@ -49,13 +49,13 @@ namespace Assets.Scripts.Core.Buriko.VarTypes
 			switch (reference2.Property)
 			{
 			case "lX":
-				value.x = (float)var.IntValue();
+				value.x = var.IntValue();
 				break;
 			case "lY":
-				value.y = (float)var.IntValue();
+				value.y = var.IntValue();
 				break;
 			case "lZ":
-				value.z = (float)var.IntValue();
+				value.z = var.IntValue();
 				break;
 			default:
 				Logger.LogError("Cannot set propertly " + reference2.Property + " on a ST_Vector object!");
@@ -71,22 +71,23 @@ namespace Assets.Scripts.Core.Buriko.VarTypes
 
 		public void Serialize(MemoryStream ms)
 		{
-			BsonWriter bsonWriter = new BsonWriter(ms);
-			bsonWriter.CloseOutput = false;
-			using (BsonWriter bsonWriter2 = bsonWriter)
+			using (BsonWriter bsonWriter = new BsonWriter(ms)
 			{
-				bsonWriter2.CloseOutput = false;
-				JsonSerializer jsonSerializer = new JsonSerializer();
-				jsonSerializer.Serialize(bsonWriter2, Elements);
+				CloseOutput = false
+			})
+			{
+				bsonWriter.CloseOutput = false;
+				new JsonSerializer().Serialize(bsonWriter, Elements);
 			}
 		}
 
 		public void DeSerialize(MemoryStream ms)
 		{
-			BsonReader bsonReader = new BsonReader(ms);
-			bsonReader.CloseInput = false;
-			bsonReader.ReadRootValueAsArray = true;
-			using (BsonReader reader = bsonReader)
+			using (BsonReader reader = new BsonReader(ms)
+			{
+				CloseInput = false,
+				ReadRootValueAsArray = true
+			})
 			{
 				JsonSerializer jsonSerializer = new JsonSerializer();
 				Elements = jsonSerializer.Deserialize<List<Vector3>>(reader);

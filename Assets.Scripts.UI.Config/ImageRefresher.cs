@@ -19,7 +19,7 @@ namespace Assets.Scripts.UI.Config
 			{
 				background = GetComponent<UITexture>();
 			}
-			background.mainTexture = ((!language) ? Japanese : English);
+			background.mainTexture = (language ? English : Japanese);
 		}
 
 		public void Start()

@@ -143,6 +143,8 @@ namespace Assets.Scripts.Core.Buriko
 		FragmentViewChapterScreen,
 		FragmentListScreen,
 		SetWindowBackground,
-		JumpScriptSection
+		JumpScriptSection,
+		LoadTitleScreen,
+		MoveScreen
 	}
 }

@@ -29,30 +29,27 @@ namespace Assets.Scripts.Core.History
 		private IEnumerator LeaveMenuAnimation(MenuUIController.MenuCloseDelegate onClose)
 		{
 			yield return new WaitForEndOfFrame();
-			LeanTween.cancel(this.BackgroundTexture.gameObject);
-			LeanTween.cancel(this.HistoryPanel.gameObject);
-			LeanTween.value(this.BackgroundTexture.gameObject, delegate(float f)
+			LeanTween.cancel(BackgroundTexture.gameObject);
+			LeanTween.cancel(HistoryPanel.gameObject);
+			LeanTween.value(BackgroundTexture.gameObject, delegate(float f)
 			{
-				this.BackgroundTexture.alpha = f;
+				BackgroundTexture.alpha = f;
 			}, 0.5f, 0f, 0.2f);
-			LeanTween.value(this.HistoryPanel.gameObject, delegate(float f)
+			LeanTween.value(HistoryPanel.gameObject, delegate(float f)
 			{
-				this.HistoryPanel.alpha = f;
+				HistoryPanel.alpha = f;
 			}, 1f, 0f, 0.2f);
 			GameSystem.Instance.MainUIController.FadeIn(0.2f);
 			GameSystem.Instance.SceneController.RevealFace(0.2f);
-			foreach (HistoryTextButton historyTextButton in this.textButtons)
+			HistoryTextButton[] array = textButtons;
+			for (int i = 0; i < array.Length; i++)
 			{
-				historyTextButton.FadeOut(0.2f);
+				array[i].FadeOut(0.2f);
 			}
 			GameSystem.Instance.ExecuteActions();
 			yield return new WaitForSeconds(0.3f);
-			if (onClose != null)
-			{
-				onClose();
-			}
-			UnityEngine.Object.Destroy(base.gameObject);
-			yield break;
+			onClose?.Invoke();
+			Object.Destroy(base.gameObject);
 		}
 
 		public void Leave(MenuUIController.MenuCloseDelegate onClose)
@@ -68,23 +65,21 @@ namespace Assets.Scripts.Core.History
 				HistoryLine line = textHistory.GetLine(id);
 				if (line == null)
 				{
-					Labels[i].text = string.Empty;
+					Labels[i].text = "";
 					textButtons[i].ClearVoice();
+					continue;
+				}
+				string text = "";
+				text = ((!GameSystem.Instance.UseEnglishText) ? line.TextJapanese : line.TextEnglish);
+				if (line.VoiceFile != null)
+				{
+					textButtons[i].RegisterVoice(line.VoiceFile);
 				}
 				else
 				{
-					string empty = string.Empty;
-					empty = ((!GameSystem.Instance.UseEnglishText) ? line.TextJapanese : line.TextEnglish);
-					if (line.VoiceFile != null)
-					{
-						textButtons[i].RegisterVoice(line.VoiceFile);
-					}
-					else
-					{
-						textButtons[i].ClearVoice();
-					}
-					Labels[i].text = empty;
+					textButtons[i].ClearVoice();
 				}
+				Labels[i].text = text;
 			}
 		}
 
@@ -107,7 +102,7 @@ namespace Assets.Scripts.Core.History
 			lastStep = Slider.numberOfSteps;
 			stepsize = 1f / (float)lastStep;
 			textButtons = new HistoryTextButton[5];
-			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
+			TMP_FontAsset currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
 			Debug.Log(currentFont);
 			for (int i = 0; i < 5; i++)
 			{
@@ -116,9 +111,9 @@ namespace Assets.Scripts.Core.History
 			}
 			FillText();
 			HistoryTextButton[] array = textButtons;
-			foreach (HistoryTextButton historyTextButton in array)
+			for (int j = 0; j < array.Length; j++)
 			{
-				historyTextButton.FadeIn(0.2f);
+				array[j].FadeIn(0.2f);
 			}
 			BackgroundTexture.alpha = 0f;
 			HistoryPanel.alpha = 0f;

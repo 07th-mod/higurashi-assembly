@@ -17,73 +17,74 @@ namespace Assets.Scripts.UI
 
 		private void OnClick()
 		{
-			if (UICamera.currentTouchID >= -1 && !(cooldown > 0f))
+			if (UICamera.currentTouchID < -1 || cooldown > 0f)
 			{
-				SlideButtonType type = Type;
-				switch (type)
-				{
-				case SlideButtonType.Log:
-					GameSystem.Instance.SwitchToHistoryScreen();
-					break;
-				case SlideButtonType.Auto:
-					GameSystem.Instance.IsAuto = true;
-					break;
-				case SlideButtonType.Skip:
-					GameSystem.Instance.IsSkipping = true;
-					break;
-				case SlideButtonType.Menu:
-					GameSystem.Instance.SwitchToRightClickMenu();
-					break;
-				case SlideButtonType.QuickSave:
-					if (!GameSystem.Instance.CanSave)
-					{
-						AudioController.Instance.PlaySystemSound("sysse04.ogg", 1);
-						return;
-					}
-					GameSystem.Instance.ScriptSystem.SaveQuickSave();
-					break;
-				case SlideButtonType.QuickLoad:
-				{
-					if (!GameSystem.Instance.CanSave || !GameSystem.Instance.CanLoad)
-					{
-						AudioController.Instance.PlaySystemSound("sysse04.ogg", 1);
-						return;
-					}
-					SaveEntry d = BurikoScriptSystem.Instance.GetQSaveInfo();
-					if (d == null)
-					{
-						return;
-					}
-					StateDialogPrompt prompt = new StateDialogPrompt(PromptType.DialogLoad, delegate
-					{
-						GameSystem.Instance.ScriptSystem.LoadQuickSave();
-					}, null);
-					GameSystem.Instance.PushStateObject(prompt);
-					GameSystem.Instance.RegisterAction(delegate
-					{
-						PromptController promptController = prompt.GetPromptController();
-						if (!(promptController == null))
-						{
-							string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d.Path);
-							Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
-							Debug.Log(promptController);
-							Debug.Log(d);
-							promptController.SetScreenshotDetails(image, d.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d.Text, d.TextJp);
-						}
-					});
-					GameSystem.Instance.ExecuteActions();
-					break;
-				}
-				}
-				AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
-				cooldown = 0.5f;
+				return;
 			}
+			switch (Type)
+			{
+			case SlideButtonType.Log:
+				GameSystem.Instance.SwitchToHistoryScreen();
+				break;
+			case SlideButtonType.Auto:
+				GameSystem.Instance.IsAuto = true;
+				break;
+			case SlideButtonType.Skip:
+				GameSystem.Instance.IsSkipping = true;
+				break;
+			case SlideButtonType.Menu:
+				GameSystem.Instance.SwitchToRightClickMenu();
+				break;
+			case SlideButtonType.QuickSave:
+				if (!GameSystem.Instance.CanSave)
+				{
+					AudioController.Instance.PlaySystemSound("sysse04.ogg", 1);
+					return;
+				}
+				GameSystem.Instance.ScriptSystem.SaveQuickSave();
+				break;
+			case SlideButtonType.QuickLoad:
+			{
+				if (!GameSystem.Instance.CanSave || !GameSystem.Instance.CanLoad)
+				{
+					AudioController.Instance.PlaySystemSound("sysse04.ogg", 1);
+					return;
+				}
+				SaveEntry d = BurikoScriptSystem.Instance.GetQSaveInfo();
+				if (d == null)
+				{
+					return;
+				}
+				StateDialogPrompt prompt = new StateDialogPrompt(PromptType.DialogLoad, delegate
+				{
+					GameSystem.Instance.ScriptSystem.LoadQuickSave();
+				}, null);
+				GameSystem.Instance.PushStateObject(prompt);
+				GameSystem.Instance.RegisterAction(delegate
+				{
+					PromptController promptController = prompt.GetPromptController();
+					if (!(promptController == null))
+					{
+						string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d.Path);
+						Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
+						Debug.Log(promptController);
+						Debug.Log(d);
+						promptController.SetScreenshotDetails(image, d.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d.Text, d.TextJp);
+					}
+				});
+				GameSystem.Instance.ExecuteActions();
+				break;
+			}
+			}
+			AudioController.Instance.PlaySystemSound("wa_038.ogg", 1);
+			cooldown = 0.5f;
 		}
 
 		private void OnHover(bool ishover)
 		{
-			if (!(cooldown > 0f) && GameSystem.Instance.MessageBoxVisible)
+			if (!(cooldown > 0f))
 			{
+				_ = GameSystem.Instance.MessageBoxVisible;
 			}
 		}
 

@@ -143,69 +143,63 @@ public class UI2DSprite : UIBasicSprite
 			{
 				int num5 = Mathf.RoundToInt(mSprite.rect.width);
 				int num6 = Mathf.RoundToInt(mSprite.rect.height);
-				Vector2 textureRectOffset = mSprite.textureRectOffset;
-				int num7 = Mathf.RoundToInt(textureRectOffset.x);
-				Vector2 textureRectOffset2 = mSprite.textureRectOffset;
-				int num8 = Mathf.RoundToInt(textureRectOffset2.y);
-				float num9 = mSprite.rect.width - mSprite.textureRect.width;
-				Vector2 textureRectOffset3 = mSprite.textureRectOffset;
-				int num10 = Mathf.RoundToInt(num9 - textureRectOffset3.x);
-				float num11 = mSprite.rect.height - mSprite.textureRect.height;
-				Vector2 textureRectOffset4 = mSprite.textureRectOffset;
-				int num12 = Mathf.RoundToInt(num11 - textureRectOffset4.y);
-				float num13 = 1f;
-				float num14 = 1f;
+				int num7 = Mathf.RoundToInt(mSprite.textureRectOffset.x);
+				int num8 = Mathf.RoundToInt(mSprite.textureRectOffset.y);
+				int num9 = Mathf.RoundToInt(mSprite.rect.width - mSprite.textureRect.width - mSprite.textureRectOffset.x);
+				int num10 = Mathf.RoundToInt(mSprite.rect.height - mSprite.textureRect.height - mSprite.textureRectOffset.y);
+				float num11 = 1f;
+				float num12 = 1f;
 				if (num5 > 0 && num6 > 0 && (mType == Type.Simple || mType == Type.Filled))
 				{
 					if ((num5 & 1) != 0)
 					{
-						num10++;
+						num9++;
 					}
 					if ((num6 & 1) != 0)
 					{
-						num12++;
+						num10++;
 					}
-					num13 = 1f / (float)num5 * (float)mWidth;
-					num14 = 1f / (float)num6 * (float)mHeight;
+					num11 = 1f / (float)num5 * (float)mWidth;
+					num12 = 1f / (float)num6 * (float)mHeight;
 				}
 				if (mFlip == Flip.Horizontally || mFlip == Flip.Both)
 				{
-					num += (float)num10 * num13;
-					num3 -= (float)num7 * num13;
+					num += (float)num9 * num11;
+					num3 -= (float)num7 * num11;
 				}
 				else
 				{
-					num += (float)num7 * num13;
-					num3 -= (float)num10 * num13;
+					num += (float)num7 * num11;
+					num3 -= (float)num9 * num11;
 				}
 				if (mFlip == Flip.Vertically || mFlip == Flip.Both)
 				{
-					num2 += (float)num12 * num14;
-					num4 -= (float)num8 * num14;
+					num2 += (float)num10 * num12;
+					num4 -= (float)num8 * num12;
 				}
 				else
 				{
-					num2 += (float)num8 * num14;
-					num4 -= (float)num12 * num14;
+					num2 += (float)num8 * num12;
+					num4 -= (float)num10 * num12;
 				}
 			}
-			float num15;
-			float num16;
+			float num13;
+			float num14;
 			if (mFixedAspect)
 			{
-				num15 = 0f;
-				num16 = 0f;
+				num13 = 0f;
+				num14 = 0f;
 			}
 			else
 			{
 				Vector4 vector = border * pixelSize;
-				num15 = vector.x + vector.z;
-				num16 = vector.y + vector.w;
+				num13 = vector.x + vector.z;
+				num14 = vector.y + vector.w;
 			}
-			float x = Mathf.Lerp(num, num3 - num15, mDrawRegion.x);
-			float y = Mathf.Lerp(num2, num4 - num16, mDrawRegion.y);
-			float z = Mathf.Lerp(num + num15, num3, mDrawRegion.z);
-			float w = Mathf.Lerp(num2 + num16, num4, mDrawRegion.w);
+			float x = Mathf.Lerp(num, num3 - num13, mDrawRegion.x);
+			float y = Mathf.Lerp(num2, num4 - num14, mDrawRegion.y);
+			float z = Mathf.Lerp(num + num13, num3, mDrawRegion.z);
+			float w = Mathf.Lerp(num2 + num14, num4, mDrawRegion.w);
 			return new Vector4(x, y, z, w);
 		}
 	}
@@ -237,40 +231,29 @@ public class UI2DSprite : UIBasicSprite
 			nextSprite = null;
 		}
 		base.OnUpdate();
-		if (!mFixedAspect)
-		{
-			return;
-		}
-		Texture mainTexture = this.mainTexture;
-		if (mainTexture != null)
+		if (mFixedAspect && mainTexture != null)
 		{
 			int num = Mathf.RoundToInt(mSprite.rect.width);
 			int num2 = Mathf.RoundToInt(mSprite.rect.height);
-			Vector2 textureRectOffset = mSprite.textureRectOffset;
-			int num3 = Mathf.RoundToInt(textureRectOffset.x);
-			Vector2 textureRectOffset2 = mSprite.textureRectOffset;
-			int num4 = Mathf.RoundToInt(textureRectOffset2.y);
-			float num5 = mSprite.rect.width - mSprite.textureRect.width;
-			Vector2 textureRectOffset3 = mSprite.textureRectOffset;
-			int num6 = Mathf.RoundToInt(num5 - textureRectOffset3.x);
-			float num7 = mSprite.rect.height - mSprite.textureRect.height;
-			Vector2 textureRectOffset4 = mSprite.textureRectOffset;
-			int num8 = Mathf.RoundToInt(num7 - textureRectOffset4.y);
-			num += num3 + num6;
-			num2 += num8 + num4;
-			float num9 = mWidth;
-			float num10 = mHeight;
-			float num11 = num9 / num10;
-			float num12 = (float)num / (float)num2;
-			if (num12 < num11)
+			int num3 = Mathf.RoundToInt(mSprite.textureRectOffset.x);
+			int num4 = Mathf.RoundToInt(mSprite.textureRectOffset.y);
+			int num5 = Mathf.RoundToInt(mSprite.rect.width - mSprite.textureRect.width - mSprite.textureRectOffset.x);
+			int num6 = Mathf.RoundToInt(mSprite.rect.height - mSprite.textureRect.height - mSprite.textureRectOffset.y);
+			int num7 = num + (num3 + num5);
+			num2 += num6 + num4;
+			float num8 = mWidth;
+			float num9 = mHeight;
+			float num10 = num8 / num9;
+			float num11 = (float)num7 / (float)num2;
+			if (num11 < num10)
 			{
-				float num13 = (num9 - num10 * num12) / num9 * 0.5f;
-				base.drawRegion = new Vector4(num13, 0f, 1f - num13, 1f);
+				float num12 = (num8 - num9 * num11) / num8 * 0.5f;
+				base.drawRegion = new Vector4(num12, 0f, 1f - num12, 1f);
 			}
 			else
 			{
-				float num14 = (num10 - num9 / num12) / num10 * 0.5f;
-				base.drawRegion = new Vector4(0f, num14, 1f, 1f - num14);
+				float num13 = (num9 - num8 / num11) / num9 * 0.5f;
+				base.drawRegion = new Vector4(0f, num13, 1f, 1f - num13);
 			}
 		}
 	}
@@ -306,7 +289,7 @@ public class UI2DSprite : UIBasicSprite
 		Texture mainTexture = this.mainTexture;
 		if (!(mainTexture == null))
 		{
-			Rect rect = (!(mSprite != null)) ? new Rect(0f, 0f, mainTexture.width, mainTexture.height) : mSprite.textureRect;
+			Rect rect = (mSprite != null) ? mSprite.textureRect : new Rect(0f, 0f, mainTexture.width, mainTexture.height);
 			Rect inner = rect;
 			Vector4 border = this.border;
 			inner.xMin += border.x;

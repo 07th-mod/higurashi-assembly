@@ -75,16 +75,16 @@ namespace Assets.Scripts.UI.Fragments
 
 		public void ClearTitle()
 		{
-			tipsTitleText.text = string.Empty;
-			tipsDescriptionText.text = string.Empty;
-			tipsDescriptionTextShadow.text = string.Empty;
+			tipsTitleText.text = "";
+			tipsDescriptionText.text = "";
+			tipsDescriptionTextShadow.text = "";
 		}
 
 		public void UpdatePage()
 		{
 			if (numPages == 0)
 			{
-				tipsPageText.text = string.Empty;
+				tipsPageText.text = "";
 			}
 			else
 			{
@@ -146,13 +146,13 @@ namespace Assets.Scripts.UI.Fragments
 				}
 				if (fragmentDataEntry.Id == 52)
 				{
-					if (instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && instance.GetFlag("LFragmentMiss").IntValue() == 0 && flag)
+					if ((instance.GetGlobalFlag("GFlag_GameClear").BoolValue() && instance.GetFlag("LFragmentMiss").IntValue() == 0) & flag)
 					{
 						validFragmentData.Add(fragmentDataEntry);
 					}
 					else
 					{
-						Debug.Log("Skipped showing fagment 51 because: Clear status: " + instance.GetGlobalFlag("GFlag_GameClear").BoolValue() + " MissValue: " + instance.GetFlag("LFragmentMiss").IntValue() + " Prereq: " + flag);
+						Debug.Log("Skipped showing fagment 51 because: Clear status: " + instance.GetGlobalFlag("GFlag_GameClear").BoolValue().ToString() + " MissValue: " + instance.GetFlag("LFragmentMiss").IntValue() + " Prereq: " + flag.ToString());
 					}
 				}
 			}
@@ -179,18 +179,18 @@ namespace Assets.Scripts.UI.Fragments
 
 		public void Show()
 		{
-			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
+			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
 			GameSystem.Instance.AudioController.PlayAudio("it_move2.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.8f);
 			if (GameSystem.Instance.UseEnglishText)
 			{
-				TextMeshProFont englishFont = GameSystem.Instance.MainUIController.GetEnglishFont();
+				TMP_FontAsset englishFont = GameSystem.Instance.MainUIController.GetEnglishFont();
 				tipsTitleText.font = englishFont;
 				tipsDescriptionText.font = englishFont;
 				tipsDescriptionTextShadow.font = englishFont;
 			}
 			else
 			{
-				TextMeshProFont japaneseFont = GameSystem.Instance.MainUIController.GetJapaneseFont();
+				TMP_FontAsset japaneseFont = GameSystem.Instance.MainUIController.GetJapaneseFont();
 				tipsTitleText.font = japaneseFont;
 				tipsDescriptionText.font = japaneseFont;
 				tipsDescriptionTextShadow.font = japaneseFont;

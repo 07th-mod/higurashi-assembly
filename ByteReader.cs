@@ -12,7 +12,17 @@ public class ByteReader
 
 	private static BetterList<string> mTemp = new BetterList<string>();
 
-	public bool canRead => mBuffer != null && mOffset < mBuffer.Length;
+	public bool canRead
+	{
+		get
+		{
+			if (mBuffer != null)
+			{
+				return mOffset < mBuffer.Length;
+			}
+			return false;
+		}
+	}
 
 	public ByteReader(byte[] bytes)
 	{
@@ -62,18 +72,18 @@ public class ByteReader
 		int num2 = mOffset;
 		if (num2 < num)
 		{
-			int num4;
+			int num3;
 			do
 			{
 				if (num2 < num)
 				{
-					num4 = mBuffer[num2++];
+					num3 = mBuffer[num2++];
 					continue;
 				}
 				num2++;
 				break;
 			}
-			while (num4 != 10 && num4 != 13);
+			while (num3 != 10 && num3 != 13);
 			string result = ReadLine(mBuffer, mOffset, num2 - mOffset - 1);
 			mOffset = num2;
 			return result;
@@ -112,7 +122,7 @@ public class ByteReader
 	public BetterList<string> ReadCSV()
 	{
 		mTemp.Clear();
-		string text = string.Empty;
+		string text = "";
 		bool flag = false;
 		int num = 0;
 		while (canRead)

@@ -47,6 +47,92 @@ namespace Assets.Scripts.Core.Buriko
 			valueVariable = variable;
 		}
 
+		public static BurikoReference ReadReference(BinaryReader dataReader)
+		{
+			if (dataReader.ReadInt16() != 5)
+			{
+				throw new Exception("Cannot perform assignment to an object that is not a declared variable.");
+			}
+			string property = dataReader.ReadString();
+			int member = new BurikoVariable(dataReader).IntValue();
+			bool num = dataReader.ReadBoolean();
+			BurikoReference burikoReference = new BurikoReference(property, member);
+			if (num)
+			{
+				burikoReference.Reference = ReadReference(dataReader);
+			}
+			return burikoReference;
+		}
+
+		private static int PerformMath(BurikoMathType type, BurikoVariable a, BurikoVariable b)
+		{
+			int num = a.IntValue();
+			int num2 = b.IntValue();
+			switch (type)
+			{
+			case BurikoMathType.Equals:
+				if (num != num2)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.Add:
+				return num + num2;
+			case BurikoMathType.Divide:
+				return num / num2;
+			case BurikoMathType.Multiply:
+				return num * num2;
+			case BurikoMathType.Subtract:
+				return num - num2;
+			case BurikoMathType.GreaterThan:
+				if (num <= num2)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.GreaterThanOrEquals:
+				if (num < num2)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.LessThan:
+				if (num >= num2)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.LessThanOrEquals:
+				if (num > num2)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.Modulus:
+				return num % num2;
+			case BurikoMathType.NotEquals:
+				if (num == num2)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.And:
+				if (num == 0 || num2 == 0)
+				{
+					return 0;
+				}
+				return 1;
+			case BurikoMathType.Or:
+				if (num == 0 && num2 == 0)
+				{
+					return 0;
+				}
+				return 1;
+			default:
+				throw new Exception("Cannot find a handler for math type " + type);
+			}
+		}
+
 		public BurikoVariable(BinaryReader stream)
 		{
 			Type = (BurikoValueType)stream.ReadInt16();
@@ -85,61 +171,6 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
-		public static BurikoReference ReadReference(BinaryReader dataReader)
-		{
-			short num = dataReader.ReadInt16();
-			if (num != 5)
-			{
-				throw new Exception("Cannot perform assignment to an object that is not a declared variable.");
-			}
-			string property = dataReader.ReadString();
-			int member = new BurikoVariable(dataReader).IntValue();
-			bool flag = dataReader.ReadBoolean();
-			BurikoReference burikoReference = new BurikoReference(property, member);
-			if (flag)
-			{
-				burikoReference.Reference = ReadReference(dataReader);
-			}
-			return burikoReference;
-		}
-
-		private static int PerformMath(BurikoMathType type, BurikoVariable a, BurikoVariable b)
-		{
-			int num = a.IntValue();
-			int num2 = b.IntValue();
-			switch (type)
-			{
-			case BurikoMathType.Equals:
-				return (num == num2) ? 1 : 0;
-			case BurikoMathType.Add:
-				return num + num2;
-			case BurikoMathType.Divide:
-				return num / num2;
-			case BurikoMathType.Multiply:
-				return num * num2;
-			case BurikoMathType.Subtract:
-				return num - num2;
-			case BurikoMathType.GreaterThan:
-				return (num > num2) ? 1 : 0;
-			case BurikoMathType.GreaterThanOrEquals:
-				return (num >= num2) ? 1 : 0;
-			case BurikoMathType.LessThan:
-				return (num < num2) ? 1 : 0;
-			case BurikoMathType.LessThanOrEquals:
-				return (num <= num2) ? 1 : 0;
-			case BurikoMathType.Modulus:
-				return num % num2;
-			case BurikoMathType.NotEquals:
-				return (num != num2) ? 1 : 0;
-			case BurikoMathType.And:
-				return (num != 0 && num2 != 0) ? 1 : 0;
-			case BurikoMathType.Or:
-				return (num != 0 || num2 != 0) ? 1 : 0;
-			default:
-				throw new Exception("Cannot find a handler for math type " + type);
-			}
-		}
-
 		public bool BoolValue()
 		{
 			switch (Type)
@@ -152,7 +183,7 @@ namespace Assets.Scripts.Core.Buriko
 				}
 				return false;
 			case BurikoValueType.String:
-				if (valueString == "0" || valueString == string.Empty)
+				if (valueString == "0" || valueString == "")
 				{
 					return false;
 				}
@@ -170,16 +201,15 @@ namespace Assets.Scripts.Core.Buriko
 			case BurikoValueType.Bool:
 				return valueInt;
 			case BurikoValueType.String:
+			{
 				if (int.TryParse(valueString, out int result))
 				{
 					return result;
 				}
 				throw new Exception("BurikoValue: Cannot parse type string into type int.");
-			case BurikoValueType.Variable:
-			{
-				IBurikoObject memory = BurikoMemory.Instance.GetMemory(valueReference.Property);
-				return memory.IntValue(valueReference);
 			}
+			case BurikoValueType.Variable:
+				return BurikoMemory.Instance.GetMemory(valueReference.Property).IntValue(valueReference);
 			case BurikoValueType.Operation:
 				return valueVariable.IntValue();
 			case BurikoValueType.Null:
@@ -194,7 +224,7 @@ namespace Assets.Scripts.Core.Buriko
 			switch (Type)
 			{
 			case BurikoValueType.Null:
-				return string.Empty;
+				return "";
 			case BurikoValueType.Int:
 			case BurikoValueType.Bool:
 				return valueInt.ToString(CultureInfo.InvariantCulture);
@@ -203,8 +233,7 @@ namespace Assets.Scripts.Core.Buriko
 			case BurikoValueType.Variable:
 				if (BurikoMemory.Instance.IsMemory(valueReference.Property))
 				{
-					IBurikoObject memory = BurikoMemory.Instance.GetMemory(valueReference.Property);
-					return memory.GetObject(valueReference).StringValue();
+					return BurikoMemory.Instance.GetMemory(valueReference.Property).GetObject(valueReference).StringValue();
 				}
 				if (BurikoMemory.Instance.IsFlag(valueReference.Property))
 				{
@@ -234,6 +263,11 @@ namespace Assets.Scripts.Core.Buriko
 				throw new Exception("Expected type variable, cannot accept type " + Type);
 			}
 			return valueReference.Property;
+		}
+
+		public override string ToString()
+		{
+			return StringValue();
 		}
 	}
 }

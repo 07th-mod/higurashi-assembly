@@ -86,6 +86,8 @@ namespace Assets.Scripts.Core
 
 		public GameObject LoadingBox;
 
+		public StateTitle TitleScreenState;
+
 		public TextMeshPro LoadingText;
 
 		public TextMeshPro HistoryTextMesh;
@@ -112,9 +114,9 @@ namespace Assets.Scripts.Core
 
 		public bool CanLoad = true;
 
-		public bool CanInput = true;
-
 		public bool CanReturn;
+
+		public bool CanInput = true;
 
 		public bool UsePrompts = true;
 
@@ -156,6 +158,8 @@ namespace Assets.Scripts.Core
 
 		public readonly List<Wait> WaitList = new List<Wait>();
 
+		public readonly List<Wait> TempList = new List<Wait>();
+
 		private MenuUIController menuUIController;
 
 		private HistoryWindow historyWindow;
@@ -170,7 +174,7 @@ namespace Assets.Scripts.Core
 
 		private IGameState curStateObj;
 
-		private const float maxProcTime = 0.01f;
+		private const float maxProcTime = 1f;
 
 		private float blockInputTime;
 
@@ -203,6 +207,19 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		public bool IsInWindowBounds
+		{
+			get
+			{
+				Vector3 mousePosition = Input.mousePosition;
+				if (Application.isFocused && mousePosition.x >= 0f && mousePosition.x <= (float)Screen.width && mousePosition.y >= 0f)
+				{
+					return mousePosition.y <= (float)Screen.height;
+				}
+				return false;
+			}
+		}
+
 		private void Initialize()
 		{
 			Logger.Log("GameSystem: Starting GameSystem");
@@ -215,8 +232,7 @@ namespace Assets.Scripts.Core
 			IsRunning = false;
 			GameState = GameState.Normal;
 			curStateObj = new StateNormal();
-			IGameState obj = curStateObj;
-			inputHandler = obj.InputHandler;
+			inputHandler = curStateObj.InputHandler;
 			MessageBoxVisible = false;
 			if (!PlayerPrefs.HasKey("width"))
 			{
@@ -266,7 +282,6 @@ namespace Assets.Scripts.Core
 			ScriptSystem.Initialize(this);
 		}
 
-
 		public void CompileScripts()
 		{
 			try
@@ -292,8 +307,7 @@ namespace Assets.Scripts.Core
 			AspectRatio = newratio;
 			if (!Screen.fullScreen)
 			{
-				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
-				Screen.SetResolution(width, Screen.height, fullscreen: false);
+				Screen.SetResolution(Mathf.RoundToInt((float)Screen.height * AspectRatio), Screen.height, fullscreen: false);
 			}
 			if (!PlayerPrefs.HasKey("width"))
 			{
@@ -311,8 +325,7 @@ namespace Assets.Scripts.Core
 		{
 			stateStack.Clear();
 			curStateObj = new StateNormal();
-			IGameState obj = curStateObj;
-			inputHandler = obj.InputHandler;
+			inputHandler = curStateObj.InputHandler;
 			GameState = GameState.Normal;
 		}
 
@@ -322,13 +335,11 @@ namespace Assets.Scripts.Core
 			{
 				Debug.Log("PopStateStack has no state to remove.");
 				curStateObj = new StateNormal();
-				IGameState obj = curStateObj;
-				inputHandler = obj.InputHandler;
+				inputHandler = curStateObj.InputHandler;
 				GameState = GameState.Normal;
+				return;
 			}
-			else
-			{
-				if (curStateObj != null)
+			if (curStateObj != null)
 			{
 				Debug.Log("PopStateStack - Calling OnLeaveState");
 				curStateObj.OnLeaveState();
@@ -343,7 +354,6 @@ namespace Assets.Scripts.Core
 				curStateObj.OnRestoreState();
 			}
 			Debug.Log("StateStack now has " + stateStack.Count + " entries.");
-			}
 		}
 
 		private void PushStateStack(MGHelper.InputHandler newHandler, GameState newState)
@@ -372,8 +382,7 @@ namespace Assets.Scripts.Core
 				stateStack.Push(new StateEntry(inputHandler, GameState));
 			}
 			curStateObj = stateObject;
-			IGameState obj = curStateObj;
-			inputHandler = obj.InputHandler;
+			inputHandler = curStateObj.InputHandler;
 			GameState = curStateObj.GetStateType();
 		}
 
@@ -401,13 +410,12 @@ namespace Assets.Scripts.Core
 		private IEnumerator DelayedActionRunner()
 		{
 			yield return null;
-			if (this.delayedActions != null)
+			if (delayedActions != null)
 			{
-				this.delayedActions();
+				delayedActions();
 			}
-			this.delayedActions = null;
-			this.WaitOnDelayedAction = false;
-			yield break;
+			delayedActions = null;
+			WaitOnDelayedAction = false;
 		}
 
 		public void RegisterAction(PreparedAction action)
@@ -429,16 +437,12 @@ namespace Assets.Scripts.Core
 			actionCount++;
 			yield return null;
 			yield return null;
-			if (act != null)
+			act?.Invoke();
+			coroutinecount--;
+			if (coroutinecount == 0)
 			{
-				act();
+				CanAdvance = true;
 			}
-			this.coroutinecount--;
-			if (this.coroutinecount == 0)
-			{
-				this.CanAdvance = true;
-			}
-			yield break;
 		}
 
 		public void HideUIControls()
@@ -728,11 +732,16 @@ namespace Assets.Scripts.Core
 
 		public void ClearAllWaits()
 		{
-			WaitList.ForEach(delegate(Wait a)
+			foreach (Wait wait in WaitList)
+			{
+				TempList.Add(wait);
+			}
+			TempList.ForEach(delegate(Wait a)
 			{
 				a.Finish();
 			});
 			WaitList.RemoveAll((Wait a) => a.IsActive);
+			TempList.Clear();
 		}
 
 		public bool HasWaitOfType(WaitTypes type)
@@ -742,10 +751,7 @@ namespace Assets.Scripts.Core
 
 		public void ClearTextWait(bool finish)
 		{
-			List<Wait> list = (from a in WaitList
-			where a.Type == WaitTypes.WaitForText
-			select a).ToList();
-			foreach (Wait item in list)
+			foreach (Wait item in WaitList.Where((Wait a) => a.Type == WaitTypes.WaitForText).ToList())
 			{
 				if (finish)
 				{
@@ -763,9 +769,7 @@ namespace Assets.Scripts.Core
 
 		public void ClearInputWaits()
 		{
-			if (IsAuto)
-			{
-			}
+			_ = IsAuto;
 		}
 
 		public void ClearWait()
@@ -773,18 +777,12 @@ namespace Assets.Scripts.Core
 			if (WaitList.Exists((Wait a) => a.Type == WaitTypes.WaitForText) && !IsSkipping)
 			{
 				ClearTextWait(finish: true);
+				return;
 			}
-			else
-			{
-				WaitList.ForEach(delegate(Wait a)
-			{
-				a.Finish();
-			});
-			WaitList.RemoveAll((Wait a) => a.IsActive);
+			ClearAllWaits();
 			if (StopVoiceOnClick)
 			{
 				AudioController.StopAllVoice();
-			}
 			}
 		}
 
@@ -821,7 +819,6 @@ namespace Assets.Scripts.Core
 			{
 				yield return null;
 			}
-			yield break;
 		}
 
 		public void GoFullscreen()
@@ -895,7 +892,7 @@ namespace Assets.Scripts.Core
 			Logger.Update();
 			if (blockInputTime <= 0f)
 			{
-				if ((CanInput || GameState != GameState.Normal) && (inputHandler == null || !inputHandler()))
+				if ((CanInput || GameState != GameState.Normal) && (!Application.isFocused || inputHandler == null || !inputHandler()))
 				{
 					return;
 				}
@@ -904,57 +901,58 @@ namespace Assets.Scripts.Core
 			{
 				blockInputTime -= Time.deltaTime;
 			}
-			if (IsRunning && CanAdvance && !WaitOnDelayedAction)
+			if (!IsRunning || !CanAdvance || WaitOnDelayedAction)
 			{
-				UpdateWaits();
-				if (delayedActions != null)
+				return;
+			}
+			UpdateWaits();
+			if (delayedActions != null)
+			{
+				if (!HasExistingWaits())
 				{
-					if (!HasExistingWaits())
-					{
-						ExecuteDelayedActions();
-					}
+					ExecuteDelayedActions();
 				}
-				else
+			}
+			else
+			{
+				UpdateCarret();
+				try
 				{
-					UpdateCarret();
-					try
+					if (GameState == GameState.Normal)
 					{
-						if (GameState == GameState.Normal)
+						TextController.Update();
+						if (!IsSkipping)
 						{
-							TextController.Update();
-							if (!IsSkipping)
-							{
-								goto IL_0127;
-							}
-							skipWait -= Time.deltaTime;
-							if (!(skipWait <= 0f))
-							{
-								goto IL_0127;
-							}
-							if (!HasExistingWaits())
-							{
-								if (SkipModeDelay)
-								{
-									skipWait = 0.1f;
-								}
-								goto IL_0127;
-							}
-							ClearAllWaits();
+							goto IL_0103;
 						}
-						goto end_IL_00b7;
-						IL_0127:
-						float num = Time.time + 0.01f;
-						while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction && gameState == GameState.Normal)
+						skipWait -= Time.deltaTime;
+						if (!(skipWait <= 0f))
 						{
-							ScriptSystem.Advance();
+							goto IL_0103;
 						}
-						end_IL_00b7:;
+						if (!HasExistingWaits() && gameState == GameState.Normal)
+						{
+							if (SkipModeDelay)
+							{
+								skipWait = 0.1f;
+							}
+							goto IL_0103;
+						}
+						ClearAllWaits();
 					}
-					catch (Exception)
+					goto end_IL_0099;
+					IL_0103:
+					float num = Time.time + 1f;
+					while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction && gameState == GameState.Normal)
 					{
-						IsRunning = false;
-						throw;
+						ScriptSystem.Advance();
 					}
+					end_IL_0099:;
+				}
+				catch (Exception)
+				{
+					IsRunning = false;
+					throw;
 				}
 			}
 		}

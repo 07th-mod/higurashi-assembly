@@ -62,11 +62,11 @@ namespace Assets.Scripts.UI.Tips
 		{
 			if (hasTips)
 			{
-				tipsTitleText.text = string.Empty;
+				tipsTitleText.text = "";
 			}
 			else
 			{
-				tipsTitleText.text = ((!GameSystem.Instance.UseEnglishText) ? "ì¸éËÇsÇhÇoÇrÇÕÇ†ÇËÇ‹ÇπÇÒ" : "No new tips available.");
+				tipsTitleText.text = (GameSystem.Instance.UseEnglishText ? "No new tips available." : "ÂÖ•ÊâãÔº¥Ôº©Ôº∞Ôº≥„ÅØ„ÅÇ„Çä„Åæ„Åõ„Çì");
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace Assets.Scripts.UI.Tips
 		{
 			if (numPages == 0)
 			{
-				tipsPageText.text = string.Empty;
+				tipsPageText.text = "";
 			}
 			else
 			{
@@ -115,16 +115,15 @@ namespace Assets.Scripts.UI.Tips
 		{
 			if (GameSystem.Instance.UseEnglishText)
 			{
-				TextMeshProFont englishFont = GameSystem.Instance.MainUIController.GetEnglishFont();
+				TMP_FontAsset englishFont = GameSystem.Instance.MainUIController.GetEnglishFont();
 				tipsTitleText.font = englishFont;
 			}
 			else
 			{
-				TextMeshProFont japaneseFont = GameSystem.Instance.MainUIController.GetJapaneseFont();
+				TMP_FontAsset japaneseFont = GameSystem.Instance.MainUIController.GetJapaneseFont();
 				tipsTitleText.font = japaneseFont;
 			}
-			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
-			lTDescr.onComplete = delegate
+			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f).onComplete = delegate
 			{
 				GameSystem.Instance.AudioController.PlayAudio("OMAKE2.ogg", Assets.Scripts.Core.Audio.AudioType.BGM, 0, 0.7f);
 			};
@@ -164,8 +163,7 @@ namespace Assets.Scripts.UI.Tips
 			isActive = false;
 			LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 1f, 0f, 0.8f);
 			lTDescr.onComplete = onFinish;
-			LTDescr lTDescr2 = lTDescr;
-			lTDescr2.onComplete = (Action)Delegate.Combine(lTDescr2.onComplete, (Action)delegate
+			lTDescr.onComplete = (Action)Delegate.Combine(lTDescr.onComplete, (Action)delegate
 			{
 				UnityEngine.Object.Destroy(base.gameObject);
 			});

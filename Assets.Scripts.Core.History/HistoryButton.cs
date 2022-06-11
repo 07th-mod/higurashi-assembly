@@ -9,30 +9,28 @@ namespace Assets.Scripts.Core.History
 
 		private void OnPress(bool isDown)
 		{
-			if (isDown)
+			if (!isDown)
 			{
-				string name = base.name;
-				if (name != null)
+				return;
+			}
+			string name = base.name;
+			if (!(name == "UpArrow"))
+			{
+				if (!(name == "DownArrow"))
 				{
-					if (!(name == "UpArrow"))
+					if (name == "Return")
 					{
-						if (!(name == "DownArrow"))
-						{
-							if (name == "Return")
-							{
-								(GameSystem.Instance.GetStateObject() as StateHistory)?.RequestLeave();
-							}
-						}
-						else
-						{
-							Hw.Step(-1f);
-						}
-					}
-					else
-					{
-						Hw.Step(1f);
+						(GameSystem.Instance.GetStateObject() as StateHistory)?.RequestLeave();
 					}
 				}
+				else
+				{
+					Hw.Step(-1f);
+				}
+			}
+			else
+			{
+				Hw.Step(1f);
 			}
 		}
 	}

@@ -12,7 +12,7 @@ public class UISpriteAnimation : MonoBehaviour
 
 	[HideInInspector]
 	[SerializeField]
-	protected string mPrefix = string.Empty;
+	protected string mPrefix = "";
 
 	[HideInInspector]
 	[SerializeField]
@@ -93,7 +93,7 @@ public class UISpriteAnimation : MonoBehaviour
 		{
 			return;
 		}
-		mDelta = ((!(num > 0f)) ? 0f : (mDelta - num));
+		mDelta = ((num > 0f) ? (mDelta - num) : 0f);
 		if (++mIndex >= mSpriteNames.Count)
 		{
 			mIndex = 0;

@@ -95,7 +95,7 @@ namespace Assets.Scripts.Core.SteamWorks
 						{
 							achievement_t.m_strName = SteamUserStats.GetAchievementDisplayAttribute(achievement_t.m_eAchievementID.ToString(), "name").Trim();
 							achievement_t.m_strDescription = SteamUserStats.GetAchievementDisplayAttribute(achievement_t.m_eAchievementID.ToString(), "desc").Trim();
-							Debug.Log(achievement_t.m_strName + " : " + achievement_t.m_bAchieved);
+							Debug.Log(achievement_t.m_strName + " : " + achievement_t.m_bAchieved.ToString());
 						}
 						else
 						{

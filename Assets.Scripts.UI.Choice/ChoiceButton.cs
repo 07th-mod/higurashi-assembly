@@ -58,7 +58,7 @@ namespace Assets.Scripts.UI.Choice
 
 		public void ChangeText(string newtxt)
 		{
-			TextMeshProFont currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
+			TMP_FontAsset currentFont = GameSystem.Instance.MainUIController.GetCurrentFont();
 			ButtonTextMesh.font = currentFont;
 			ButtonTextMesh.text = newtxt;
 		}
