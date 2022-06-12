@@ -467,6 +467,12 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
+			// This function can run even before BurikoMemory.Instance is set, so avoid running most of the below code until it is ready.
+			if (BurikoMemory.Instance == null)
+			{
+				return;
+			}
+
 			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
 			if(this.gameSystem == null)
 			{
