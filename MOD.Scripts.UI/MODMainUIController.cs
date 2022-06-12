@@ -6,83 +6,83 @@ namespace MOD.Scripts.UI
 {
 	public class MODMainUIController : MonoBehaviour
 	{
-		private static string ADVModeNameFormat;
+		private static string ADVModeNameFormat = "<size=+4>{0}\n</size>";
 
-		private static int ADVModeWindowPosX;
+		private static int ADVModeWindowPosX = -170;
 
-		private static int ADVModeWindowPosY;
+		private static int ADVModeWindowPosY = -300;
 
-		private static int ADVModeWindowSizeX;
+		private static int ADVModeWindowSizeX = 1150;
 
-		private static int ADVModeWindowSizeY;
+		private static int ADVModeWindowSizeY = 250;
 
-		private static int ADVModeLineSpacing;
+		private static int ADVModeLineSpacing = 8;
 
-		private static int ADVModeCharSpacing;
+		private static int ADVModeCharSpacing = 0;
 
-		private static int ADVModeFontSize;
+		private static int ADVModeFontSize = 30;
 
-		private static int ADVModeWindowMarginLeft;
+		private static int ADVModeWindowMarginLeft = 60;
 
-		private static int ADVModeWindowMarginTop;
+		private static int ADVModeWindowMarginTop = 30;
 
-		private static int ADVModeWindowMarginRight;
+		private static int ADVModeWindowMarginRight = 50;
 
-		private static int ADVModeWindowMarginBottom;
+		private static int ADVModeWindowMarginBottom = 30;
 
-		private static int ADVModeFontID;
+		private static int ADVModeFontID = 1;
 
-		private static string NVLModeNameFormat;
+		private static string NVLModeNameFormat = "";
 
-		private static int NVLModeWindowPosX;
+		private static int NVLModeWindowPosX = -170;
 
-		private static int NVLModeWindowPosY;
+		private static int NVLModeWindowPosY = -10;
 
-		private static int NVLModeWindowSizeX;
+		private static int NVLModeWindowSizeX = 1240;
 
-		private static int NVLModeWindowSizeY;
+		private static int NVLModeWindowSizeY = 720;
 
-		private static int NVLModeLineSpacing;
+		private static int NVLModeLineSpacing = 8;
 
-		private static int NVLModeCharSpacing;
+		private static int NVLModeCharSpacing = 0;
 
-		private static int NVLModeFontSize;
+		private static int NVLModeFontSize = 34;
 
-		private static int NVLModeWindowMarginLeft;
+		private static int NVLModeWindowMarginLeft = 60;
 
-		private static int NVLModeWindowMarginTop;
+		private static int NVLModeWindowMarginTop = 30;
 
-		private static int NVLModeWindowMarginRight;
+		private static int NVLModeWindowMarginRight = 50;
 
-		private static int NVLModeWindowMarginBottom;
+		private static int NVLModeWindowMarginBottom = 30;
 
-		private static int NVLModeFontID;
+		private static int NVLModeFontID = 1;
 
-		private static string NVLADVModeNameFormat;
+		private static string NVLADVModeNameFormat = "";
 
-		private static int NVLADVModeWindowPosX;
+		private static int NVLADVModeWindowPosX = -170;
 
-		private static int NVLADVModeWindowPosY;
+		private static int NVLADVModeWindowPosY = -10;
 
-		private static int NVLADVModeWindowSizeX;
+		private static int NVLADVModeWindowSizeX = 1240;
 
-		private static int NVLADVModeWindowSizeY;
+		private static int NVLADVModeWindowSizeY = 720;
 
-		private static int NVLADVModeLineSpacing;
+		private static int NVLADVModeLineSpacing = 8;
 
-		private static int NVLADVModeCharSpacing;
+		private static int NVLADVModeCharSpacing = 0;
 
-		private static int NVLADVModeFontSize;
+		private static int NVLADVModeFontSize = 34;
 
-		private static int NVLADVModeWindowMarginLeft;
+		private static int NVLADVModeWindowMarginLeft = 60;
 
-		private static int NVLADVModeWindowMarginTop;
+		private static int NVLADVModeWindowMarginTop = 30;
 
-		private static int NVLADVModeWindowMarginRight;
+		private static int NVLADVModeWindowMarginRight = 50;
 
-		private static int NVLADVModeWindowMarginBottom;
+		private static int NVLADVModeWindowMarginBottom = 30;
 
-		private static int NVLADVModeFontID;
+		private static int NVLADVModeFontID = 1;
 
 		// Ryukishi Mode Settings, with default values
 		private static string RyukishiModeNameFormat = "";
