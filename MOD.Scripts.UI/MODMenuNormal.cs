@@ -143,6 +143,11 @@ Sets the script censorship level
 
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
+
+			if(GameSystem.Instance.AspectRatio != 1f / 0.5625f)
+			{
+				MODToaster.Show("WARNING: Wrong aspect ratio - copy previous chap init.txt");
+			}
 		}
 
 		private void GraphicsTabOnGUI()
