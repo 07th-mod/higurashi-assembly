@@ -1,6 +1,7 @@
 using Assets.Scripts.Core;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Choice
@@ -26,19 +27,46 @@ namespace Assets.Scripts.UI.Choice
 			GameSystem.Instance.LeaveChoices();
 		}
 
+		// ------ Note about spawned object using this method ------
+		//
+		// The final text will be placed in the center of the 4:3 window (when using TextAlignmentOptions.Center), or top left (when using TextAlignmentOptions.TopLeft)
+		// when the local position and position are set 0, and has no parent
+		// The unmodded screen height is 2.0, unmodded screen width is 2.0 * 4 / 3, full 16:9 modded screen width is 2.0 * 16/9
+		// The offset when using top left mode is (moddedScreenWidth - unmoddedScreenWidth) / 2;
+		// This is similar to the previous coordinate system but everything is divided by 384
+		// The GUIOffset is not necessary when using centered text (TextAlignmentOptions.Center), so we remove it in the Create() function
+		//
+		// Note 2: previously I used UnityEngine.Object.Instantiate(gs.LoadingBox, gs.LoadingBox.transform.parent, instantiateInWorldSpace: false);
+		// but could get similar results by dviding the font size by 384f and spawning in world space
+		public static GameObject DuplicateTextObject()
+		{
+			GameObject loadingBox2 = UnityEngine.Object.Instantiate(GameSystem.Instance.LoadingBox);
+
+			TextMeshPro tmp = loadingBox2.GetComponent<TextMeshPro>();
+			tmp.alignment = TextAlignmentOptions.Center;
+			tmp.font = GameSystem.Instance.MainUIController.GetCurrentFont();
+			tmp.fontSize = 52/384f;
+			tmp.text = "Hello World";
+
+			loadingBox2.transform.localPosition = new Vector3(0f, 0f, 0f);
+			loadingBox2.transform.position = new Vector3(0f, 0f, 0f);
+
+			loadingBox2.SetActive(true);
+
+			return loadingBox2;
+		}
+
 		public void Create(List<string> optstrings, int count)
 		{
-			GameObject gameObject = GameObject.FindGameObjectWithTag("PrimaryUIPanel");
 			for (int i = 0; i < count; i++)
 			{
 				int id = i;
-				GameObject gameObject2 = UnityEngine.Object.Instantiate(Resources.Load("ChoiceButton")) as GameObject;
+				GameObject gameObject2 = DuplicateTextObject();
 				if (gameObject2 == null)
 				{
 					throw new Exception("Failed to instantiate ChoiceButton!");
 				}
-				gameObject2.transform.parent = gameObject.transform;
-				gameObject2.transform.localScale = Vector3.one;
+
 				if (count > 8)
 				{
 					float x;
@@ -60,7 +88,22 @@ namespace Assets.Scripts.UI.Choice
 				{
 					gameObject2.transform.localPosition = new Vector3(GameSystem.Instance.GetGUIOffset(), (float)(-75 * i + 27 * count + 50), 0f);
 				}
-				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
+
+				// Make some adjustments to the above calculations in Rei due to using a different coordinate system than the previous chapters
+				gameObject2.transform.localPosition -= new Vector3(GameSystem.Instance.GetGUIOffset(), 0, 0);
+				gameObject2.transform.localPosition /= (384.0f);
+
+				// Add a collider hitbox and resize it to match the text size (copied from HistoryButton)
+				TextMeshPro tmp = gameObject2.GetComponent<TextMeshPro>();
+				tmp.ForceMeshUpdate();
+				BoxCollider hitbox = gameObject2.AddComponent<BoxCollider>();
+				hitbox.size = tmp.bounds.size;
+				hitbox.center = tmp.bounds.center;
+
+				// For Rei, since we're not using a prefab ChoiceButton, we need to fill in the ButtonTextMesh ourselves or it will be null
+				ChoiceButton component = gameObject2.AddComponent<ChoiceButton>();
+				component.ButtonTextMesh = tmp;
+
 				component.ChangeText(optstrings[i]);
 				component.SetCallback(this, delegate
 				{
