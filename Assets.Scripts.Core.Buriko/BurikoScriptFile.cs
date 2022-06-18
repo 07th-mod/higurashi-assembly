@@ -2182,7 +2182,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("SetNameFormat");
 			string nameFormat = ReadVariable().StringValue();
-			gameSystem.TextController.NameFormat = nameFormat;
+			gameSystem.TextController.SetNameFormat(nameFormat);
 			return BurikoVariable.Null;
 		}
 

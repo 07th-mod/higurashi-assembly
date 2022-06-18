@@ -250,7 +250,7 @@ namespace MOD.Scripts.UI
 			int aDVModeCharSpacing = ADVModeCharSpacing;
 			int aDVModeLineSpacing = ADVModeLineSpacing;
 			int aDVModeFontSize = ADVModeFontSize;
-			GameSystem.Instance.TextController.NameFormat = aDVModeNameFormat;
+			GameSystem.Instance.TextController.SetNameFormat(aDVModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(aDVModeWindowPosX, aDVModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(aDVModeWindowSizeX, aDVModeWindowSizeY);
 			GameSystem.Instance.MainUIController.SetWindowMargins(aDVModeWindowMarginLeft, aDVModeWindowMarginTop, aDVModeWindowMarginRight, aDVModeWindowMarginBottom);
@@ -275,7 +275,7 @@ namespace MOD.Scripts.UI
 			int nVLModeCharSpacing = NVLModeCharSpacing;
 			int nVLModeLineSpacing = NVLModeLineSpacing;
 			int nVLModeFontSize = NVLModeFontSize;
-			GameSystem.Instance.TextController.NameFormat = nVLModeNameFormat;
+			GameSystem.Instance.TextController.SetNameFormat(nVLModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(nVLModeWindowPosX, nVLModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(nVLModeWindowSizeX, nVLModeWindowSizeY);
 			GameSystem.Instance.MainUIController.SetWindowMargins(nVLModeWindowMarginLeft, nVLModeWindowMarginTop, nVLModeWindowMarginRight, nVLModeWindowMarginBottom);
@@ -300,7 +300,7 @@ namespace MOD.Scripts.UI
 			int nVLADVModeCharSpacing = NVLADVModeCharSpacing;
 			int nVLADVModeLineSpacing = NVLADVModeLineSpacing;
 			int nVLADVModeFontSize = NVLADVModeFontSize;
-			GameSystem.Instance.TextController.NameFormat = nVLADVModeNameFormat;
+			GameSystem.Instance.TextController.SetNameFormat(nVLADVModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(nVLADVModeWindowPosX, nVLADVModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(nVLADVModeWindowSizeX, nVLADVModeWindowSizeY);
 			GameSystem.Instance.MainUIController.SetWindowMargins(nVLADVModeWindowMarginLeft, nVLADVModeWindowMarginTop, nVLADVModeWindowMarginRight, nVLADVModeWindowMarginBottom);
@@ -325,7 +325,7 @@ namespace MOD.Scripts.UI
 			int ryukishiModeCharSpacing = RyukishiModeCharSpacing;
 			int ryukishiModeLineSpacing = RyukishiModeLineSpacing;
 			int ryukishiModeFontSize = RyukishiModeFontSize;
-			GameSystem.Instance.TextController.NameFormat = ryukishiModeNameFormat;
+			GameSystem.Instance.TextController.SetNameFormat(ryukishiModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(ryukishiModeWindowPosX, ryukishiModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(ryukishiModeWindowSizeX, ryukishiModeWindowSizeY);
 			GameSystem.Instance.MainUIController.SetWindowMargins(ryukishiModeWindowMarginLeft, ryukishiModeWindowMarginTop, ryukishiModeWindowMarginRight, ryukishiModeWindowMarginBottom);
@@ -350,7 +350,7 @@ namespace MOD.Scripts.UI
 			int aDVModeCharSpacing = ADVModeCharSpacing;
 			int aDVModeLineSpacing = ADVModeLineSpacing;
 			int aDVModeFontSize = ADVModeFontSize;
-			GameSystem.Instance.TextController.NameFormat = aDVModeNameFormat;
+			GameSystem.Instance.TextController.SetNameFormat(aDVModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(aDVModeWindowPosX, nVLModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(aDVModeWindowSizeX, nVLModeWindowSizeY);
 			GameSystem.Instance.MainUIController.SetWindowMargins(aDVModeWindowMarginLeft, nVLModeWindowMarginTop, aDVModeWindowMarginRight, nVLModeWindowMarginBottom);

@@ -58,7 +58,7 @@ namespace Assets.Scripts.Core.History
 			else
 			{
 				var explicitlyWhite = uncoloredNameRegex.Replace(name, (match) => "</color><color=#ffffff>" + match.Groups[1].Value + "</color><color");
-				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.NameFormat, explicitlyWhite) + "</line-height>";
+				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.GetNameFormat(), explicitlyWhite) + "</line-height>";
 			}
 		}
 
