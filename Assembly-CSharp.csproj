@@ -75,6 +75,9 @@
     <Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>DLLs\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>DLLs\UnityEngine.VideoModule.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>DLLs\Unity.TextMeshPro.dll</HintPath>
     </Reference>
