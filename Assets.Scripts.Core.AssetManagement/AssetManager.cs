@@ -156,9 +156,24 @@ namespace Assets.Scripts.Core.AssetManagement
 			return BitConverter.ToInt32(array, 0);
 		}
 
+		public string FixPath(string path)
+		{
+			if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				return path;
+			}
+			if (!path.Contains("\\"))
+			{
+				return path;
+			}
+			return path.Replace("\\", "/");
+		}
+
 		public Texture2D LoadScreenshot(string filename)
 		{
-			string path = Path.Combine(MGHelper.GetSavePath(), filename.ToLower());
+			string savePath = MGHelper.GetSavePath();
+			filename = FixPath(filename);
+			string path = Path.Combine(savePath, filename.ToLower());
 			if (!File.Exists(path))
 			{
 				return LoadTexture("no_data");
@@ -185,16 +200,19 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public string LoadTextDataString(string dataName)
 		{
+			dataName = FixPath(dataName);
 			return File.ReadAllText(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName));
 		}
 
 		public List<string> LoadTextDataLines(string dataName)
 		{
+			dataName = FixPath(dataName);
 			return File.ReadAllLines(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName)).ToList();
 		}
 
 		public Texture2D LoadTexture(string textureName)
 		{
+			textureName = FixPath(textureName);
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
 				return windowTexture;
@@ -280,12 +298,14 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public string GetAudioFilePath(string filename, Assets.Scripts.Core.Audio.AudioType type)
 		{
+			filename = FixPath(filename);
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
-			return Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()).Replace("\\", "/");
+			return Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower());
 		}
 
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
 		{
+			filename = FixPath(filename);
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
 			return File.ReadAllBytes(Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()));
 		}
