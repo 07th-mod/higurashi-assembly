@@ -297,9 +297,24 @@ namespace Assets.Scripts.Core.AssetManagement
 			return BitConverter.ToInt32(array, 0);
 		}
 
+		public string FixPath(string path)
+		{
+			if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
+			{
+				return path;
+			}
+			if (!path.Contains("\\"))
+			{
+				return path;
+			}
+			return path.Replace("\\", "/");
+		}
+
 		public Texture2D LoadScreenshot(string filename)
 		{
-			string path = Path.Combine(MGHelper.GetSavePath(), filename.ToLower());
+			string savePath = MGHelper.GetSavePath();
+			filename = FixPath(filename);
+			string path = Path.Combine(savePath, filename.ToLower());
 			if (!File.Exists(path))
 			{
 				return LoadTexture("no_data");
@@ -326,11 +341,13 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public string LoadTextDataString(string dataName)
 		{
+			dataName = FixPath(dataName);
 			return File.ReadAllText(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName));
 		}
 
 		public List<string> LoadTextDataLines(string dataName)
 		{
+			dataName = FixPath(dataName);
 			return File.ReadAllLines(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName)).ToList();
 		}
 
@@ -341,6 +358,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadTexture(string textureName, out string texturePath)
 		{
+			textureName = FixPath(textureName);
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
 				texturePath = windowTexturePath;
@@ -479,6 +497,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public string GetAudioFilePath(string filename, Audio.AudioType type)
 		{
+			filename = FixPath(filename);
 			string relativePath = _GetAudioFilePath(filename, type, out bool exists, out bool flagValid);
 			string debugRelativePath = $"{relativePath} ({(exists ? "File exists" : "File does not exist!")}, {(flagValid ? "Flag Valid" : "Unknown Flag!")})";
 			// Record the last played BGM and SE only for debugging purposes
@@ -502,6 +521,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public byte[] GetAudioFile(string filename, Assets.Scripts.Core.Audio.AudioType type)
 		{
+			filename = FixPath(filename);
 			string archiveNameByAudioType = GetArchiveNameByAudioType(type);
 			return File.ReadAllBytes(Path.Combine(assetPath, archiveNameByAudioType + "/" + filename.ToLower()));
 		}
