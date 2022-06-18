@@ -16,7 +16,7 @@ namespace MOD.Scripts.Core.Movie
 
 		public float Volume => Math.Min(1f, 1.55f * GameSystem.Instance.AudioController.BGMVolume);
 
-		public string Path => "file:///" + System.IO.Path.Combine(Application.streamingAssetsPath, "movies/" + Name);
+		public string PathNoExtension => System.IO.Path.Combine(Application.streamingAssetsPath, "movies/" + Name);
 
 		public Layer Layer => GameSystem.Instance.SceneController.MODActiveScene.BackgroundLayer;
 

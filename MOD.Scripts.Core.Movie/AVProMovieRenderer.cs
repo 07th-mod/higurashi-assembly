@@ -57,7 +57,7 @@ namespace MOD.Scripts.Core.Movie
 			mediaPlayer.m_AutoOpen = true;
 			mediaPlayer.m_AutoStart = true;
 			mediaPlayer.m_Volume = movieInfo.Volume;
-			mediaPlayer.OpenVideoFromFile(MediaPlayer.FileLocation.AbsolutePathOrURL, movieInfo.Path + ".mp4");
+			mediaPlayer.OpenVideoFromFile(MediaPlayer.FileLocation.AbsolutePathOrURL, movieInfo.PathNoExtension + ".mp4");
 			MODApplyToMaterial mODApplyToMaterial = base.gameObject.AddComponent<MODApplyToMaterial>();
 			mODApplyToMaterial._material = movieInfo.Layer.MODMaterial;
 			mODApplyToMaterial._texturePropertyName = "_Primary";

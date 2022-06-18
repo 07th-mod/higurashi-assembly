@@ -78,15 +78,16 @@ namespace MOD.Scripts.Core.State
 
 		private IMovieRenderer CreateMovieRenderer()
 		{
-			if (Application.platform == RuntimePlatform.WindowsPlayer)
-			{
-				return gameObject.AddComponent<AVProMovieRenderer>();
-			}
+			//if (Application.platform == RuntimePlatform.WindowsPlayer)
+			//{
+			//	return gameObject.AddComponent<AVProMovieRenderer>();
+			//}
 
-			throw new System.Exception("Video playback not support on linux/osx - tell the devleopers to update the mod!");
-			//return gameObject.AddComponent<TextureMovieRenderer>();
+			return gameObject.AddComponent<VideoPlayerMovieRenderer>();
 		}
 
+		// NOTE: The "black" image's aspect ratio is used for image playback. Make sure the "black.png" image
+		// matches the aspect ratio of the game (16:9).
 		private void SetupBackgroundLayerForVideo()
 		{
 			movieInfo.Layer.ReleaseTextures();
