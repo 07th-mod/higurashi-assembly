@@ -1132,7 +1132,10 @@ namespace Assets.Scripts.Core
 			// If it's bigger than that, then switch over
 			// Note that this (from what I can tell) gives you the biggest resolution of any of your monitors,
 			// not just the one the game is running under, so it could *also* be wrong, which is why we check both methods
-			if (Screen.resolutions.Length > 0)
+			//
+			// NOTE: On the Windows Higurashi Rei version of Unity (2019.4.36), Screen.resolutions doesn't work correctly.
+			// For now, only run the below code on Linux (hopefully it's not also broken there)
+			if (Application.platform == RuntimePlatform.LinuxPlayer && Screen.resolutions.Length > 0)
 			{
 				int index = 0;
 				Resolution best = Screen.resolutions[0];
