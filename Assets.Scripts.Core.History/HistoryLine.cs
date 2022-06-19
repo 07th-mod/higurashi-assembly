@@ -35,7 +35,13 @@ namespace Assets.Scripts.Core.History
 			targetLocation.font = font;
 			targetLocation.text = text;
 			targetLocation.ForceMeshUpdate();
-			return targetLocation.textInfo.lineCount;
+
+			// Using Rei's updated TextMeshPro, you need to call GetTextInfo(text)
+			// to get a valid lineCount (it's always 0 if you instead use targetLocation.textinfo).
+			//
+			// According to this comment: http://answers.unity.com/comments/1895934/view.html,
+			// GetTextInfo(text) forces some sort of recalculation.
+			return targetLocation.GetTextInfo(text).lineCount;
 		}
 
 		/// <summary>
