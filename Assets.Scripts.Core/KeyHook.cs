@@ -49,7 +49,7 @@ namespace Assets.Scripts.Core
 				{
 					if (Screen.fullScreen)
 					{
-						Screen.SetResolution(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"), fullscreen: false);
+						GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
 					}
 					else
 					{
