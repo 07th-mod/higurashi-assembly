@@ -58,7 +58,12 @@ namespace Assets.Scripts.Core.History
 			else
 			{
 				var explicitlyWhite = uncoloredNameRegex.Replace(name, (match) => "</color><color=#ffffff>" + match.Groups[1].Value + "</color><color");
-				return "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.GetNameFormat(), explicitlyWhite) + "</line-height>";
+				string nameWithNewLines = "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.GetNameFormat(), explicitlyWhite) + "</line-height>";
+
+				// In Rei the newline only works at the end (after all the tags).
+				// This ensures there is exactly one newline, and that it occurs at the end of every name.
+				// I'm pretty sure this is not the correct way to fix this, but this should work for now.
+				return nameWithNewLines.Replace("\n", "") + "\n";
 			}
 		}
 
