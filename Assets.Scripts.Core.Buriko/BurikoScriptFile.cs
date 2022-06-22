@@ -439,15 +439,15 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetSpeedOfMessage()
 		{
 			SetOperationType("SetSpeedOfMessage");
-			bool num = ReadVariable().BoolValue();
-			int overrideTextSpeed = ReadVariable().IntValue();
-			if (!num)
+			bool flag = ReadVariable().BoolValue();
+			int num = ReadVariable().IntValue();
+			if (!flag)
 			{
 				gameSystem.TextController.OverrideTextSpeed = -1;
 			}
 			else
 			{
-				gameSystem.TextController.OverrideTextSpeed = overrideTextSpeed;
+				gameSystem.TextController.OverrideTextSpeed = 50 * (num / 100);
 			}
 			return BurikoVariable.Null;
 		}

@@ -325,23 +325,18 @@ namespace Assets.Scripts.Core.TextWindow
 		private void AddText(string str, int displayimmediate, bool isFade, bool addToTime)
 		{
 			float num = (float)(100 - TextSpeed) / 100f * 2f;
-			float num2 = num;
 			if (gameSystem.IsAuto)
 			{
 				num = (float)(100 - AutoSpeed) / 100f * 2f;
 			}
 			if (OverrideTextSpeed != -1)
 			{
-				num = (float)(128 - OverrideTextSpeed) / 128f * 2f;
-				if (num < 0.1f && num2 > 0.1f)
-				{
-					num = 0.1f;
-				}
+				num = (float)(100 - OverrideTextSpeed) / 100f * 2f;
 			}
-			int num3 = 1;
+			int num2 = 1;
 			if (!GameSystem.Instance.UseEnglishText)
 			{
-				num3 = 2;
+				num2 = 2;
 			}
 			bool flag = false;
 			bool flag2 = false;
@@ -355,7 +350,7 @@ namespace Assets.Scripts.Core.TextWindow
 				{
 					flag2 = true;
 				}
-				if (!isFade | flag | flag2)
+				if (!isFade || flag || flag2)
 				{
 					charList.Add(new TextCharacter(c, 0f, 0f));
 					if (c == '>')
@@ -377,7 +372,7 @@ namespace Assets.Scripts.Core.TextWindow
 					charList.Add(new TextCharacter(c, textTimeRemaining, textTimeRemaining + timeForFade));
 					if (addToTime)
 					{
-						textTimeRemaining += timePerChar * num * (float)num3;
+						textTimeRemaining += timePerChar * num * (float)num2;
 					}
 				}
 			}
