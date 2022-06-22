@@ -482,6 +482,10 @@ namespace Assets.Scripts.UI
 			if (this.toaster == null)
 			{
 				this.toaster = new MODToaster();
+				if(GameSystem.Instance.AssetManager.MaxLoading > 0)
+				{
+					MODToaster.Show($"Compiled {GameSystem.Instance.AssetManager.MaxLoading} scripts");
+				}
 			}
 
 			if (this.modMenu == null)
