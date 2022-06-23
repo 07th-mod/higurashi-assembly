@@ -83,8 +83,10 @@ namespace Assets.Scripts.Core.Buriko
 							string textJp = binaryReader.ReadString();
 							string text = saveEntry.Text = binaryReader.ReadString();
 							string pattern = "[<](size)[=][+](.+)[<][/](size)[>]";
-							textJp = Regex.Replace(textJp, pattern, string.Empty);
-							text = Regex.Replace(text, pattern, string.Empty);
+							// In Rei, text lines contains literal newline characters,
+							// which are not matched by '.' unless using RegexOptions.Singleline
+							textJp = Regex.Replace(textJp, pattern, string.Empty, RegexOptions.Singleline);
+							text = Regex.Replace(text, pattern, string.Empty, RegexOptions.Singleline);
 							saveEntry.Text = text;
 							saveEntry.TextJp = textJp;
 						}
