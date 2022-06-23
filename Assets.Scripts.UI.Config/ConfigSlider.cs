@@ -60,7 +60,7 @@ namespace Assets.Scripts.UI.Config
 			{
 				Set();
 			}
-			if (Mathf.Approximately(laststep, slider.value))
+			if (!Mathf.Approximately(laststep, slider.value))
 			{
 				laststep = slider.value;
 				int num = (int)(100f * laststep);
