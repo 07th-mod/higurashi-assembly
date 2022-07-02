@@ -876,5 +876,7 @@ namespace Assets.Scripts.Core.Scene
 		public void MODOnlyRecompile()
 		{
 		}
+
+		public Texture2D GetPrimary() => primary;
 	}
 }

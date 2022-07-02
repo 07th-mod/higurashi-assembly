@@ -283,6 +283,11 @@ namespace MOD.Scripts.Core.Scene
 			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
 		}
 
+		public string GetBaseTextureName(int charnum)
+		{
+			return MODLipSync_Texture[charnum];
+		}
+
 		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
 		{
 			int num = MODLipSync_Layer[charnum];

@@ -2918,6 +2918,10 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
 			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag);
+			GameSystem.Instance.RegisterAction(delegate
+			{
+				MODLipsyncCache.MODLipsyncCacheUpdate(num3, character);
+			});
 			if (flag)
 			{
 				gameSystem.ExecuteActions();
@@ -2969,6 +2973,10 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			MODSystem.instance.modTextureController.StoreLayerTexture(layer, text);
 			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag);
+			gameSystem.RegisterAction(delegate
+			{
+				MODLipsyncCache.MODLipsyncCacheUpdate(layer, character);
+			});
 			if (flag)
 			{
 				gameSystem.ExecuteActions();

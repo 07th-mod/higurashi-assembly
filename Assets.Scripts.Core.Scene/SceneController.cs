@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using System;
 using System.Collections;
 using System.IO;
@@ -1097,9 +1098,12 @@ namespace Assets.Scripts.Core.Scene
 		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile, AudioClip audioClip)
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
-			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
-			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
-			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
+
+			MODLipsyncCache.TextureGroup group = MODLipsyncCache.LoadOrUseCache(layerWithCharacter: null, character);
+
+			Texture2D exp4 = group.baseTexture_0;
+			Texture2D exp3 = group.halfOpen_1;
+			Texture2D exp2 = group.fullOpen_2;
 
 			if (forceComputedLipsync)
 			{
