@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using System;
 using System.Collections;
 using System.IO;
@@ -172,7 +173,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			if (MODSkipImage(textureName))
 			{
@@ -191,7 +192,7 @@ namespace Assets.Scripts.Core.Scene
 				oldy = y;
 				oldz = z;
 			}
-			i.DrawLayer(textureName, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking);
+			i.DrawLayer(textureName, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking, afterLayerUpdated);
 			i.SetPriority(priority);
 			if (move)
 			{
@@ -211,6 +212,11 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshot(layer, textureName, x, y, z, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
+		}
+
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
 			Layer layer2 = GetLayer(layer);
@@ -225,7 +231,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			Layer i = GetLayer(layer);
 			while (i.FadingOut)
@@ -244,7 +250,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				origin = new Vector2((float)originx, (float)originy);
 			}
-			i.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, /*isBustshot:*/ true, type, wait, isblocking);
+			i.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, /*isBustshot:*/ true, type, wait, isblocking, afterLayerUpdated);
 			i.SetPriority(priority);
 			if (move)
 			{
@@ -262,6 +268,11 @@ namespace Assets.Scripts.Core.Scene
 					UpdateLayerMask(i, priority);
 				}
 			});
+		}
+
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, originy, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
 		}
 
 		public void MoveBustshot(int layer, string textureName, int x, int y, int z, float wait, bool isblocking)
@@ -992,9 +1003,15 @@ namespace Assets.Scripts.Core.Scene
 		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile, AudioClip audioClip)
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
-			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
-			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
-			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
+
+			if(!MODLipsyncCache.LoadOrUseCache(null, character, out MODLipsyncCache.TextureGroup group))
+			{
+				yield break;
+			}
+
+			Texture2D exp4 = group.baseTexture_0;
+			Texture2D exp3 = group.halfOpen_1;
+			Texture2D exp2 = group.fullOpen_2;
 
 			if (forceComputedLipsync)
 			{
