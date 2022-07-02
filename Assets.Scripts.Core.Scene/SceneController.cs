@@ -1012,6 +1012,10 @@ namespace Assets.Scripts.Core.Scene
 
 			bool voiceStartedPlaying = false;
 
+			float[] rawAudioData = new float[samplesPerChunk];
+
+			WaitForSeconds waitTime = new WaitForSeconds(CHUNK_LENGTH_SECONDS);
+
 			// This for loop condition shouldn't ever be met, it's just here
 			// to set some upper limit (~10x the expected number of loops) on the number of iterations
 			for (int chunk = 0; chunk < 10 * numChunks; chunk++)
@@ -1038,7 +1042,6 @@ namespace Assets.Scripts.Core.Scene
 					// Note: If the audio finishes playing before the coroutine finishes, then
 					// audioClip somehow becomes null. I've added handling here in case this happens,
 					// although the above "is audio playing" checks should above should stop this from happening.
-					float[] rawAudioData = new float[samplesPerChunk];
 					try
 					{
 						if (audioClip == null)
@@ -1087,7 +1090,7 @@ namespace Assets.Scripts.Core.Scene
 
 				// This delay sets the approximate rate at which the lipsync updates
 				// the exact delay time is not critical
-				yield return (object)new WaitForSeconds(CHUNK_LENGTH_SECONDS);
+				yield return waitTime;
 			}
 		}
 
