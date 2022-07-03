@@ -130,7 +130,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				return -1f;
 			}
-			return audioSource.time - audioSource.clip.length;
+			return audioSource.clip.length - audioSource.time;
 		}
 
 		public int GetPlayTimeSamples() => audioSource.timeSamples;
