@@ -65,10 +65,26 @@ namespace MOD.Scripts.Core.Scene
                 GameObject.Destroy(halfOpen_1);
                 GameObject.Destroy(fullOpen_2);
             }
+
+            private string Print(Texture2D tex)
+            {
+                if(tex != null)
+                {
+                    return tex.name;
+                }
+
+                return "texture is null";
+            }
+
+            public override string ToString()
+            {
+                return $"TG[age: {age} base: {Print(baseTexture_0)} half: {Print(halfOpen_1)} full: {Print(fullOpen_2)}]";
+            }
         }
 
         private static readonly Dictionary<string, TextureGroup> cache = new Dictionary<string, TextureGroup>();
         private static int maxTextureAge = 2;
+        private static string debugLastEvent;
 
         public static void MODLipsyncCacheUpdate(int layer, int character)
         {
@@ -137,17 +153,17 @@ namespace MOD.Scripts.Core.Scene
         /// <returns></returns>
         public static TextureGroup LoadOrUseCache(int? layerWithCharacter, int character)
         {
-            MODUtility.FlagMonitorOnlyLog($"Texture Cache count: {cache.Keys.Count}");
+            DebugLog($"Texture Cache count: {cache.Keys.Count}");
             string textureName = MODSystem.instance.modSceneController.GetBaseTextureName(character);
 
             if (cache.TryGetValue(textureName, out TextureGroup cachedTextures))
             {
-                MODUtility.FlagMonitorOnlyLog($"LoadOrUseCache() - Cache hit on [{textureName}]");
+                DebugLog($"LoadOrUseCache() - Cache hit on [{textureName}]");
 
                 // In practice this branch to never be hit, perhaps I don't understand Unity properly
                 if (cachedTextures.NeedsClean())
                 {
-                    MODUtility.FlagMonitorOnlyLog($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
+                    DebugLog($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
                 }
 
                 // Since we just used this texture, reset its age to 0
@@ -161,17 +177,17 @@ namespace MOD.Scripts.Core.Scene
 
                 if(layerWithCharacter.HasValue)
                 {
-                    MODUtility.FlagMonitorOnlyLog($"LoadOrUseCache() - using existing base texture");
+                    DebugLog($"LoadOrUseCache() - using existing base texture");
                     baseTexture = GameSystem.Instance.SceneController.GetLayer(layerWithCharacter.Value)?.GetPrimary();
                 }
 
                 if (baseTexture == null)
                 {
-                    MODUtility.FlagMonitorOnlyLog($"LoadOrUseCache() - loading base texture from scratch ");
+                    DebugLog($"LoadOrUseCache() - loading base texture from scratch ");
                     baseTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
                 }
 
-                MODUtility.FlagMonitorOnlyLog($"LoadOrUseCache() - updating cache with char: {character}");
+                DebugLog($"LoadOrUseCache() - updating cache with char: {character}");
                 TextureGroup textureGroup = new TextureGroup(
                     baseTexture,
                     MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1"),
@@ -181,6 +197,27 @@ namespace MOD.Scripts.Core.Scene
                 cache.Add(textureName, textureGroup);
                 return textureGroup;
             }
+        }
+
+        private static void DebugLog(string text)
+        {
+            MODUtility.FlagMonitorOnlyLog(text);
+            debugLastEvent = text;
+        }
+
+        public static string DebugInfo()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($"LIPSYNC CACHE [Num Entries: {cache.Count()} Max Age: {maxTextureAge}]");
+            sb.AppendLine(debugLastEvent);
+
+            foreach ((string key, TextureGroup value) in cache)
+            {
+                sb.AppendLine($"---- {key} ----\n{value}\n");
+            }
+
+            return sb.ToString();
         }
     }
 }

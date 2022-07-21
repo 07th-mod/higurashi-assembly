@@ -134,6 +134,8 @@ You can try the following yourself to fix the issue.
 				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
 				$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
 
+			GUILayout.Label(Core.Scene.MODLipsyncCache.DebugInfo());
+
 			if (debug)
 			{
 				if(Button(new GUIContent("Reset GAudioSet", "Set GAudioSet to 0, to force the game to do audio setup on next startup")))
