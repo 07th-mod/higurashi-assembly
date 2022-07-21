@@ -3193,6 +3193,18 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "LipSyncCacheSettings":
+					string[] lipSyncCacheParams = callParameters.Split(',');
+					if (lipSyncCacheParams.Length == 1 && int.TryParse(lipSyncCacheParams[0].Trim(), out int maxAge))
+					{
+						MODLipsyncCache.SetMaxTextureAge(maxAge);
+					}
+					else
+					{
+						Debug.LogError("MODGenericCall Error: invalid format for LipSyncCacheSettings, should be '2' for example");
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;

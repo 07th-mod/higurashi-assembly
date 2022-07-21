@@ -219,5 +219,10 @@ namespace MOD.Scripts.Core.Scene
 
             return sb.ToString();
         }
+
+        public static void SetMaxTextureAge(int maxAge)
+        {
+            maxTextureAge = maxAge;
+        }
     }
 }
