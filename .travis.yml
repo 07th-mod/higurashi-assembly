@@ -51,6 +51,6 @@ deploy:
       branch: console-arcs
   - skip_cleanup: true
     provider: script
-    script: echo ${SSH_KEY} | base64 --decode > key && chmod 600 key && scp -o StrictHostKeyChecking=no -i key bin/Release/Assembly-CSharp.dll ${UPLOAD_SERVER}/higurashi-rei/ 2>/dev/null
+    script: echo ${SSH_KEY} | base64 --decode > key && chmod 600 key && scp -o StrictHostKeyChecking=no -i key bin/Release/Assembly-CSharp.dll ${UPLOAD_SERVER}/rei/ 2>/dev/null
     on:
       branch: rei-mod
