@@ -133,6 +133,12 @@ namespace MOD.Scripts.Core.Scene
                 cache.Remove(key);
             }
 
+            // Do not cache while skipping
+            if (GameSystem.Instance.IsSkipping)
+            {
+                return;
+            }
+
             //Now pre-load the textures for the character that is about to be drawn
             TextureGroup _ = LoadOrUseCache(baseTexture, character);
         }
