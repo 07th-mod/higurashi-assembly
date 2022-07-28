@@ -62,8 +62,14 @@ namespace MOD.Scripts.Core.Scene
             // so failing to call Destroy in some circumstances is probably fine.
             public void DestroyTextures()
             {
-                GameObject.Destroy(halfOpen_1);
-                GameObject.Destroy(fullOpen_2);
+                if(halfOpen_1 != null)
+                {
+                    GameObject.Destroy(halfOpen_1);
+                }
+                if(fullOpen_2 != null)
+                {
+                    GameObject.Destroy(fullOpen_2);
+                }
             }
 
             private string Print(Texture2D tex)
@@ -161,10 +167,19 @@ namespace MOD.Scripts.Core.Scene
             {
                 DebugLog($"LoadOrUseCache() - Cache hit on [{textureName}]");
 
-                // In practice this branch to never be hit, perhaps I don't understand Unity properly
+                // This branch happens if the texture group exists in the cache, but one or more of the textures
+                // have been Destroy()ed (set to null).
+                //
+                // I've managed to hit this branch once? before when skippping and clicking at the same time,
+                // otherwise it doesn't seem to happen
                 if (cachedTextures.NeedsClean())
                 {
-                    DebugLog($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
+                    Assets.Scripts.Core.Logger.LogError($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
+
+                    // Clean up the texture, then reload it from disk
+                    cachedTextures.DestroyTextures();
+                    cache.Remove(textureName);
+                    return LoadWithoutCache(textureName, maybeBaseTexture, character);
                 }
 
                 // Since we just used this texture, reset its age to 0
@@ -174,24 +189,28 @@ namespace MOD.Scripts.Core.Scene
             }
             else
             {
-                Texture2D baseTexture = maybeBaseTexture;
-
-                if (baseTexture == null)
-                {
-                    DebugLog($"LoadOrUseCache() - loading base texture from scratch ");
-                    baseTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
-                }
-
-                DebugLog($"LoadOrUseCache() - updating cache with char: {character}");
-                TextureGroup textureGroup = new TextureGroup(
-                    baseTexture,
-                    MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1"),
-                    MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2")
-                );
-
-                cache.Add(textureName, textureGroup);
-                return textureGroup;
+                return LoadWithoutCache(textureName, maybeBaseTexture, character);
             }
+        }
+        private static TextureGroup LoadWithoutCache(string textureName, Texture2D maybeBaseTexture, int character)
+        {
+            Texture2D baseTexture = maybeBaseTexture;
+
+            if (baseTexture == null)
+            {
+                DebugLog($"LoadOrUseCache() - loading base texture from scratch ");
+                baseTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
+            }
+
+            DebugLog($"LoadOrUseCache() - updating cache with char: {character}");
+            TextureGroup textureGroup = new TextureGroup(
+                baseTexture,
+                MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1"),
+                MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2")
+            );
+
+            cache.Add(textureName, textureGroup);
+            return textureGroup;
         }
 
         private static void DebugLog(string text)
