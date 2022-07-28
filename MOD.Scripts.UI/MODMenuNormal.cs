@@ -19,6 +19,10 @@ namespace MOD.Scripts.UI
 
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
+		private readonly string radioLipSyncLabelActive = "Lip Sync for Console Sprites (Hotkey: 7)";
+		private readonly string radioLipSyncLabelInactive = "Lip Sync (NOTE: Select 'Console' sprites or preset to enable)";
+		private readonly GUIContent[] radioLipSyncActive;
+		private readonly GUIContent[] radioLipSyncInactive;
 		private readonly MODRadio radioOpenings;
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
@@ -64,11 +68,19 @@ Sets the script censorship level
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
 				});
 
-			radioLipSync = new MODRadio("Lip Sync for Console Sprites (Hotkey: 7)", new GUIContent[]
+			radioLipSyncActive = new GUIContent[]
 			{
 				new GUIContent("Lip Sync Off", "Disables Lip Sync for Console Sprites"),
 				new GUIContent("Lip Sync On", "Enables Lip Sync for Console Sprites"),
-			});
+			};
+
+			radioLipSyncInactive = new GUIContent[]
+			{
+				new GUIContent("Lip Sync Off (Inactive)", "Disables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"),
+				new GUIContent("Lip Sync On (Inactive)", "Enables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"),
+			};
+
+			radioLipSync = new MODRadio(radioLipSyncLabelActive, radioLipSyncActive);
 
 			radioOpenings = new MODRadio("Opening Movies (Hotkey: Shift-F12)", new GUIContent[]
 			{
@@ -192,6 +204,19 @@ Sets the script censorship level
 			}
 
 			HeadingLabel("Advanced Options");
+
+
+			// Show warning message if lip sync would have no effect
+			if (Core.MODSystem.instance.modTextureController.GetArtStyle() == 0)
+			{
+				radioLipSync.SetLabel(radioLipSyncLabelActive);
+				radioLipSync.SetContents(radioLipSyncActive);
+			}
+			else
+			{
+				radioLipSync.SetLabel(radioLipSyncLabelInactive);
+				radioLipSync.SetContents(radioLipSyncInactive);
+			}
 
 			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
