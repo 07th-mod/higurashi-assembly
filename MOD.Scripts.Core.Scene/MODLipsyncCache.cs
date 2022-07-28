@@ -86,7 +86,7 @@ namespace MOD.Scripts.Core.Scene
         private static int maxTextureAge = 2;
         private static string debugLastEvent;
 
-        public static void MODLipsyncCacheUpdate(int layer, int character)
+        public static void MODLipsyncCacheUpdate(Texture2D baseTexture, int character)
         {
             // If lipsync not enabled, do not do any caching
             if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
@@ -128,7 +128,7 @@ namespace MOD.Scripts.Core.Scene
             }
 
             //Now pre-load the textures for the character that is about to be drawn
-            TextureGroup _ = LoadOrUseCache(layer, character);
+            TextureGroup _ = LoadOrUseCache(baseTexture, character);
         }
 
         /// <summary>
@@ -147,11 +147,12 @@ namespace MOD.Scripts.Core.Scene
         /// happen in the correct order.
         /// Set 'layer' to null if you don't want to load the base texture from an existing layer
         /// </summary>
-        /// <param name="layerWithCharacter">This function will take the 'base' lipsync texture from this layer (this is faster than loading from disk).
-        /// If such a layer doesn't exist but you still want to call this function, pass in null to force loading of the base texture from disk.</param>
-        /// <param name="character">The number of the character whose textures you want to load. This is the same character number used in the game scripts.</param>
+        /// <param name="maybeBaseTexture">This function will use this argument as the 'base' lipsync texture.
+        /// If you don't have access to the base lipsync texture, pass in null to load it from from disk.</param>
+        /// <param name="character">The number of the character whose textures you want to load.
+        /// This is the same character number used in the game scripts.</param>
         /// <returns></returns>
-        public static TextureGroup LoadOrUseCache(int? layerWithCharacter, int character)
+        public static TextureGroup LoadOrUseCache(Texture2D maybeBaseTexture, int character)
         {
             DebugLog($"Texture Cache count: {cache.Keys.Count}");
             string textureName = MODSystem.instance.modSceneController.GetBaseTextureName(character);
@@ -173,13 +174,7 @@ namespace MOD.Scripts.Core.Scene
             }
             else
             {
-                Texture2D baseTexture = null;
-
-                if(layerWithCharacter.HasValue)
-                {
-                    DebugLog($"LoadOrUseCache() - using existing base texture");
-                    baseTexture = GameSystem.Instance.SceneController.GetLayer(layerWithCharacter.Value)?.GetPrimary();
-                }
+                Texture2D baseTexture = maybeBaseTexture;
 
                 if (baseTexture == null)
                 {

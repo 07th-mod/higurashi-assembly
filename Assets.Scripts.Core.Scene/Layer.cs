@@ -391,7 +391,7 @@ namespace Assets.Scripts.Core.Scene
 			cachedStretchToFit = stretchToFit;
 		}
 
-		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
+		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking, Action<Texture2D> afterLayerUpdated)
 		{
 			cachedIsBustShot = isBustshot;
 			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
@@ -433,7 +433,13 @@ namespace Assets.Scripts.Core.Scene
 				{
 					GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
 				}
+				afterLayerUpdated?.Invoke(texture2D);
 			});
+		}
+
+		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
+		{
+			DrawLayerWithMask(textureName, maskName, x, y, origin, forceSize, isBustshot, style, wait, isBlocking, afterLayerUpdated: null);
 		}
 
 		public void FadeLayerWithMask(string maskName, int style, float time, bool isBlocking)
@@ -457,8 +463,7 @@ namespace Assets.Scripts.Core.Scene
 				}
 			});
 		}
-
-		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, Vector2? forceSize, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, Vector2? forceSize, float alpha, bool isBustshot, int type, float wait, bool isBlocking, Action<Texture2D> afterLayerUpdated)
 		{
 			cachedIsBustShot = isBustshot;
 			FinishAll();
@@ -546,6 +551,12 @@ namespace Assets.Scripts.Core.Scene
 					}
 				});
 			}
+			afterLayerUpdated?.Invoke(texture2D);
+		}
+
+		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, Vector2? forceSize, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		{
+			DrawLayer(textureName, x, y, z, origin, forceSize, alpha, isBustshot, type, wait, isBlocking, afterLayerUpdated: null);
 		}
 
 		public void SetAngle(float angle, float wait)
