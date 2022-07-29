@@ -16,6 +16,7 @@ namespace MOD.Scripts.UI
 
 		private GUIContent[] defaultArtsetDescriptions;
 		private readonly bool hasOGBackgrounds;
+		private bool hasMangaGamerSprites;
 
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
@@ -153,6 +154,8 @@ Sets the script censorship level
 			}
 			this.radioArtSet.SetContents(descriptions);
 
+			hasMangaGamerSprites = descriptions.Length > 1;
+
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
 		}
@@ -175,7 +178,7 @@ Sets the script censorship level
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.Console, showInfoToast: false);
 				}
 
-				if (Button(new GUIContent("MangaGamer", "This preset:\n" +
+				if (this.hasMangaGamerSprites && Button(new GUIContent("MangaGamer", "This preset:\n" +
 					"- Makes text show across the whole screen\n" +
 					"- Uses the Mangagamer remake sprites and Console backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
