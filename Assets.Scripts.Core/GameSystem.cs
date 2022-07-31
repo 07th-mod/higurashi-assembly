@@ -987,6 +987,7 @@ namespace Assets.Scripts.Core
 				{
 					if (GameState == GameState.Normal)
 					{
+                        UI.SaveLoad.SaveLoadButton.QuicksaveButtonFixerUpdate();
 						TextController.Update();
 						if (!IsSkipping)
 						{
