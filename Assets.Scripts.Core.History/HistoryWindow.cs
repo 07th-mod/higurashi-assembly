@@ -65,6 +65,36 @@ namespace Assets.Scripts.Core.History
 			StartCoroutine(LeaveMenuAnimation(onClose));
 		}
 
+		private string SafeSubString(string s, int startIndex)
+        {
+			return SafeSubString(s, startIndex, s.Length - startIndex);
+        }
+
+		private string SafeSubString(string s, int startIndex, int length)
+        {
+			if(startIndex < 0)
+            {
+				startIndex = 0;
+            }
+
+			if(length < 0)
+            {
+				length = 0;
+            }
+
+			if(startIndex >= s.Length)
+            {
+				startIndex = s.Length;
+			}
+
+			if(startIndex + length > s.Length)
+            {
+				length = s.Length;
+            }
+
+			return s.Substring(startIndex, length);
+        }
+
 		/// <summary>
 		/// Trims the text in the TextMeshPro object based on the given line number
 		/// A positive line number will trim anything after the given line
@@ -101,24 +131,29 @@ namespace Assets.Scripts.Core.History
 					foundChar = info.index;
 					break;
 				}
+
+				// I'm not sure how multiCharChars work in Rei so I've just disabled this section
 				// Things like \n take up two characters in the string but are parsed by TMP as one
-				if (tmp.text[info.index + multiCharChars] == '\\')
-				{
-					//Debug.Log("Found multiChar char");
-					multiCharChars += 1;
-				}
+				//if (tmp.text[info.index + multiCharChars] == '\\')
+				//{
+				//	//Debug.Log("Found multiChar char");
+				//	multiCharChars += 1;
+				//}
 			}
 			if (foundChar == -1)
 			{
 				return;
 			}
+
+			// In Rei I get an exception with the below substrings
+			// Rather than fix it properly, I've just clamped the bounds of the substring if out of bounds.
 			string newText = tmp.text;
 			if (line < 0)
 			{
-				newText = newText.Substring(foundChar + multiCharChars);
+				newText = SafeSubString(newText, foundChar + multiCharChars);
 			}
 			else {
-				newText = newText.Substring(0, foundChar + multiCharChars);
+				newText = SafeSubString(newText, 0, foundChar + multiCharChars);
 			}
 			//Debug.Log("Trimmed " + tmp.text + " to " + newText);
 			tmp.text = newText;
