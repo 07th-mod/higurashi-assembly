@@ -516,10 +516,9 @@ namespace Assets.Scripts.Core
 
 		public void CloseChoiceIfExists()
 		{
-			if (ChoiceController != null)
+			if (GameSystem.Instance.GameState == GameState.ChoiceScreen && ChoiceController != null)
 			{
-				ChoiceController.Destroy();
-				ChoiceController = null;
+				LeaveChoices();
 			}
 		}
 
