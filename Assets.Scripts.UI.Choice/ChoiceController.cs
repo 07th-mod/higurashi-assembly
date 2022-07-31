@@ -95,16 +95,21 @@ namespace Assets.Scripts.UI.Choice
 
 				// Add a collider hitbox and resize it to match the text size (copied from HistoryButton)
 				TextMeshPro tmp = gameObject2.GetComponent<TextMeshPro>();
-				tmp.ForceMeshUpdate();
 				BoxCollider hitbox = gameObject2.AddComponent<BoxCollider>();
-				hitbox.size = tmp.bounds.size;
-				hitbox.center = tmp.bounds.center;
 
 				// For Rei, since we're not using a prefab ChoiceButton, we need to fill in the ButtonTextMesh ourselves or it will be null
 				ChoiceButton component = gameObject2.AddComponent<ChoiceButton>();
 				component.ButtonTextMesh = tmp;
 
 				component.ChangeText(optstrings[i]);
+
+				// Force mesh update to update TextMeshPro bounds...I think
+				tmp.ForceMeshUpdate();
+
+				// Set hitbox size *after* changing text, so the hitbox matches the text bounds
+				hitbox.size = tmp.bounds.size;
+				hitbox.center = tmp.bounds.center;
+
 				component.SetCallback(this, delegate
 				{
 					GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);
