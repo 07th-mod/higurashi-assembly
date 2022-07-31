@@ -526,7 +526,7 @@ namespace Assets.Scripts.Core
 		public void LeaveChoices()
 		{
 			PopStateStack();
-			AddWait(new Wait(0.5f, WaitTypes.WaitForTime, delegate
+			AddWait(new Wait(ChoiceButton.fadeTime, WaitTypes.WaitForTime, delegate
 			{
 				ChoiceController.Destroy();
 				ChoiceController = null;

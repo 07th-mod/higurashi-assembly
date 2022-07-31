@@ -686,7 +686,6 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			gameSystem.DisplayChoices(stringList, num);
 			gameSystem.ExecuteActions();
-			gameSystem.AddWait(new Wait(1f, WaitTypes.WaitForTime, null));
 			return null;
 		}
 
