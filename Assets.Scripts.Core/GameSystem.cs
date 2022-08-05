@@ -295,7 +295,7 @@ namespace Assets.Scripts.Core
 			{
 				KeyHook = new KeyHook();
 			}
-
+			MainUIController.InitializeModMenuAndToaster(this);
 		}
 
 		public void UpdateAspectRatio(float newratio)

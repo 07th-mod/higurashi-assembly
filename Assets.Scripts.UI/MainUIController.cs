@@ -511,6 +511,13 @@ namespace Assets.Scripts.UI
 			ui.bgLayer2.DrawLayer(windowFilterTextureName, 0, 0, 0, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 
+		// This must be called after BurikoScriptSystem has been initialized
+		public void InitializeModMenuAndToaster(GameSystem gameSystem)
+		{
+			this.toaster = new MODToaster();
+			this.modMenu = new MODMenu(gameSystem);
+		}
+
 		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
 		// https://forum.unity.com/threads/gui-that-hidden-bastard.257383/
 		// https://answers.unity.com/questions/259870/performance-of-an-empty-ongui-fixedupdate.html
@@ -524,20 +531,9 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
-			if(this.gameSystem == null)
+			if(this.modMenu == null || this.toaster == null)
 			{
 				return;
-			}
-
-			if (this.toaster == null)
-			{
-				this.toaster = new MODToaster();
-			}
-
-			if (this.modMenu == null)
-			{
-				this.modMenu = new MODMenu(this.gameSystem);
 			}
 
 			modMenu.OnGUIFragment();
