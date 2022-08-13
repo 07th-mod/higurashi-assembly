@@ -1,4 +1,5 @@
-﻿using MOD.Scripts.UI;
+﻿using Assets.Scripts.Core.History;
+using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,7 +56,7 @@ namespace MOD.Scripts.Core
             if (_currentLogFile == null)
             {
                 var logFile = GetLogFilePath();
-                Debug.Log($"[MOD] Begin Logging to {logFile}");
+                Debug.Log($"[MOD] Begin Logging to {logFile} - DLL Version: {MODUtility.InformationalVersion()} - Last Text: [{TextHistory.GetLastEN().Trim()}]");
                 _currentLogFile = new StreamWriter(logFile.Open(FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite));
                 _currentLogFile.WriteLine($"---- Logging started at [{DateTime.Now}|{Time.realtimeSinceStartup}] ----");
             }
@@ -63,7 +64,7 @@ namespace MOD.Scripts.Core
             return _currentLogFile;
         }
 
-        public static void Log(string message, bool stackTrace)
+        public static void Log(string message, bool withContext)
         {
             try
             {
@@ -74,8 +75,10 @@ namespace MOD.Scripts.Core
                 sb.Append(message);
 
                 // Optionally, log a stack trace
-                if (stackTrace)
+                if (withContext)
                 {
+                    sb.Append("\n");
+                    sb.Append($"Last text: [{TextHistory.GetLastEN().Trim()}]");
                     sb.Append("\n");
                     sb.Append(StackTraceUtility.ExtractStackTrace());
                 }

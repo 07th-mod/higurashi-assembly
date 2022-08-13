@@ -20,6 +20,9 @@ namespace Assets.Scripts.Core.History
 
 		private HistoryLine last;
 
+		private static string lastEN = "<No line outputted yet>";
+		public static string GetLastEN() => lastEN;
+
 		private TextMeshPro textMeasurer;
 
 		public int EnglishLineCount { get; private set; } = 0;
@@ -60,6 +63,7 @@ namespace Assets.Scripts.Core.History
 
 		public void RegisterLine(string english, string japanese, string nameen, string namejp)
 		{
+			lastEN = english ?? "<Null english line>";
 			english = sizeTagRegex.Replace(english, "");
 			japanese = sizeTagRegex.Replace(japanese, "");
 			if (english.StartsWith("\n"))
