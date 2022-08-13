@@ -344,7 +344,7 @@ You can try the following yourself to fix the issue.
 		{
 			void ForceShow()
 			{
-				gameSystem.MODIgnoreInputs = true;
+				gameSystem.SetMODIgnoreInputs(true);
 				gameSystem.HideUIControls();
 				this.visible = true;
 			}
@@ -397,7 +397,7 @@ You can try the following yourself to fix the issue.
 		public void ForceHide()
 		{
 			this.visible = false;
-			gameSystem.MODIgnoreInputs = false;
+			gameSystem.SetMODIgnoreInputs(false);
 			gameSystem.ShowUIControls();
 		}
 
