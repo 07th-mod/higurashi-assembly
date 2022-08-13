@@ -221,7 +221,7 @@ namespace Assets.Scripts.Core
 
 		private void Initialize()
 		{
-			Logger.Log("GameSystem: Starting GameSystem");
+			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
