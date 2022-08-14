@@ -516,6 +516,19 @@ namespace Assets.Scripts.UI
 		{
 			this.toaster = new MODToaster();
 			this.modMenu = new MODMenu(gameSystem);
+
+			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
+			int numFail = GameSystem.Instance.AssetManager.numCompileFail;
+			int numOK = GameSystem.Instance.AssetManager.numCompileOK;
+			int total = numOK + numFail;
+			if (numFail > 0)
+			{
+				MODToaster.Show($"FAILED compiling {numFail}/{total} scripts");
+			}
+			else if(numOK > 0)
+			{
+				MODToaster.Show($"Compiled {numOK} scripts OK");
+			}
 		}
 
 		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
