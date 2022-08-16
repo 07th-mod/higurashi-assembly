@@ -454,6 +454,26 @@ namespace Assets.Scripts.UI
 			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 
+		// This must be called after BurikoScriptSystem has been initialized
+		public void InitializeModMenuAndToaster(GameSystem gameSystem)
+		{
+			this.toaster = new MODToaster();
+			this.modMenu = new MODMenu(gameSystem);
+
+			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
+			int numFail = GameSystem.Instance.AssetManager.numCompileFail;
+			int numOK = GameSystem.Instance.AssetManager.numCompileOK;
+			int total = numOK + numFail;
+			if (numFail > 0)
+			{
+				MODToaster.Show($"FAILED compiling {numFail}/{total} scripts");
+			}
+			else if(numOK > 0)
+			{
+				MODToaster.Show($"Compiled {numOK} scripts OK");
+			}
+		}
+
 		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
 		// https://forum.unity.com/threads/gui-that-hidden-bastard.257383/
 		// https://answers.unity.com/questions/259870/performance-of-an-empty-ongui-fixedupdate.html
@@ -467,30 +487,9 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			// This function can run even before BurikoMemory.Instance is set, so avoid running most of the below code until it is ready.
-			if (BurikoMemory.Instance == null)
+			if(this.modMenu == null || this.toaster == null)
 			{
 				return;
-			}
-
-			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
-			if(this.gameSystem == null)
-			{
-				return;
-			}
-
-			if (this.toaster == null)
-			{
-				this.toaster = new MODToaster();
-				if(GameSystem.Instance.AssetManager.MaxLoading > 0)
-				{
-					MODToaster.Show($"Compiled {GameSystem.Instance.AssetManager.MaxLoading} scripts");
-				}
-			}
-
-			if (this.modMenu == null)
-			{
-				this.modMenu = new MODMenu(this.gameSystem);
 			}
 
 			modMenu.OnGUIFragment();

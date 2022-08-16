@@ -37,6 +37,13 @@ namespace Assets.Scripts.Core.Scene
 		{
 			layer.LayerID = null;
 			GameObject gameObject = layer.gameObject;
+
+			if (IsInPool(gameObject))
+			{
+				MOD.Scripts.Core.MODLogger.Log("WARNING: Ignoring layer returned twice", true);
+				return;
+			}
+
 			gameObject.transform.parent = base.transform;
 			gameObject.layer = LayerMask.NameToLayer("NotRendered");
 			gameObject.SetActive(value: false);

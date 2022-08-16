@@ -79,6 +79,9 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
+		public int numCompileOK { get; private set; }
+		public int numCompileFail { get; private set; }
+
 		/// <summary>
 		/// Get the artset at the given index
 		/// </summary>
@@ -190,10 +193,12 @@ namespace Assets.Scripts.Core.AssetManagement
 				try
 				{
 					new BGItoMG(text4, outname);
+					numCompileOK++;
 				}
 				catch (Exception arg)
 				{
 					Debug.LogError($"Failed to compile script {fileNameWithoutExtension2}!\r\n{arg}");
+					numCompileFail++;
 				}
 				if (AbortLoading)
 				{
