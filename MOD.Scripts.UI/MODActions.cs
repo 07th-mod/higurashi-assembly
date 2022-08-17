@@ -166,7 +166,7 @@ namespace MOD.Scripts.UI
 				bool is_nvl_in_adv_region = BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1;
 				if (is_nvl_in_adv_region)
 				{
-					feedbackString += "\nIn NVL region - changes won't be displayed until later";
+					feedbackString += "\nChanges will be applied when forced-NVL section ends";
 					EnableNVLModeINADVMode();
 					toastDuration = 5;
 				}
