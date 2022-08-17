@@ -167,6 +167,7 @@ namespace MOD.Scripts.UI
 				if (is_nvl_in_adv_region)
 				{
 					feedbackString += "\nIn NVL region - changes won't be displayed until later";
+					EnableNVLModeINADVMode();
 					toastDuration = 5;
 				}
 				if (is_nvl_in_adv_region || showInfoToast) { MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration); }
