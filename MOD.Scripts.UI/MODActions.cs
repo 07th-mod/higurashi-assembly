@@ -278,14 +278,17 @@ namespace MOD.Scripts.UI
 			}
 		}
 
-		public static void DisableNVLModeINADVMode()
+		public static void DisableNVLModeINADVMode(bool redraw = true)
 		{
 			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 0);
 			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
 				MODMainUIController mODMainUIController = new MODMainUIController();
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				TryRedrawTextWindowBackground(WindowFilterType.ADV);
+				if(redraw)
+				{
+					TryRedrawTextWindowBackground(WindowFilterType.ADV);
+				}
 				mODMainUIController.ADVModeSettingStore();
 			}
 		}
