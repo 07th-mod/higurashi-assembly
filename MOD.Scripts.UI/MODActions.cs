@@ -225,10 +225,18 @@ namespace MOD.Scripts.UI
 					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 1 ||
-					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() != 0;
+
+				// Only check the value of GLinemodeSp if you're not in an NVL_in_ADV region
+				if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 0)
+				{
+					if(BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 0)
+					{
+						presetModified = true;
+					}
+				}
 
 				return 0;
 			}
