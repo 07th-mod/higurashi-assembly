@@ -274,6 +274,11 @@ Sets the script censorship level
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 
+			if (Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+			{
+				Label("WARNING: You have ADV mode enabled, but you are in a forced-NVL section, so the game will display in NVL mode temporarily!");
+			}
+
 			HeadingLabel("Resolution");
 
 			resolutionMenu.OnGUI();
