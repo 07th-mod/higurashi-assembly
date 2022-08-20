@@ -14,6 +14,11 @@ namespace MOD.Scripts.UI
 			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.label);
 		}
 
+		public static void Label(GUIContent content)
+		{
+			GUILayout.Label(content, MODStyleManager.OnGUIInstance.Group.label);
+		}
+
 		public static void HeadingLabel(string label)
 		{
 			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.headingLabel);
