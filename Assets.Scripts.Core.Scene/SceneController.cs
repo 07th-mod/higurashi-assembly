@@ -1112,7 +1112,7 @@ namespace Assets.Scripts.Core.Scene
 
 			if (forceComputedLipsync)
 			{
-				yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
+				yield return StartCoroutine(MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4));
 			}
 			else // If the spectrum file doesn't exist, use the "computed lipsync" method
 			{
@@ -1120,11 +1120,11 @@ namespace Assets.Scripts.Core.Scene
 				string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
 				if (File.Exists(path))
 				{
-					yield return MODBakedLipSync(path, character, coroutineId, exp2, exp3, exp4);
+					yield return StartCoroutine(MODBakedLipSync(path, character, coroutineId, exp2, exp3, exp4));
 				}
 				else
 				{
-					yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
+					yield return StartCoroutine(MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4));
 				}
 			}
 
