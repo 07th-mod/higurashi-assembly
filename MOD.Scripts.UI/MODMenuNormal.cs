@@ -16,9 +16,14 @@ namespace MOD.Scripts.UI
 
 		private GUIContent[] defaultArtsetDescriptions;
 		private readonly bool hasOGBackgrounds;
+		private bool hasMangaGamerSprites;
 
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
+		private readonly string radioLipSyncLabelActive = "Lip Sync for Console Sprites (Hotkey: 7)";
+		private readonly string radioLipSyncLabelInactive = "Lip Sync (NOTE: Select 'Console' sprites or preset to enable)";
+		private readonly GUIContent[] radioLipSyncActive;
+		private readonly GUIContent[] radioLipSyncInactive;
 		private readonly MODRadio radioOpenings;
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
@@ -64,11 +69,19 @@ Sets the script censorship level
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
 				});
 
-			radioLipSync = new MODRadio("Lip Sync for Console Sprites (Hotkey: 7)", new GUIContent[]
+			radioLipSyncActive = new GUIContent[]
 			{
 				new GUIContent("Lip Sync Off", "Disables Lip Sync for Console Sprites"),
 				new GUIContent("Lip Sync On", "Enables Lip Sync for Console Sprites"),
-			});
+			};
+
+			radioLipSyncInactive = new GUIContent[]
+			{
+				new GUIContent("Lip Sync Off (Inactive)", "Disables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"),
+				new GUIContent("Lip Sync On (Inactive)", "Enables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"),
+			};
+
+			radioLipSync = new MODRadio(radioLipSyncLabelActive, radioLipSyncActive);
 
 			radioOpenings = new MODRadio("Opening Movies (Hotkey: Shift-F12)", new GUIContent[]
 			{
@@ -141,6 +154,8 @@ Sets the script censorship level
 			}
 			this.radioArtSet.SetContents(descriptions);
 
+			hasMangaGamerSprites = descriptions.Length > 1;
+
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
 		}
@@ -163,9 +178,9 @@ Sets the script censorship level
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.Console, showInfoToast: false);
 				}
 
-				if (Button(new GUIContent("MangaGamer", "This preset:\n" +
+				if (this.hasMangaGamerSprites && Button(new GUIContent("MangaGamer", "This preset:\n" +
 					"- Makes text show across the whole screen\n" +
-					"- Uses the console sprites and backgrounds\n" +
+					"- Uses the Mangagamer remake sprites and Console backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
 					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 1))
 				{
@@ -192,6 +207,19 @@ Sets the script censorship level
 			}
 
 			HeadingLabel("Advanced Options");
+
+
+			// Show warning message if lip sync would have no effect
+			if (Core.MODSystem.instance.modTextureController.GetArtStyle() == 0)
+			{
+				radioLipSync.SetLabel(radioLipSyncLabelActive);
+				radioLipSync.SetContents(radioLipSyncActive);
+			}
+			else
+			{
+				radioLipSync.SetLabel(radioLipSyncLabelInactive);
+				radioLipSync.SetContents(radioLipSyncInactive);
+			}
 
 			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
@@ -227,6 +255,11 @@ Sets the script censorship level
 			{
 				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode, showInfoToast: false);
 				GameSystem.Instance.SceneController.ReloadAllImages();
+			}
+
+			if (Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+			{
+				Label("WARNING: You have ADV mode enabled, but you are in a forced-NVL section, so the game will display in NVL mode temporarily!");
 			}
 
 			HeadingLabel("Resolution");
