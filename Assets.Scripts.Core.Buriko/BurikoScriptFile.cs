@@ -3070,6 +3070,23 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "LipSyncSettings":
+					string[] lipSyncParams = callParameters.Split(',');
+
+					if(lipSyncParams.Length == 3 &&
+					   float.TryParse(lipSyncParams[0].Trim(), out float thresh1) &&
+					   float.TryParse(lipSyncParams[1].Trim(), out float thresh2) &&
+					   bool.TryParse(lipSyncParams[2].Trim(), out bool forceComputedLipsync))
+					{
+						GameSystem.Instance.SceneController.MODSetExpressionThresholds(thresh1, thresh2);
+						GameSystem.Instance.SceneController.MODSetForceComputedLipsync(forceComputedLipsync);
+					}
+					else
+					{
+						Debug.LogError("MODGenericCall Error: invalid format for LipSyncSettings, should be '.3, .7, true' for example");
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;

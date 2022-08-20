@@ -1130,5 +1130,20 @@ namespace Assets.Scripts.Core.Scene
 
 			return false;
 		}
+
+		public void MODSetForceComputedLipsync(bool forceComputedLipsync) => this.forceComputedLipsync = forceComputedLipsync;
+		public bool MODGetForceComputedLipsync() => this.forceComputedLipsync;
+
+		public void MODSetExpressionThresholds(float threshold1, float threshold2)
+		{
+			this.expression1Threshold = threshold1;
+			this.expression2Threshold = threshold2;
+		}
+
+		public void MODGetExpressionThresholds(out float threshold1, out float threshold2)
+		{
+			threshold1 = this.expression1Threshold;
+			threshold2 = this.expression2Threshold;
+		}
 	}
 }
