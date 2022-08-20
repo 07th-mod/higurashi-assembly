@@ -30,12 +30,16 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioArtSet;
 		private readonly MODRadio radioStretchBackgrounds;
 		private readonly MODRadio radioTextWindowModeAndCrop;
+		private readonly MODRadio radioForceComputedLipsync;
 
 		private readonly MODTabControl tabControl;
 
 		private readonly MODCustomFlagPreset customFlagPreset;
 
 		private bool showDeveloperSubmenu;
+
+		string TextField_ComputedLipSyncThreshold1;
+		string TextField_ComputedLipSyncThreshold2;
 
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
@@ -125,6 +129,11 @@ Sets the script censorship level
 				"- Makes text show only in a 4:3 section of the screen (narrower than NVL mode)\n"),
 			}, itemsPerRow: 2);
 
+			radioForceComputedLipsync = new MODRadio("Force Computed Lipsync", new GUIContent[] {
+				new GUIContent("As Fallback", "Only use computed lipsync if there is no baked 'spectrum' file for a given .ogg file"),
+				new GUIContent("Computed Always", "Always use computed lipsync for all voices. Any 'spectrum' files will be ignored.")
+			});
+
 			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>
 			{
 				new MODTabControl.TabProperties("Gameplay", "Voice Matching and Opening Videos", GameplayTabOnGUI),
@@ -158,6 +167,10 @@ Sets the script censorship level
 
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
+
+			GameSystem.Instance.SceneController.MODGetExpressionThresholds(out float threshold1, out float threshold2);
+			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
+			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
 		}
 
 		private void GraphicsTabOnGUI()
@@ -313,6 +326,8 @@ Sets the script censorship level
 					MODActions.ToggleFlagMenu();
 				}
 				GUILayout.EndHorizontal();
+
+				OnGUIComputedLipsync();
 			}
 			else
 			{
@@ -354,6 +369,43 @@ Sets the script censorship level
 				}
 			}
 			GUILayout.EndHorizontal();
+		}
+
+		private void OnGUIComputedLipsync()
+		{
+			Label("Computed Lipsync Options");
+			GUILayout.BeginHorizontal();
+			Label(new GUIContent("LipSync Thresh 1: ", "Above this threshold, expression 1 will be used.\n\n" +
+				"Below or equal to this threshold, expression 0 will be used.\n\n" +
+				"Only saved until the game restarts"));
+			TextField_ComputedLipSyncThreshold1 = GUILayout.TextField(TextField_ComputedLipSyncThreshold1);
+
+			Label(new GUIContent("LipSync Thresh 2: ", "Above this thireshold, expression 2 will be used\n\n" +
+				"Only saved until the game restarts"));
+			TextField_ComputedLipSyncThreshold2 = GUILayout.TextField(TextField_ComputedLipSyncThreshold2);
+
+			if (Button(new GUIContent("Set", "Tries to set the given lipsync thresholds\n\n")))
+			{
+				if (float.TryParse(TextField_ComputedLipSyncThreshold1, out float threshold1) &&
+					float.TryParse(TextField_ComputedLipSyncThreshold2, out float threshold2) &&
+					threshold1 >= 0 &&
+					threshold1 <= 1 &&
+					threshold2 >= 0 &&
+					threshold2 <= 1)
+				{
+					GameSystem.Instance.SceneController.MODSetExpressionThresholds(threshold1, threshold2);
+				}
+				else
+				{
+					MODToaster.Show("Invalid thresholds - each threshold should be a value between 0 and 1");
+				}
+			}
+			GUILayout.EndHorizontal();
+
+			if(this.radioForceComputedLipsync.OnGUIFragment(GameSystem.Instance.SceneController.MODGetForceComputedLipsync()) is bool newForceComputedLipsync)
+			{
+				GameSystem.Instance.SceneController.MODSetForceComputedLipsync(newForceComputedLipsync);
+			}
 		}
 
 		public bool UserCanClose() => true;
