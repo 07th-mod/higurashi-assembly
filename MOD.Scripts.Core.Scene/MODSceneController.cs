@@ -194,6 +194,14 @@ namespace MOD.Scripts.Core.Scene
 
 		public static void ApplyFilters(int layer, Texture2D texture)
 		{
+			// This avoids a crash when "GetPixels32 called on a degenerate image (dimensions 0x0)"
+			// "UnityException: Texture '' is not configured correctly to allow GetPixels"
+			if (texture.width == 0 || texture.height == 0)
+			{
+				Debug.LogError("WARNING: ApplyFilters() called on texture with zero width and zero height. No filters will be applied.");
+				return;
+			}
+
 			if (!TryGetLayerFilter(layer, out Filter value)) { return; }
 			var watch = System.Diagnostics.Stopwatch.StartNew();
 			var pixels = texture.GetPixels32();
