@@ -96,5 +96,10 @@ namespace MOD.Scripts.UI
 		}
 
 		public GUIContent[] GetContents() => this.radioContents;
+
+		public void SetLabel(string label)
+		{
+			this.label = label;
+		}
 	}
 }

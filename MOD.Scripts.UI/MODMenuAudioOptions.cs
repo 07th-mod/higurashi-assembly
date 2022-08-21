@@ -70,6 +70,11 @@ namespace MOD.Scripts.UI
 
 		public void OnGUI(bool hideLabel=false)
 		{
+			if (Button(new GUIContent("Open BGM/SE FAQ: 07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/", "Click here to open the  Background Music (BGM) and Sound Effects (SE) FAQ in your browser.\n\nThe BGM/SE FAQ contains information on the settings below.")))
+			{
+				Application.OpenURL("https://07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/");
+			}
+
 			if (MODAudioSet.Instance.HasAudioSetsDefined())
 			{
 				// Set GAltBGM, GAltSE, GAltBGMFlow, GAltSEFlow to the same value. In the future we may set them to different values.

@@ -166,7 +166,8 @@ namespace MOD.Scripts.UI
 				bool is_nvl_in_adv_region = BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1;
 				if (is_nvl_in_adv_region)
 				{
-					feedbackString += "\nIn NVL region - changes won't be displayed until later";
+					feedbackString += "\nChanges will be applied when forced-NVL section ends";
+					EnableNVLModeINADVMode();
 					toastDuration = 5;
 				}
 				if (is_nvl_in_adv_region || showInfoToast) { MODToaster.Show(feedbackString, isEnable: true, toastDuration: toastDuration); }
@@ -225,10 +226,18 @@ namespace MOD.Scripts.UI
 					BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GArtStyle").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() != 1 ||
-					BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() != 0 ||
 					BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() != 0;
+
+				// Only check the value of GLinemodeSp if you're not in an NVL_in_ADV region
+				if (BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 0)
+				{
+					if(BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() != 0)
+					{
+						presetModified = true;
+					}
+				}
 
 				return 0;
 			}
@@ -269,14 +278,17 @@ namespace MOD.Scripts.UI
 			}
 		}
 
-		public static void DisableNVLModeINADVMode()
+		public static void DisableNVLModeINADVMode(bool redraw = true)
 		{
 			BurikoMemory.Instance.SetFlag("NVL_in_ADV", 0);
 			if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1)
 			{
 				MODMainUIController mODMainUIController = new MODMainUIController();
 				BurikoMemory.Instance.SetGlobalFlag("GLinemodeSp", 0);
-				TryRedrawTextWindowBackground(WindowFilterType.ADV);
+				if(redraw)
+				{
+					TryRedrawTextWindowBackground(WindowFilterType.ADV);
+				}
 				mODMainUIController.ADVModeSettingStore();
 			}
 		}
