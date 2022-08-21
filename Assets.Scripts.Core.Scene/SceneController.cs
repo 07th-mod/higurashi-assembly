@@ -348,6 +348,10 @@ namespace Assets.Scripts.Core.Scene
 			{
 				ifInUse.FadeOutLayer(wait, isblocking);
 			}
+			else
+			{
+				MOD.Scripts.Core.MODLogger.Log($"WARNING: FadeSprite Failed as layer not in use", true);
+			}
 		}
 
 		public void DrawSprite(int layer, string texture, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int angle, int style, float alpha, int priority, float wait, bool isblocking)

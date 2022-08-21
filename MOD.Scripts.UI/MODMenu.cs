@@ -47,14 +47,15 @@ namespace MOD.Scripts.UI
 Please send the developers your log file (output_log.txt or Player.log).
 
 You can try the following yourself to fix the issue.
+  1. Try waiting 30 seconds for the game to progress. If nothing happens, try restarting the game
 
-  1. Use the buttons under 'Troubleshooting' on the bottom left to show your save files, log files, and compiled scripts.
+  2. Use the buttons under 'Troubleshooting' on the bottom left to show your save files, log files, and compiled scripts.
 
-  2. If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).
+  3. If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).
 
-  3. You can try to clear your compiled script files, then restart the game.
+  4. You can try to clear your compiled script files, then restart the game.
 
-  4. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
+  5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
 
 		public MODMenu(GameSystem gameSystem)
 		{
@@ -171,7 +172,9 @@ You can try the following yourself to fix the issue.
 				if (!BurikoScriptSystem.Instance.FlowWasReached)
 				{
 					this.startupFailed = true;
-					this.Show();
+					// Normally opening the menu pauses the game, but in this case we want the game to keep running
+					// in case this game-failed-startup is a false positive
+					this.Show(menuStopsGameUpdate: false);
 				}
 			}
 
@@ -340,11 +343,11 @@ You can try the following yourself to fix the issue.
 		// - on the Save / Load screen, it will instead tell you to close the Save/Load screen
 		// - the menu might open after a short delay, due to using a delegate to close
 		//   the currently open menu. Please keep this in mind if you're relying on the menu opening immediately.
-		public void Show()
+		public void Show(bool menuStopsGameUpdate=true)
 		{
 			void ForceShow()
 			{
-				gameSystem.MODIgnoreInputs = true;
+				gameSystem.SetMODIgnoreInputs(menuStopsGameUpdate);
 				gameSystem.HideUIControls();
 				this.visible = true;
 			}
@@ -397,7 +400,7 @@ You can try the following yourself to fix the issue.
 		public void ForceHide()
 		{
 			this.visible = false;
-			gameSystem.MODIgnoreInputs = false;
+			gameSystem.SetMODIgnoreInputs(false);
 			gameSystem.ShowUIControls();
 		}
 
