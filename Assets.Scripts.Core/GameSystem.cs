@@ -168,7 +168,9 @@ namespace Assets.Scripts.Core
 		// Set to True to ignore normal gameplay inputs:
 		// - Disables normal inputs (e.g to advance text) in main GameSystem loop
 		// - Disables some GUI inputs by manually added checks in each button type
-		public bool MODIgnoreInputs;
+		private bool _MODIgnoreInputs;
+		public bool MODIgnoreInputs() => _MODIgnoreInputs;
+		public void SetMODIgnoreInputs(bool value) => _MODIgnoreInputs = value;
 
 		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
 		// so use private ones with public accessors
@@ -219,7 +221,7 @@ namespace Assets.Scripts.Core
 
 		private void Initialize()
 		{
-			Logger.Log("GameSystem: Starting GameSystem");
+			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
@@ -293,7 +295,7 @@ namespace Assets.Scripts.Core
 			{
 				KeyHook = new KeyHook();
 			}
-
+			MainUIController.InitializeModMenuAndToaster(this);
 		}
 
 		public void UpdateAspectRatio(float newratio)
@@ -853,7 +855,7 @@ namespace Assets.Scripts.Core
 				{
 					if (blockInputTime <= 0f)
 					{
-						if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs || inputHandler == null || !inputHandler()))
+						if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs() || inputHandler == null || !inputHandler()))
 						{
 							return;
 						}
