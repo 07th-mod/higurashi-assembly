@@ -23,7 +23,7 @@ namespace Assets.Scripts.UI.Menu
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if(gameSystem.MODIgnoreInputs)
+			if(gameSystem.MODIgnoreInputs())
 			{
 				return;
 			}
@@ -106,7 +106,7 @@ namespace Assets.Scripts.UI.Menu
 
 		private void LateUpdate()
 		{
-			button.isEnabled = !GameSystem.Instance.MODIgnoreInputs;
+			button.isEnabled = !GameSystem.Instance.MODIgnoreInputs();
 		}
 	}
 }

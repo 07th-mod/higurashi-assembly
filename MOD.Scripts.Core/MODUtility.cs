@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Assets.Scripts.Core.Buriko;
@@ -108,4 +110,17 @@ public static class MODUtility
 	}
 
 	public static string StripTabs(string s) => s.Replace("\t", "");
+
+	public static string InformationalVersion()
+	{
+		try
+		{
+			return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+		}
+		catch(Exception e)
+		{
+			Debug.Log(e);
+			return "Unknown Version";
+		}
+	}
 }
