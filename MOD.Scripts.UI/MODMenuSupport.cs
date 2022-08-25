@@ -64,7 +64,7 @@ namespace MOD.Scripts.UI
 					"You can manually clear the *.mg files (compiled scripts) in this folder to force the game to regenerate them the next time the game starts.\n\n" +
 					"Please be aware that the game will freeze for a couple minutes on a white screen, while scripts are being compiled.")))
 				{
-					Application.OpenURL(System.IO.Path.Combine(Application.streamingAssetsPath, "CompiledUpdateScripts"));
+					MODActions.ShowCompiledScripts();
 				}
 
 
