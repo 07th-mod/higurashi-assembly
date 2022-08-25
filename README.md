@@ -59,6 +59,40 @@ Steps to get the code for a new game (using Minagoroshi as an example)):
   * If doing it from the Steam DLL, check the `steam` branch history to see what changes we have made to the base Steam code and apply those accordingly.
 * For the <arc>-mod branch, create the <arc>-mod branch based on the steam branch and merge the mod branch.  It may also be possible to base this branch off of the previous branch's mod branch for less conflicts, but the previous arcs all has a branch parentage of arc-mg <- arc-steam <- arc-mod as in the diagram above.
 
+## Supported video formats
+
+### For Chapters 1-8 and console
+
+**TODO** - If anyone knows what encoding settings we used for the previous chapters (for linux and windows), let me know.
+
+### For Chapter 9: (Rei) and above
+
+These chapters use the native Unity video playback for both Windows and Linux.
+
+Additionally, I modified it so that it will play [any compatible container format it can find](https://docs.unity3d.com/Manual/VideoSources-FileCompatibility.html) (note that just because the container is correct doesn't mean the video will play!).
+Previous chapters would play `.mp4` files for Windows, and `.ogv` files for Linux.
+
+#### On Windows
+ - Many video containers and formats are supported
+ - Suggest using H.264 + AAC audio
+
+#### On Linux
+ - Only very specific formats are supported.
+ - Unity suggests using `vp8` video encoding files and `vorbis` audio encoding.
+ - The following ffmpeg encode command is tested working on Ubuntu 20.04: `ffmpeg -i mv11.mp4 -c:a libvorbis -c:v libvpx -crf 20 -b:v 10M mv11.webm`.
+    - `-b:v 10M` more or less sets maximum bitrate that the encoder can use (I think)
+    - `-crf 20` more or less sets the quality (I think)
+    - Increasing one without the other will cap the quality/filesize, so you will need to play around with the values.
+
+ - The `.ogv` container didn't work for me, even though the Unity page states it is supported.
+ - For more details on VP8 encoding see [https://trac.ffmpeg.org/wiki/Encode/VP8](https://trac.ffmpeg.org/wiki/Encode/VP8)
+
+For more details on the Unity Video Player, see [https://docs.unity3d.com/Manual/VideoSources-FileCompatibility.html](https://docs.unity3d.com/Manual/VideoSources-FileCompatibility.html)
+
+### Encoding Tips
+
+Use the `-to` command to process just part of the video for testing. For example, `ffmpeg -to 00:00:10 -i in.webm out.mp4` will process just the first 10 seconds of the video.
+
 ## Build details
 
 Build info:
