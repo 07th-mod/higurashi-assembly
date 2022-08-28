@@ -118,6 +118,85 @@ namespace Assets.Scripts.Core.AssetManagement
 			Artsets.Clear();
 		}
 
+		/// <param name="pathNoExt">The part of the path before the first dot (.)</param>
+		/// <param name="ext">The part of the path after the first dot (.). Does not include the dot.</param>
+		private void SplitPathOnFileExtension(string inputPath, out string pathNoExt, out string ext)
+		{
+			string[] splitPath = inputPath.Split(new char[] { '.' }, 2);
+
+			if (splitPath.Length < 2)
+			{
+				pathNoExt = inputPath;
+				ext = "";
+				return;
+			}
+			else
+			{
+				pathNoExt = splitPath[0];
+				ext = splitPath[1];
+				return;
+			}
+		}
+
+		/// <param name="subFolder">Subfolder in the StreamingAssets folder</param>
+		/// <param name="relativePath">File path relative to subFolder</param>
+		/// <param name="filePath">Output filepath - only valid if function returns true</param>
+		/// <returns></returns>
+		private bool CheckStreamingAssetsPathExistsInner(string subFolder, string relativePath, out string filePath)
+		{
+			filePath = Path.Combine(Path.Combine(assetPath, subFolder), relativePath);
+			if (File.Exists(filePath))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool CheckStreamingAssetsPathExists(string subFolder, string relativePath, out string filePath)
+		{
+			if(CheckStreamingAssetsPathExistsInner(subFolder, relativePath, out filePath))
+			{
+				return true;
+			}
+
+			// Don't allow substituting sprite lipsync variants if using the Console sprites,
+			// to make missing Console sprites more obvious during development.
+			if (CurrentArtsetIndex == 0)
+			{
+				return false;
+			}
+
+			// Only allow lipsync variants for files in the 'sprite' or 'portrait' folder.
+			bool isSprite = relativePath.StartsWith("sprite/") || relativePath.StartsWith("portrait/");
+			if (!isSprite)
+			{
+				return false;
+			}
+
+			SplitPathOnFileExtension(relativePath, out string pathNoExt, out string ext);
+
+			string pathWithoutVariantNumber = pathNoExt.Substring(0, Math.Max(pathNoExt.Length - 1, 0));
+
+			for (int i = 0; i < 3; i++)
+			{
+				string lipsyncVariantFileName = $"{pathWithoutVariantNumber}{i}.{ext}";
+
+				// If the name to test is the same as the initial name, don't test it again
+				if (lipsyncVariantFileName == relativePath)
+				{
+					continue;
+				}
+
+				if (CheckStreamingAssetsPathExistsInner(subFolder, lipsyncVariantFileName, out filePath))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Gets the path to an asset with the given name in the given artset, or null if none are found
 		/// </summary>
@@ -129,8 +208,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			// If OG backgrounds are enabled, always check OGBackgrounds first.
 			if (backgroundSetIndex == 1)
 			{
-				string filePath = Path.Combine(Path.Combine(assetPath, "OGBackgrounds"), name);
-				if (File.Exists(filePath))
+				if(CheckStreamingAssetsPathExists("OGBackgrounds", name, out string filePath))
 				{
 					return filePath;
 				}
@@ -144,12 +222,12 @@ namespace Assets.Scripts.Core.AssetManagement
 					continue;
 				}
 
-				string filePath = Path.Combine(Path.Combine(assetPath, artSetPath), name);
-				if (File.Exists(filePath))
+				if (CheckStreamingAssetsPathExists(artSetPath, name, out string filePath))
 				{
 					return filePath;
 				}
 			}
+
 			return null;
 		}
 
