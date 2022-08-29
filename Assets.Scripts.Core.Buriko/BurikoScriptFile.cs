@@ -3078,11 +3078,17 @@ namespace Assets.Scripts.Core.Buriko
 		}
 
 		/// <summary>
-		/// This function reverts the x positions of sprites when using 4:3 backgrounds to match the original game
+		/// 1) This function reverts the x positions of sprites when using 4:3 backgrounds to match the original game
 		/// In some places, our mod has 'spread out' the sprite positions to better match 16:9 widescreen by setting
 		/// their X position to 240/-240 instead of 160/-160 (mostly when there are 3 characters on the screen at once).
 		/// However, when playing in 4:3 mode, this causes the sprites to be more cut-off than they were in the original game.
 		/// This function attempts to revert this specific case by changing an X of 240/-240 into 160/-160.
+		///
+		/// 2) On Batsukoishi of Rei, four characters are displayed at once with the outermost at 320 and -320.
+		/// In this case we move them slightly inwards so they're not cut-off.
+		///
+		/// I also tried scaling the x coordinate by 160/240 (about 2/3), but this puts the characters unnecessarily
+		/// close together if there are only two characters on the screen.
 		/// </summary>
 		private int MODRyukishiRevertSpritePosition(string path, int x)
 		{
@@ -3093,13 +3099,21 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				if (path.StartsWith("sprite/") || path.StartsWith("portrait/")) // is from the sprite or portrait folder
 				{
-					if (x == 240)
+					if (x == 240) // See note 1) above
 					{
 						return 160;
 					}
 					else if (x == -240)
 					{
 						return -160;
+					}
+					else if (x == 320) // See note 2) above
+					{
+						return 240;
+					}
+					else if (x == -320)
+					{
+						return -240;
 					}
 				}
 			}
