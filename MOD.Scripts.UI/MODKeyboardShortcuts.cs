@@ -172,6 +172,11 @@ namespace MOD.Scripts.UI
 			return null;
 		}
 
+		private static void ShowToastVoiceVoume()
+		{
+			MODToaster.Show($"Voice Volume: {BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue()}", maybeSound: null);
+		}
+
 		private static void ModHandleUserAction(Action action)
 		{
 			switch (action)
@@ -269,18 +274,22 @@ namespace MOD.Scripts.UI
 
 				case Action.VoiceVolumeUp:
 					MODActions.AdjustVoiceVolumeRelative(5);
+					ShowToastVoiceVoume();
 					break;
 
 				case Action.VoiceVolumeDown:
 					MODActions.AdjustVoiceVolumeRelative(-5);
+					ShowToastVoiceVoume();
 					break;
 
 				case Action.VoiceVolumeMax:
 					MODActions.AdjustVoiceVolumeAbsolute(100);
+					ShowToastVoiceVoume();
 					break;
 
 				case Action.VoiceVolumeMin:
 					MODActions.AdjustVoiceVolumeAbsolute(0);
+					ShowToastVoiceVoume();
 					break;
 
 				case Action.ToggleArtStyle:
