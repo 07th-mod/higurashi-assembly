@@ -324,10 +324,14 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.AudioController.VoiceVolume = (float)newVolume / 100f;
 			GameSystem.Instance.AudioController.RefreshLayerVolumes();
 
-			// Play a sample voice file so the user can get feedback on the set volume
+			// Repeat the last voice file played so the user can get feedback on the set volume
 			// For some reason the script uses "256" as the default volume, which gets divided by 128 to become 2.0f,
 			// so to keep in line with the script, the test volume is set to "2.0f"
-			GameSystem.Instance.AudioController.PlayVoice("voice_test.ogg", 3, 2.0f);
+			var voices = GameSystem.Instance.TextHistory.LatestVoice;
+			if (voices != null && voices.Count > 0)
+			{
+				GameSystem.Instance.AudioController.PlayVoices(voices);
+			}
 		}
 
 		// Variant for global flags, using another variable as max limit
