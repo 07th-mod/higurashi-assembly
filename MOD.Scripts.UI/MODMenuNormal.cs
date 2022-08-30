@@ -293,7 +293,6 @@ Sets the script censorship level
 
 		private void TroubleShootingTabOnGUI()
 		{
-			Label("Save Files and Log Files");
 			MODMenuSupport.ShowSupportButtons(content => Button(content));
 
 			HeadingLabel("Developer Tools");
