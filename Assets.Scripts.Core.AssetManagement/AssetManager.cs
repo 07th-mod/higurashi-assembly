@@ -2,11 +2,13 @@ using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
 using MOD.Scripts.Core.Audio;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
@@ -225,11 +227,126 @@ namespace Assets.Scripts.Core.AssetManagement
 			return null;
 		}
 
+		class ScriptInfo
+		{
+			public string name;
+			public DateTime lastWriteTime;
+			public long length;
+			public string md5String;
+
+			public static ScriptInfo TryGetOrNull(string path)
+			{
+				try
+				{
+					string md5String;
+					using (var md5 = MD5.Create())
+					{
+						using (var stream = File.OpenRead(path))
+						{
+							md5String = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "");
+						}
+					}
+
+					FileInfo fileInfo = new FileInfo(path);
+
+					return new ScriptInfo
+					{
+						name = Path.GetFileNameWithoutExtension(fileInfo.Name),
+						lastWriteTime = fileInfo.LastWriteTime,
+						length = fileInfo.Length,
+						md5String = md5String,
+					};
+				}
+				catch (Exception e)
+				{
+					Debug.LogError($"Failed to get script info for {path}: {e}");
+				}
+
+				return null;
+			}
+		}
+
+		private bool ScriptNeedsCompile(Dictionary<string, ScriptInfo> oldInfoDictionary, ScriptInfo txt, ScriptInfo mg, string textDescription, string mgDescription)
+		{
+			// If the mg file doensn't exist or can't be accessed, do re-compile
+			if(mg == null)
+			{
+				Debug.Log($"ScriptNeedsCompile(): Compiling {textDescription} as mg file {mgDescription} does not exist or can't be accessed");
+				return true;
+			}
+
+			// This implies the txt file doesn't exist, which should never happen but just try to recompile anyway in this case
+			if(txt == null)
+			{
+				Debug.Log($"ScriptNeedsCompile(): WARNING: {textDescription} can't be accessed or does not exist - trying to compile anyway");
+				return true;
+			}
+
+			//// Compile if the .txt is newer than the .mg file
+			//if (txt.lastWriteTime > mg.lastWriteTime)
+			//{
+			//	Debug.Log($"ScriptNeedsCompile(): Compiling {textDescription} as it is newer than mg file {mgDescription} (txt: {txt.lastWriteTime}), mg: {mg.lastWriteTime}");
+			//	return true;
+			//}
+
+			// Compare the current .txt file against the last recorded information about the .txt file
+			if(oldInfoDictionary.TryGetValue(txt.name, out ScriptInfo oldInfo))
+			{
+				// Compile if the file size has changed since last time
+				if(oldInfo.length != txt.length)
+				{
+					Debug.Log($"ScriptNeedsCompile(): Compiling {textDescription} as size differs from previous (old: {oldInfo.length} bytes, new: {txt.length} bytes)");
+					return true;
+				}
+
+				// Compile if the file's MD5 has changed
+				if (oldInfo.md5String != txt.md5String)
+				{
+					Debug.Log($"ScriptNeedsCompile(): Compiling {textDescription} as MD5 differs from previous (old: {oldInfo.md5String}, new: {txt.md5String})");
+					return true;
+				}
+			}
+			else
+			{
+				// If the file hasn't been recorded in the dictionary, re-compile it
+				Debug.Log($"ScriptNeedsCompile(): Compiling {textDescription} as it doesn't exist in the .txt info dictionary.");
+				return true;
+			}
+
+			return false;
+		}
+
 		public void CompileFolder(string srcDir, string destDir)
 		{
+			JsonSerializer jsonSerializer = new JsonSerializer();
+			string txtInfoDictionaryPath = Path.Combine(destDir, "txtInfoDictionary.json");
 			string[] txtList1 = Directory.GetFiles(srcDir, "*.txt");
 			string[] mgList1 = Directory.GetFiles(destDir, "*.mg");
 			List<string> txtFilenameNoExtensionList = new List<string>();
+
+			Dictionary<string, ScriptInfo> oldTxtInfoDictionary = new Dictionary<string, ScriptInfo>();
+			Dictionary<string, ScriptInfo> newTxtInfoDictionary = new Dictionary<string, ScriptInfo>();
+
+			try
+			{
+				if(File.Exists(txtInfoDictionaryPath))
+				{
+					using (StreamReader sw = new StreamReader(txtInfoDictionaryPath))
+					using (JsonReader reader = new JsonTextReader(sw))
+					{
+						List<ScriptInfo> scriptInfoList = jsonSerializer.Deserialize<List<ScriptInfo>>(reader);
+						foreach(ScriptInfo info in scriptInfoList)
+						{
+							oldTxtInfoDictionary[info.name] = info;
+						}
+					}
+
+				}
+			}
+			catch(Exception e)
+			{
+				Debug.LogError($"CompileFolder(): Failed to deserialize {txtInfoDictionaryPath}: {e}");
+			}
 
 			string[] txtList = txtList1;
 			foreach (string txtPath1 in txtList)
@@ -242,16 +359,13 @@ namespace Assets.Scripts.Core.AssetManagement
 					string txtPath = txtPath1;
 					string mgPath = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
 
-					// (Re-)compile scripts if:
-					// - the corresponding .mg file doesn't exist
-					// - the corresponding .mg file is newer than the source .txt file
-					if (File.Exists(mgPath))
+					ScriptInfo txtInfo = ScriptInfo.TryGetOrNull(txtPath);
+					ScriptInfo mgInfo = File.Exists(mgPath) ? ScriptInfo.TryGetOrNull(mgPath) : null;
+
+					if (!ScriptNeedsCompile(oldTxtInfoDictionary, txtInfo, mgInfo, Path.GetFileName(txtPath), Path.GetFileName(mgPath)))
 					{
-						if (File.GetLastWriteTime(txtPath) <= File.GetLastWriteTime(mgPath))
-						{
-							continue;
-						}
-						Debug.Log($"Script {mgPath} last compiled {File.GetLastWriteTime(mgPath)} (source {txtPath} updated on {File.GetLastWriteTime(txtPath)})");
+						newTxtInfoDictionary[txtInfo.name] = txtInfo;
+						continue;
 					}
 
 					// Try to compile the file, but if an exception occurs just ignore it and move on to the next script
@@ -260,12 +374,24 @@ namespace Assets.Scripts.Core.AssetManagement
 					{
 						new BGItoMG(txtPath, mgPath);
 						numCompileOK++;
+						newTxtInfoDictionary[txtInfo.name] = txtInfo;
 					}
 					catch (Exception arg)
 					{
 						Debug.LogError($"Failed to compile script {fileNameWithoutExtension}!\r\n{arg}");
 						numCompileFail++;
 					}
+				}
+			}
+
+			if(numCompileOK > 0 && numCompileFail == 0)
+			{
+				// save scriptInfoDictionary to file as at least one .txt file has changed and succesfully been compiled
+				// we don't want to update the dictionary if any script file failed to compile as from then on it would never be updated
+				using (StreamWriter sw = new StreamWriter(txtInfoDictionaryPath))
+				using (JsonTextWriter writer = new JsonTextWriter(sw))
+				{
+					jsonSerializer.Serialize(writer, newTxtInfoDictionary.Values.ToList());
 				}
 			}
 
