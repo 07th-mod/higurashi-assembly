@@ -80,7 +80,7 @@ namespace MOD.Scripts.Core.Movie
 		public void Init(MovieInfo movieInfo)
 		{
 			this.movieInfo = movieInfo;
-			www = new WWW(movieInfo.Path + ".ogv");
+			www = new WWW(movieInfo.PathWithExt);
 			audioSource = base.gameObject.AddComponent<AudioSource>();
 			audioSource.volume = this.movieInfo.Volume;
 			base.enabled = true;

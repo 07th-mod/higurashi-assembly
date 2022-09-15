@@ -1,12 +1,17 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core.Movie;
+using MOD.Scripts.UI;
+using System.IO;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.State
 {
 	public class StateMovie : IGameState
 	{
+		const string windowsMovieExtension = ".mp4";
+		const string linuxMovieExtension = ".ogv";
+
 		private bool isLeaving;
 
 		private IMovieRenderer MovieEntity;
@@ -17,10 +22,39 @@ namespace MOD.Scripts.Core.State
 
 		public StateMovie(string moviename)
 		{
-			movieInfo = new MovieInfo(moviename);
+			// Windows and Wine/Proton will both show up as WindowsPlayer
+			bool isWindowsOrWine = Application.platform == RuntimePlatform.WindowsPlayer;
+
+			// Only play the .mp4 file with AVProVideo on Windows-like Platforms, if the file exists
+			// On Wine, it is expected that only the Linux .ogv video file is installed, as playing using AVProVideo/.mp4 files on Wine is not supported
+			bool windowsPlaybackMode = isWindowsOrWine && File.Exists(MovieInfo.GetPathFromNameWithExt(moviename, windowsMovieExtension));
+
+			// The below just shows a message if no video file found to play (it does not affect playback behavior)
+			if (!windowsPlaybackMode && !File.Exists(MovieInfo.GetPathFromNameWithExt(moviename, linuxMovieExtension)))
+			{
+				string movieFiles = $"{moviename}{linuxMovieExtension}";
+				if(isWindowsOrWine)
+				{
+					movieFiles = $"{moviename}{windowsMovieExtension} or " + movieFiles;
+				}
+
+				string errorMessage = $"ERROR: Movie file {movieFiles} not found";
+				Debug.Log(errorMessage);
+				MODToaster.Show(errorMessage, toastDuration:10);
+			}
+
+			movieInfo = new MovieInfo(moviename, windowsPlaybackMode ? windowsMovieExtension : linuxMovieExtension);
 			gameObject = new GameObject();
 			SetupBackgroundLayerForVideo();
-			MovieEntity = CreateMovieRenderer();
+
+			if(windowsPlaybackMode)
+			{
+				MovieEntity = gameObject.AddComponent<AVProMovieRenderer>();
+			}
+			else
+			{
+				MovieEntity = gameObject.AddComponent<TextureMovieRenderer>();
+			}
 			MovieEntity.Init(movieInfo);
 		}
 
@@ -74,15 +108,6 @@ namespace MOD.Scripts.Core.State
 				}
 				movieInfo.Layer.Initialize();
 			}
-		}
-
-		private IMovieRenderer CreateMovieRenderer()
-		{
-			if (Application.platform == RuntimePlatform.WindowsPlayer)
-			{
-				return gameObject.AddComponent<AVProMovieRenderer>();
-			}
-			return gameObject.AddComponent<TextureMovieRenderer>();
 		}
 
 		private void SetupBackgroundLayerForVideo()
