@@ -12,6 +12,7 @@ using Assets.Scripts.UI.CGGallery;
 using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -222,6 +223,7 @@ namespace Assets.Scripts.Core
 		private void Initialize()
 		{
 			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
+			MODLocalization.LoadFromJSON();
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
