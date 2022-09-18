@@ -227,38 +227,30 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public void CompileFolder(string srcDir, string destDir)
 		{
-			string[] txtList1 = Directory.GetFiles(srcDir, "*.txt");
-			string[] mgList1 = Directory.GetFiles(destDir, "*.mg");
-			List<string> txtFilenameNoExtensionList = new List<string>();
-
-			string[] txtList = txtList1;
-			foreach (string txtPath1 in txtList)
+			string[] files = Directory.GetFiles(srcDir, "*.txt");
+			string[] files2 = Directory.GetFiles(destDir, "*.mg");
+			List<string> list = new List<string>();
+			string[] array = files;
+			foreach (string text in array)
 			{
-				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(txtPath1);
+				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(text);
 				if (fileNameWithoutExtension != null)
 				{
-					txtFilenameNoExtensionList.Add(fileNameWithoutExtension);
-
-					string txtPath = txtPath1;
-					string mgPath = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
-
-					// (Re-)compile scripts if:
-					// - the corresponding .mg file doesn't exist
-					// - the corresponding .mg file is newer than the source .txt file
-					if (File.Exists(mgPath))
+					list.Add(fileNameWithoutExtension);
+					string text2 = text;
+					string text3 = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
+					if (File.Exists(text3))
 					{
-						if (File.GetLastWriteTime(txtPath) <= File.GetLastWriteTime(mgPath))
+						if (File.GetLastWriteTime(text2) <= File.GetLastWriteTime(text3))
 						{
 							continue;
 						}
-						Debug.Log($"Script {mgPath} last compiled {File.GetLastWriteTime(mgPath)} (source {txtPath} updated on {File.GetLastWriteTime(txtPath)})");
+						Debug.Log($"Script {text3} last compiled {File.GetLastWriteTime(text3)} (source {text2} updated on {File.GetLastWriteTime(text2)})");
 					}
-
-					// Try to compile the file, but if an exception occurs just ignore it and move on to the next script
-					Debug.Log("Compiling file " + txtPath);
+					Debug.Log("Compiling file " + text2);
 					try
 					{
-						new BGItoMG(txtPath, mgPath);
+						new BGItoMG(text2, text3);
 						numCompileOK++;
 					}
 					catch (Exception arg)
@@ -268,16 +260,14 @@ namespace Assets.Scripts.Core.AssetManagement
 					}
 				}
 			}
-
-			// Delete .mg files with no corresponding .txt file
-			string[] mgList = mgList1;
-			foreach (string mgPath in mgList)
+			string[] array2 = files2;
+			foreach (string path in array2)
 			{
-				string mgFileNameWithoutExtension = Path.GetFileNameWithoutExtension(mgPath);
-				if (!txtFilenameNoExtensionList.Contains(mgFileNameWithoutExtension))
+				string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(path);
+				if (!list.Contains(fileNameWithoutExtension2))
 				{
-					Debug.Log("Compiled script " + mgFileNameWithoutExtension + " has no matching script file. Removing...");
-					File.Delete(mgPath);
+					Debug.Log("Compiled script " + fileNameWithoutExtension2 + " has no matching script file. Removing...");
+					File.Delete(path);
 				}
 			}
 		}
