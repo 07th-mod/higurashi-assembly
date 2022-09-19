@@ -441,10 +441,10 @@ namespace Assets.Scripts.UI
 			if (modMenu != null)
 			{
 				modMenu.Update();
-			}
 
-			// Handle mod keyboard shortcuts
-			MODKeyboardShortcuts.ModInputHandler();
+				// Handle mod keyboard shortcuts
+				MODKeyboardShortcuts.ModInputHandler();
+			}
 
 			int num = 402;
 			int num2 = 402;
@@ -517,10 +517,14 @@ namespace Assets.Scripts.UI
 			ui.bgLayer2.DrawLayer(windowFilterTextureName, 0, 0, 0, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 
-		// This must be called after BurikoScriptSystem has been initialized
-		public void InitializeModMenuAndToaster(GameSystem gameSystem)
+		public void InitializeToaster()
 		{
 			this.toaster = new MODToaster();
+		}
+
+		// This must be called after BurikoScriptSystem has been initialized
+		public void InitializeModMenu(GameSystem gameSystem)
+		{
 			this.modMenu = new MODMenu(gameSystem);
 
 			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
@@ -550,13 +554,19 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			if(this.modMenu == null || this.toaster == null)
+			if(this.toaster == null)
+			{
+				return;
+			}
+
+			toaster.OnGUIFragment();
+
+			if (this.modMenu == null)
 			{
 				return;
 			}
 
 			modMenu.OnGUIFragment();
-			toaster.OnGUIFragment();
 
 			// Helper Functions for processing flags
 			string boolDesc(string flag, string name)
