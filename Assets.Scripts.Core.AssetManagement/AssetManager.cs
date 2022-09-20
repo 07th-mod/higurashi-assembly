@@ -236,6 +236,12 @@ namespace Assets.Scripts.Core.AssetManagement
 		// I'm not sure if AbortLoading is ever used
 		private void CompileFolder(string srcDir, string destDir)
 		{
+			MODCompileRequiredDetector detector = new MODCompileRequiredDetector(destDir);
+			detector.Load();
+
+			MaxLoading = 0;
+			CurrentLoading = 0;
+
 			string[] txtList1 = Directory.GetFiles(srcDir, "*.txt");
 			string[] mgList1 = Directory.GetFiles(destDir, "*.mg");
 			List<string> scriptNames = new List<string>();
@@ -254,13 +260,10 @@ namespace Assets.Scripts.Core.AssetManagement
 				scriptNames.Add(fileNameWithoutExtension);
 				string txtPath = txtPath1;
 				string mgPath = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
-				if (File.Exists(mgPath))
+				if(!detector.SaveScriptInfoAndCheckScriptNeedsCompile(txtPath, mgPath))
 				{
-					if (File.GetLastWriteTime(txtPath) <= File.GetLastWriteTime(mgPath))
-					{
-						continue;
-					}
-					Debug.Log($"Script {mgPath} last compiled {File.GetLastWriteTime(mgPath)} (source {txtPath} updated on {File.GetLastWriteTime(txtPath)})");
+					detector.MarkScriptCompiled(fileNameWithoutExtension);
+					continue;
 				}
 				txtToCompileList.Add(txtPath);
 				mgToCompileList.Add(mgPath);
@@ -278,6 +281,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				{
 					new BGItoMG(text4, outname);
 					numCompileOK++;
+					detector.MarkScriptCompiled(fileNameWithoutExtension2);
 				}
 				catch (Exception arg)
 				{
@@ -288,6 +292,12 @@ namespace Assets.Scripts.Core.AssetManagement
 				{
 					return;
 				}
+			}
+
+			// Only update .txt compile status if at least one file compiled
+			if (numCompileOK > 0)
+			{
+				detector.Save();
 			}
 
 			string[] mgList = mgList1;
