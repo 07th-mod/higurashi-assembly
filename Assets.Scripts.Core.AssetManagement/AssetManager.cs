@@ -64,6 +64,12 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		private string assetPath = Application.streamingAssetsPath;
 
+		public int CurrentLoading;
+
+		public int MaxLoading;
+
+		public bool AbortLoading;
+
 		private List<string> scriptList = new List<string>();
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
@@ -230,43 +236,60 @@ namespace Assets.Scripts.Core.AssetManagement
 			string[] files = Directory.GetFiles(srcDir, "*.txt");
 			string[] files2 = Directory.GetFiles(destDir, "*.mg");
 			List<string> list = new List<string>();
+			List<string> list2 = new List<string>();
+			List<string> list3 = new List<string>();
 			string[] array = files;
 			foreach (string text in array)
 			{
 				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(text);
-				if (fileNameWithoutExtension != null)
+				if (fileNameWithoutExtension == null)
 				{
-					list.Add(fileNameWithoutExtension);
-					string text2 = text;
-					string text3 = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
-					if (File.Exists(text3))
+					continue;
+				}
+				list.Add(fileNameWithoutExtension);
+				string text2 = text;
+				string text3 = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
+				if (File.Exists(text3))
+				{
+					if (File.GetLastWriteTime(text2) <= File.GetLastWriteTime(text3))
 					{
-						if (File.GetLastWriteTime(text2) <= File.GetLastWriteTime(text3))
-						{
-							continue;
-						}
-						Debug.Log($"Script {text3} last compiled {File.GetLastWriteTime(text3)} (source {text2} updated on {File.GetLastWriteTime(text2)})");
+						continue;
 					}
-					Debug.Log("Compiling file " + text2);
-					try
-					{
-						new BGItoMG(text2, text3);
-						numCompileOK++;
-					}
-					catch (Exception arg)
-					{
-						Debug.LogError($"Failed to compile script {fileNameWithoutExtension}!\r\n{arg}");
-						numCompileFail++;
-					}
+					Debug.Log($"Script {text3} last compiled {File.GetLastWriteTime(text3)} (source {text2} updated on {File.GetLastWriteTime(text2)})");
+				}
+				list2.Add(text2);
+				list3.Add(text3);
+			}
+			MaxLoading = list2.Count;
+			for (int j = 0; j < list2.Count; j++)
+			{
+				CurrentLoading = j + 1;
+				string text4 = list2[j];
+				string outname = list3[j];
+				string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(text4);
+				Debug.Log("Compiling file " + text4);
+				try
+				{
+					new BGItoMG(text4, outname);
+					numCompileOK++;
+				}
+				catch (Exception arg)
+				{
+					Debug.LogError($"Failed to compile script {fileNameWithoutExtension2}!\r\n{arg}");
+					numCompileFail++;
+				}
+				if (AbortLoading)
+				{
+					return;
 				}
 			}
 			string[] array2 = files2;
 			foreach (string path in array2)
 			{
-				string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(path);
-				if (!list.Contains(fileNameWithoutExtension2))
+				string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(path);
+				if (!list.Contains(fileNameWithoutExtension3))
 				{
-					Debug.Log("Compiled script " + fileNameWithoutExtension2 + " has no matching script file. Removing...");
+					Debug.Log("Compiled script " + fileNameWithoutExtension3 + " has no matching script file. Removing...");
 					File.Delete(path);
 				}
 			}
