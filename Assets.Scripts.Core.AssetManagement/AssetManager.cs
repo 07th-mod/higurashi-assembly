@@ -231,41 +231,47 @@ namespace Assets.Scripts.Core.AssetManagement
 			return null;
 		}
 
-		public void CompileFolder(string srcDir, string destDir)
+		// The arguments AbortLoading, MaxLoading, and CurrentLoading are only used for meakashi onwards
+		// MaxLoading, and CurrentLoading are are used to display the Script Compilation Progress Text
+		// I'm not sure if AbortLoading is ever used
+		private void CompileFolder(string srcDir, string destDir)
 		{
-			string[] files = Directory.GetFiles(srcDir, "*.txt");
-			string[] files2 = Directory.GetFiles(destDir, "*.mg");
-			List<string> list = new List<string>();
-			List<string> list2 = new List<string>();
-			List<string> list3 = new List<string>();
-			string[] array = files;
-			foreach (string text in array)
+			string[] txtList1 = Directory.GetFiles(srcDir, "*.txt");
+			string[] mgList1 = Directory.GetFiles(destDir, "*.mg");
+			List<string> scriptNames = new List<string>();
+
+			List<string> txtToCompileList = new List<string>();
+			List<string> mgToCompileList = new List<string>();
+
+			string[] txtList = txtList1;
+			foreach (string txtPath1 in txtList)
 			{
-				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(text);
+				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(txtPath1);
 				if (fileNameWithoutExtension == null)
 				{
 					continue;
 				}
-				list.Add(fileNameWithoutExtension);
-				string text2 = text;
-				string text3 = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
-				if (File.Exists(text3))
+				scriptNames.Add(fileNameWithoutExtension);
+				string txtPath = txtPath1;
+				string mgPath = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
+				if (File.Exists(mgPath))
 				{
-					if (File.GetLastWriteTime(text2) <= File.GetLastWriteTime(text3))
+					if (File.GetLastWriteTime(txtPath) <= File.GetLastWriteTime(mgPath))
 					{
 						continue;
 					}
-					Debug.Log($"Script {text3} last compiled {File.GetLastWriteTime(text3)} (source {text2} updated on {File.GetLastWriteTime(text2)})");
+					Debug.Log($"Script {mgPath} last compiled {File.GetLastWriteTime(mgPath)} (source {txtPath} updated on {File.GetLastWriteTime(txtPath)})");
 				}
-				list2.Add(text2);
-				list3.Add(text3);
+				txtToCompileList.Add(txtPath);
+				mgToCompileList.Add(mgPath);
 			}
-			MaxLoading = list2.Count;
-			for (int j = 0; j < list2.Count; j++)
+
+			MaxLoading = txtToCompileList.Count;
+			for (int j = 0; j < txtToCompileList.Count; j++)
 			{
 				CurrentLoading = j + 1;
-				string text4 = list2[j];
-				string outname = list3[j];
+				string text4 = txtToCompileList[j];
+				string outname = mgToCompileList[j];
 				string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(text4);
 				Debug.Log("Compiling file " + text4);
 				try
@@ -283,11 +289,12 @@ namespace Assets.Scripts.Core.AssetManagement
 					return;
 				}
 			}
-			string[] array2 = files2;
-			foreach (string path in array2)
+
+			string[] mgList = mgList1;
+			foreach (string path in mgList)
 			{
 				string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(path);
-				if (!list.Contains(fileNameWithoutExtension3))
+				if (!scriptNames.Contains(fileNameWithoutExtension3))
 				{
 					Debug.Log("Compiled script " + fileNameWithoutExtension3 + " has no matching script file. Removing...");
 					File.Delete(path);
