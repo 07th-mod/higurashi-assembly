@@ -10,7 +10,7 @@ namespace MOD.Scripts.Core.Scene
 {
 	public class MODSceneController
 	{
-		private const int MAX_CHARACTERS = 100;
+		public static int MAX_CHARACTERS = 100;
 		public static int MODLipSync_Character_Audio;
 
 		public struct Filter
@@ -281,13 +281,6 @@ namespace MOD.Scripts.Core.Scene
 			MODLipSync_Priority = new int[MAX_CHARACTERS];
 			MODLipSync_Channel = new int[MAX_CHARACTERS];
 			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
-		}
-
-		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
-		{
-			int num = MODLipSync_Layer[charnum];
-			string textureName = MODLipSync_Texture[charnum] + expressionnum;
-			return LoadTextureWithFilters(num, textureName);
 		}
 
 		static MODSceneController()

@@ -46,6 +46,18 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.MainUIController.TryRedrawTextWindowBackground(windowFilterTextureName);
 		}
 
+		private static string ExpandHome(string s)
+		{
+			if (s.Length > 0 && s.StartsWith("~"))
+			{
+				return Environment.GetEnvironmentVariable("HOME") + s.Remove(0, 1);
+			}
+			else
+			{
+				return s;
+			}
+		}
+
 		/// <summary>
 		/// Cycles and saves Console->MangaGamer->OG->Custom->Console...
 		/// </summary>
@@ -312,10 +324,14 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.AudioController.VoiceVolume = (float)newVolume / 100f;
 			GameSystem.Instance.AudioController.RefreshLayerVolumes();
 
-			// Play a sample voice file so the user can get feedback on the set volume
+			// Repeat the last voice file played so the user can get feedback on the set volume
 			// For some reason the script uses "256" as the default volume, which gets divided by 128 to become 2.0f,
 			// so to keep in line with the script, the test volume is set to "2.0f"
-			GameSystem.Instance.AudioController.PlayVoice("voice_test.ogg", 3, 2.0f);
+			var voices = GameSystem.Instance.TextHistory.LatestVoice;
+			if (voices != null && voices.Count > 0)
+			{
+				GameSystem.Instance.AudioController.PlayVoices(voices);
+			}
 		}
 
 		// Variant for global flags, using another variable as max limit
@@ -417,7 +433,7 @@ namespace MOD.Scripts.UI
 					{
 						// Higurashi 1-7 use the "HigurashiEp01_Data", which is one folder above the streamingAssets folder
 						// eg. C:\games\Steam\steamapps\common\Higurashi When They Cry\HigurashiEp01_Data, where log file would be output_log.txt
-						return MODUtility.CombinePaths(Application.streamingAssetsPath, "..");
+						return MODUtility.CombinePaths(Application.streamingAssetsPath, "..\\");
 					}
 
 				//eg. ~/Library/Logs/Unity, where log file would be Player.log
@@ -441,28 +457,31 @@ namespace MOD.Scripts.UI
 		{
 			ShowFile(MGHelper.GetSavePath());
 		}
+		public static void ShowCompiledScripts()
+		{
+			ShowFile(Path.Combine(Application.streamingAssetsPath, "CompiledUpdateScripts"));
+		}
 
 		//NOTE: paths might not open properly on windows if they contain backslashes
 		public static void ShowFile(string path)
 		{
-			Assets.Scripts.Core.Logger.Log($"MOD ShowFile(): Showing [{path}]");
 			try
 			{
-				switch (MODUtility.GetPlatform())
-				{
+                switch (MODUtility.GetPlatform())
+                {
+                    case MODUtility.Platform.MacOS:
+                    case MODUtility.Platform.Linux:
+						path = ExpandHome(path.Replace('\\', '/'));
+						break;
+
 					case MODUtility.Platform.Windows:
 					default:
-						Process.Start("explorer", path.Replace('/', '\\'));
-						break;
-
-					case MODUtility.Platform.MacOS:
-						Process.Start("open", path.Replace('\\', '/'));
-						break;
-
-					case MODUtility.Platform.Linux:
-						Process.Start("xdg-open", path.Replace('\\', '/'));
+						path = path.Replace('/', '\\');
 						break;
 				}
+
+				Assets.Scripts.Core.Logger.Log($"MOD ShowFile(): Showing [{path}]");
+				Application.OpenURL(path);
 			}
 			catch(Exception e)
 			{
