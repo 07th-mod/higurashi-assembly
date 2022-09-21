@@ -262,6 +262,7 @@
     <Compile Include="MOD.Scripts.Core.Movie\MovieInfo.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODLipsyncCache.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
     <Compile Include="MOD.Scripts.Core.State\MODStateDisableInput.cs" />
     <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
