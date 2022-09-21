@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using System;
 using System.Collections;
 using System.IO;
@@ -75,6 +76,10 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator MODLipSyncCoroutine;
 
 		public Scene MODActiveScene => GetActiveScene();
+
+		private float expression2Threshold = .7f;
+		private float expression1Threshold = .3f;
+		private bool forceComputedLipsync = true;
 
 		static SceneController()
 		{
@@ -173,7 +178,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			if (MODSkipImage(textureName))
 			{
@@ -194,7 +199,7 @@ namespace Assets.Scripts.Core.Scene
 					oldy = y;
 					oldz = z;
 				}
-				layer2.DrawLayer(textureName, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking);
+				layer2.DrawLayer(textureName, oldx, oldy, oldz, null, 1f, /*isBustshot:*/ true, type, wait, isblocking, afterLayerUpdated);
 				layer2.SetPriority(priority);
 				if (move)
 				{
@@ -218,6 +223,11 @@ namespace Assets.Scripts.Core.Scene
 			layer2.CrossfadeLayer(textureName, wait, isblocking);
 		}
 
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshot(layer, textureName, x, y, z, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
+		}
+
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
 			Layer layer2 = GetLayer(layer);
@@ -232,7 +242,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			gameSystem.RegisterAction(delegate
 			{
@@ -253,7 +263,7 @@ namespace Assets.Scripts.Core.Scene
 				{
 					origin = new Vector2((float)originx, (float)originy);
 				}
-				layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, /*isBustshot:*/ true, type, wait, isblocking);
+				layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, /*isBustshot:*/ true, type, wait, isblocking, afterLayerUpdated);
 				layer2.SetPriority(priority);
 				if (move)
 				{
@@ -270,6 +280,11 @@ namespace Assets.Scripts.Core.Scene
 				}
 				gameSystem.ExecuteActions();
 			});
+		}
+
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, originy, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
 		}
 
 		public void MoveBustshot(int layer, string textureName, int x, int y, int z, float wait, bool isblocking)
@@ -917,34 +932,26 @@ namespace Assets.Scripts.Core.Scene
 		{
 		}
 
-		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile)
+		private IEnumerator MODBakedLipSync(string path, int character, ulong coroutineId, Texture2D exp2, Texture2D exp3, Texture2D exp4)
 		{
-			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
-			string str = audiofile.Replace(".ogg", ".txt");
-			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
-			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
-			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
-			string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
-			if (File.Exists(path))
+			StreamReader streamReader = new StreamReader(path);
+			string text = streamReader.ReadLine();
+			string[] exparray = text.Split(',');
+			streamReader.Close();
+			for (int k = 0; k < exparray.Length; k++)
 			{
-				StreamReader streamReader = new StreamReader(path);
-				string text = streamReader.ReadLine();
-				string[] exparray = text.Split(',');
-				streamReader.Close();
-				for (int k = 0; k < exparray.Length; k++)
+				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
 				{
-					if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+					break;
+				}
+				if (exparray[k] == string.Empty)
+				{
+					exparray[k] = "0";
+				}
+				if (k > 1 && !exparray[k].Equals(exparray[k - 1]))
+				{
+					switch (exparray[k])
 					{
-						break;
-					}
-					if (exparray[k] == string.Empty)
-					{
-						exparray[k] = "0";
-					}
-					if (k > 1 && !exparray[k].Equals(exparray[k - 1]))
-					{
-						switch (exparray[k])
-						{
 						case "2":
 							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp2, coroutineId);
 							break;
@@ -954,43 +961,148 @@ namespace Assets.Scripts.Core.Scene
 						case "0":
 							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
 							break;
-						}
 					}
-					yield return (object)new WaitForSeconds(0.0666f);
 				}
+				yield return (object)new WaitForSeconds(0.0666f);
 			}
-			else
+		}
+
+		private IEnumerator MODComputedLipSync(int character, int audiolayer, AudioClip audioClip, ulong coroutineId, Texture2D exp2, Texture2D exp3, Texture2D exp4)
+		{
+			const float CHUNK_LENGTH_SECONDS = .05f;
+
+			int frameRate = audioClip.frequency;
+			//NOTE: Unity calls a "sample" what is usually called a "frame". Frames contain multiple channel's worth of information for a given point in time.
+			int numFrames = audioClip.samples;
+			int samplesPerFrame = audioClip.channels;
+
+			int framesPerChunk = (int)(CHUNK_LENGTH_SECONDS * frameRate);
+			int samplesPerChunk = framesPerChunk * samplesPerFrame;
+
+			// If there is a leftover chunk (this happens if there is a remainder during the below division), it will be excluded/skipped.
+			int numChunks = numFrames / framesPerChunk;
+
+			bool voiceStartedPlaying = false;
+
+			float[] rawAudioData = new float[samplesPerChunk];
+
+			WaitForSeconds waitTime = new WaitForSeconds(CHUNK_LENGTH_SECONDS);
+
+			// This for loop condition shouldn't ever be met, it's just here
+			// to set some upper limit (~10x the expected number of loops) on the number of iterations
+			for (int chunk = 0; chunk < 10 * numChunks; chunk++)
 			{
-				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
-				yield return (object)new WaitForSeconds(0.25f);
-				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
-				yield return (object)new WaitForSeconds(0.25f);
-				int k = 0;
+				// Forcibly stop the lipsync animation if it's not meant to be playing at this time?
+				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+				{
+					break;
+				}
+
 				if (GameSystem.Instance.AudioController.IsVoicePlaying(audiolayer))
 				{
-					k = (int)(GameSystem.Instance.AudioController.GetRemainingVoicePlayTime(audiolayer) * 10f);
-				}
-				if (k >= 5)
-				{
-					for (int i = 0; i < k - 5; i += 5)
+					voiceStartedPlaying = true;
+
+					// If there is less than one chunk of audio left, we are finished.
+					int frameOffset = GameSystem.Instance.AudioController.GetPlayTimeSamples(audiolayer);
+					int framesLeft = numFrames - frameOffset;
+					if (framesLeft < framesPerChunk)
 					{
-						if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+						break;
+					}
+
+					// Get the chunk we are interested in
+					// Note: If the audio finishes playing before the coroutine finishes, then
+					// audioClip somehow becomes null. I've added handling here in case this happens,
+					// although the above "is audio playing" checks should above should stop this from happening.
+					try
+					{
+						if (audioClip == null)
 						{
 							break;
 						}
-						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
-						yield return (object)new WaitForSeconds(0.25f);
+						audioClip.GetData(rawAudioData, frameOffset);
+					}
+					catch (Exception)
+					{
+						break;
+					}
+
+					// Find the max value in the chunk, with some shortcuts
+					//  - We don't care about which channel the audio comes from, so just process every sample the same, even if it's a different channel
+					//  - We only check the positive maximum of the waveform (we don't need to check the negative maximum of the waveform for our application)
+					float max = 0;
+					foreach (float data in rawAudioData)
+					{
+						if (data > max)
+						{
+							max = data;
+						}
+					}
+
+					//Use the max to determine what mouth sprite should be displayed
+					if (max > expression2Threshold)
+					{
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp2, coroutineId);
+					}
+					else if (max > expression1Threshold)
+					{
 						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
-						yield return (object)new WaitForSeconds(0.25f);
+					}
+					else
+					{
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
 					}
 				}
+				else if (voiceStartedPlaying)
+				{
+					// If the voice previously was playing, but now has stopped playing, lipsync is finished.
+					// This happens if this coroutine resumes just after the audio finishes playing.
+					break;
+				}
+
+				// This delay sets the approximate rate at which the lipsync updates
+				// the exact delay time is not critical
+				yield return waitTime;
 			}
+		}
+
+		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile, AudioClip audioClip)
+		{
+			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
+
+			if(!MODLipsyncCache.LoadOrUseCache(null, character, out MODLipsyncCache.TextureGroup group))
+			{
+				yield break;
+			}
+
+			Texture2D exp4 = group.baseTexture_0;
+			Texture2D exp3 = group.halfOpen_1;
+			Texture2D exp2 = group.fullOpen_2;
+
+			if (forceComputedLipsync)
+			{
+				yield return StartCoroutine(MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4));
+			}
+			else // If the spectrum file doesn't exist, use the "computed lipsync" method
+			{
+				string str = audiofile.Replace(".ogg", ".txt");
+				string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
+				if (File.Exists(path))
+				{
+					yield return StartCoroutine(MODBakedLipSync(path, character, coroutineId, exp2, exp3, exp4));
+				}
+				else
+				{
+					yield return StartCoroutine(MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4));
+				}
+			}
+
 			MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
 		}
 
-		public void MODLipSyncStart(int character, int audiolayer, string audiofile)
+		public void MODLipSyncStart(int character, int audiolayer, string audiofile, AudioClip audioClip)
 		{
-			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile);
+			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile, audioClip);
 			StartCoroutine(MODLipSyncCoroutine);
 		}
 
@@ -1002,6 +1114,21 @@ namespace Assets.Scripts.Core.Scene
 			}
 
 			return false;
+		}
+
+		public void MODSetForceComputedLipsync(bool forceComputedLipsync) => this.forceComputedLipsync = forceComputedLipsync;
+		public bool MODGetForceComputedLipsync() => this.forceComputedLipsync;
+
+		public void MODSetExpressionThresholds(float threshold1, float threshold2)
+		{
+			this.expression1Threshold = threshold1;
+			this.expression2Threshold = threshold2;
+		}
+
+		public void MODGetExpressionThresholds(out float threshold1, out float threshold2)
+		{
+			threshold1 = this.expression1Threshold;
+			threshold2 = this.expression2Threshold;
 		}
 	}
 }

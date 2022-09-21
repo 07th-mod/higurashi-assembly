@@ -457,6 +457,12 @@ namespace Assets.Scripts.UI
 		{
 			MainUIController ui = GameSystem.Instance.MainUIController;
 
+			// Prevent text window background appearing on top of the title screen in Rei
+			if(GameSystem.Instance.GameState == GameState.TitleScreen)
+			{
+				return;
+			}
+
 			// If this function is called from the main menu, the bgLayers might be null
 			if (ui.bgLayer == null)
 			{
