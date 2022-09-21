@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using System;
 using System.Collections;
 using System.IO;
@@ -179,7 +180,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			if (MODSkipImage(textureName))
 			{
@@ -200,7 +201,7 @@ namespace Assets.Scripts.Core.Scene
 					oldy = y;
 					oldz = z;
 				}
-				layer2.DrawLayer(textureName, oldx, oldy, oldz, null, null, 1f, /*isBustshot:*/ true, type, wait, isblocking);
+				layer2.DrawLayer(textureName, oldx, oldy, oldz, null, null, 1f, /*isBustshot:*/ true, type, wait, isblocking, afterLayerUpdated);
 				layer2.SetPriority(priority);
 				if (move)
 				{
@@ -228,6 +229,10 @@ namespace Assets.Scripts.Core.Scene
 			}
 			layer2.CrossfadeLayer(textureName, wait, isblocking);
 		}
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshot(layer, textureName, x, y, z, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
+		}
 
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
@@ -243,7 +248,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			gameSystem.RegisterAction(delegate
 			{
@@ -269,7 +274,7 @@ namespace Assets.Scripts.Core.Scene
 				{
 					forceSize = new Vector2(overridew, overrideh);
 				}
-				layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, forceSize, /*isBustshot:*/ true, type, wait, isblocking);
+				layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, forceSize, /*isBustshot:*/ true, type, wait, isblocking, afterLayerUpdated);
 				layer2.SetPriority(priority);
 				if (move)
 				{
@@ -286,6 +291,11 @@ namespace Assets.Scripts.Core.Scene
 				}
 				gameSystem.ExecuteActions();
 			});
+		}
+
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, originy, overridew, overrideh, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
 		}
 
 		public void MoveBustshot(int layer, string textureName, int x, int y, int z, float wait, bool isblocking)
@@ -1090,9 +1100,15 @@ namespace Assets.Scripts.Core.Scene
 		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile, AudioClip audioClip)
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
-			Texture2D exp4 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
-			Texture2D exp3 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1");
-			Texture2D exp2 = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2");
+
+			if(!MODLipsyncCache.LoadOrUseCache(null, character, out MODLipsyncCache.TextureGroup group))
+			{
+				yield break;
+			}
+
+			Texture2D exp4 = group.baseTexture_0;
+			Texture2D exp3 = group.halfOpen_1;
+			Texture2D exp2 = group.fullOpen_2;
 
 			if (forceComputedLipsync)
 			{
