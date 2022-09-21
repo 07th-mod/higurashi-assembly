@@ -13,11 +13,13 @@ using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using System.Threading;
 using UnityEngine;
 
 namespace Assets.Scripts.Core
@@ -177,6 +179,7 @@ namespace Assets.Scripts.Core
 
 		public float AspectRatio;
 
+		private Thread CompileThread;
 		// Set to True to ignore normal gameplay inputs:
 		// - Disables normal inputs (e.g to advance text) in main GameSystem loop
 		// - Disables some GUI inputs by manually added checks in each button type
@@ -234,34 +237,14 @@ namespace Assets.Scripts.Core
 		private void Initialize()
 		{
 			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
+			MainUIController.InitializeToaster();
 			MODLocalization.LoadFromJSON();
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
 			TextController = new TextController();
 			TextHistory = new TextHistory();
-			try
-			{
-				AssetManager.CompileIfNeeded();
-				Logger.Log("GameSystem: Starting ScriptInterpreter");
-				Type type = Type.GetType(ScriptInterpreterName);
-				if (type == null)
-				{
-					throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
-				}
-				ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
-				if (ScriptSystem == null)
-				{
-					throw new Exception("Failed to instantiate ScriptSystem!");
-				}
-				ScriptSystem.Initialize(this);
-			}
-			catch (Exception arg)
-			{
-				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
-				throw;
-			}
-			IsRunning = true;
+			IsRunning = false;
 			GameState = GameState.Normal;
 			curStateObj = new StateNormal();
 			IGameState obj = curStateObj;
@@ -303,11 +286,52 @@ namespace Assets.Scripts.Core
 			{
 				Screen.SetResolution(640, 480, fullscreen: false);
 			}
+			Debug.Log("Starting compile thread...");
+			CompileThread = new Thread(CompileScripts)
+			{
+				IsBackground = true
+			};
+			CompileThread.Start();
 			if (Application.platform == RuntimePlatform.WindowsPlayer)
 			{
 				KeyHook = new KeyHook();
 			}
-			MainUIController.InitializeModMenuAndToaster(this);
+		}
+
+		public void StartScriptSystem()
+		{
+			Logger.Log("GameSystem: Starting ScriptInterpreter");
+			Type type = Type.GetType(ScriptInterpreterName);
+			if (type == null)
+			{
+				throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
+			}
+			ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
+			if (ScriptSystem == null)
+			{
+				throw new Exception("Failed to instantiate ScriptSystem!");
+			}
+			ScriptSystem.Initialize(this);
+		}
+
+		public void CompileScripts()
+		{
+			try
+			{
+				Debug.Log("Compiling!");
+				AssetManager.CompileIfNeeded();
+			}
+			catch (Exception arg)
+			{
+				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
+				throw;
+			}
+		}
+
+		public void PostLoading()
+		{
+			StartScriptSystem();
+			MainUIController.InitializeModMenu(this);
 		}
 
 		public void UpdateAspectRatio(float newratio)
@@ -885,80 +909,101 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		private bool CheckInitialization()
+		{
+			if (!IsInitialized)
+			{
+				Initialize();
+				return false;
+			}
+			if (!IsRunning)
+			{
+				if (CompileThread == null || CompileThread.IsAlive)
+				{
+					if (AssetManager.MaxLoading > 0)
+					{
+						MODToaster.Show("Preparing scripts (" + AssetManager.CurrentLoading + " of " + AssetManager.MaxLoading + ")...", maybeSound: null);
+					}
+					return false;
+				}
+				IsRunning = true;
+				PostLoading();
+			}
+			if (SystemInit > 0)
+			{
+				return false;
+			}
+			return true;
+		}
+
 		private void Update()
 		{
-			if (SystemInit <= 0)
+			if (!CheckInitialization())
 			{
-				Logger.Update();
-				if (!IsInitialized)
+				return;
+			}
+			Logger.Update();
+			if (blockInputTime <= 0f)
+			{
+				if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs() || inputHandler == null || !inputHandler()))
 				{
-					Initialize();
+					return;
+				}
+			}
+			else
+			{
+				blockInputTime -= Time.deltaTime;
+			}
+			if (IsRunning && CanAdvance && !WaitOnDelayedAction)
+			{
+				UpdateWaits();
+				if (delayedActions != null)
+				{
+					if (!HasExistingWaits())
+					{
+						ExecuteDelayedActions();
+					}
 				}
 				else
 				{
-					if (blockInputTime <= 0f)
+					UpdateCarret();
+					try
 					{
-						if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs() || inputHandler == null || !inputHandler()))
+						if (GameState == GameState.Normal)
 						{
-							return;
-						}
-					}
-					else
-					{
-						blockInputTime -= Time.deltaTime;
-					}
-					if (IsRunning && CanAdvance && !WaitOnDelayedAction)
-					{
-						UpdateWaits();
-						if (delayedActions != null)
-						{
+							TextController.Update();
+							if (!IsSkipping)
+							{
+								goto IL_013a;
+							}
+							skipWait -= Time.deltaTime;
+							if (!(skipWait <= 0f))
+							{
+								goto IL_013a;
+							}
 							if (!HasExistingWaits())
 							{
-								ExecuteDelayedActions();
+								if (SkipModeDelay)
+								{
+									skipWait = 0.1f;
+								}
+								goto IL_013a;
 							}
+							ClearAllWaits();
 						}
-						else
+						goto end_IL_00ca;
+						IL_013a:
+						float num = Time.time + 0.01f;
+						while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction)
 						{
-							UpdateCarret();
-							try
-							{
-								if (GameState == GameState.Normal)
-								{
-									TextController.Update();
-									if (!IsSkipping)
-									{
-										goto IL_013a;
-									}
-									skipWait -= Time.deltaTime;
-									if (!(skipWait <= 0f))
-									{
-										goto IL_013a;
-									}
-									if (!HasExistingWaits())
-									{
-										if (SkipModeDelay)
-										{
-											skipWait = 0.1f;
-										}
-										goto IL_013a;
-									}
-									ClearAllWaits();
-								}
-								goto end_IL_00ca;
-								IL_013a:
-								float num = Time.time + 0.01f;
-								while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction)
-								{
-									ScriptSystem.Advance();
-								}
-								end_IL_00ca:;
-							}
-							catch (Exception)
-							{
-								IsRunning = false;
-								throw;
-							}
+							ScriptSystem.Advance();
 						}
+						end_IL_00ca:;
+					}
+					catch (Exception)
+					{
+						IsRunning = false;
+						throw;
 					}
 				}
 			}
