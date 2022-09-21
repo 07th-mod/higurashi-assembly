@@ -2529,7 +2529,8 @@ namespace Assets.Scripts.Core.Buriko
 				wait = 0f;
 			}
 			MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
-			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag);
+			// For explanation of the MODLipsyncCacheUpdate callback, see the matching call in OperationMODDrawCharacterWithFiltering()
+			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D tex) => MODLipsyncCache.MODLipsyncCacheUpdate(tex, character, num3, textureName));
 			if (flag)
 			{
 				gameSystem.ExecuteActions();
@@ -2580,7 +2581,17 @@ namespace Assets.Scripts.Core.Buriko
 				wait = 0f;
 			}
 			MODSystem.instance.modTextureController.StoreLayerTexture(layer, text);
-			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, oldx, oldy, oldz, move, priority, 0, wait, flag);
+
+			// I had an issue where MODLipsyncCacheUpdate() was unable to access the sprite's base texture.
+			//
+			// This is due to chained use of RegisterAction() in DrawBustshotWithFiltering(),
+			// causing the sprite texture to be updated at some unknown time in the future.
+			//
+			// To fix this, I pass in a lambda/callback which will
+			// be executed after the layer has been updated with the new texture
+			// so the cache can grab the sprite's base texture
+			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, oldx, oldy, oldz, move, priority, 0, wait, flag, afterLayerUpdated: (Texture2D tex) => MODLipsyncCache.MODLipsyncCacheUpdate(tex, character, layer, textureName));
+
 			if (flag)
 			{
 				gameSystem.ExecuteActions();
@@ -2780,6 +2791,35 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "LipSyncSettings":
+					string[] lipSyncParams = callParameters.Split(',');
+
+					if(lipSyncParams.Length == 3 &&
+					   float.TryParse(lipSyncParams[0].Trim(), out float thresh1) &&
+					   float.TryParse(lipSyncParams[1].Trim(), out float thresh2) &&
+					   bool.TryParse(lipSyncParams[2].Trim(), out bool forceComputedLipsync))
+					{
+						GameSystem.Instance.SceneController.MODSetExpressionThresholds(thresh1, thresh2);
+						GameSystem.Instance.SceneController.MODSetForceComputedLipsync(forceComputedLipsync);
+					}
+					else
+					{
+						Debug.LogError("MODGenericCall Error: invalid format for LipSyncSettings, should be '.3, .7, true' for example");
+					}
+					break;
+
+				case "LipSyncCacheSettings":
+					string[] lipSyncCacheParams = callParameters.Split(',');
+					if (lipSyncCacheParams.Length == 1 && int.TryParse(lipSyncCacheParams[0].Trim(), out int maxAge))
+					{
+						MODLipsyncCache.SetMaxTextureAge(maxAge);
+					}
+					else
+					{
+						Debug.LogError("MODGenericCall Error: invalid format for LipSyncCacheSettings, should be '2' for example");
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;
@@ -2788,11 +2828,17 @@ namespace Assets.Scripts.Core.Buriko
 		}
 
 		/// <summary>
-		/// This function reverts the x positions of sprites when using 4:3 backgrounds to match the original game
+		/// 1) This function reverts the x positions of sprites when using 4:3 backgrounds to match the original game
 		/// In some places, our mod has 'spread out' the sprite positions to better match 16:9 widescreen by setting
 		/// their X position to 240/-240 instead of 160/-160 (mostly when there are 3 characters on the screen at once).
 		/// However, when playing in 4:3 mode, this causes the sprites to be more cut-off than they were in the original game.
 		/// This function attempts to revert this specific case by changing an X of 240/-240 into 160/-160.
+		///
+		/// 2) On Batsukoishi of Rei, four characters are displayed at once with the outermost at 320 and -320.
+		/// In this case we move them slightly inwards so they're not cut-off.
+		///
+		/// I also tried scaling the x coordinate by 160/240 (about 2/3), but this puts the characters unnecessarily
+		/// close together if there are only two characters on the screen.
 		/// </summary>
 		private int MODRyukishiRevertSpritePosition(string path, int x)
 		{
@@ -2803,13 +2849,21 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				if (path.StartsWith("sprite/") || path.StartsWith("portrait/")) // is from the sprite or portrait folder
 				{
-					if (x == 240)
+					if (x == 240) // See note 1) above
 					{
 						return 160;
 					}
 					else if (x == -240)
 					{
 						return -160;
+					}
+					else if (x == 320) // See note 2) above
+					{
+						return 240;
+					}
+					else if (x == -320)
+					{
+						return -240;
 					}
 				}
 			}
