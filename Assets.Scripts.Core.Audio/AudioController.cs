@@ -203,6 +203,15 @@ namespace Assets.Scripts.Core.Audio
 			return audioLayerUnity.GetRemainingPlayTime();
 		}
 
+		/// <summary>
+		/// This gets the number of audio frames played so far on a particular audio channel (Unity calls these "samples")
+		/// </summary>
+		public int GetPlayTimeSamples(int channel)
+		{
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			return audioLayerUnity.GetPlayTimeSamples();
+		}
+
 		public void ChangeVolumeOfBGM(int channel, float volume, float time)
 		{
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
@@ -548,11 +557,17 @@ namespace Assets.Scripts.Core.Audio
 			{
 				audio.StopAudio();
 			}
-			audio.PlayAudio(filename, AudioType.Voice, volume);
-			if (MODSystem.instance.modSceneController.MODLipSyncBoolCheck(character))
+
+			// Load the audio to be played, then play it on a coroutine.
+			// Once the audio is loaded (but before it starts playing), start the lipsync coroutine
+			audio.PlayAudio(filename, AudioType.Voice, volume, onAudioLoaded: (string audioFileName, AudioType audioType, AudioClip audioClip) =>
 			{
-				GameSystem.Instance.SceneController.MODLipSyncStart(character, channel, filename);
-			}
+				if (MODSystem.instance.modSceneController.MODLipSyncBoolCheck(character))
+				{
+					GameSystem.Instance.SceneController.MODLipSyncStart(character, channel, filename, audioClip);
+				}
+			});
+
 			if (GameSystem.Instance.IsAuto)
 			{
 				audio.OnLoadCallback(delegate

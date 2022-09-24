@@ -370,9 +370,16 @@ namespace Assets.Scripts.Core.Scene
 			this.alignment = alignment;
 			this.aspectRatio = (float)width / height;
 			cachedStretchToFit = stretchToFit;
+
+			// Do not rotate character sprites when using 4:3 letterboxing as current method does not handle it properly
+			if (ryukishiClamp)
+			{
+				targetAngle = 0;
+				transform.localRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
+			}
 		}
 
-		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
+		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking, System.Action<Texture2D> afterLayerUpdated)
 		{
 			cachedIsBustShot = isBustshot;
 			Texture2D texture2D = MODSceneController.LoadTextureWithFilters(layerID, textureName, out string texturePath);
@@ -407,7 +414,13 @@ namespace Assets.Scripts.Core.Scene
 				{
 					GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
 				}
+				afterLayerUpdated?.Invoke(texture2D);
 			});
+		}
+
+		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, bool isBustshot, int style, float wait, bool isBlocking)
+		{
+			DrawLayerWithMask(textureName, maskName, x, y, origin, isBustshot, style, wait, isBlocking, afterLayerUpdated: null);
 		}
 
 		public void FadeLayerWithMask(string maskName, int style, float time, bool isBlocking)
@@ -431,7 +444,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking, System.Action<Texture2D> afterLayerUpdated)
 		{
 			cachedIsBustShot = isBustshot;
 			FinishAll();
@@ -518,11 +531,23 @@ namespace Assets.Scripts.Core.Scene
 						});
 					}
 				}
+				afterLayerUpdated?.Invoke(texture2D);
 			}
+		}
+
+		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
+		{
+			DrawLayer(textureName, x, y, z, origin, alpha, isBustshot, type, wait, isBlocking, afterLayerUpdated: null);
 		}
 
 		public void SetAngle(float angle, float wait)
 		{
+			// Do not rotate character sprites when using 4:3 letterboxing as current method does not handle it properly
+			if(cachedRyukishiClamp)
+			{
+				return;
+			}
+
 			base.transform.localRotation = Quaternion.AngleAxis(targetAngle, Vector3.forward);
 			targetAngle = angle;
 			GameSystem.Instance.RegisterAction(delegate
@@ -837,5 +862,7 @@ namespace Assets.Scripts.Core.Scene
 		public void MODOnlyRecompile()
 		{
 		}
+
+		public Texture2D GetPrimary() => primary;
 	}
 }
