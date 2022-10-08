@@ -173,7 +173,7 @@ namespace MOD.Scripts.Core
 			Debug.Log($"PlayerPrefs:\n{string.Join("\n", prefsToPrint.Select(key => GetPrintablePlayerPrefsInt(key)).ToArray())}");
 
 			// Restore IsFullscreen variable from playerprefs
-			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 0) == 1;
+			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 1) == 1;
 
 			// Restore fullscreenResolution variable using GetFullscreenResolution()
 			fullscreenResolution.width = 0;
