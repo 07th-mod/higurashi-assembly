@@ -25,6 +25,17 @@ namespace MOD.Scripts.Core
 			"Screenmanager Is Fullscreen mode"
 		};
 
+		private static void PrintPlayerPrefs(string caption)
+		{
+			string PrintPref(string key)
+			{
+				return $"{key}: {(PlayerPrefs.HasKey(key) ? PlayerPrefs.GetInt(key).ToString() : "<MISSING>")}";
+			}
+
+			// Print out certain playerprefs values for debugging
+			Debug.Log($"PlayerPrefs [{caption}]:\n{string.Join("\n", prefsToPrint.Select(key => PrintPref(key)).ToArray())}");
+		}
+
 		// Toggle between windowed and fullscreen.
 		// Windowed mode will use the last windowed resolution.
 		// Fullscreen mode will use the detected fullscreen resolution.
@@ -155,22 +166,9 @@ namespace MOD.Scripts.Core
 			PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 1);
 		}
 
-		private static string GetPrintablePlayerPrefsInt(string key)
-		{
-			if(PlayerPrefs.HasKey(key))
-			{
-				return $"{key}: {PlayerPrefs.GetInt(key)}";
-			}
-			else
-			{
-				return $"{key}: <MISSING>";
-			}
-		}
-
 		public static void GameSystemInitSetResolution()
 		{
-			// Print out certain playerprefs values for debugging
-			Debug.Log($"PlayerPrefs:\n{string.Join("\n", prefsToPrint.Select(key => GetPrintablePlayerPrefsInt(key)).ToArray())}");
+			PrintPlayerPrefs("On Startup");
 
 			// Restore IsFullscreen variable from playerprefs
 			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 1) == 1;
@@ -188,6 +186,8 @@ namespace MOD.Scripts.Core
 			// This prevents us from repairing the playerprefs, because the game normally only saves when the game exits cleanly
 			// To fix this, save the playerprefs immediately as soon as the game starts up
 			PlayerPrefs.Save();
+
+			PrintPlayerPrefs("After Init Resolution");
 		}
 
 		public static void GetFullScreenResolutionLateUpdate()
@@ -216,6 +216,8 @@ namespace MOD.Scripts.Core
 				int height = PlayerPrefs.GetInt("height");
 				SetPlayerPrefs(width, height);
 			}
+
+			PrintPlayerPrefs("On Shutdown");
 		}
 
 		private static Resolution GetFullscreenResolution()
