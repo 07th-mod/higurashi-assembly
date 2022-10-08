@@ -49,9 +49,9 @@ namespace MOD.Scripts.Core
 
 		// Set the screen resolution, where the width will be set according to the current AspectRatio
 		// The windowed/fullscreen state won't be changed.
-		public static void SetWindowed(int height)
+		public static void SetResolution(int height)
 		{
-			SetResolution(maybe_width: null, maybe_height: height, maybe_fullscreen: false);
+			SetResolution(maybe_width: null, maybe_height: height, maybe_fullscreen: null);
 		}
 
 		// Go fullscreen. The new resolution will be detected automatically.

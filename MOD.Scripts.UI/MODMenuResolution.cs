@@ -55,9 +55,9 @@ namespace MOD.Scripts.UI
 		}
 
 		private void SetAndSaveResolution(int height)
-        {
+		{
 			screenHeightString = $"{height}";
-			MODWindowManager.SetWindowed(height);
+			MODWindowManager.SetResolution(height);
 		}
 	}
 }

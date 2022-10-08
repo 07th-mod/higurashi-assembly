@@ -37,11 +37,11 @@ namespace Assets.Scripts.UI.Config
 		{
 			if(IsFullscreen)
 			{
-				MODWindowManager.GoFullscreen();
+				MODWindowManager.FullscreenToggle();
 			}
 			else
 			{
-				MODWindowManager.SetWindowed(Height());
+				MODWindowManager.SetResolution(Height());
 			}
 		}
 
