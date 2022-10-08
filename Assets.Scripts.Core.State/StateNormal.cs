@@ -189,7 +189,7 @@ namespace Assets.Scripts.Core.State
 			// Fullscreen
 			if (Input.GetKeyDown(KeyCode.F))
 			{
-				MODWindowManager.FullscreenToggle();
+				MODWindowManager.FullscreenToggle(showToast: true);
 			}
 
 			// Toggle Language

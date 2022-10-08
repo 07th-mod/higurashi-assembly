@@ -38,7 +38,7 @@ namespace MOD.Scripts.UI
 
 				if(Button(buttonContent))
 				{
-					MODWindowManager.FullscreenToggle();
+					MODWindowManager.FullscreenToggle(showToast: true);
 				}
 
 				screenHeightString = GUILayout.TextField(screenHeightString);
@@ -57,7 +57,7 @@ namespace MOD.Scripts.UI
 		private void SetAndSaveResolution(int height)
 		{
 			screenHeightString = $"{height}";
-			MODWindowManager.SetResolution(height);
+			MODWindowManager.SetResolution(height, showToast: true);
 		}
 	}
 }

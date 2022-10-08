@@ -42,33 +42,33 @@ namespace MOD.Scripts.Core
 		// Toggle between windowed and fullscreen.
 		// Windowed mode will use the last windowed resolution.
 		// Fullscreen mode will use the detected fullscreen resolution.
-		public static void FullscreenToggle()
+		public static void FullscreenToggle(bool showToast=false)
 		{
-			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: !IsFullscreen);
+			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: !IsFullscreen, showToast: showToast);
 		}
 
 		// Set the screen resolution, where the width will be set according to the current AspectRatio
 		// The windowed/fullscreen state won't be changed.
-		public static void SetResolution(int height)
+		public static void SetResolution(int height, bool showToast = false)
 		{
-			SetResolution(maybe_width: null, maybe_height: height, maybe_fullscreen: null);
+			SetResolution(maybe_width: null, maybe_height: height, maybe_fullscreen: null, showToast: showToast);
 		}
 
 		// Go fullscreen. The new resolution will be detected automatically.
-		public static void GoFullscreen()
+		public static void GoFullscreen(bool showToast = false)
 		{
-			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: true);
+			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: true, showToast: showToast);
 		}
 
 		// This function does the following:
 		// - If full screen is enabled, the resolution will set according to the monitor resolution
 		// - If windowed, the window width will be set according to the height and AspectRatio
-		public static void RefreshWindowAspect()
+		public static void RefreshWindowAspect(bool showToast = false)
 		{
-			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: null);
+			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: null, showToast: showToast);
 		}
 
-		private static void SetResolution(int? maybe_width, int? maybe_height, bool? maybe_fullscreen)
+		private static void SetResolution(int? maybe_width, int? maybe_height, bool? maybe_fullscreen, bool showToast=false)
 		{
 			int height = 480;
 			int width = 640;
@@ -145,6 +145,11 @@ namespace MOD.Scripts.Core
 
 			// Update playerprefs (won't be saved until game exits or PlayerPrefs.Save() is called
 			SetPlayerPrefs();
+
+			if(showToast)
+			{
+				MODToaster.Show($"Set Res: {width}x{height}");
+			}
 		}
 
 		// NOTE: this function does not save playerprefs
