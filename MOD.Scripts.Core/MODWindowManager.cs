@@ -10,6 +10,8 @@ namespace MOD.Scripts.Core
 {
 	class MODWindowManager
 	{
+		static string playerPrefsCrashDetectorKey = "crash_detector";
+
 		public static bool IsFullscreen;
 		private static Resolution fullscreenResolution;
 		private static int screenModeSet = -1;
@@ -169,9 +171,23 @@ namespace MOD.Scripts.Core
 			PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 1);
 		}
 
+		private static bool playerPrefsIsCorrupted()
+		{
+			return PlayerPrefs.GetInt("Screenmanager Is Fullscreen mode", 0) == 0;
+		}
+
 		public static void GameSystemInitSetResolution()
 		{
 			PrintPlayerPrefs("On Startup");
+
+			if (PlayerPrefs.HasKey(playerPrefsCrashDetectorKey) || playerPrefsIsCorrupted())
+			{
+				GoFullscreen();
+				Debug.Log("WARNING: Crash or corrupted playerprefs detected. Reverting to fullscreen mode!");
+				PrintPlayerPrefs("After Fixing due to Crash or Corrupted PlayerPrefs");
+			}
+
+			PlayerPrefs.SetInt(playerPrefsCrashDetectorKey, 1);
 
 			// Restore IsFullscreen variable from playerprefs
 			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 1) == 1;
@@ -214,6 +230,9 @@ namespace MOD.Scripts.Core
 			// If we do this while the game is running, Unity will overwrite the values
 			// So do it in the finalizer, which will run as the game quits and the GameSystem is deallocated
 			SetPlayerPrefs();
+
+			// Clear the crash detector key if program closed normally
+			PlayerPrefs.DeleteKey(playerPrefsCrashDetectorKey);
 
 			PrintPlayerPrefs("On Shutdown");
 		}
