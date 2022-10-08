@@ -14,6 +14,9 @@ namespace MOD.Scripts.Core
 		private static Resolution fullscreenResolution;
 		private static int screenModeSet = -1;
 
+		private static int lastSetWidth = 640;
+		private static int lastSetHeight = 480;
+
 		private static string[] prefsToPrint = {
 			"width",
 			"height",
@@ -137,28 +140,23 @@ namespace MOD.Scripts.Core
 
 			Screen.SetResolution(width, height, IsFullscreen);
 
+			lastSetWidth = width;
+			lastSetHeight = height;
+
 			// Update playerprefs (won't be saved until game exits or PlayerPrefs.Save() is called
-			SetPlayerPrefs(width, height);
+			SetPlayerPrefs();
 		}
 
 		// NOTE: this function does not save playerprefs
 		// playerprefs are saved when the game exits cleanly, or on manual calls to PlayerPrefs.Save()
-		private static void SetPlayerPrefs(int width, int height)
+		private static void SetPlayerPrefs()
 		{
-			if(IsFullscreen)
-			{
-				PlayerPrefs.SetInt("fullscreen_width", width);
-				PlayerPrefs.SetInt("fullscreen_height", height);
-			}
-			else
-			{
-				PlayerPrefs.SetInt("width", width);
-				PlayerPrefs.SetInt("height", height);
-			}
-
+			PlayerPrefs.SetInt(IsFullscreen ? "fullscreen_width" : "width", lastSetWidth);
+			PlayerPrefs.SetInt(IsFullscreen ? "fullscreen_height" : "height", lastSetHeight);
 			PlayerPrefs.SetInt("is_fullscreen", IsFullscreen ? 1 : 0);
-			PlayerPrefs.SetInt("Screenmanager Resolution Width", width);
-			PlayerPrefs.SetInt("Screenmanager Resolution Height", height);
+
+			PlayerPrefs.SetInt("Screenmanager Resolution Width", lastSetWidth);
+			PlayerPrefs.SetInt("Screenmanager Resolution Height", lastSetHeight);
 
 			// This used to be always set false, but on Linux Gnome this caused
 			// TODO: decide whether to set this to IsFullscreen, or to just always set true.
@@ -210,12 +208,7 @@ namespace MOD.Scripts.Core
 			// Fixes an issue where Unity would write garbage values to its saved state on Linux
 			// If we do this while the game is running, Unity will overwrite the values
 			// So do it in the finalizer, which will run as the game quits and the GameSystem is deallocated
-			if (PlayerPrefs.HasKey("width") && PlayerPrefs.HasKey("height"))
-			{
-				int width = PlayerPrefs.GetInt("width");
-				int height = PlayerPrefs.GetInt("height");
-				SetPlayerPrefs(width, height);
-			}
+			SetPlayerPrefs();
 
 			PrintPlayerPrefs("On Shutdown");
 		}
