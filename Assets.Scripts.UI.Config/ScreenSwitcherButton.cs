@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using MOD.Scripts.Core;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Config
@@ -31,25 +32,15 @@ namespace Assets.Scripts.UI.Config
 
 		private void OnClick()
 		{
-			if (IsFullscreen)
-			{
-				GameSystem.Instance.GoFullscreen();
-			}
-			else
-			{
-				int height = Height();
-				int width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
-				GameSystem.Instance.DeFullscreen(width: width, height: height);
-				PlayerPrefs.SetInt("width", width);
-				PlayerPrefs.SetInt("height", height);
-			}
+			// NOTE: Currently 'IsFullscreen' is always false in this class. Not sure if this is intentional.
+			MODWindowManager.ConfigMenuButtonSetResolution(IsFullscreen, Height());
 		}
 
 		private bool ShouldBeDown()
 		{
 			if (IsFullscreen)
 			{
-				return GameSystem.Instance.IsFullscreen;
+				return MODWindowManager.IsFullscreen;
 			}
 			return Screen.height == Height();
 		}

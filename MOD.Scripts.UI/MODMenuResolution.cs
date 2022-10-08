@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Core;
+using MOD.Scripts.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,19 +31,14 @@ namespace MOD.Scripts.UI
 				if (Button(new GUIContent("720p", "Set resolution to 1280 x 720"))) { SetAndSaveResolution(720); }
 				if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
 				if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
-				if (GameSystem.Instance.IsFullscreen)
+
+				GUIContent buttonContent = MODWindowManager.IsFullscreen ?
+					new GUIContent("Go Windowed", "Toggle Fullscreen") :
+					new GUIContent("Go Fullscreen", "Toggle Fullscreen");
+
+				if(Button(buttonContent))
 				{
-					if (Button(new GUIContent("Windowed", "Toggle Fullscreen")))
-					{
-						GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
-					}
-				}
-				else
-				{
-					if (Button(new GUIContent("Fullscreen", "Toggle Fullscreen")))
-					{
-						GameSystem.Instance.GoFullscreen();
-					}
+					MODWindowManager.FullscreenToggleMODMenu();
 				}
 
 				screenHeightString = GUILayout.TextField(screenHeightString);
@@ -51,21 +47,7 @@ namespace MOD.Scripts.UI
 				{
 					if (int.TryParse(screenHeightString, out int new_height))
 					{
-						if (new_height < 480)
-						{
-							MODToaster.Show("Height too small - must be at least 480 pixels");
-							new_height = 480;
-						}
-						else if (new_height > 15360)
-						{
-							MODToaster.Show("Height too big - must be less than 15360 pixels");
-							new_height = 15360;
-						}
-						screenHeightString = $"{new_height}";
-						int new_width = Mathf.RoundToInt(new_height * 16f / 9f);
-						Screen.SetResolution(new_width, new_height, Screen.fullScreen);
-						PlayerPrefs.SetInt("width", new_width);
-						PlayerPrefs.SetInt("height", new_height);
+						SetAndSaveResolution(new_height);
 					}
 				}
 				GUILayout.EndHorizontal();
@@ -73,22 +55,9 @@ namespace MOD.Scripts.UI
 		}
 
 		private void SetAndSaveResolution(int height)
-		{
-			if (height < 480)
-			{
-				MODToaster.Show("Height too small - must be at least 480 pixels");
-				height = 480;
-			}
-			else if (height > 15360)
-			{
-				MODToaster.Show("Height too big - must be less than 15360 pixels");
-				height = 15360;
-			}
+        {
 			screenHeightString = $"{height}";
-			int width = Mathf.RoundToInt(height * 16f / 9f);
-			Screen.SetResolution(width, height, Screen.fullScreen);
-			PlayerPrefs.SetInt("width", width);
-			PlayerPrefs.SetInt("height", height);
+			MODWindowManager.MODMenuSetAndSaveResolution(height);
 		}
 	}
 }

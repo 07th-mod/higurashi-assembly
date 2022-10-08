@@ -131,7 +131,7 @@ namespace Assets.Scripts.UI.Config
 				}
 				break;
 			case ConfigButtonType.FullscreenMode:
-				GameSystem.Instance.GoFullscreen();
+				MODWindowManager.ConfigMenuButtonGoFullscreen();
 				break;
 			case ConfigButtonType.ClickToCutVoice:
 				GameSystem.Instance.StopVoiceOnClick = !GameSystem.Instance.StopVoiceOnClick;
