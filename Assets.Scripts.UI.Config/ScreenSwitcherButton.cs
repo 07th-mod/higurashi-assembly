@@ -47,10 +47,12 @@ namespace Assets.Scripts.UI.Config
 
 		private bool ShouldBeDown()
 		{
+			// Make the 'fullscreen' button always clickable because it toggles fullscreen
 			if (IsFullscreen)
 			{
-				return MODWindowManager.IsFullscreen;
+				return false;
 			}
+
 			return Screen.height == Height();
 		}
 
