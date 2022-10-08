@@ -47,7 +47,7 @@ namespace Assets.Scripts.Core
 				int num = Marshal.ReadInt32(lParam);
 				if (num == 13 && GameSystem.Instance.HasFocus)
 				{
-					MODWindowManager.FullscreenToggleAltEnter();
+					MODWindowManager.FullscreenToggle();
 					return (IntPtr)1;
 				}
 			}

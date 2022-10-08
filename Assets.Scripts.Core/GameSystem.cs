@@ -298,7 +298,7 @@ namespace Assets.Scripts.Core
 		public void UpdateAspectRatio(float newratio)
 		{
 			AspectRatio = newratio;
-			MODWindowManager.UpdateWindowAspect(AspectRatio);
+			MODWindowManager.RefreshWindowAspect();
 			MainUIController.UpdateBlackBars();
 			SceneController.UpdateScreenSize();
 		}

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using System.Linq;
 
 namespace MOD.Scripts.Core
 {
@@ -13,101 +14,180 @@ namespace MOD.Scripts.Core
 		private static Resolution fullscreenResolution;
 		private static int screenModeSet = -1;
 
-		public static void FullscreenToggleAltEnter()
+		private static string[] prefsToPrint = {
+			"width",
+			"height",
+			"is_fullscreen",
+			"fullscreen_width",
+			"fullscreen_height",
+			"Screenmanager Resolution Width",
+			"Screenmanager Resolution Height",
+			"Screenmanager Is Fullscreen mode"
+		};
+
+		// Toggle between windowed and fullscreen.
+		// Windowed mode will use the last windowed resolution.
+		// Fullscreen mode will use the detected fullscreen resolution.
+		public static void FullscreenToggle()
 		{
-			if (IsFullscreen)
-			{
-				DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
-			}
-			else
-			{
-				GoFullscreen();
-			}
+			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: !IsFullscreen);
 		}
 
-		public static void FullscreenTogglePressF()
+		// Set the screen resolution, where the width will be set according to the current AspectRatio
+		// The windowed/fullscreen state won't be changed.
+		public static void SetWindowed(int height)
 		{
-			if (IsFullscreen)
+			SetResolution(maybe_width: null, maybe_height: height, maybe_fullscreen: false);
+		}
+
+		// Go fullscreen. The new resolution will be detected automatically.
+		public static void GoFullscreen()
+		{
+			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: true);
+		}
+
+		// This function does the following:
+		// - If full screen is enabled, the resolution will set according to the monitor resolution
+		// - If windowed, the window width will be set according to the height and AspectRatio
+		public static void RefreshWindowAspect()
+		{
+			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: null);
+		}
+
+		private static void SetResolution(int? maybe_width, int? maybe_height, bool? maybe_fullscreen)
+		{
+			int height = 480;
+			int width = 640;
+
+			// Default to keeping current fullscreen state if fullscreen not specified
+			IsFullscreen = maybe_fullscreen ?? IsFullscreen;
+
+			if (maybe_width == null && maybe_height == null)
 			{
-				int num14 = PlayerPrefs.GetInt("width");
-				int num15 = PlayerPrefs.GetInt("height");
-				if (num14 == 0 || num15 == 0)
+				if (IsFullscreen)
 				{
-					num14 = 640;
-					num15 = 480;
+					// If going fullscreen, and width and height wasn't specified, use detected fullscreen resolution
+					Resolution resolution = GetFullscreenResolution();
+					height = resolution.height;
+					width = resolution.width;
 				}
-				DeFullscreen(width: num14, height: num15);
+				else if(PlayerPrefs.HasKey("height") && PlayerPrefs.HasKey("width"))
+				{
+					// If width and height both not specified, use saved player prefs width and height
+					int player_prefs_height = PlayerPrefs.GetInt("height");
+					int player_prefs_width = PlayerPrefs.GetInt("width");
+
+					if (player_prefs_width != 0 && player_prefs_height != 0)
+					{
+						height = player_prefs_height;
+						width = player_prefs_width;
+					}
+				}
 			}
-			else
+			else if (maybe_width == null && maybe_height != null)
 			{
-				GoFullscreen();
+				// If only height specified, use aspect ratio to set width
+				height = maybe_height.Value;
+				width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
 			}
+			else if (maybe_width != null && maybe_height != null)
+			{
+				// If both specified, just use directly (ignore current aspect ratio)
+				height = maybe_height.Value;
+				width = maybe_width.Value;
+			}
+
+			// Do some sanity checks on the width and height
+			if (height < 480)
+			{
+				MODToaster.Show("Height too small - must be at least 480 pixels");
+				Debug.Log("Height too small - must be at least 480 pixels");
+				height = 480;
+			}
+			else if (height > 15360)
+			{
+				MODToaster.Show("Height too big - must be less than 15360 pixels");
+				Debug.Log("Height too big - must be less than 15360 pixels");
+				height = 15360;
+			}
+
+			if (width < 640)
+			{
+				MODToaster.Show("Width too small - must be at least 640 pixels");
+				Debug.Log("Width too small - must be at least 640 pixels");
+				width = 640;
+			}
+			else if (width > 15360)
+			{
+				MODToaster.Show("Width too big - must be less than 15360 pixels");
+				Debug.Log("Width too big - must be less than 15360 pixels");
+				width = 15360;
+			}
+
+			Screen.SetResolution(width, height, IsFullscreen);
+
+			// Update playerprefs (won't be saved until game exits or PlayerPrefs.Save() is called
+			SetPlayerPrefs(width, height);
 		}
 
-		public static void ConfigMenuButtonSetResolution(bool IsFullscreenArgument, int height)
+		// NOTE: this function does not save playerprefs
+		// playerprefs are saved when the game exits cleanly, or on manual calls to PlayerPrefs.Save()
+		private static void SetPlayerPrefs(int width, int height)
 		{
-			if (IsFullscreenArgument)
+			if(IsFullscreen)
 			{
-				GoFullscreen();
+				PlayerPrefs.SetInt("fullscreen_width", width);
+				PlayerPrefs.SetInt("fullscreen_height", height);
 			}
 			else
 			{
-				int width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
-				DeFullscreen(width: width, height: height);
 				PlayerPrefs.SetInt("width", width);
 				PlayerPrefs.SetInt("height", height);
 			}
+
+			PlayerPrefs.SetInt("is_fullscreen", IsFullscreen ? 1 : 0);
+			PlayerPrefs.SetInt("Screenmanager Resolution Width", width);
+			PlayerPrefs.SetInt("Screenmanager Resolution Height", height);
+
+			// This used to be always set false, but on Linux Gnome this caused
+			// TODO: decide whether to set this to IsFullscreen, or to just always set true.
+			// On Windows this doesn't seem to make any difference
+			PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 1);
 		}
 
-		public static void ConfigMenuButtonGoFullscreen()
+		private static string GetPrintablePlayerPrefsInt(string key)
 		{
-			GoFullscreen();
-		}
-
-		public static void FullscreenToggleMODMenu()
-		{
-			if (IsFullscreen)
+			if(PlayerPrefs.HasKey(key))
 			{
-				DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
+				return $"{key}: {PlayerPrefs.GetInt(key)}";
 			}
 			else
 			{
-				GoFullscreen();
+				return $"{key}: <MISSING>";
 			}
-		}
-
-		public static void UpdateWindowAspect(float AspectRatio)
-		{
-			if (!IsFullscreen)
-			{
-				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
-				Screen.SetResolution(width, Screen.height, fullscreen: false);
-			}
-			PlayerPrefs.SetInt("width", Mathf.RoundToInt(PlayerPrefs.GetInt("height") * AspectRatio));
 		}
 
 		public static void GameSystemInitSetResolution()
 		{
+			// Print out certain playerprefs values for debugging
+			Debug.Log($"PlayerPrefs:\n{string.Join("\n", prefsToPrint.Select(key => GetPrintablePlayerPrefsInt(key)).ToArray())}");
+
+			// Restore IsFullscreen variable from playerprefs
 			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 0) == 1;
+
+			// Restore fullscreenResolution variable using GetFullscreenResolution()
 			fullscreenResolution.width = 0;
 			fullscreenResolution.height = 0;
-
 			fullscreenResolution = GetFullscreenResolution();
-			if (IsFullscreen)
-			{
-				Screen.SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
-			}
-			else if (PlayerPrefs.HasKey("height") && PlayerPrefs.HasKey("width"))
-			{
-				int width = PlayerPrefs.GetInt("width");
-				int height = PlayerPrefs.GetInt("height");
-				Debug.Log("Requesting window size " + width + "x" + height + " based on config file");
-				Screen.SetResolution(width, height, fullscreen: false);
-			}
-			if ((Screen.width < 640 || Screen.height < 480) && !IsFullscreen)
-			{
-				Screen.SetResolution(640, 480, fullscreen: false);
-			}
+
+			// TODO: fix this when restoring from fullscreen on startup
+			// Now that variables restored set the actual resolution
+			SetResolution(null, null, null);
+
+			// If the playerprefs is corrupted, the game will crash shortly after starting up
+			// This prevents us from repairing the playerprefs, because the game normally only saves when the game exits cleanly
+			// To fix this, save the playerprefs immediately as soon as the game starts up
+			PlayerPrefs.Save();
 		}
 
 		public static void GetFullScreenResolutionLateUpdate()
@@ -134,47 +214,8 @@ namespace MOD.Scripts.Core
 			{
 				int width = PlayerPrefs.GetInt("width");
 				int height = PlayerPrefs.GetInt("height");
-				PlayerPrefs.SetInt("Screenmanager Resolution Width", width);
-				PlayerPrefs.SetInt("Screenmanager Resolution Height", height);
-				PlayerPrefs.SetInt("is_fullscreen", IsFullscreen ? 1 : 0);
-				PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 0);
+				SetPlayerPrefs(width, height);
 			}
-		}
-		public static void MODMenuSetAndSaveResolution(int height)
-		{
-			if (height < 480)
-			{
-				MODToaster.Show("Height too small - must be at least 480 pixels");
-				height = 480;
-			}
-			else if (height > 15360)
-			{
-				MODToaster.Show("Height too big - must be less than 15360 pixels");
-				height = 15360;
-			}
-
-			int width = Mathf.RoundToInt(height * 16f / 9f);
-			Screen.SetResolution(width, height, Screen.fullScreen);
-			PlayerPrefs.SetInt("width", width);
-			PlayerPrefs.SetInt("height", height);
-		}
-
-		private static void GoFullscreen()
-		{
-			IsFullscreen = true;
-			PlayerPrefs.SetInt("is_fullscreen", 1);
-			Resolution resolution = GetFullscreenResolution();
-			Screen.SetResolution(resolution.width, resolution.height, fullscreen: true);
-			Debug.Log(resolution.width + " , " + resolution.height);
-			PlayerPrefs.SetInt("fullscreen_width", resolution.width);
-			PlayerPrefs.SetInt("fullscreen_height", resolution.height);
-		}
-
-		private static void DeFullscreen(int width, int height)
-		{
-			IsFullscreen = false;
-			PlayerPrefs.SetInt("is_fullscreen", 0);
-			Screen.SetResolution(width, height, fullscreen: false);
 		}
 
 		private static Resolution GetFullscreenResolution()

@@ -8,6 +8,9 @@ namespace Assets.Scripts.UI.Config
 	{
 		public int Width;
 
+		// This variable doesn't actually change/doesn't really relate to the game's fullscreen state
+		// It is actually used to indicate which button is labelled as "fullscreen" (it is true only for that button)
+
 		public bool IsFullscreen;
 
 		private UIButton button;
@@ -32,8 +35,14 @@ namespace Assets.Scripts.UI.Config
 
 		private void OnClick()
 		{
-			// NOTE: Currently 'IsFullscreen' is always false in this class. Not sure if this is intentional.
-			MODWindowManager.ConfigMenuButtonSetResolution(IsFullscreen, Height());
+			if(IsFullscreen)
+			{
+				MODWindowManager.GoFullscreen();
+			}
+			else
+			{
+				MODWindowManager.SetWindowed(Height());
+			}
 		}
 
 		private bool ShouldBeDown()
