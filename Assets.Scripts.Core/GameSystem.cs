@@ -934,6 +934,11 @@ namespace Assets.Scripts.Core
 			{
 				SteamController.Close();
 			}
+
+			if(CanExit)
+			{
+				MODWindowManager.OnApplicationReallyQuit("GameSystem.OnApplicationQuit()");
+			}
 		}
 
 		/// <summary>
@@ -965,7 +970,7 @@ namespace Assets.Scripts.Core
 
 		~GameSystem()
 		{
-			MODWindowManager.ScreenManagerFix();
+			MODWindowManager.OnApplicationReallyQuit("GameSystem Destructor");
 		}
 
 		static GameSystem()

@@ -27,7 +27,8 @@ namespace MOD.Scripts.Core
 			"fullscreen_height",
 			"Screenmanager Resolution Width",
 			"Screenmanager Resolution Height",
-			"Screenmanager Is Fullscreen mode"
+			"Screenmanager Is Fullscreen mode",
+			playerPrefsCrashDetectorKey
 		};
 
 		private static void PrintPlayerPrefs(string caption)
@@ -171,17 +172,42 @@ namespace MOD.Scripts.Core
 			PlayerPrefs.SetInt("Screenmanager Is Fullscreen mode", 1);
 		}
 
-		private static bool playerPrefsIsCorrupted()
+		private static bool PlayerPrefsNeedsReset()
 		{
-			return PlayerPrefs.GetInt("Screenmanager Is Fullscreen mode", 0) == 0;
+			// If there was a crash, then assume playerprefs needs reset to prevent further crashes
+			if (PlayerPrefs.HasKey(playerPrefsCrashDetectorKey))
+			{
+				return true;
+			}
+
+			// TODO: not sure if should enable this, as if Unity resets 'Screenmanager Is Fullscreen mode' to windowed
+			// because the player was playing in windowed, and our mod wasn't able to override it,
+			// some users will have their settings reset unexpectedly.
+			//
+			// Additionally, the above crash detection seems sufficient to fix the Gnome crash bug.
+			// On Linux, if 'Screenmanager Is Fullscreen mode' is set to 0, assume game needs playerprefs reset?
+			//if (Application.platform == RuntimePlatform.LinuxPlayer)
+			//{
+			//	if (PlayerPrefs.HasKey("Screenmanager Is Fullscreen mode"))
+			//	{
+			//		return PlayerPrefs.GetInt("Screenmanager Is Fullscreen mode") == 0;
+			//	}
+			//	else
+			//	{
+			//		return true;
+			//	}
+			//}
+
+			return false;
 		}
 
 		public static void GameSystemInitSetResolution()
 		{
 			PrintPlayerPrefs("On Startup");
 
-			if (PlayerPrefs.HasKey(playerPrefsCrashDetectorKey) || playerPrefsIsCorrupted())
+			if (PlayerPrefsNeedsReset())
 			{
+				// TODO: could fully reset playerprefs by calling PlayerPrefs.DeleteAll(), but not sure if such drastic measures are necessary?
 				GoFullscreen();
 				Debug.Log("WARNING: Crash or corrupted playerprefs detected. Reverting to fullscreen mode!");
 				PrintPlayerPrefs("After Fixing due to Crash or Corrupted PlayerPrefs");
@@ -224,17 +250,37 @@ namespace MOD.Scripts.Core
 			}
 		}
 
-		public static void ScreenManagerFix()
+		// This is inserted into both:
+		//  - ~GameSystem(), which DOES NOT execute on Windows when the program exits (only Linux?)
+		//  - OnApplicationQuit, to be called only if the application is really quitting, which runs on Windows
+		//  - Calling this function more than once shouldn't cause any problems.
+		//
+		// Also note that on Windows:
+		//
+		//  - if DISPLAY CONFIRMATION is OFF, and the 'task' is ended via normal task manager (not via the process list)
+		//    this function is still called, because Windows will first try to close the program normally.
+		//
+		//  - if DISPLAY CONFIRMATION is ON, since the program can't close on its own, windows will then
+		//    force close the program which is detected as a crash
+		//
+		//  - Additionally, if you go to the process instead of the program and kill it that way, it will always
+		//    be detected as a crash
+		//
+		// On Linux, closing via task manager generally is treated as a crash.
+		public static void OnApplicationReallyQuit(string context)
 		{
 			// Fixes an issue where Unity would write garbage values to its saved state on Linux
 			// If we do this while the game is running, Unity will overwrite the values
 			// So do it in the finalizer, which will run as the game quits and the GameSystem is deallocated
+			//
+			// This also allows us to override the Screenmanager playerprefs variables on Windows,
+			// which are normally overwritten when the game exits
 			SetPlayerPrefs();
 
 			// Clear the crash detector key if program closed normally
 			PlayerPrefs.DeleteKey(playerPrefsCrashDetectorKey);
 
-			PrintPlayerPrefs("On Shutdown");
+			PrintPlayerPrefs($"OnApplicationReallyQuit() called from {context}");
 		}
 
 		private static Resolution GetFullscreenResolution()
