@@ -21,12 +21,41 @@ namespace MOD.Scripts.UI
 
 	public class MODMenu
 	{
+		private class SubMenuManager
+		{
+			private Stack<MODMenuModuleInterface> subMenuStack;
+
+			public SubMenuManager(MODMenuModuleInterface defaultItem)
+			{
+				this.subMenuStack = new Stack<MODMenuModuleInterface>();
+				this.subMenuStack.Push(defaultItem);
+			}
+
+			public MODMenuModuleInterface CurrentMenu() => this.subMenuStack.Peek();
+			public void Push(MODMenuModuleInterface subMenu) => this.subMenuStack.Push(subMenu);
+
+			// Returns true if successfully removed an item off the stack
+			// Returns false if only the default item is left on the stack (no action taken)
+			public bool TryPop()
+			{
+				if (this.subMenuStack.Count > 1)
+				{
+					this.subMenuStack.Pop();
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+
 		private const int DEBUG_WINDOW_ID = 1;
 
 		private readonly GameSystem gameSystem;
 		public bool visible;
 		public bool debug;
-		private bool lastMenuVisibleStatus;
+		private bool onBeforeMenuVisibleAlreadyCalled;
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
 		private bool startupFailed;
@@ -38,7 +67,8 @@ namespace MOD.Scripts.UI
 		private MODMenuNormal normalMenu;
 		private MODMenuAudioOptions audioOptionsMenu;
 		private MODMenuAudioSetup audioSetupMenu;
-		private MODMenuModuleInterface currentMenu; // The menu that is currently visible
+
+		private SubMenuManager subMenuManager;
 
 		string lastToolTip = String.Empty;
 
@@ -62,7 +92,7 @@ You can try the following yourself to fix the issue.
 			this.gameSystem = gameSystem;
 			this.visible = false;
 			this.debug = false;
-			this.lastMenuVisibleStatus = false;
+			this.onBeforeMenuVisibleAlreadyCalled = false;
 			this.defaultToolTipTimer = new MODSimpleTimer();
 			this.startupWatchdogTimer = new MODSimpleTimer();
 			this.startupFailed = false;
@@ -73,7 +103,8 @@ You can try the following yourself to fix the issue.
 			this.audioOptionsMenu = new MODMenuAudioOptions(this);
 			this.normalMenu = new MODMenuNormal(this, this.audioOptionsMenu);
 			this.audioSetupMenu = new MODMenuAudioSetup(this, this.audioOptionsMenu);
-			this.currentMenu = this.normalMenu;
+
+			subMenuManager = new SubMenuManager(this.normalMenu);
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
 		}
@@ -210,14 +241,17 @@ You can try the following yourself to fix the issue.
 				GUILayout.EndArea();
 			}
 
+			// The rest of this function assumes currentMenu does not change while the function is executing,
+			// so this cached value of the current menu is used instead of subMenuManager.CurrentMenu()
+			MODMenuModuleInterface currentMenu = subMenuManager.CurrentMenu();
+
 			// If you need to initialize things just once before the menu opens, rather than every frame
 			// you can do it in the OnBeforeMenuVisible() function below.
-			if (visible && !lastMenuVisibleStatus)
+			if (visible && !onBeforeMenuVisibleAlreadyCalled)
 			{
 				currentMenu.OnBeforeMenuVisible();
+				onBeforeMenuVisibleAlreadyCalled = true;
 			}
-			lastMenuVisibleStatus = visible;
-
 
 			if (visible)
 			{
@@ -324,20 +358,33 @@ You can try the following yourself to fix the issue.
 			buttonClickSound = sound;
 		}
 
-		// The mod menu has different sub-menus, which can be switched between by calling this function.
+		// Switch to the given submenu, without discarding any previous submenus.
 		// If the sub-menus have any state, it will be retained during switching, and even if the menu is closed and reopened.
-		public void SetSubMenu(ModSubMenu subMenu)
+		public void PushSubMenu(ModSubMenu subMenu)
 		{
+			onBeforeMenuVisibleAlreadyCalled = false;
+
 			switch (subMenu)
 			{
 				case ModSubMenu.AudioSetup:
-					currentMenu = audioSetupMenu;
+					subMenuManager.Push(audioSetupMenu);
 					break;
 
 				case ModSubMenu.Normal:
 				default:
-					currentMenu = normalMenu;
+					subMenuManager.Push(normalMenu);
 					break;
+			}
+		}
+
+		// Switch to the next submenu on the stack. If only the default submenu remains, just hide the entire menu.
+		public void PopSubMenu()
+		{
+			onBeforeMenuVisibleAlreadyCalled = false;
+
+			if (!subMenuManager.TryPop())
+			{
+				UserHide();
 			}
 		}
 
@@ -352,6 +399,7 @@ You can try the following yourself to fix the issue.
 				gameSystem.SetMODIgnoreInputs(menuStopsGameUpdate);
 				gameSystem.HideUIControls();
 				this.visible = true;
+				onBeforeMenuVisibleAlreadyCalled = false;
 			}
 
 			if (gameSystem.GameState == GameState.SaveLoadScreen)
@@ -378,7 +426,7 @@ You can try the following yourself to fix the issue.
 		/// </summary>
 		public void UserHide()
 		{
-			if (currentMenu.UserCanClose())
+			if (subMenuManager.CurrentMenu().UserCanClose())
 			{
 				ForceHide();
 			}
@@ -390,7 +438,7 @@ You can try the following yourself to fix the issue.
 		/// </summary>
 		public void UserToggleVisibility()
 		{
-			if (currentMenu.UserCanClose())
+			if (subMenuManager.CurrentMenu().UserCanClose())
 			{
 				ForceToggleVisibility();
 			}

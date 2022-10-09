@@ -33,8 +33,7 @@ namespace MOD.Scripts.UI
 
 			if (GetGlobal("GAudioSet") != 0 && Button(new GUIContent("Click here when you're finished.")))
 			{
-				modMenu.SetSubMenu(ModSubMenu.Normal);
-				modMenu.ForceHide();
+				modMenu.PopSubMenu();
 			}
 		}
 
