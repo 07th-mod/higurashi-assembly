@@ -360,21 +360,33 @@ You can try the following yourself to fix the issue.
 
 		// Switch to the given submenu, without discarding any previous submenus.
 		// If the sub-menus have any state, it will be retained during switching, and even if the menu is closed and reopened.
-		public void PushSubMenu(ModSubMenu subMenu)
+		public void PushSubMenuAndShow(ModSubMenu subMenu)
 		{
 			onBeforeMenuVisibleAlreadyCalled = false;
+
+			MODMenuModuleInterface subMenuToPush = normalMenu;
 
 			switch (subMenu)
 			{
 				case ModSubMenu.AudioSetup:
-					subMenuManager.Push(audioSetupMenu);
+					subMenuToPush = audioSetupMenu;
+					break;
+
+				case ModSubMenu.ResolutionSetup:
+					subMenuToPush = resolutionSetupMenu;
 					break;
 
 				case ModSubMenu.Normal:
-				default:
-					subMenuManager.Push(normalMenu);
+					subMenuToPush = normalMenu;
 					break;
+
+				default:
+					return;
 			}
+
+			subMenuManager.Push(subMenuToPush);
+
+			Show();
 		}
 
 		// Switch to the next submenu on the stack. If only the default submenu remains, just hide the entire menu.

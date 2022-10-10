@@ -2776,6 +2776,14 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private void ShowSetupMenuIfRequired()
+		{
+			if (MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
+			{
+				GameSystem.Instance.MainUIController.modMenu.PushSubMenuAndShow(ModSubMenu.AudioSetup);
+			}
+		}
+
 		public BurikoVariable OperationMODGenericCall()
 		{
 			SetOperationType("MODGenericCall");
@@ -2784,11 +2792,7 @@ namespace Assets.Scripts.Core.Buriko
 			switch(callID)
 			{
 				case "ShowSetupMenuIfRequired":
-					if(MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
-					{
-						GameSystem.Instance.MainUIController.modMenu.PushSubMenu(ModSubMenu.AudioSetup);
-						GameSystem.Instance.MainUIController.modMenu.Show();
-					}
+					ShowSetupMenuIfRequired();
 					break;
 
 				case "LipSyncSettings":
