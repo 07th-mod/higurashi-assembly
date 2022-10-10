@@ -11,8 +11,10 @@ namespace MOD.Scripts.Core
 	class MODWindowManager
 	{
 		static string playerPrefsCrashDetectorKey = "crash_detector";
+		const string FULLSCREEN_LOCK_KEY = "fullscreen_lock";
 
-		public static bool IsFullscreen;
+		private static bool _IsFullscreen;
+		public static bool IsFullscreen { get { return _IsFullscreen; } }
 		private static Resolution fullscreenResolution;
 		private static int screenModeSet = -1;
 
@@ -77,7 +79,7 @@ namespace MOD.Scripts.Core
 			int width = 640;
 
 			// Default to keeping current fullscreen state if fullscreen not specified
-			IsFullscreen = maybe_fullscreen ?? IsFullscreen;
+			TrySetIsFullscreen(maybe_fullscreen ?? IsFullscreen, "SetResolution");
 
 			if (maybe_width == null && maybe_height == null)
 			{
@@ -216,7 +218,7 @@ namespace MOD.Scripts.Core
 			PlayerPrefs.SetInt(playerPrefsCrashDetectorKey, 1);
 
 			// Restore IsFullscreen variable from playerprefs
-			IsFullscreen = PlayerPrefs.GetInt("is_fullscreen", 1) == 1;
+			TrySetIsFullscreen(PlayerPrefs.GetInt("is_fullscreen", 1) == 1, "On Startup");
 
 			// Restore fullscreenResolution variable using GetFullscreenResolution()
 			fullscreenResolution.width = 0;
@@ -281,6 +283,21 @@ namespace MOD.Scripts.Core
 			PlayerPrefs.DeleteKey(playerPrefsCrashDetectorKey);
 
 			PrintPlayerPrefs($"OnApplicationReallyQuit() called from {context}");
+		}
+
+		public static void SetFullScreenLock(bool enableLock)
+		{
+			PlayerPrefs.SetInt(FULLSCREEN_LOCK_KEY, enableLock ? 1 : 0);
+		}
+
+		public static bool FullscreenLocked()
+		{
+			return PlayerPrefs.GetInt(FULLSCREEN_LOCK_KEY, 0) != 0;
+		}
+
+		public static bool FullscreenLockConfigured()
+		{
+			return PlayerPrefs.HasKey(FULLSCREEN_LOCK_KEY);
 		}
 
 		private static Resolution GetFullscreenResolution()
@@ -356,6 +373,16 @@ namespace MOD.Scripts.Core
 			}
 			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			return resolution;
+		}
+		private static void TrySetIsFullscreen(bool isFullscreen, string context)
+		{
+			if (!isFullscreen && FullscreenLocked())
+			{
+				Debug.Log($"WARNING [{context}]: Attempted to change to windowed mode, but 'fullscreen lock' enabled, so staying in fullscreen mode!");
+				return;
+			}
+
+			_IsFullscreen = isFullscreen;
 		}
 	}
 }
