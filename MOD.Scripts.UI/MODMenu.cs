@@ -2,6 +2,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.State;
 using System;
@@ -224,7 +225,7 @@ You can try the following yourself to fix the issue.
 			if (gameSystem.GameState == GameState.RightClickMenu)
 			{
 				string lastBGM = AssetManager.Instance.lastBGM;
-				string text = $"BGM: {lastBGM}";
+				string text = $"BGM: {MODBGMInfo.GetBGMName(lastBGM)}\nFile: {lastBGM}";
 
 				// On Windows, add note about explorer .ogg file bug
 				if(lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
