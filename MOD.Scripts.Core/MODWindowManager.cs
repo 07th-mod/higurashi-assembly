@@ -322,6 +322,11 @@ namespace MOD.Scripts.Core
 		{
 			PlayerPrefs.DeleteKey(FULLSCREEN_LOCK_KEY);
 		}
+		public static void ClearPlayerPrefsFullscreenResolution()
+		{
+			PlayerPrefs.DeleteKey("fullscreen_width");
+			PlayerPrefs.DeleteKey("fullscreen_height");
+		}
 
 		private static Resolution GetFullscreenResolution()
 		{

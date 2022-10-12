@@ -24,7 +24,7 @@ namespace MOD.Scripts.UI
 
 		public void OnGUI()
 		{
-			Label("Resolution Settings");
+			Label($"Resolution Settings (Current: {Screen.width}x{Screen.height})");
 			{
 				GUILayout.BeginHorizontal();
 				if (Button(new GUIContent("480p", "Set resolution to 853 x 480"))) { SetAndSaveResolution(480); }
@@ -51,6 +51,16 @@ namespace MOD.Scripts.UI
 					}
 				}
 				GUILayout.EndHorizontal();
+
+				if (Button(new GUIContent(
+					"Reset Fullscreen Resolution",
+					"Force re-detection of the fullscreen resolution (matching your monitor's max resolution).\n\n" +
+					"You may want to do this if you change to a monitor with a different fullscreen resolution, and the game detects the wrong resolution.")
+					))
+				{
+					MODWindowManager.ClearPlayerPrefsFullscreenResolution();
+					MODWindowManager.GoFullscreen();
+				}
 			}
 		}
 
