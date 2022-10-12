@@ -2782,6 +2782,11 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				GameSystem.Instance.MainUIController.modMenu.PushSubMenuAndShow(ModSubMenu.AudioSetup);
 			}
+
+			if (!MODWindowManager.FullscreenLockConfigured())
+			{
+				GameSystem.Instance.MainUIController.modMenu.PushSubMenuAndShow(ModSubMenu.WindowSetup);
+			}
 		}
 
 		public BurikoVariable OperationMODGenericCall()

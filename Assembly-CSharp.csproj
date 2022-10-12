@@ -251,6 +251,7 @@
     <Compile Include="MOD.Scripts.UI\MODActions.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuAudioOptions.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuAudioSetup.cs" />
+    <Compile Include="MOD.Scripts.UI\MODSubMenuWindowSetup.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuSupport.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuModuleInterface.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuNormal.cs" />

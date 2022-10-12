@@ -73,7 +73,7 @@ namespace MOD.Scripts.Core
 			SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: null, showToast: showToast);
 		}
 
-		private static void SetResolution(int? maybe_width, int? maybe_height, bool? maybe_fullscreen, bool showToast=false)
+		public static void SetResolution(int? maybe_width, int? maybe_height, bool? maybe_fullscreen, bool showToast=false)
 		{
 			int height = 480;
 			int width = 640;
@@ -151,9 +151,14 @@ namespace MOD.Scripts.Core
 			// Update playerprefs (won't be saved until game exits or PlayerPrefs.Save() is called
 			SetPlayerPrefs();
 
-			if(showToast)
+			if (showToast)
 			{
-				MODToaster.Show($"Set Res: {width}x{height}");
+				string prefix = "Set Res";
+				if(maybe_fullscreen == false && FullscreenLocked())
+				{
+					prefix = "Fullscreen Locked";
+				}
+				MODToaster.Show($"{prefix}: {width}x{height}");
 			}
 		}
 
@@ -209,6 +214,7 @@ namespace MOD.Scripts.Core
 
 			if (PlayerPrefsNeedsReset())
 			{
+				ForceUnconfigureFullscreenLock();
 				// TODO: could fully reset playerprefs by calling PlayerPrefs.DeleteAll(), but not sure if such drastic measures are necessary?
 				GoFullscreen();
 				Debug.Log("WARNING: Crash or corrupted playerprefs detected. Reverting to fullscreen mode!");
@@ -288,6 +294,10 @@ namespace MOD.Scripts.Core
 		public static void SetFullScreenLock(bool enableLock)
 		{
 			PlayerPrefs.SetInt(FULLSCREEN_LOCK_KEY, enableLock ? 1 : 0);
+			if(FullscreenLocked())
+			{
+				GoFullscreen();
+			}
 		}
 
 		public static bool FullscreenLocked()
@@ -298,6 +308,10 @@ namespace MOD.Scripts.Core
 		public static bool FullscreenLockConfigured()
 		{
 			return PlayerPrefs.HasKey(FULLSCREEN_LOCK_KEY);
+		}
+		public static void ForceUnconfigureFullscreenLock()
+		{
+			PlayerPrefs.DeleteKey(FULLSCREEN_LOCK_KEY);
 		}
 
 		private static Resolution GetFullscreenResolution()

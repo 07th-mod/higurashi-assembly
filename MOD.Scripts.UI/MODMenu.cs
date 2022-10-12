@@ -17,6 +17,7 @@ namespace MOD.Scripts.UI
 	{
 		Normal,
 		AudioSetup,
+		WindowSetup,
 	}
 
 	public class MODMenu
@@ -67,6 +68,7 @@ namespace MOD.Scripts.UI
 		private MODMenuNormal normalMenu;
 		private MODMenuAudioOptions audioOptionsMenu;
 		private MODMenuAudioSetup audioSetupMenu;
+		private MODSubMenuWindowSetup windowSetupMenu;
 
 		private SubMenuManager subMenuManager;
 
@@ -103,6 +105,7 @@ You can try the following yourself to fix the issue.
 			this.audioOptionsMenu = new MODMenuAudioOptions(this);
 			this.normalMenu = new MODMenuNormal(this, this.audioOptionsMenu);
 			this.audioSetupMenu = new MODMenuAudioSetup(this, this.audioOptionsMenu);
+			this.windowSetupMenu = new MODSubMenuWindowSetup(this, this.normalMenu);
 
 			subMenuManager = new SubMenuManager(this.normalMenu);
 
@@ -372,8 +375,8 @@ You can try the following yourself to fix the issue.
 					subMenuToPush = audioSetupMenu;
 					break;
 
-				case ModSubMenu.ResolutionSetup:
-					subMenuToPush = resolutionSetupMenu;
+				case ModSubMenu.WindowSetup:
+					subMenuToPush = windowSetupMenu;
 					break;
 
 				case ModSubMenu.Normal:
