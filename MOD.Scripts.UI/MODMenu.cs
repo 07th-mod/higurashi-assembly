@@ -6,6 +6,7 @@ using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.State;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -56,6 +57,8 @@ You can try the following yourself to fix the issue.
   4. You can try to clear your compiled script files, then restart the game.
 
   5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
+
+		bool lastBGMButtonPressed;
 
 		public MODMenu(GameSystem gameSystem)
 		{
@@ -151,6 +154,31 @@ You can try the following yourself to fix the issue.
 			GUI.DragWindow(new Rect(0, 0, 10000, 10000));
 		}
 
+		private void OnGUIExistingUIOverlay(string text, float? alpha, Action action, bool alignBottom=false)
+		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
+
+			if(alpha.HasValue)
+			{
+				// Temporarily override the global tint color to get a fade in effect which matches the existing UI fade in
+				// This value is not saved by Unity (it resets to the default value each frame)
+				GUI.color = new Color(1.0f, 1.0f, 1.0f, alpha.Value);
+			}
+
+			float areaWidth = Screen.width / 8;
+			float areaHeight = Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10;
+			float xOffset = 0;
+			float yOffset = alignBottom ? Screen.height - areaHeight : 0;
+
+			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+			if (GUILayout.Button(text, styleManager.Group.button))
+			{
+				action();
+			}
+
+			GUILayout.EndArea();
+		}
+
 		/// <summary>
 		/// This function MUST be called from an OnGUI(), otherwise Unity won't work
 		/// properly when  the immediate mode GUI functions are called.
@@ -190,24 +218,25 @@ You can try the following yourself to fix the issue.
 			// (the normal settings screen that comes with the stock game)
 			if (gameSystem.GameState == GameState.ConfigScreen)
 			{
-				if (gameSystem.ConfigManager() != null)
+				OnGUIExistingUIOverlay("Mod Menu\n(Hotkey: F10)", gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show());
+			}
+
+			if (gameSystem.GameState == GameState.RightClickMenu)
+			{
+				string lastBGM = AssetManager.Instance.lastBGM;
+				string text = $"BGM: {lastBGM}";
+
+				// On Windows, add note about explorer .ogg file bug
+				if(lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
 				{
-					// Temporarily override the global tint color to get a fade in effect which matches the config screen fade-in
-					// This value is not saved by Unity (it resets to the default value each frame)
-					GUI.color = new Color(1.0f, 1.0f, 1.0f, gameSystem.ConfigManager().PanelAlpha());
-				}
-				string text = "Mod Menu\n(Hotkey: F10)";
-				float areaWidth = Screen.width / 8;
-				float areaHeight = Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10;
-				float xOffset = 0;
-				float yOffset = Screen.height - areaHeight;
-				GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
-				if (GUILayout.Button(text, styleManager.Group.button))
-				{
-					this.Show();
+					text += "\n\nNote: If explorer freezes\nuninstall Web Media Extensions";
 				}
 
-				GUILayout.EndArea();
+				OnGUIExistingUIOverlay(text, gameSystem.MenuUIController()?.PanelAlpha(), () =>
+				{
+					lastBGMButtonPressed = true;
+					Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
+				});
 			}
 
 			// If you need to initialize things just once before the menu opens, rather than every frame

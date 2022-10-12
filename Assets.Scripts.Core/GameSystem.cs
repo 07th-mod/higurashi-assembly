@@ -140,6 +140,7 @@ namespace Assets.Scripts.Core
 		public readonly List<Wait> WaitList = new List<Wait>();
 
 		private MenuUIController menuUIController;
+		public MenuUIController MenuUIController() => menuUIController;
 
 		private HistoryWindow historyWindow;
 
