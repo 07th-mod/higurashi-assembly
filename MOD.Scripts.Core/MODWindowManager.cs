@@ -212,7 +212,16 @@ namespace MOD.Scripts.Core
 		{
 			PrintPlayerPrefs("On Startup");
 
-			if (PlayerPrefsNeedsReset())
+			// On OS other than Linux, default to disabling fullscreen lock rather than asking the user,
+			// as it doesn't help with any known bugs on Windows/MacOS
+			if (Application.platform != RuntimePlatform.LinuxPlayer && !FullscreenLockConfigured())
+			{
+				SetFullScreenLock(false);
+			}
+
+			// If crash detected on linux, force fullscreen mode, in case crash was caused by gnome windowed mode bug.
+			// Also, show the window setup menu again so user can configure fullscreen lock.
+			if (Application.platform == RuntimePlatform.LinuxPlayer && PlayerPrefsNeedsReset())
 			{
 				ForceUnconfigureFullscreenLock();
 				// TODO: could fully reset playerprefs by calling PlayerPrefs.DeleteAll(), but not sure if such drastic measures are necessary?
