@@ -14,13 +14,11 @@ namespace MOD.Scripts.Core
 		/// </summary>
 		public string comment;
 		/// <summary>
-		/// The English name of the song
+		/// The English/Japanese name of the song
 		/// </summary>
 		public string name;
-		/// <summary>
-		/// The Japanese name of the song (not sure if the game can display this?)
-		/// </summary>
-		public string nameJP;
+		public string source;
+		public string url;
 	}
 
 	public class BGMInfoDict
@@ -52,7 +50,7 @@ namespace MOD.Scripts.Core
 			string pathWithoutExtension = Path.Combine(Path.GetDirectoryName(streamingAssetsRelativePath), Path.GetFileNameWithoutExtension(streamingAssetsRelativePath));
 			if(bgmDictionary.TryGetValue(pathWithoutExtension, out BGMInfo info))
 			{
-				return GameSystem.Instance.ChooseJapaneseEnglish(info.nameJP, info.name);
+				return info.name;
 			}
 			else
 			{
