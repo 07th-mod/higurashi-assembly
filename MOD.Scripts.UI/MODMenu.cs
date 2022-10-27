@@ -165,7 +165,7 @@ You can try the following yourself to fix the issue.
 			UnderSystemMenu,
 		}
 
-		private void OnGUIExistingUIOverlay(string text, float? alpha, Action action, ButtonPosition position = ButtonPosition.TopLeftColumn)
+		private void OnGUIExistingUIOverlayButton(string text, float? alpha, Action action, ButtonPosition position = ButtonPosition.TopLeftColumn)
 		{
 			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 
@@ -227,6 +227,54 @@ You can try the following yourself to fix the issue.
 			GUILayout.EndArea();
 		}
 
+		private void OnGUIExistingUIFillOverlay(float? alpha, Action onGUIInternal, ButtonPosition position = ButtonPosition.TopLeftColumn)
+		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
+
+			if (alpha.HasValue)
+			{
+				// Temporarily override the global tint color to get a fade in effect which matches the existing UI fade in
+				// This value is not saved by Unity (it resets to the default value each frame)
+				GUI.color = new Color(1.0f, 1.0f, 1.0f, alpha.Value);
+			}
+
+			float existingUIWidth = Screen.width * 3 / 4;
+
+			// Figure out the width and height of the area where the overlay will be displayed
+			float areaWidth = Screen.width / 8;
+			if (position == ButtonPosition.BottomEntireUIWidth)
+			{
+				// This will overlay just the existing UI part of the screen
+				areaWidth = existingUIWidth;
+			}
+			else if (position == ButtonPosition.BottomHalfUIWidthBottomPadded)
+			{
+				areaWidth = existingUIWidth / 2;
+			}
+			else if (position == ButtonPosition.UnderSystemMenu)
+			{
+				areaWidth = Screen.width / 4;
+			}
+
+			// Figure out the position of the overlay's top left hand corner
+			float xOffset = 0;
+			if (position == ButtonPosition.BottomEntireUIWidth || position == ButtonPosition.BottomHalfUIWidthBottomPadded || position == ButtonPosition.UnderSystemMenu)
+			{
+				// This will offset the overlay so it starts at where the existing UI starts
+				xOffset = Screen.width / 8;
+			}
+
+			float yOffset = Screen.height * 11 / 16;
+
+			float areaHeight = Screen.height - yOffset - Screen.height / 32;
+
+			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+
+			onGUIInternal();
+
+			GUILayout.EndArea();
+		}
+
 		/// <summary>
 		/// This function MUST be called from an OnGUI(), otherwise Unity won't work
 		/// properly when  the immediate mode GUI functions are called.
@@ -266,7 +314,7 @@ You can try the following yourself to fix the issue.
 			// (the normal settings screen that comes with the stock game)
 			if (gameSystem.GameState == GameState.ConfigScreen)
 			{
-				OnGUIExistingUIOverlay("Mod Menu\n(Hotkey: F10)", gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show());
+				OnGUIExistingUIOverlayButton("Mod Menu\n(Hotkey: F10)", gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show());
 			}
 
 			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
@@ -279,7 +327,7 @@ You can try the following yourself to fix the issue.
 				List<KeyValuePair<int, AudioInfo>> currentBGM = AudioController.Instance.GetCurrrentBGM().ToList();
 				currentBGM.Sort((x, y) => x.Key - y.Key);
 
-				foreach(KeyValuePair<int, AudioInfo> kvp in currentBGM)
+				foreach (KeyValuePair<int, AudioInfo> kvp in currentBGM)
 				{
 					AudioInfo info = kvp.Value;
 
@@ -295,12 +343,20 @@ You can try the following yourself to fix the issue.
 					sb.AppendLine("\n\nNote: If explorer freezes\nuninstall Web Media Extensions");
 				}
 
-				OnGUIExistingUIOverlay(sb.ToString().TrimEnd(), gameSystem.MenuUIController()?.PanelAlpha(), () =>
+				OnGUIExistingUIFillOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
 				{
-					lastBGMButtonPressed = true;
-					Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
+					Label(sb.ToString().TrimEnd());
+					if (GUILayout.Button("Open folder", styleManager.Group.button))
+					{
+						lastBGMButtonPressed = true;
+						Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
+					}
+
+					if (GUILayout.Button("Open In Youtube", styleManager.Group.button))
+					{
+					}
 				},
-				ButtonPosition.BottomHalfUIWidthBottomPadded);
+				ButtonPosition.BottomEntireUIWidth);
 			}
 			else
 			{
