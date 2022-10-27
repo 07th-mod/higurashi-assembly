@@ -268,7 +268,7 @@ You can try the following yourself to fix the issue.
 				OnGUIExistingUIOverlay("Mod Menu\n(Hotkey: F10)", gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show());
 			}
 
-			if (gameSystem.GameState == GameState.RightClickMenu)
+			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
 			{
 				string lastBGM = AssetManager.Instance.lastBGM;
 				string text = $"BGM Name: {MODBGMInfo.GetBGMName(lastBGM)}\n" +
