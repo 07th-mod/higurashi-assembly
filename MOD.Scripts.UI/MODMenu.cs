@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Core;
 using Assets.Scripts.Core.AssetManagement;
+using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core;
@@ -271,16 +272,30 @@ You can try the following yourself to fix the issue.
 			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
 			{
 				string lastBGM = AssetManager.Instance.lastBGM;
-				string text = $"BGM Name: {MODBGMInfo.GetBGMName(lastBGM)}\n" +
-					$"File Path: {lastBGM}";
 
-				// On Windows, add note about explorer .ogg file bug
-				if(lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
+				StringBuilder sb = new StringBuilder();
+
+				// It is possible multiple BGM play at the same time (although secondary BGM are usually just background noises rather than actualBGM)
+				List<KeyValuePair<int, AudioInfo>> currentBGM = AudioController.Instance.GetCurrrentBGM().ToList();
+				currentBGM.Sort((x, y) => x.Key - y.Key);
+
+				foreach(KeyValuePair<int, AudioInfo> kvp in currentBGM)
 				{
-					text += "\n\nNote: If explorer freezes\nuninstall Web Media Extensions";
+					AudioInfo info = kvp.Value;
+
+					string audioPath = AssetManager.Instance._GetAudioFilePath(info.Filename, Assets.Scripts.Core.Audio.AudioType.BGM, out bool _, out bool _);
+
+					sb.AppendLine($"BGM Name: {MODBGMInfo.GetBGMName(audioPath)}");
+					sb.AppendLine($"Path: [{audioPath}]");
 				}
 
-				OnGUIExistingUIOverlay(text, gameSystem.MenuUIController()?.PanelAlpha(), () =>
+				// On Windows, add note about explorer .ogg file bug
+				if (lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
+				{
+					sb.AppendLine("\n\nNote: If explorer freezes\nuninstall Web Media Extensions");
+				}
+
+				OnGUIExistingUIOverlay(sb.ToString().TrimEnd(), gameSystem.MenuUIController()?.PanelAlpha(), () =>
 				{
 					lastBGMButtonPressed = true;
 					Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
