@@ -61,6 +61,7 @@ You can try the following yourself to fix the issue.
   5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
 
 		bool lastBGMButtonPressed;
+		Vector2 bgmInfoScrollPosition;
 
 		public MODMenu(GameSystem gameSystem)
 		{
@@ -81,6 +82,9 @@ You can try the following yourself to fix the issue.
 			this.currentMenu = this.normalMenu;
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
+
+			this.lastBGMButtonPressed = false;
+			this.bgmInfoScrollPosition = new Vector2();
 		}
 
 		public void Update()
@@ -268,10 +272,12 @@ You can try the following yourself to fix the issue.
 
 			float areaHeight = Screen.height - yOffset - Screen.height / 32;
 
-			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyleLight);
+			bgmInfoScrollPosition = GUILayout.BeginScrollView(bgmInfoScrollPosition);
 
 			onGUIInternal();
 
+			GUILayout.EndScrollView();
 			GUILayout.EndArea();
 		}
 
@@ -321,39 +327,63 @@ You can try the following yourself to fix the issue.
 			{
 				string lastBGM = AssetManager.Instance.lastBGM;
 
-				StringBuilder sb = new StringBuilder();
-
-				// It is possible multiple BGM play at the same time (although secondary BGM are usually just background noises rather than actualBGM)
-				List<KeyValuePair<int, AudioInfo>> currentBGM = AudioController.Instance.GetCurrrentBGM().ToList();
-				currentBGM.Sort((x, y) => x.Key - y.Key);
-
-				foreach (KeyValuePair<int, AudioInfo> kvp in currentBGM)
-				{
-					AudioInfo info = kvp.Value;
-
-					string audioPath = AssetManager.Instance._GetAudioFilePath(info.Filename, Assets.Scripts.Core.Audio.AudioType.BGM, out bool _, out bool _);
-
-					sb.AppendLine($"BGM Name: {MODBGMInfo.GetBGMName(audioPath)}");
-					sb.AppendLine($"Path: [{audioPath}]");
-				}
-
-				// On Windows, add note about explorer .ogg file bug
-				if (lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
-				{
-					sb.AppendLine("\n\nNote: If explorer freezes\nuninstall Web Media Extensions");
-				}
 
 				OnGUIExistingUIFillOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
 				{
-					Label(sb.ToString().TrimEnd());
-					if (GUILayout.Button("Open folder", styleManager.Group.button))
+					HeadingLabel("BGM Info", alignLeft: true);
+					GUILayout.Space(10);
+
+					// It is possible multiple BGM play at the same time (although secondary BGM are usually just background noises rather than actualBGM)
+					List<KeyValuePair<int, AudioInfo>> currentBGM = AudioController.Instance.GetCurrrentBGM().ToList();
+					currentBGM.Sort((x, y) => x.Key - y.Key);
+
+					int bgmCount = 0;
+
+					foreach (KeyValuePair<int, AudioInfo> kvp in currentBGM)
 					{
-						lastBGMButtonPressed = true;
-						Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
+						bgmCount++;
+
+						AudioInfo audioInfo = kvp.Value;
+						string audioPath = AssetManager.Instance._GetAudioFilePath(audioInfo.Filename, Assets.Scripts.Core.Audio.AudioType.BGM, out bool _, out bool _);
+						BGMInfo bgmInfo = MODBGMInfo.GetBGMName(audioPath);
+
+						// Display the name of the BGM on one line
+						SelectableLabel($"♫ {bgmInfo.name.Trim()} ♫");
+
+						// Below the BGM name, add utility buttons, all one one line
+						GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
+						{
+							if (Button($"Copy BGM Name", options: GUILayout.ExpandWidth(false)))
+							{
+								GUIUtility.systemCopyBuffer = bgmInfo.name.Trim();
+							}
+
+							if (Button($"Show File ({audioPath})", options: GUILayout.ExpandWidth(false)))
+							{
+								lastBGMButtonPressed = true;
+								Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
+							}
+
+							if (!string.IsNullOrEmpty(bgmInfo.url))
+							{
+								if (GUILayout.Button("Open In Youtube", styleManager.Group.button, GUILayout.ExpandWidth(false)))
+								{
+									Application.OpenURL($"https://www.youtube.com/watch?v={bgmInfo.url}");
+								}
+							}
+						}
+						GUILayout.EndHorizontal();
+
+						if (bgmCount < currentBGM.Count)
+						{
+							GUILayout.Space(10);
+						}
 					}
 
-					if (GUILayout.Button("Open In Youtube", styleManager.Group.button))
+					// On Windows, add note about explorer .ogg file bug
+					if (lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
 					{
+						Label("Note: If explorer freezes\nuninstall Web Media Extensions");
 					}
 				},
 				ButtonPosition.BottomEntireUIWidth);

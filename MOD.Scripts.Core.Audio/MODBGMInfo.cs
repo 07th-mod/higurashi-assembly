@@ -19,7 +19,15 @@ namespace MOD.Scripts.Core
 		public string name;
 		public string source;
 		public string url;
-	}
+
+        public BGMInfo()
+        {
+			comment = "";
+			name = "";
+			source = "";
+			url = "";
+        }
+    }
 
 	public class BGMInfoDict
 	{
@@ -45,16 +53,18 @@ namespace MOD.Scripts.Core
 			loadedFolders = new Dictionary<string, bool>();
 		}
 
-		public static string GetBGMName(string streamingAssetsRelativePath)
+		public static BGMInfo GetBGMName(string streamingAssetsRelativePath)
 		{
 			string pathWithoutExtension = Path.Combine(Path.GetDirectoryName(streamingAssetsRelativePath), Path.GetFileNameWithoutExtension(streamingAssetsRelativePath));
 			if(bgmDictionary.TryGetValue(pathWithoutExtension, out BGMInfo info))
 			{
-				return info.name;
+				return info;
 			}
 			else
 			{
-				return GameSystem.Instance.ChooseJapaneseEnglish("不明 BGM", "Unknown BGM");
+				var defaultInfo = new BGMInfo();
+				info.name = GameSystem.Instance.ChooseJapaneseEnglish("不明 BGM", "Unknown BGM");
+				return info;
 			}
 		}
 
