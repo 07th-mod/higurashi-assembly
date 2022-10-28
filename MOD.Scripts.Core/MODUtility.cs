@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -121,6 +122,29 @@ public static class MODUtility
 		{
 			Debug.Log(e);
 			return "Unknown Version";
+		}
+	}
+
+	/// <summary>
+	/// On Windows, will open a new Explorer window with the file highlighted
+	/// On Other OS, *might* show the folder containing the file, but also might not work
+	/// </summary>
+	public static void ShowInFolder(string pathToshow)
+    {
+		if (Application.platform == RuntimePlatform.WindowsPlayer)
+		{
+			// Explorer doesn't like it if you use forward slashes in path
+			string backslashOnlyPath = pathToshow.Replace("/", "\\");
+			string arguments = $"/select, \"{backslashOnlyPath}\"";
+			string executable = "explorer.exe";
+			Debug.Log($"Executing [{executable} {arguments}]");
+			System.Diagnostics.Process.Start(executable, arguments);
+		}
+		else
+		{
+			string folderToOpen = Path.GetDirectoryName(pathToshow);
+			Debug.Log($"Opening Folder [{folderToOpen}]");
+			Application.OpenURL(folderToOpen);
 		}
 	}
 }

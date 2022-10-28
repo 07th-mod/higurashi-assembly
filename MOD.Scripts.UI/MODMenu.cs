@@ -60,7 +60,7 @@ You can try the following yourself to fix the issue.
 
   5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
 
-		bool lastBGMButtonPressed;
+		bool showBGMButtonPressed;
 		Vector2 bgmInfoScrollPosition;
 
 		public MODMenu(GameSystem gameSystem)
@@ -83,7 +83,7 @@ You can try the following yourself to fix the issue.
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
 
-			this.lastBGMButtonPressed = false;
+			this.showBGMButtonPressed = false;
 			this.bgmInfoScrollPosition = new Vector2();
 		}
 
@@ -325,9 +325,6 @@ You can try the following yourself to fix the issue.
 
 			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
 			{
-				string lastBGM = AssetManager.Instance.lastBGM;
-
-
 				OnGUIExistingUIFillOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
 				{
 					HeadingLabel("BGM Info", alignLeft: true);
@@ -353,15 +350,16 @@ You can try the following yourself to fix the issue.
 						// Below the BGM name, add utility buttons, all one one line
 						GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
 						{
-							if (Button($"Copy BGM Name", options: GUILayout.ExpandWidth(false)))
+							if (Button($"  Copy BGM Name  ", options: GUILayout.ExpandWidth(false)))
 							{
 								GUIUtility.systemCopyBuffer = bgmInfo.name.Trim();
 							}
 
-							if (Button($"Show File ({audioPath})", options: GUILayout.ExpandWidth(false)))
+							if (Button($"  Show File ({audioPath})  ", options: GUILayout.ExpandWidth(false)))
 							{
-								lastBGMButtonPressed = true;
-								Application.OpenURL(Path.GetDirectoryName(Path.Combine(Application.streamingAssetsPath, lastBGM)));
+								string bgmFullPath = Path.Combine(Application.streamingAssetsPath, audioPath);
+								showBGMButtonPressed = true;
+								MODUtility.ShowInFolder(bgmFullPath);
 							}
 
 							if (!string.IsNullOrEmpty(bgmInfo.url))
@@ -381,7 +379,7 @@ You can try the following yourself to fix the issue.
 					}
 
 					// On Windows, add note about explorer .ogg file bug
-					if (lastBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
+					if (showBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
 					{
 						Label("Note: If explorer freezes\nuninstall Web Media Extensions");
 					}
@@ -390,7 +388,7 @@ You can try the following yourself to fix the issue.
 			}
 			else
 			{
-				lastBGMButtonPressed = false;
+				showBGMButtonPressed = false;
 			}
 
 			// If you need to initialize things just once before the menu opens, rather than every frame
