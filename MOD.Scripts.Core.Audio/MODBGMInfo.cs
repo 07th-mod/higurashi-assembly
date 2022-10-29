@@ -20,14 +20,14 @@ namespace MOD.Scripts.Core
 		public string source;
 		public string url;
 
-        public BGMInfo()
-        {
+		public BGMInfo()
+		{
 			comment = "";
 			name = "";
 			source = "";
 			url = "";
-        }
-    }
+		}
+	}
 
 	public class BGMInfoDict
 	{

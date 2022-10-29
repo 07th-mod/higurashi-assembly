@@ -74,7 +74,6 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
 
-		public string lastBGM { get; private set; } = "No BGM played yet";
 		public string debugLastBGM { get; private set; } = "No BGM played yet";
 		public string debugLastSE { get; private set; } = "No SE played yet";
 		public string debugLastVoice { get; private set; } = "No voice played yet";
@@ -561,7 +560,6 @@ namespace Assets.Scripts.Core.AssetManagement
 			switch (type)
 			{
 				case Audio.AudioType.BGM:
-					lastBGM = relativePath;
 					debugLastBGM = debugRelativePath;
 					break;
 				case Audio.AudioType.SE:
