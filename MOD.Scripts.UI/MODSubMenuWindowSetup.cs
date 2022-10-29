@@ -50,13 +50,21 @@ namespace MOD.Scripts.UI
 
 			GUILayout.Space(20);
 
-			if(Button(
-				new GUIContent(
-					"Click here to test Windowed Mode (may flicker)",
-					"This button will switch the game to Windowed mode.\n\n" +
-					"Please try moving the window around to see if the game crashes\n\n" +
-					"If the game freezes, you may need to force close it and open the game again."
-				)))
+			Label("NOTE: This may crash your entire desktop environment! Please save your work before this test!");
+
+			GUILayout.Space(20);
+
+			if (
+				Button(
+					new GUIContent(
+						MODWindowManager.IsFullscreen ? "Click here to test Windowed Mode (may flicker)" : "Now try dragging the window around!",
+						"This button will switch the game to Windowed mode.\n\n" +
+						"Please try moving the window around to see if the game crashes\n\n" +
+						"If the game freezes, you may need to force close it and open the game again."
+					),
+					selected: !MODWindowManager.IsFullscreen
+				)
+			)
 			{
 				MODWindowManager.SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: false, showToast: true);
 				setWindowAgainDelay.Start(1);
@@ -64,7 +72,11 @@ namespace MOD.Scripts.UI
 
 			GUILayout.Space(20);
 
-			Label("If your game crashed in windowed mode, choose 'Force Fullscreen Always'. Otherwise choose 'No Lock'");
+			Label("If your game crashed in windowed mode, choose 'Force Fullscreen Always' to avoid future crashes.");
+
+			GUILayout.Space(20);
+
+			Label("If your game runs fine even when the window is dragged, choose 'No Lock' to run the game normally.");
 
 			GUILayout.Space(20);
 
