@@ -236,9 +236,9 @@ namespace Assets.Scripts.Core
 			{
 				PlayerPrefs.SetInt("height", 720);
 			}
-			if (PlayerPrefs.GetInt("width") < 640)
+			if (PlayerPrefs.GetInt("width") < 853)
 			{
-				PlayerPrefs.SetInt("width", 640);
+				PlayerPrefs.SetInt("width", 853);
 			}
 			if (PlayerPrefs.GetInt("height") < 480)
 			{

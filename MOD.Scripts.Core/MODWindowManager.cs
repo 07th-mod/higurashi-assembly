@@ -18,7 +18,7 @@ namespace MOD.Scripts.Core
 		private static Resolution fullscreenResolution;
 		private static int screenModeSet = -1;
 
-		private static int lastSetWidth = 640;
+		private static int lastSetWidth = 853;
 		private static int lastSetHeight = 480;
 
 		private static string[] prefsToPrint = {
@@ -76,7 +76,7 @@ namespace MOD.Scripts.Core
 		public static void SetResolution(int? maybe_width, int? maybe_height, bool? maybe_fullscreen, bool showToast=false)
 		{
 			int height = 480;
-			int width = 640;
+			int width = 853;
 
 			// Default to keeping current fullscreen state if fullscreen not specified
 			TrySetIsFullscreen(maybe_fullscreen ?? IsFullscreen, "SetResolution");
@@ -130,11 +130,11 @@ namespace MOD.Scripts.Core
 				height = 15360;
 			}
 
-			if (width < 640)
+			if (width < 853)
 			{
-				MODToaster.Show("Width too small - must be at least 640 pixels");
-				Debug.Log("Width too small - must be at least 640 pixels");
-				width = 640;
+				MODToaster.Show("Width too small - must be at least 853 pixels");
+				Debug.Log("Width too small - must be at least 853 pixels");
+				width = 853;
 			}
 			else if (width > 15360)
 			{
