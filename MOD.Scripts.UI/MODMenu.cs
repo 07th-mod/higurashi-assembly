@@ -231,10 +231,8 @@ You can try the following yourself to fix the issue.
 			GUILayout.EndArea();
 		}
 
-		private void OnGUIExistingUIFillOverlay(float? alpha, Action onGUIInternal, ButtonPosition position = ButtonPosition.TopLeftColumn)
+		private void OnGUIRightClickMenuOverlay(float? alpha, Action onGUIInternal)
 		{
-			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
-
 			if (alpha.HasValue)
 			{
 				// Temporarily override the global tint color to get a fade in effect which matches the existing UI fade in
@@ -242,37 +240,19 @@ You can try the following yourself to fix the issue.
 				GUI.color = new Color(1.0f, 1.0f, 1.0f, alpha.Value);
 			}
 
-			float existingUIWidth = Screen.width * 3 / 4;
+			// The width of the overlay should match the right-click menu width
+			float areaWidth = Screen.width * 3 / 4;
 
-			// Figure out the width and height of the area where the overlay will be displayed
-			float areaWidth = Screen.width / 8;
-			if (position == ButtonPosition.BottomEntireUIWidth)
-			{
-				// This will overlay just the existing UI part of the screen
-				areaWidth = existingUIWidth;
-			}
-			else if (position == ButtonPosition.BottomHalfUIWidthBottomPadded)
-			{
-				areaWidth = existingUIWidth / 2;
-			}
-			else if (position == ButtonPosition.UnderSystemMenu)
-			{
-				areaWidth = Screen.width / 4;
-			}
+			// The overlay should start where the right-click menu starts
+			float xOffset = Screen.width / 8;
 
-			// Figure out the position of the overlay's top left hand corner
-			float xOffset = 0;
-			if (position == ButtonPosition.BottomEntireUIWidth || position == ButtonPosition.BottomHalfUIWidthBottomPadded || position == ButtonPosition.UnderSystemMenu)
-			{
-				// This will offset the overlay so it starts at where the existing UI starts
-				xOffset = Screen.width / 8;
-			}
-
+			// Set the y-offset so that the overlay appears under the list of controls
 			float yOffset = Screen.height * 11 / 16;
 
+			// Set the height to fill the rest of the screen, but with a little bit of margin at the bottom so it looks nicer
 			float areaHeight = Screen.height - yOffset - Screen.height / 32;
 
-			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyleLight);
+			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), MODStyleManager.OnGUIInstance.modMenuAreaStyleLight);
 			bgmInfoScrollPosition = GUILayout.BeginScrollView(bgmInfoScrollPosition);
 
 			onGUIInternal();
@@ -325,7 +305,7 @@ You can try the following yourself to fix the issue.
 
 			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
 			{
-				OnGUIExistingUIFillOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
+				OnGUIRightClickMenuOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
 				{
 					HeadingLabel("BGM Info", alignLeft: true);
 					GUILayout.Space(10);
@@ -383,8 +363,7 @@ You can try the following yourself to fix the issue.
 					{
 						Label("Note: If explorer freezes\nuninstall Web Media Extensions");
 					}
-				},
-				ButtonPosition.BottomEntireUIWidth);
+				});
 			}
 			else
 			{
