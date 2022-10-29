@@ -172,15 +172,19 @@ You can try the following yourself to fix the issue.
 			}
 
 			// Calculate the width and height of the button
-			float areaWidth = Screen.width / 8;
-			float areaHeight = Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10;
+			float areaWidth = Screen.width / 8 + Screen.width / 64;
+			float areaHeight = Mathf.Max(
+				Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10,
+				3 * Screen.height / 32
+			);
 
-			// Figure out the position of the overlay's top left hand corner
-			float xOffset = 0;
-			float yOffset = 0;
+			// Position the top-left x so the button is aligned with the config menu background, with a small margin
+			float xOffset = Screen.width / 8 + Screen.width / 64;
+			// Position the top-left y to vertically center the button
+			float yOffset = Screen.height / 2 - areaHeight/2;
 
 			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
-			if (GUILayout.Button(text, styleManager.Group.button))
+			if (Button(text, options: GUILayout.ExpandHeight(true)))
 			{
 				action();
 			}
