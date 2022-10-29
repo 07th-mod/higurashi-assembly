@@ -116,6 +116,7 @@ You can try the following yourself to fix the issue.
 		{
 			defaultToolTipTimer.Update();
 			startupWatchdogTimer.Update();
+			windowSetupMenu.Update();
 		}
 
 		public void LateUpdate()

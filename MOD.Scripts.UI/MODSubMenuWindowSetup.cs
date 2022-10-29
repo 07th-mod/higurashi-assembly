@@ -11,11 +11,13 @@ namespace MOD.Scripts.UI
 	{
 		MODMenu modMenu;
 		MODMenuNormal normalMenu;
+		MODSimpleTimer setWindowAgainDelay;
 
 		public MODSubMenuWindowSetup(MODMenu modMenu, MODMenuNormal normalMenu)
 		{
 			this.modMenu = modMenu;
 			this.normalMenu = normalMenu;
+			this.setWindowAgainDelay = new MODSimpleTimer();
 		}
 
 		public void OnBeforeMenuVisible()
@@ -23,8 +25,22 @@ namespace MOD.Scripts.UI
 
 		}
 
+		public void Update()
+		{
+			setWindowAgainDelay.Update();
+		}
+
 		public void OnGUI()
 		{
+			// Fix a bug where windowed resolution becomes 640x480 when set the first time game starts (if playerprefs doesn't exist).
+			// Resolution is set correctly if set again after a short delay.
+			// Bug was first noticed on Ep1 Native Ubuntu 22.04.
+			if(setWindowAgainDelay.Finished())
+			{
+				MODWindowManager.SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: false, showToast: true);
+				setWindowAgainDelay.Cancel();
+			}
+
 			HeadingLabel("Linux Resolution/Windowed Mode Setup");
 
 			GUILayout.Space(20);
@@ -36,13 +52,14 @@ namespace MOD.Scripts.UI
 
 			if(Button(
 				new GUIContent(
-					"Click here to test Windowed Mode",
+					"Click here to test Windowed Mode (may flicker)",
 					"This button will switch the game to Windowed mode.\n\n" +
 					"Please try moving the window around to see if the game crashes\n\n" +
 					"If the game freezes, you may need to force close it and open the game again."
 				)))
 			{
 				MODWindowManager.SetResolution(maybe_width: null, maybe_height: null, maybe_fullscreen: false, showToast: true);
+				setWindowAgainDelay.Start(1);
 			}
 
 			GUILayout.Space(20);
@@ -69,7 +86,18 @@ namespace MOD.Scripts.UI
 		}
 
 		public bool UserCanClose() => false;
-		public string Heading() => "Linux Resolution/Windowed Mode Setup Menu";
-		public string DefaultTooltip() => "Please choose the options on the left before continuing. You can hover over a button to view its description.";
+		public string Heading()
+		{
+			if (setWindowAgainDelay.Running())
+			{
+				return $"Please Wait ({setWindowAgainDelay.timeLeft:F1})";
+			}
+			else
+			{
+				return "Linux Resolution/Windowed Mode Setup Menu";
+			}
+		}
+
+        public string DefaultTooltip() => "Please choose the options on the left before continuing. You can hover over a button to view its description.";
 	}
 }
