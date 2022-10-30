@@ -242,6 +242,7 @@
     <Compile Include="MOD.Scripts.Core\MODLogger.cs" />
     <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
     <Compile Include="MOD.Scripts.Core\MODUtility.cs" />
+    <Compile Include="MOD.Scripts.Core\MODWindowManager.cs" />
     <Compile Include="MOD.Scripts.UI.ChapterJump\MODChapterJumpController.cs" />
     <Compile Include="MOD.Scripts.UI.Tips\MODTipsController.cs" />
     <Compile Include="MOD.Scripts.UI\MODCustomFlagPreset.cs" />
@@ -251,6 +252,7 @@
     <Compile Include="MOD.Scripts.UI\MODActions.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuAudioOptions.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuAudioSetup.cs" />
+    <Compile Include="MOD.Scripts.UI\MODSubMenuWindowSetup.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuSupport.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuModuleInterface.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenuNormal.cs" />

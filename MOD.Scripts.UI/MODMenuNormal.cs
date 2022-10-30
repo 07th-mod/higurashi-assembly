@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Core;
+using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioStretchBackgrounds;
 		private readonly MODRadio radioTextWindowModeAndCrop;
 		private readonly MODRadio radioForceComputedLipsync;
+		private readonly MODRadio radioFullscreenLock;
 
 		private readonly MODTabControl tabControl;
 
@@ -134,6 +136,11 @@ Sets the script censorship level
 			radioForceComputedLipsync = new MODRadio("Force Computed Lipsync", new GUIContent[] {
 				new GUIContent("As Fallback", "Only use computed lipsync if there is no baked 'spectrum' file for a given .ogg file"),
 				new GUIContent("Computed Always", "Always use computed lipsync for all voices. Any 'spectrum' files will be ignored.")
+			});
+
+			radioFullscreenLock = new MODRadio("Fullscreen Lock", new GUIContent[] {
+				new GUIContent("No Lock", "Allow switching to Windowed mode at any time"),
+				new GUIContent("Force Fullscreen Always", "Force fullscreen mode always - do not allow switching to windowed mode.")
 			});
 
 			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>
@@ -282,6 +289,8 @@ Sets the script censorship level
 			HeadingLabel("Resolution");
 
 			resolutionMenu.OnGUI();
+
+			OnGUIFullscreenLock();
 		}
 
 		private void GameplayTabOnGUI()
@@ -482,6 +491,23 @@ Sets the script censorship level
 			if(this.radioForceComputedLipsync.OnGUIFragment(GameSystem.Instance.SceneController.MODGetForceComputedLipsync()) is bool newForceComputedLipsync)
 			{
 				GameSystem.Instance.SceneController.MODSetForceComputedLipsync(newForceComputedLipsync);
+			}
+		}
+
+		public void OnGUIFullscreenLock()
+		{
+			HeadingLabel("Fullscreen Lock");
+
+			int currentValue = -1;
+			if(MODWindowManager.FullscreenLockConfigured())
+			{
+				currentValue = MODWindowManager.FullscreenLocked() ? 1 : 0;
+			}
+
+			if (this.radioFullscreenLock.OnGUIFragment(currentValue) is int newFullscreenlock)
+			{
+				MODWindowManager.SetFullScreenLock(newFullscreenlock == 0 ? false : true);
+				MODToaster.Show(MODWindowManager.FullscreenLocked() ? "Fullscreen lock enabled" : "Fullscreen lock disabled");
 			}
 		}
 

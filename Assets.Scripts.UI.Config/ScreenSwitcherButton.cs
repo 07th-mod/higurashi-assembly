@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using MOD.Scripts.Core;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Config
@@ -6,6 +7,9 @@ namespace Assets.Scripts.UI.Config
 	public class ScreenSwitcherButton : MonoBehaviour
 	{
 		public int Width;
+
+		// This variable doesn't actually change/doesn't really relate to the game's fullscreen state
+		// It is actually used to indicate which button is labelled as "fullscreen" (it is true only for that button)
 
 		public bool IsFullscreen;
 
@@ -31,26 +35,24 @@ namespace Assets.Scripts.UI.Config
 
 		private void OnClick()
 		{
-			if (IsFullscreen)
+			if(IsFullscreen)
 			{
-				GameSystem.Instance.GoFullscreen();
+				MODWindowManager.FullscreenToggle(showToast: true);
 			}
 			else
 			{
-				int height = Height();
-				int width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
-				GameSystem.Instance.DeFullscreen(width: width, height: height);
-				PlayerPrefs.SetInt("width", width);
-				PlayerPrefs.SetInt("height", height);
+				MODWindowManager.SetResolution(Height(), showToast: true);
 			}
 		}
 
 		private bool ShouldBeDown()
 		{
+			// Make the 'fullscreen' button always clickable because it toggles fullscreen
 			if (IsFullscreen)
 			{
-				return GameSystem.Instance.IsFullscreen;
+				return false;
 			}
+
 			return Screen.height == Height();
 		}
 

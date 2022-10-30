@@ -33,13 +33,12 @@ namespace MOD.Scripts.UI
 
 			if (GetGlobal("GAudioSet") != 0 && Button(new GUIContent("Click here when you're finished.")))
 			{
-				modMenu.SetSubMenu(ModSubMenu.Normal);
-				modMenu.ForceHide();
+				modMenu.PopSubMenu();
 			}
 		}
 
 		public bool UserCanClose() => false;
-		public string Heading() => "First-Time Setup Menu";
+		public string Heading() => "Audio Setup Menu";
 		public string DefaultTooltip() => "Please choose the options on the left before continuing. You can hover over a button to view its description.";
 	}
 }

@@ -1,3 +1,4 @@
+using MOD.Scripts.Core;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -46,14 +47,7 @@ namespace Assets.Scripts.Core
 				int num = Marshal.ReadInt32(lParam);
 				if (num == 13 && GameSystem.Instance.HasFocus)
 				{
-					if (GameSystem.Instance.IsFullscreen)
-					{
-						GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
-					}
-					else
-					{
-						GameSystem.Instance.GoFullscreen();
-					}
+					MODWindowManager.FullscreenToggle(showToast: true);
 					return (IntPtr)1;
 				}
 			}

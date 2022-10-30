@@ -99,6 +99,31 @@ namespace MOD.Scripts.UI
 				}
 
 				GUILayout.EndHorizontal();
+
+				if(Application.platform == RuntimePlatform.WindowsPlayer)
+				{
+					string playerPrefsPath = $"Computer\\HKEY_CURRENT_USER\\SOFTWARE\\{Application.companyName}\\{Application.productName}";
+					if (buttonRenderer(new GUIContent(
+							"Copy PlayerPrefs Registry Path",
+							$"Click to copy the playerprefs registry folder to clipboard. This registry folder mainly contains Unity resolution settings.\n\n" +
+							$"Paste the path into the Windows Registry Editor (regedit) to view playerprefs.\n\n" +
+							$"Registry Path: {playerPrefsPath}"
+						)))
+					{
+						GUIUtility.systemCopyBuffer = playerPrefsPath;
+					}
+				}
+				else
+				{
+					string playerPrefsPath = Application.platform == RuntimePlatform.LinuxPlayer ?
+							$"~/.config/unity3d/{Application.companyName}/{Application.productName}" :
+							"~/Library/Preferences";
+
+					if (buttonRenderer(new GUIContent("Show PlayerPrefs Folder", $"Click to show the folder containing the playerprefs config file. This config file mainly contains Unity resolution settings.\n\nPath: {playerPrefsPath}")))
+					{
+						MODActions.ShowFile(playerPrefsPath);
+					}
+				}
 			}
 
 			MODMenuCommon.Label("Support Pages");
