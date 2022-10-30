@@ -25,6 +25,15 @@ namespace MOD.Scripts.UI
 		public void OnGUI()
 		{
 			Label($"Resolution Settings (Current: {Screen.width}x{Screen.height})");
+
+			// I noticed a bug on Linux where going Windowed sometimes doesn't let you change window size,
+			// probably due res settings Playerprefs that Unity reads on startup.
+			// Restarting the game after changing settings fixes this.
+			if(Application.platform == RuntimePlatform.LinuxPlayer)
+			{
+				Label($"NOTE: You may need to restart the game after changing to Windowed!");
+			}
+
 			{
 				GUILayout.BeginHorizontal();
 				if (Button(new GUIContent("480p", "Set resolution to 853 x 480"))) { SetAndSaveResolution(480); }
