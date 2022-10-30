@@ -29,6 +29,11 @@ namespace MOD.Scripts.UI
 			GUILayout.Label(label, alignLeft ? MODStyleManager.OnGUIInstance.Group.upperLeftHeadingLabel : MODStyleManager.OnGUIInstance.Group.headingLabel, options);
 		}
 
+		public static bool ButtonNoExpandWithPadding(string label, bool selected = false)
+		{
+			return Button(new GUIContent($"  {label}  "), selected, false, GUILayout.ExpandWidth(false));
+		}
+
 		public static bool Button(string label, bool selected = false, bool stlyeAsLabel = false, params GUILayoutOption[] options)
 		{
 			return Button(new GUIContent(label), selected, stlyeAsLabel, options);

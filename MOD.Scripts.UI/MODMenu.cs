@@ -291,12 +291,12 @@ You can try the following yourself to fix the issue.
 						// Below the BGM name, add utility buttons, all one one line
 						GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
 						{
-							if (Button($"  Copy BGM Name  ", options: GUILayout.ExpandWidth(false)))
+							if (ButtonNoExpandWithPadding($"Copy BGM Name"))
 							{
 								GUIUtility.systemCopyBuffer = bgmInfo.name.Trim();
 							}
 
-							if (Button($"  Show File ({audioPath})  ", options: GUILayout.ExpandWidth(false)))
+							if (ButtonNoExpandWithPadding($"Show File ({audioPath})"))
 							{
 								string bgmFullPath = Path.Combine(Application.streamingAssetsPath, audioPath);
 								showBGMButtonPressed = true;
@@ -305,7 +305,7 @@ You can try the following yourself to fix the issue.
 
 							if (!string.IsNullOrEmpty(bgmInfo.url))
 							{
-								if (GUILayout.Button("Open In Youtube", styleManager.Group.button, GUILayout.ExpandWidth(false)))
+								if (ButtonNoExpandWithPadding("Open In Youtube"))
 								{
 									Application.OpenURL($"https://www.youtube.com/watch?v={bgmInfo.url}");
 								}
