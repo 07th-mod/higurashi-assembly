@@ -27,6 +27,12 @@ namespace MOD.Scripts.Core
 			source = "";
 			url = "";
 		}
+
+		public BGMInfo SetName(string name)
+		{
+			this.name = name;
+			return this;
+		}
 	}
 
 	public class BGMInfoDict
@@ -62,9 +68,7 @@ namespace MOD.Scripts.Core
 			}
 			else
 			{
-				var defaultInfo = new BGMInfo();
-				info.name = GameSystem.Instance.ChooseJapaneseEnglish("不明 BGM", "Unknown BGM");
-				return info;
+				return new BGMInfo().SetName(GameSystem.Instance.ChooseJapaneseEnglish("不明 BGM", "Unknown BGM"));
 			}
 		}
 
