@@ -63,7 +63,7 @@ namespace MOD.Scripts.UI
 						}
 						screenHeightString = $"{new_height}";
 						int new_width = Mathf.RoundToInt(new_height * 16f / 9f);
-						Screen.SetResolution(new_width, new_height, Screen.fullScreen);
+						GameSystem.Instance.SetResolution(new_width, new_height, Screen.fullScreen);
 						PlayerPrefs.SetInt("width", new_width);
 						PlayerPrefs.SetInt("height", new_height);
 					}
@@ -86,7 +86,7 @@ namespace MOD.Scripts.UI
 			}
 			screenHeightString = $"{height}";
 			int width = Mathf.RoundToInt(height * 16f / 9f);
-			Screen.SetResolution(width, height, Screen.fullScreen);
+			GameSystem.Instance.SetResolution(width, height, Screen.fullScreen);
 			PlayerPrefs.SetInt("width", width);
 			PlayerPrefs.SetInt("height", height);
 		}
