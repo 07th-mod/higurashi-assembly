@@ -242,7 +242,7 @@ namespace Assets.Scripts.Core
 			IGameState obj = curStateObj;
 			inputHandler = obj.InputHandler;
 			MessageBoxVisible = false;
-			hasBrokenWindowResize = MODUtility.HasBrokenWindowResize();
+			hasBrokenWindowResize = MODUtility.HasBrokenWindowResize() && MODUtility.PatchWindowResizeFunction();
 			if (!PlayerPrefs.HasKey("width"))
 			{
 				PlayerPrefs.SetInt("width", 1280);

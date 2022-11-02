@@ -284,4 +284,158 @@ public static class MODUtility
 		}
 		XCloseDisplay(display);
 	}
+
+	[DllImport("libc", SetLastError = true)]
+	private static extern IntPtr readlink([MarshalAs(UnmanagedType.LPStr)] string file, IntPtr buffer, IntPtr size);
+	[DllImport("libc")]
+	private static extern int memcmp(IntPtr a, IntPtr b, IntPtr size);
+	[DllImport("libc", SetLastError = true)]
+	private static extern int mprotect(IntPtr addr, IntPtr len, int prot);
+	[DllImport("libc")]
+	private static extern int getpagesize();
+
+	private static readonly byte[] BAD_FUNCTION_HEADER_X64 = new byte[]
+	{
+		0x48, 0x89, 0x5c, 0x24, 0xe0,             // mov qword ptr [rsp - 0x20], rbx
+		0x48, 0x89, 0x6c, 0x24, 0xe8,             // mov qword ptr [rsp - 0x18], rbp
+		0x48, 0x89, 0xfb,                         // mov rbx, rdi
+		0x4c, 0x89, 0x64, 0x24, 0xf0,             // mov qword ptr [rsp - 0x10], r12
+		0x4c, 0x89, 0x6c, 0x24, 0xf8,             // mov qword ptr [rsp - 0x08], r13
+		0x48, 0x81, 0xec, 0x88, 0x00, 0x00, 0x00, // sub rsp, 0x88
+		0x48, 0x83, 0x3d,                         // cmp qword ptr [rip+???], 0
+	};
+
+	private static readonly byte[] BAD_FUNCTION_HEADER_X86 = new byte[]
+	{
+		// x86 starts with a reference to the global variable, which changes between versions
+		// We'll search for some later code instead
+		// Annoyingly, different unity versions have slightly different compilations of the second instruction:
+		// 0x81, 0xec, 0x8c, 0x00, 0x00, 0x00,       sub esp, 0x8c
+		// 0x8b, 0x0d, 0x??, 0x??, 0x??, 0x??,       mov ecx, dword ptr [???]
+		//  - or -
+		// 0xa1, 0x??, 0x??, 0x??, 0x??,             mov eax, dword ptr [???]
+		0x89, 0x5c, 0x24, 0x7c,                   // mov dword ptr [esp + 0x7c], ebx
+		0x8b, 0x94, 0x24, 0x98, 0x00, 0x00, 0x00, // mov edx, dword ptr [esp + 0x98]
+		0x8d, 0x5c, 0x24, 0x24,                   // lea ebx, [esp + 0x24]
+	};
+
+	private static string GetNameOfMainExecutable()
+	{
+		byte[] namebuf = new byte[256];
+		unsafe
+		{
+			while (true)
+			{
+				fixed (byte* nameptr = namebuf)
+				{
+					IntPtr sz = readlink("/proc/self/exe", (IntPtr)nameptr, (IntPtr)namebuf.Length);
+					if (sz == (IntPtr)namebuf.Length)
+					{
+						namebuf = new byte[namebuf.Length * 2];
+						continue;
+					}
+					if (sz.ToInt64() < 0)
+					{
+						Debug.Log($"PatchBrokenResize: Failed to readlink /proc/self/exe: {Marshal.GetLastWin32Error()}");
+						return null;
+					}
+					return Encoding.UTF8.GetString(namebuf, 0, (int)sz);
+				}
+			}
+		}
+	}
+
+	private static bool FindMainExecutableMap(out IntPtr begin, out IntPtr end)
+	{
+		begin = IntPtr.Zero;
+		end = IntPtr.Zero;
+		string name = GetNameOfMainExecutable();
+		if (name == null) { return false; }
+		Debug.Log("PatchBrokenResize: Main executable is " + name);
+		foreach (string line in File.ReadAllLines("/proc/self/maps"))
+		{
+			string[] sections = line.Split(new char[] {' '}, 6, StringSplitOptions.RemoveEmptyEntries);
+			if (sections.Length != 6 || name != sections[5]) { continue; }
+			Debug.Log($"PatchBrokenResize: Found map for main executable, address {sections[0]} perms {sections[1]}");
+			long[] address = sections[0].Split('-').Select(x => long.Parse(x, System.Globalization.NumberStyles.HexNumber)).ToArray();
+			if (address.Length != 2) { continue; }
+			if (!sections[1].Contains('x')) { continue; } // Looking for executable sections
+			begin = (IntPtr)(begin == IntPtr.Zero ? address[0] : Math.Min(begin.ToInt64(), address[0]));
+			end   = (IntPtr)(end   == IntPtr.Zero ? address[1] : Math.Max(end  .ToInt64(), address[1]));
+		}
+		return begin != IntPtr.Zero && end != IntPtr.Zero;
+	}
+
+	private static IntPtr? FindBadWindowResizeFunction()
+	{
+		unsafe
+		{
+			byte[] search = sizeof(IntPtr) == 8 ? BAD_FUNCTION_HEADER_X64 : BAD_FUNCTION_HEADER_X86;
+			if (!FindMainExecutableMap(out IntPtr ibegin, out IntPtr iend)) { return null; }
+			Debug.Log($"PatchBrokenResize: Main executable goes from {ibegin.ToInt64():x} to {iend.ToInt64():x}.");
+			fixed (byte* searchp = search)
+			{
+				byte* begin = (byte*)ibegin;
+				byte* end = (byte*)iend - search.Length;
+				long fastsearch = *(long*)searchp;
+				for (byte* cur = begin; cur < end; cur++)
+				{
+					if (fastsearch != *(long*)cur) { continue; }
+					if (memcmp((IntPtr)cur, (IntPtr)searchp, (IntPtr)search.Length) == 0)
+					{
+						if (sizeof(IntPtr) != 8)
+						{
+							// Search is for data that's either 11 or 12 bytes into the function, so back up the pointer
+							cur -= 11;
+							if (*cur != 0x81) { cur--; } // For the 12 case
+							if (*cur != 0x81)
+							{
+								Debug.Log($"PatchBrokenResize: resize function started with {*cur:x} instead of 81!");
+								return null;
+							}
+						}
+						Debug.Log($"PatchBrokenResize: Found broken resize function at {(long)cur:x}!");
+						return (IntPtr)cur;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/// <summary>
+	/// Finds and patches Unity's broken window resize function to do nothing
+	/// (We'll use our reimplementation of it above instead)
+	/// </summary>
+	public static bool PatchWindowResizeFunction()
+	{
+		if (FindBadWindowResizeFunction() is IntPtr func)
+		{
+			unsafe
+			{
+				long pagesize = getpagesize();
+				long pagemask = pagesize - 1;
+				long fp = func.ToInt64();
+				long funcpage_start = fp & ~pagemask;
+				long funcpage_end = (fp + 1 /* ret */ + pagemask) & ~pagemask;
+				const int PROT_READ = 1;
+				const int PROT_WRITE = 2;
+				const int PROT_EXEC = 4;
+				if (mprotect((IntPtr)funcpage_start, (IntPtr)(funcpage_end - funcpage_start), PROT_READ | PROT_WRITE) != 0)
+				{
+					Debug.Log($"PatchBrokenResize: Failed to mprotect window resize function: {Marshal.GetLastWin32Error()}");
+					return false;
+				}
+				*(byte*)func = 0xc3; // replace first instruction with `ret` to prevent function from doing anything
+				mprotect((IntPtr)funcpage_start, (IntPtr)(funcpage_end - funcpage_start), PROT_READ | PROT_EXEC);
+				Debug.Log("PatchBrokenResize: Successfully patched Unity's broken window resize function!");
+				return true;
+			}
+		}
+		else
+		{
+			Debug.Log("PatchBrokenResize: Couldn't find broken window resize function!");
+			return false;
+		}
+	}
 }
