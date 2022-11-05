@@ -574,5 +574,10 @@ namespace Assets.Scripts.Core.Audio
 				});
 			}
 		}
+
+		public Dictionary<int, AudioInfo> GetCurrrentBGM()
+		{
+			return currentAudio[AudioType.BGM];
+		}
 	}
 }
