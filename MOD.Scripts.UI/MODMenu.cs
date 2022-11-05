@@ -1,11 +1,14 @@
 ﻿using Assets.Scripts.Core;
 using Assets.Scripts.Core.AssetManagement;
+using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.State;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -57,6 +60,9 @@ You can try the following yourself to fix the issue.
 
   5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
 
+		bool showBGMButtonPressed;
+		Vector2 bgmInfoScrollPosition;
+
 		public MODMenu(GameSystem gameSystem)
 		{
 			this.gameSystem = gameSystem;
@@ -76,6 +82,9 @@ You can try the following yourself to fix the issue.
 			this.currentMenu = this.normalMenu;
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
+
+			this.showBGMButtonPressed = false;
+			this.bgmInfoScrollPosition = new Vector2();
 		}
 
 		public void Update()
@@ -151,6 +160,68 @@ You can try the following yourself to fix the issue.
 			GUI.DragWindow(new Rect(0, 0, 10000, 10000));
 		}
 
+		private void OnGUIConfigMenuButton(string text, float? alpha, Action action)
+		{
+			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
+
+			if(alpha.HasValue)
+			{
+				// Temporarily override the global tint color to get a fade in effect which matches the existing UI fade in
+				// This value is not saved by Unity (it resets to the default value each frame)
+				GUI.color = new Color(1.0f, 1.0f, 1.0f, alpha.Value);
+			}
+
+			// Calculate the width and height of the button
+			float areaWidth = Screen.width / 8 + Screen.width / 64;
+			float areaHeight = Mathf.Max(
+				Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10,
+				3 * Screen.height / 32
+			);
+
+			// Position the top-left x so the button is aligned with the config menu background, with a small margin
+			float xOffset = Screen.width / 8 + Screen.width / 64;
+			// Position the top-left y to vertically center the button
+			float yOffset = Screen.height / 2 - areaHeight/2;
+
+			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
+			if (Button(text, options: GUILayout.ExpandHeight(true)))
+			{
+				action();
+			}
+
+			GUILayout.EndArea();
+		}
+
+		private void OnGUIRightClickMenuOverlay(float? alpha, Action onGUIInternal)
+		{
+			if (alpha.HasValue)
+			{
+				// Temporarily override the global tint color to get a fade in effect which matches the existing UI fade in
+				// This value is not saved by Unity (it resets to the default value each frame)
+				GUI.color = new Color(1.0f, 1.0f, 1.0f, alpha.Value);
+			}
+
+			// The width of the overlay should match the right-click menu width
+			float areaWidth = Screen.width * 3 / 4;
+
+			// The overlay should start where the right-click menu starts
+			float xOffset = Screen.width / 8;
+
+			// Set the y-offset so that the overlay appears under the list of controls
+			float yOffset = Screen.height * 11 / 16;
+
+			// Set the height to fill the rest of the screen, but with a little bit of margin at the bottom so it looks nicer
+			float areaHeight = Screen.height - yOffset - Screen.height / 32;
+
+			GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), MODStyleManager.OnGUIInstance.modMenuAreaStyleLight);
+			bgmInfoScrollPosition = GUILayout.BeginScrollView(bgmInfoScrollPosition);
+
+			onGUIInternal();
+
+			GUILayout.EndScrollView();
+			GUILayout.EndArea();
+		}
+
 		/// <summary>
 		/// This function MUST be called from an OnGUI(), otherwise Unity won't work
 		/// properly when  the immediate mode GUI functions are called.
@@ -190,24 +261,74 @@ You can try the following yourself to fix the issue.
 			// (the normal settings screen that comes with the stock game)
 			if (gameSystem.GameState == GameState.ConfigScreen)
 			{
-				if (gameSystem.ConfigManager() != null)
-				{
-					// Temporarily override the global tint color to get a fade in effect which matches the config screen fade-in
-					// This value is not saved by Unity (it resets to the default value each frame)
-					GUI.color = new Color(1.0f, 1.0f, 1.0f, gameSystem.ConfigManager().PanelAlpha());
-				}
-				string text = "Mod Menu\n(Hotkey: F10)";
-				float areaWidth = Screen.width / 8;
-				float areaHeight = Mathf.Round(styleManager.Group.button.CalcHeight(new GUIContent(text, ""), areaWidth)) + 10;
-				float xOffset = 0;
-				float yOffset = Screen.height - areaHeight;
-				GUILayout.BeginArea(new Rect(xOffset, yOffset, areaWidth, areaHeight), styleManager.modMenuAreaStyle);
-				if (GUILayout.Button(text, styleManager.Group.button))
-				{
-					this.Show();
-				}
+				OnGUIConfigMenuButton("Mod Menu\n(Hotkey: F10)", gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show());
+			}
 
-				GUILayout.EndArea();
+			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
+			{
+				OnGUIRightClickMenuOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
+				{
+					HeadingLabel("BGM Info", alignLeft: true);
+					GUILayout.Space(10);
+
+					// It is possible multiple BGM play at the same time (although secondary BGM are usually just background noises rather than actualBGM)
+					List<KeyValuePair<int, AudioInfo>> currentBGM = AudioController.Instance.GetCurrrentBGM().ToList();
+					currentBGM.Sort((x, y) => x.Key - y.Key);
+
+					int bgmCount = 0;
+
+					foreach (KeyValuePair<int, AudioInfo> kvp in currentBGM)
+					{
+						bgmCount++;
+
+						AudioInfo audioInfo = kvp.Value;
+						string audioPath = AssetManager.Instance._GetAudioFilePath(audioInfo.Filename, Assets.Scripts.Core.Audio.AudioType.BGM, out bool _, out bool _);
+						BGMInfo bgmInfo = MODBGMInfo.GetBGMName(audioPath);
+
+						// Display the name of the BGM on one line
+						SelectableLabel($"♫ {bgmInfo.name.Trim()} ♫");
+
+						// Below the BGM name, add utility buttons, all one one line
+						GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
+						{
+							if (ButtonNoExpandWithPadding($"Copy BGM Name"))
+							{
+								GUIUtility.systemCopyBuffer = bgmInfo.name.Trim();
+							}
+
+							if (ButtonNoExpandWithPadding($"Show File ({audioPath})"))
+							{
+								string bgmFullPath = Path.Combine(Application.streamingAssetsPath, audioPath);
+								showBGMButtonPressed = true;
+								MODUtility.ShowInFolder(bgmFullPath);
+							}
+
+							if (!string.IsNullOrEmpty(bgmInfo.url))
+							{
+								if (ButtonNoExpandWithPadding("Open In Youtube"))
+								{
+									Application.OpenURL($"https://www.youtube.com/watch?v={bgmInfo.url}");
+								}
+							}
+						}
+						GUILayout.EndHorizontal();
+
+						if (bgmCount < currentBGM.Count)
+						{
+							GUILayout.Space(10);
+						}
+					}
+
+					// On Windows, add note about explorer .ogg file bug
+					if (showBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
+					{
+						Label("Note: If explorer freezes\nuninstall Web Media Extensions");
+					}
+				});
+			}
+			else
+			{
+				showBGMButtonPressed = false;
 			}
 
 			// If you need to initialize things just once before the menu opens, rather than every frame

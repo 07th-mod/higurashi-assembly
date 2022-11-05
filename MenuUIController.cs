@@ -11,6 +11,7 @@ public class MenuUIController : MonoBehaviour
 	private float time = 0.5f;
 
 	private bool isClosing;
+	public float PanelAlpha() => Panel.alpha;
 
 	private IEnumerator LeaveMenuAnimation(MenuCloseDelegate onClose, bool showMessage)
 	{
