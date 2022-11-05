@@ -2867,7 +2867,14 @@ namespace Assets.Scripts.Core.Buriko
 		public BurikoVariable OperationMODAddBGMset()
 		{
 			SetOperationType("MODAddBGMset");
-			MODAudioSet.Instance.AddBGMSet(ReadPathCascadeFromArgs());
+			PathCascadeList cascadeList = ReadPathCascadeFromArgs();
+
+			MODAudioSet.Instance.AddBGMSet(cascadeList);
+			foreach (string path in cascadeList.paths)
+			{
+				MODBGMInfo.LoadFromJSON(path);
+			}
+
 			return BurikoVariable.Null;
 		}
 
