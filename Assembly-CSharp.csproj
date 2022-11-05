@@ -261,6 +261,7 @@
     <Compile Include="Linear.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
