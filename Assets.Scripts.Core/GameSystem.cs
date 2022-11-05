@@ -140,6 +140,7 @@ namespace Assets.Scripts.Core
 		public readonly List<Wait> WaitList = new List<Wait>();
 
 		private MenuUIController menuUIController;
+		public MenuUIController MenuUIController() => menuUIController;
 
 		private HistoryWindow historyWindow;
 
@@ -184,6 +185,8 @@ namespace Assets.Scripts.Core
 			get => _isFullscreen;
 			private set => _isFullscreen = value;
 		}
+
+		private bool hasBrokenWindowResize;
 
 		private float _configMenuFontSize = 0;
 		public float ConfigMenuFontSize
@@ -239,6 +242,7 @@ namespace Assets.Scripts.Core
 			IGameState obj = curStateObj;
 			inputHandler = obj.InputHandler;
 			MessageBoxVisible = false;
+			hasBrokenWindowResize = MODUtility.HasBrokenWindowResize() && MODUtility.PatchWindowResizeFunction();
 			if (!PlayerPrefs.HasKey("width"))
 			{
 				PlayerPrefs.SetInt("width", 1280);
@@ -262,18 +266,18 @@ namespace Assets.Scripts.Core
 
 			if (IsFullscreen)
 			{
-				Screen.SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
+				SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
 			}
 			else if (PlayerPrefs.HasKey("height") && PlayerPrefs.HasKey("width"))
 			{
 				int width = PlayerPrefs.GetInt("width");
 				int height = PlayerPrefs.GetInt("height");
 				Debug.Log("Requesting window size " + width + "x" + height + " based on config file");
-				Screen.SetResolution(width, height, fullscreen: false);
+				SetResolution(width, height, fullscreen: false);
 			}
 			if ((Screen.width < 640 || Screen.height < 480) && !IsFullscreen)
 			{
-				Screen.SetResolution(640, 480, fullscreen: false);
+				SetResolution(640, 480, fullscreen: false);
 			}
 			Debug.Log("Starting compile thread...");
 			CompileThread = new Thread(CompileScripts)
@@ -284,6 +288,15 @@ namespace Assets.Scripts.Core
 			if (Application.platform == RuntimePlatform.WindowsPlayer)
 			{
 				KeyHook = new KeyHook();
+			}
+		}
+
+		public void SetResolution(int width, int height, bool fullscreen)
+		{
+			Screen.SetResolution(width, height, fullscreen);
+			if (hasBrokenWindowResize)
+			{
+				MODUtility.X11ManualSetWindowSize(width, height);
 			}
 		}
 
@@ -329,7 +342,7 @@ namespace Assets.Scripts.Core
 			if (!IsFullscreen)
 			{
 				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
-				Screen.SetResolution(width, Screen.height, fullscreen: false);
+				SetResolution(width, Screen.height, fullscreen: false);
 			}
 			PlayerPrefs.SetInt("width", Mathf.RoundToInt(PlayerPrefs.GetInt("height") * AspectRatio));
 			MainUIController.UpdateBlackBars();
@@ -822,7 +835,7 @@ namespace Assets.Scripts.Core
 			yield return (object)new WaitForFixedUpdate();
 			IsFullscreen = fullscreen;
 			PlayerPrefs.SetInt("is_fullscreen", fullscreen ? 1 : 0);
-			Screen.SetResolution(width, height, fullscreen);
+			SetResolution(width, height, fullscreen);
 			while (Screen.width != width || Screen.height != height)
 			{
 				yield return (object)null;
@@ -834,7 +847,7 @@ namespace Assets.Scripts.Core
 			IsFullscreen = true;
 			PlayerPrefs.SetInt("is_fullscreen", 1);
 			Resolution resolution = GetFullscreenResolution();
-			Screen.SetResolution(resolution.width, resolution.height, fullscreen: true);
+			SetResolution(resolution.width, resolution.height, fullscreen: true);
 			Debug.Log(resolution.width + " , " + resolution.height);
 			PlayerPrefs.SetInt("fullscreen_width", resolution.width);
 			PlayerPrefs.SetInt("fullscreen_height", resolution.height);
@@ -844,7 +857,7 @@ namespace Assets.Scripts.Core
 		{
 			IsFullscreen = false;
 			PlayerPrefs.SetInt("is_fullscreen", 0);
-			Screen.SetResolution(width, height, fullscreen: false);
+			SetResolution(width, height, fullscreen: false);
 		}
 
 		private void OnApplicationFocus(bool focusStatus)

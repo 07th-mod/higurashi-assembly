@@ -224,6 +224,7 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
