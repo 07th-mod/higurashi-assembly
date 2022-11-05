@@ -41,6 +41,8 @@ namespace MOD.Scripts.UI
 		string TextField_ComputedLipSyncThreshold1;
 		string TextField_ComputedLipSyncThreshold2;
 
+		private static int gameClearClickCount = 3;
+
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
@@ -171,6 +173,8 @@ Sets the script censorship level
 			GameSystem.Instance.SceneController.MODGetExpressionThresholds(out float threshold1, out float threshold2);
 			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
 			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
+
+			gameClearClickCount = 3;
 		}
 
 		private void GraphicsTabOnGUI()
@@ -303,9 +307,65 @@ Sets the script censorship level
 			this.audioOptionsMenu.AdvancedOnGUI();
 		}
 
+		private static void ShowExperimentalGameplayTools()
+		{
+			Label("Experimental Gameplay Tools");
+			{
+				GUILayout.BeginHorizontal();
+
+				bool gameClear = GetGlobal("GFlag_GameClear") != 0;
+
+				string gameClearButtonText;
+				if (gameClearClickCount == 0)
+				{
+					gameClearButtonText = $"{(gameClear ? "Game Clear Forced!" : "All Progress Reset!")} Please reload menu/game!";
+				}
+				else
+				{
+					gameClearButtonText = $"{(gameClear ? "Reset All Progress" : "Force Game Clear")} (Click {gameClearClickCount} times to confirm)";
+				}
+
+				string gameClearButtonDescription =
+					"WARNING: This option will toggle your game clear status:" +
+					"\n - If you haven't finished the game, it will unlock everything." +
+					"\n - If you have already finished the game, it will reset all your progress!" +
+					"\n\nThis toggles the EXTRAS menu, including all TIPS, and all chapter jump chapters." +
+					"\n\nYou may need to reload the current menu or restart the game before you can see the changes." +
+					"\n\nSaves shouldn't be affected.";
+
+				if (Button(new GUIContent(gameClearButtonText, gameClearButtonDescription)))
+				{
+					if (gameClearClickCount == 1)
+					{
+						if (gameClear)
+						{
+							SetGlobal("GFlag_GameClear", 0);
+							SetGlobal("GHighestChapter", 0);
+						}
+						else
+						{
+							SetGlobal("GFlag_GameClear", 1);
+							SetGlobal("GHighestChapter", 999);
+						}
+					}
+
+					if (gameClearClickCount > 0)
+					{
+						gameClearClickCount--;
+					}
+				}
+
+				Label($"Game Cleared?: {(GetGlobal("GFlag_GameClear") == 0 ? "No" : "Yes")}" +
+					$"\nHighest Chapter: {GetGlobal("GHighestChapter")}");
+
+				GUILayout.EndHorizontal();
+			}
+		}
 
 		private void TroubleShootingTabOnGUI()
 		{
+			ShowExperimentalGameplayTools();
+
 			MODMenuSupport.ShowSupportButtons(content => Button(content));
 
 			HeadingLabel("Developer Tools");
@@ -339,6 +399,24 @@ Sets the script censorship level
 
 		private void OnGUIRestoreSettings()
 		{
+			Label("Flag Unlocks");
+			GUILayout.BeginHorizontal();
+			{
+				if (Button(new GUIContent($"Toggle GFlag_GameClear (is {GetGlobal("GFlag_GameClear")})", "Toggle the 'GFlag_GameClear' flag which is normally activated when you complete the game. Unlocks things like the All-cast review.")))
+				{
+					SetGlobal("GFlag_GameClear", GetGlobal("GFlag_GameClear") == 0 ? 1 : 0);
+				}
+
+				if (Button(new GUIContent($"Toggle GHighestChapter 0 <-> 999 (is {GetGlobal("GHighestChapter")})", "Toggle the 'GHighestChapter' flag which indicates the highest chapter you have completed.\n\n" +
+					"When >= 1, unlocks the extras menu.\n" +
+					"Also unlocks other things like which chapters are shown on the chapter jump menu, etc.")))
+				{
+					bool isZero = GetGlobal("GHighestChapter") == 0;
+					SetGlobal("GHighestChapter", isZero ? 999 : 0);
+				}
+			}
+			GUILayout.EndHorizontal();
+
 			Label($"Restore Settings {(GetGlobal("GMOD_SETTING_LOADER") == 3 ? "" : ": <Restart Pending>")}");
 
 			GUILayout.BeginHorizontal();
