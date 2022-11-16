@@ -188,6 +188,8 @@ namespace Assets.Scripts.Core
 
 		private bool hasBrokenWindowResize;
 
+		private float defaultAspect;
+
 		private float _configMenuFontSize = 0;
 		public float ConfigMenuFontSize
 		{
@@ -336,9 +338,23 @@ namespace Assets.Scripts.Core
 			MainUIController.InitializeModMenu(this);
 		}
 
+		public void SetDefaultAspect(float defaultAspect)
+		{
+			this.defaultAspect = defaultAspect;
+		}
+
+		public void UpdateAspectRatio() => UpdateAspectRatio(defaultAspect);
+
 		public void UpdateAspectRatio(float newratio)
 		{
 			AspectRatio = newratio;
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				AspectRatio = 4f / 3f;
+				MODActions.SetTextWindowAppearance((MODActions.ModPreset) MODActions.GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
+			}
+
 			if (!IsFullscreen)
 			{
 				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
