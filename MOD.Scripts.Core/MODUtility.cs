@@ -165,6 +165,25 @@ public static class MODUtility
 		// There are no higurashi games with versions between those, but the patch code should do nothing if it can't find anything.
 		bool is_broken = version < new Version(5, 6, 7);
 		Debug.Log($"Detected Unity {version}, which has {(is_broken ? "broken" : "working")} window resize");
+
+		// Extra check to see if we can actually call any X11 functions, as in some cases you will get a DllNotFoundException: libX11.so
+		if (is_broken)
+		{
+			try
+			{
+				IntPtr display = XOpenDisplay(IntPtr.Zero);
+				if (display != IntPtr.Zero)
+				{
+					XCloseDisplay(display);
+				}
+			}
+			catch (DllNotFoundException e)
+			{
+				Debug.Log($"X11 not available - assuming window resize is not broken: {e}");
+				return false;
+			}
+		}
+
 		return is_broken;
 	}
 
