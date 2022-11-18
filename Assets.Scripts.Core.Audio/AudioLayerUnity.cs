@@ -129,7 +129,9 @@ namespace Assets.Scripts.Core.Audio
 			return audioSource.clip.length - audioSource.time;
 		}
 
-		private IEnumerator WaitForLoad(string filename, AudioType type)
+		public int GetPlayTimeSamples() => audioSource.timeSamples;
+
+		private IEnumerator WaitForLoad(string filename, AudioType type, Action<string, AudioType, AudioClip> onAudioDataLoaded = null)
 		{
 			var watch = System.Diagnostics.Stopwatch.StartNew();
 			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
@@ -137,6 +139,12 @@ namespace Assets.Scripts.Core.Audio
 			yield return audioLoader;
 			loadedName = filename;
 			audioClip = audioLoader.audioClip;
+
+			if(audioClip != null && onAudioDataLoaded != null)
+			{
+				onAudioDataLoaded(filename, type, audioClip);
+			}
+
 			isLoading = false;
 			isLoaded = true;
 			loadCoroutine = null;
@@ -145,7 +153,7 @@ namespace Assets.Scripts.Core.Audio
 			OnFinishLoading();
 		}
 
-		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)
+		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false, Action<string, AudioType, AudioClip> onAudioLoaded = null)
 		{
 			if (IsPlaying())
 			{
@@ -161,7 +169,7 @@ namespace Assets.Scripts.Core.Audio
 			audioType = type;
 			subVolume = startvolume;
 			isLoop = loop;
-			loadCoroutine = StartCoroutine(WaitForLoad(filename, type));
+			loadCoroutine = StartCoroutine(WaitForLoad(filename, type, onAudioLoaded));
 		}
 
 		public void OnLoadCallback(OnFinishLoad callback)

@@ -12,11 +12,14 @@ using Assets.Scripts.UI.CGGallery;
 using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using System.Threading;
 using UnityEngine;
 
 namespace Assets.Scripts.Core
@@ -142,6 +145,7 @@ namespace Assets.Scripts.Core
 		public readonly List<Wait> WaitList = new List<Wait>();
 
 		private MenuUIController menuUIController;
+		public MenuUIController MenuUIController() => menuUIController;
 
 		private HistoryWindow historyWindow;
 
@@ -170,10 +174,13 @@ namespace Assets.Scripts.Core
 
 		public float AspectRatio;
 
+		private Thread CompileThread;
 		// Set to True to ignore normal gameplay inputs:
 		// - Disables normal inputs (e.g to advance text) in main GameSystem loop
 		// - Disables some GUI inputs by manually added checks in each button type
-		public bool MODIgnoreInputs;
+		private bool _MODIgnoreInputs;
+		public bool MODIgnoreInputs() => _MODIgnoreInputs;
+		public void SetMODIgnoreInputs(bool value) => _MODIgnoreInputs = value;
 
 		// Unity will attempt to deserialize public properties and these aren't in the AssetBundle,
 		// so use private ones with public accessors
@@ -183,6 +190,8 @@ namespace Assets.Scripts.Core
 			get => _isFullscreen;
 			private set => _isFullscreen = value;
 		}
+
+		private bool hasBrokenWindowResize;
 
 		private float _configMenuFontSize = 0;
 		public float ConfigMenuFontSize
@@ -224,40 +233,21 @@ namespace Assets.Scripts.Core
 
 		private void Initialize()
 		{
-			Logger.Log("GameSystem: Starting GameSystem");
+			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
+			MainUIController.InitializeToaster();
+			MODLocalization.LoadFromJSON();
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
 			TextController = new TextController();
 			TextHistory = new TextHistory();
-			try
-			{
-				AssetManager.CompileIfNeeded();
-				Logger.Log("GameSystem: Starting ScriptInterpreter");
-				Type type = Type.GetType(ScriptInterpreterName);
-				if (type == null)
-				{
-					throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
-				}
-				ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
-				if (ScriptSystem == null)
-				{
-					throw new Exception("Failed to instantiate ScriptSystem!");
-				}
-				ScriptSystem.Initialize(this);
-			}
-			catch (Exception arg)
-			{
-				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
-				throw;
-				IL_00d0:;
-			}
-			IsRunning = true;
+			IsRunning = false;
 			GameState = GameState.Normal;
 			curStateObj = new StateNormal();
 			IGameState obj = curStateObj;
 			inputHandler = obj.InputHandler;
 			MessageBoxVisible = false;
+			hasBrokenWindowResize = MODUtility.HasBrokenWindowResize() && MODUtility.PatchWindowResizeFunction();
 			if (!PlayerPrefs.HasKey("width"))
 			{
 				PlayerPrefs.SetInt("width", 1280);
@@ -281,24 +271,74 @@ namespace Assets.Scripts.Core
 
 			if (IsFullscreen)
 			{
-				Screen.SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
+				SetResolution(fullscreenResolution.width, fullscreenResolution.height, fullscreen: true);
 			}
 			else if (PlayerPrefs.HasKey("height") && PlayerPrefs.HasKey("width"))
 			{
 				int width = PlayerPrefs.GetInt("width");
 				int height = PlayerPrefs.GetInt("height");
 				Debug.Log("Requesting window size " + width + "x" + height + " based on config file");
-				Screen.SetResolution(width, height, fullscreen: false);
+				SetResolution(width, height, fullscreen: false);
 			}
 			if ((Screen.width < 640 || Screen.height < 480) && !IsFullscreen)
 			{
-				Screen.SetResolution(640, 480, fullscreen: false);
+				SetResolution(640, 480, fullscreen: false);
 			}
+			Debug.Log("Starting compile thread...");
+			CompileThread = new Thread(CompileScripts)
+			{
+				IsBackground = true
+			};
+			CompileThread.Start();
 			if (Application.platform == RuntimePlatform.WindowsPlayer)
 			{
 				KeyHook = new KeyHook();
 			}
+		}
 
+		public void SetResolution(int width, int height, bool fullscreen)
+		{
+			Screen.SetResolution(width, height, fullscreen);
+			if (hasBrokenWindowResize)
+			{
+				MODUtility.X11ManualSetWindowSize(width, height);
+			}
+		}
+
+		public void StartScriptSystem()
+		{
+			Logger.Log("GameSystem: Starting ScriptInterpreter");
+			Type type = Type.GetType(ScriptInterpreterName);
+			if (type == null)
+			{
+				throw new Exception("Cannot find class " + ScriptInterpreterName + " through reflection!");
+			}
+			ScriptSystem = (Activator.CreateInstance(type) as IScriptInterpreter);
+			if (ScriptSystem == null)
+			{
+				throw new Exception("Failed to instantiate ScriptSystem!");
+			}
+			ScriptSystem.Initialize(this);
+		}
+
+		public void CompileScripts()
+		{
+			try
+			{
+				Debug.Log("Compiling!");
+				AssetManager.CompileIfNeeded();
+			}
+			catch (Exception arg)
+			{
+				Logger.LogError($"Unable to load Script Interpreter of type {ScriptInterpreterName}!\r\n{arg}");
+				throw;
+			}
+		}
+
+		public void PostLoading()
+		{
+			StartScriptSystem();
+			MainUIController.InitializeModMenu(this);
 		}
 
 		public void UpdateAspectRatio(float newratio)
@@ -307,7 +347,7 @@ namespace Assets.Scripts.Core
 			if (!IsFullscreen)
 			{
 				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
-				Screen.SetResolution(width, Screen.height, fullscreen: false);
+				SetResolution(width, Screen.height, fullscreen: false);
 			}
 			PlayerPrefs.SetInt("width", Mathf.RoundToInt(PlayerPrefs.GetInt("height") * AspectRatio));
 			MainUIController.UpdateBlackBars();
@@ -800,7 +840,7 @@ namespace Assets.Scripts.Core
 			yield return (object)new WaitForFixedUpdate();
 			IsFullscreen = fullscreen;
 			PlayerPrefs.SetInt("is_fullscreen", fullscreen ? 1 : 0);
-			Screen.SetResolution(width, height, fullscreen);
+			SetResolution(width, height, fullscreen);
 			while (Screen.width != width || Screen.height != height)
 			{
 				yield return (object)null;
@@ -812,7 +852,7 @@ namespace Assets.Scripts.Core
 			IsFullscreen = true;
 			PlayerPrefs.SetInt("is_fullscreen", 1);
 			Resolution resolution = GetFullscreenResolution();
-			Screen.SetResolution(resolution.width, resolution.height, fullscreen: true);
+			SetResolution(resolution.width, resolution.height, fullscreen: true);
 			Debug.Log(resolution.width + " , " + resolution.height);
 			PlayerPrefs.SetInt("fullscreen_width", resolution.width);
 			PlayerPrefs.SetInt("fullscreen_height", resolution.height);
@@ -822,7 +862,7 @@ namespace Assets.Scripts.Core
 		{
 			IsFullscreen = false;
 			PlayerPrefs.SetInt("is_fullscreen", 0);
-			Screen.SetResolution(width, height, fullscreen: false);
+			SetResolution(width, height, fullscreen: false);
 		}
 
 		private void OnApplicationFocus(bool focusStatus)
@@ -845,72 +885,93 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		private bool CheckInitialization()
+		{
+			if (!IsInitialized)
+			{
+				Initialize();
+				return false;
+			}
+			if (!IsRunning)
+			{
+				if (CompileThread == null || CompileThread.IsAlive)
+				{
+					if (AssetManager.MaxLoading > 0)
+					{
+						MODToaster.Show("Preparing scripts (" + AssetManager.CurrentLoading + " of " + AssetManager.MaxLoading + ")...", maybeSound: null);
+					}
+					return false;
+				}
+				IsRunning = true;
+				PostLoading();
+			}
+			if (SystemInit > 0)
+			{
+				return false;
+			}
+			return true;
+		}
+
 		private void Update()
 		{
-			if (SystemInit <= 0)
+			if (!CheckInitialization())
 			{
-				Logger.Update();
-				if (!IsInitialized)
+				return;
+			}
+			Logger.Update();
+			if (blockInputTime <= 0f)
+			{
+				if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs() || inputHandler == null || !inputHandler()))
 				{
-					Initialize();
+					return;
 				}
-				else
+			}
+			else
+			{
+				blockInputTime -= Time.deltaTime;
+			}
+			if (IsRunning && CanAdvance)
+			{
+				UpdateWaits();
+				UpdateCarret();
+				try
 				{
-					if (blockInputTime <= 0f)
+					if (GameState == GameState.Normal)
 					{
-						if ((CanInput || GameState != GameState.Normal) && (MODIgnoreInputs || inputHandler == null || !inputHandler()))
+						TextController.Update();
+						if (!IsSkipping)
 						{
-							return;
+							goto IL_0112;
 						}
-					}
-					else
-					{
-						blockInputTime -= Time.deltaTime;
-					}
-					if (IsRunning && CanAdvance)
-					{
-						UpdateWaits();
-						UpdateCarret();
-						try
+						skipWait -= Time.deltaTime;
+						if (!(skipWait <= 0f))
 						{
-							if (GameState == GameState.Normal)
+							goto IL_0112;
+						}
+						if (!HasExistingWaits())
+						{
+							if (SkipModeDelay)
 							{
-								TextController.Update();
-								if (!IsSkipping)
-								{
-									goto IL_0112;
-								}
-								skipWait -= Time.deltaTime;
-								if (!(skipWait <= 0f))
-								{
-									goto IL_0112;
-								}
-								if (!HasExistingWaits())
-								{
-									if (SkipModeDelay)
-									{
-										skipWait = 0.1f;
-									}
-									goto IL_0112;
-								}
-								ClearAllWaits();
+								skipWait = 0.1f;
 							}
-							goto end_IL_00a2;
-							IL_0112:
-							float num = Time.time + 0.01f;
-							while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && CanAdvance)
-							{
-								ScriptSystem.Advance();
-							}
-							end_IL_00a2:;
+							goto IL_0112;
 						}
-						catch (Exception)
-						{
-							IsRunning = false;
-							throw;
-							IL_0178:;
-						}
+						ClearAllWaits();
 					}
+					goto end_IL_00a2;
+					IL_0112:
+					float num = Time.time + 0.01f;
+					while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && CanAdvance)
+					{
+						ScriptSystem.Advance();
+					}
+					end_IL_00a2:;
+				}
+				catch (Exception)
+				{
+					IsRunning = false;
+					throw;
+					IL_0178:;
 				}
 			}
 		}

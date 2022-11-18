@@ -64,6 +64,12 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		private string assetPath = Application.streamingAssetsPath;
 
+		public int CurrentLoading;
+
+		public int MaxLoading;
+
+		public bool AbortLoading;
+
 		private List<string> scriptList = new List<string>();
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
@@ -72,6 +78,9 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastSE { get; private set; } = "No SE played yet";
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
+
+		public int numCompileOK { get; private set; }
+		public int numCompileFail { get; private set; }
 
 		/// <summary>
 		/// Get the artset at the given index
@@ -109,6 +118,85 @@ namespace Assets.Scripts.Core.AssetManagement
 			Artsets.Clear();
 		}
 
+		/// <param name="pathNoExt">The part of the path before the first dot (.)</param>
+		/// <param name="ext">The part of the path after the first dot (.). Does not include the dot.</param>
+		private void SplitPathOnFileExtension(string inputPath, out string pathNoExt, out string ext)
+		{
+			string[] splitPath = inputPath.Split(new char[] { '.' }, 2);
+
+			if (splitPath.Length < 2)
+			{
+				pathNoExt = inputPath;
+				ext = "";
+				return;
+			}
+			else
+			{
+				pathNoExt = splitPath[0];
+				ext = splitPath[1];
+				return;
+			}
+		}
+
+		/// <param name="subFolder">Subfolder in the StreamingAssets folder</param>
+		/// <param name="relativePath">File path relative to subFolder</param>
+		/// <param name="filePath">Output filepath - only valid if function returns true</param>
+		/// <returns></returns>
+		private bool CheckStreamingAssetsPathExistsInner(string subFolder, string relativePath, out string filePath)
+		{
+			filePath = Path.Combine(Path.Combine(assetPath, subFolder), relativePath);
+			if (File.Exists(filePath))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool CheckStreamingAssetsPathExists(string subFolder, string relativePath, out string filePath)
+		{
+			if(CheckStreamingAssetsPathExistsInner(subFolder, relativePath, out filePath))
+			{
+				return true;
+			}
+
+			// Don't allow substituting sprite lipsync variants if using the Console sprites,
+			// to make missing Console sprites more obvious during development.
+			if (CurrentArtsetIndex == 0)
+			{
+				return false;
+			}
+
+			// Only allow lipsync variants for files in the 'sprite' or 'portrait' folder.
+			bool isSprite = relativePath.StartsWith("sprite/") || relativePath.StartsWith("portrait/");
+			if (!isSprite)
+			{
+				return false;
+			}
+
+			SplitPathOnFileExtension(relativePath, out string pathNoExt, out string ext);
+
+			string pathWithoutVariantNumber = pathNoExt.Substring(0, Math.Max(pathNoExt.Length - 1, 0));
+
+			for (int i = 0; i < 3; i++)
+			{
+				string lipsyncVariantFileName = $"{pathWithoutVariantNumber}{i}.{ext}";
+
+				// If the name to test is the same as the initial name, don't test it again
+				if (lipsyncVariantFileName == relativePath)
+				{
+					continue;
+				}
+
+				if (CheckStreamingAssetsPathExistsInner(subFolder, lipsyncVariantFileName, out filePath))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Gets the path to an asset with the given name in the given artset, or null if none are found
 		/// </summary>
@@ -120,8 +208,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			// If OG backgrounds are enabled, always check OGBackgrounds first.
 			if (backgroundSetIndex == 1)
 			{
-				string filePath = Path.Combine(Path.Combine(assetPath, "OGBackgrounds"), name);
-				if (File.Exists(filePath))
+				if(CheckStreamingAssetsPathExists("OGBackgrounds", name, out string filePath))
 				{
 					return filePath;
 				}
@@ -135,55 +222,91 @@ namespace Assets.Scripts.Core.AssetManagement
 					continue;
 				}
 
-				string filePath = Path.Combine(Path.Combine(assetPath, artSetPath), name);
-				if (File.Exists(filePath))
+				if (CheckStreamingAssetsPathExists(artSetPath, name, out string filePath))
 				{
 					return filePath;
 				}
 			}
+
 			return null;
 		}
 
-		public void CompileFolder(string srcDir, string destDir)
+		// The arguments AbortLoading, MaxLoading, and CurrentLoading are only used for meakashi onwards
+		// MaxLoading, and CurrentLoading are are used to display the Script Compilation Progress Text
+		// I'm not sure if AbortLoading is ever used
+		private void CompileFolder(string srcDir, string destDir)
 		{
-			string[] files = Directory.GetFiles(srcDir, "*.txt");
-			string[] files2 = Directory.GetFiles(destDir, "*.mg");
-			List<string> list = new List<string>();
-			string[] array = files;
-			foreach (string text in array)
+			MODCompileRequiredDetector detector = new MODCompileRequiredDetector(destDir);
+			detector.Load();
+
+			MaxLoading = 0;
+			CurrentLoading = 0;
+
+			string[] txtList1 = Directory.GetFiles(srcDir, "*.txt");
+			string[] mgList1 = Directory.GetFiles(destDir, "*.mg");
+			List<string> scriptNames = new List<string>();
+
+			List<string> txtToCompileList = new List<string>();
+			List<string> mgToCompileList = new List<string>();
+
+			string[] txtList = txtList1;
+			foreach (string txtPath1 in txtList)
 			{
-				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(text);
-				if (fileNameWithoutExtension != null)
+				string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(txtPath1);
+				if (fileNameWithoutExtension == null)
 				{
-					list.Add(fileNameWithoutExtension);
-					string text2 = text;
-					string text3 = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
-					if (File.Exists(text3))
-					{
-						if (File.GetLastWriteTime(text2) <= File.GetLastWriteTime(text3))
-						{
-							continue;
-						}
-						Debug.Log($"Script {text3} last compiled {File.GetLastWriteTime(text3)} (source {text2} updated on {File.GetLastWriteTime(text2)})");
-					}
-					Debug.Log("Compiling file " + text2);
-					try
-					{
-						new BGItoMG(text2, text3);
-					}
-					catch (Exception arg)
-					{
-						Debug.LogError($"Failed to compile script {fileNameWithoutExtension}!\r\n{arg}");
-					}
+					continue;
+				}
+				scriptNames.Add(fileNameWithoutExtension);
+				string txtPath = txtPath1;
+				string mgPath = Path.Combine(destDir, fileNameWithoutExtension) + ".mg";
+				if(!detector.SaveScriptInfoAndCheckScriptNeedsCompile(txtPath, mgPath))
+				{
+					detector.MarkScriptCompiled(fileNameWithoutExtension);
+					continue;
+				}
+				txtToCompileList.Add(txtPath);
+				mgToCompileList.Add(mgPath);
+			}
+
+			MaxLoading = txtToCompileList.Count;
+			for (int j = 0; j < txtToCompileList.Count; j++)
+			{
+				CurrentLoading = j + 1;
+				string text4 = txtToCompileList[j];
+				string outname = mgToCompileList[j];
+				string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(text4);
+				Debug.Log("Compiling file " + text4);
+				try
+				{
+					new BGItoMG(text4, outname);
+					numCompileOK++;
+					detector.MarkScriptCompiled(fileNameWithoutExtension2);
+				}
+				catch (Exception arg)
+				{
+					Debug.LogError($"Failed to compile script {fileNameWithoutExtension2}!\r\n{arg}");
+					numCompileFail++;
+				}
+				if (AbortLoading)
+				{
+					return;
 				}
 			}
-			string[] array2 = files2;
-			foreach (string path in array2)
+
+			// Only update .txt compile status if at least one file compiled
+			if (numCompileOK > 0)
 			{
-				string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(path);
-				if (!list.Contains(fileNameWithoutExtension2))
+				detector.Save();
+			}
+
+			string[] mgList = mgList1;
+			foreach (string path in mgList)
+			{
+				string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(path);
+				if (!scriptNames.Contains(fileNameWithoutExtension3))
 				{
-					Debug.Log("Compiled script " + fileNameWithoutExtension2 + " has no matching script file. Removing...");
+					Debug.Log("Compiled script " + fileNameWithoutExtension3 + " has no matching script file. Removing...");
 					File.Delete(path);
 				}
 			}

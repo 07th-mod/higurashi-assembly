@@ -441,10 +441,10 @@ namespace Assets.Scripts.UI
 			if (modMenu != null)
 			{
 				modMenu.Update();
-			}
 
-			// Handle mod keyboard shortcuts
-			MODKeyboardShortcuts.ModInputHandler();
+				// Handle mod keyboard shortcuts
+				MODKeyboardShortcuts.ModInputHandler();
+			}
 
 			int num = 402;
 			int num2 = 402;
@@ -499,6 +499,12 @@ namespace Assets.Scripts.UI
 		{
 			MainUIController ui = GameSystem.Instance.MainUIController;
 
+			// Prevent text window background appearing on top of the title screen in Rei
+			if(GameSystem.Instance.GameState == GameState.TitleScreen)
+			{
+				return;
+			}
+
 			// If this function is called from the main menu, the bgLayers might be null
 			if (ui.bgLayer == null || ui.bgLayer2 == null)
 			{
@@ -509,6 +515,30 @@ namespace Assets.Scripts.UI
 			ui.bgLayer2.ReleaseTextures();
 			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 			ui.bgLayer2.DrawLayer(windowFilterTextureName, 0, 0, 0, null, GameSystem.Instance.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+		}
+
+		public void InitializeToaster()
+		{
+			this.toaster = new MODToaster();
+		}
+
+		// This must be called after BurikoScriptSystem has been initialized
+		public void InitializeModMenu(GameSystem gameSystem)
+		{
+			this.modMenu = new MODMenu(gameSystem);
+
+			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
+			int numFail = GameSystem.Instance.AssetManager.numCompileFail;
+			int numOK = GameSystem.Instance.AssetManager.numCompileOK;
+			int total = numOK + numFail;
+			if (numFail > 0)
+			{
+				MODToaster.Show($"FAILED compiling {numFail}/{total} scripts");
+			}
+			else if(numOK > 0)
+			{
+				MODToaster.Show($"Compiled {numOK} scripts OK");
+			}
 		}
 
 		// TODO: An empty OnGUI costs .03ms per frame and produces a little garbage, even if empty/not doing anything
@@ -524,24 +554,19 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			// This can happen if you hold CTRL (skip) during game startup, presumably because OnGUI() gets called before the first Update() call
-			if(this.gameSystem == null)
+			if(this.toaster == null)
 			{
 				return;
 			}
 
-			if (this.toaster == null)
-			{
-				this.toaster = new MODToaster();
-			}
+			toaster.OnGUIFragment();
 
 			if (this.modMenu == null)
 			{
-				this.modMenu = new MODMenu(this.gameSystem);
+				return;
 			}
 
 			modMenu.OnGUIFragment();
-			toaster.OnGUIFragment();
 
 			// Helper Functions for processing flags
 			string boolDesc(string flag, string name)

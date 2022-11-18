@@ -16,21 +16,32 @@ namespace MOD.Scripts.UI
 
 		private GUIContent[] defaultArtsetDescriptions;
 		private readonly bool hasOGBackgrounds;
+		private bool hasMangaGamerSprites;
 
 		private readonly MODRadio radioCensorshipLevel;
 		private readonly MODRadio radioLipSync;
+		private readonly string radioLipSyncLabelActive = "Lip Sync for Console Sprites (Hotkey: 7)";
+		private readonly string radioLipSyncLabelInactive = "Lip Sync (NOTE: Select 'Console' sprites or preset to enable)";
+		private readonly GUIContent[] radioLipSyncActive;
+		private readonly GUIContent[] radioLipSyncInactive;
 		private readonly MODRadio radioOpenings;
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
 		private readonly MODRadio radioStretchBackgrounds;
 		private readonly MODRadio radioTextWindowModeAndCrop;
+		private readonly MODRadio radioForceComputedLipsync;
 
 		private readonly MODTabControl tabControl;
 
 		private readonly MODCustomFlagPreset customFlagPreset;
 
 		private bool showDeveloperSubmenu;
+
+		string TextField_ComputedLipSyncThreshold1;
+		string TextField_ComputedLipSyncThreshold2;
+
+		private static int gameClearClickCount = 3;
 
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
@@ -64,11 +75,19 @@ Sets the script censorship level
 				new GUIContent("5", "Censorship level 5 - Equivalent to Console" + baseCensorshipDescription),
 				});
 
-			radioLipSync = new MODRadio("Lip Sync for Console Sprites (Hotkey: 7)", new GUIContent[]
+			radioLipSyncActive = new GUIContent[]
 			{
 				new GUIContent("Lip Sync Off", "Disables Lip Sync for Console Sprites"),
 				new GUIContent("Lip Sync On", "Enables Lip Sync for Console Sprites"),
-			});
+			};
+
+			radioLipSyncInactive = new GUIContent[]
+			{
+				new GUIContent("Lip Sync Off (Inactive)", "Disables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"),
+				new GUIContent("Lip Sync On (Inactive)", "Enables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"),
+			};
+
+			radioLipSync = new MODRadio(radioLipSyncLabelActive, radioLipSyncActive);
 
 			radioOpenings = new MODRadio("Opening Movies (Hotkey: Shift-F12)", new GUIContent[]
 			{
@@ -112,6 +131,11 @@ Sets the script censorship level
 				"- Makes text show only in a 4:3 section of the screen (narrower than NVL mode)\n"),
 			}, itemsPerRow: 2);
 
+			radioForceComputedLipsync = new MODRadio("Force Computed Lipsync", new GUIContent[] {
+				new GUIContent("As Fallback", "Only use computed lipsync if there is no baked 'spectrum' file for a given .ogg file"),
+				new GUIContent("Computed Always", "Always use computed lipsync for all voices. Any 'spectrum' files will be ignored.")
+			});
+
 			tabControl = new MODTabControl(new List<MODTabControl.TabProperties>
 			{
 				new MODTabControl.TabProperties("Gameplay", "Voice Matching and Opening Videos", GameplayTabOnGUI),
@@ -141,8 +165,16 @@ Sets the script censorship level
 			}
 			this.radioArtSet.SetContents(descriptions);
 
+			hasMangaGamerSprites = descriptions.Length > 1;
+
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
+
+			GameSystem.Instance.SceneController.MODGetExpressionThresholds(out float threshold1, out float threshold2);
+			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
+			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
+
+			gameClearClickCount = 3;
 		}
 
 		private void GraphicsTabOnGUI()
@@ -163,9 +195,9 @@ Sets the script censorship level
 					MODActions.SetGraphicsPreset(MODActions.ModPreset.Console, showInfoToast: false);
 				}
 
-				if (Button(new GUIContent("MangaGamer", "This preset:\n" +
+				if (this.hasMangaGamerSprites && Button(new GUIContent("MangaGamer", "This preset:\n" +
 					"- Makes text show across the whole screen\n" +
-					"- Uses the console sprites and backgrounds\n" +
+					"- Uses the Mangagamer remake sprites and Console backgrounds\n" +
 					"- Displays in 16:9 widescreen\n\n" +
 					"Note that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"), selected: !customFlagPreset.Enabled && !presetModified && advNVLRyukishiMode == 1))
 				{
@@ -192,6 +224,19 @@ Sets the script censorship level
 			}
 
 			HeadingLabel("Advanced Options");
+
+
+			// Show warning message if lip sync would have no effect
+			if (Core.MODSystem.instance.modTextureController.GetArtStyle() == 0)
+			{
+				radioLipSync.SetLabel(radioLipSyncLabelActive);
+				radioLipSync.SetContents(radioLipSyncActive);
+			}
+			else
+			{
+				radioLipSync.SetLabel(radioLipSyncLabelInactive);
+				radioLipSync.SetContents(radioLipSyncInactive);
+			}
 
 			if (this.radioLipSync.OnGUIFragment(GetGlobal("GLipSync")) is int lipSyncEnabled)
 			{
@@ -229,6 +274,11 @@ Sets the script censorship level
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 
+			if (Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+			{
+				Label("WARNING: You have ADV mode enabled, but you are in a forced-NVL section, so the game will display in NVL mode temporarily!");
+			}
+
 			HeadingLabel("Resolution");
 
 			resolutionMenu.OnGUI();
@@ -257,10 +307,65 @@ Sets the script censorship level
 			this.audioOptionsMenu.AdvancedOnGUI();
 		}
 
+		private static void ShowExperimentalGameplayTools()
+		{
+			Label("Experimental Gameplay Tools");
+			{
+				GUILayout.BeginHorizontal();
+
+				bool gameClear = GetGlobal("GFlag_GameClear") != 0;
+
+				string gameClearButtonText;
+				if (gameClearClickCount == 0)
+				{
+					gameClearButtonText = $"{(gameClear ? "Game Clear Forced!" : "All Progress Reset!")} Please reload menu/game!";
+				}
+				else
+				{
+					gameClearButtonText = $"{(gameClear ? "Reset All Progress" : "Force Game Clear")} (Click {gameClearClickCount} times to confirm)";
+				}
+
+				string gameClearButtonDescription =
+					"WARNING: This option will toggle your game clear status:" +
+					"\n - If you haven't finished the game, it will unlock everything." +
+					"\n - If you have already finished the game, it will reset all your progress!" +
+					"\n\nThis toggles the EXTRAS menu, including all TIPS, and all chapter jump chapters." +
+					"\n\nYou may need to reload the current menu or restart the game before you can see the changes." +
+					"\n\nSaves shouldn't be affected.";
+
+				if (Button(new GUIContent(gameClearButtonText, gameClearButtonDescription)))
+				{
+					if (gameClearClickCount == 1)
+					{
+						if (gameClear)
+						{
+							SetGlobal("GFlag_GameClear", 0);
+							SetGlobal("GHighestChapter", 0);
+						}
+						else
+						{
+							SetGlobal("GFlag_GameClear", 1);
+							SetGlobal("GHighestChapter", 999);
+						}
+					}
+
+					if (gameClearClickCount > 0)
+					{
+						gameClearClickCount--;
+					}
+				}
+
+				Label($"Game Cleared?: {(GetGlobal("GFlag_GameClear") == 0 ? "No" : "Yes")}" +
+					$"\nHighest Chapter: {GetGlobal("GHighestChapter")}");
+
+				GUILayout.EndHorizontal();
+			}
+		}
 
 		private void TroubleShootingTabOnGUI()
 		{
-			Label("Save Files and Log Files");
+			ShowExperimentalGameplayTools();
+
 			MODMenuSupport.ShowSupportButtons(content => Button(content));
 
 			HeadingLabel("Developer Tools");
@@ -280,6 +385,8 @@ Sets the script censorship level
 					MODActions.ToggleFlagMenu();
 				}
 				GUILayout.EndHorizontal();
+
+				OnGUIComputedLipsync();
 			}
 			else
 			{
@@ -292,6 +399,24 @@ Sets the script censorship level
 
 		private void OnGUIRestoreSettings()
 		{
+			Label("Flag Unlocks");
+			GUILayout.BeginHorizontal();
+			{
+				if (Button(new GUIContent($"Toggle GFlag_GameClear (is {GetGlobal("GFlag_GameClear")})", "Toggle the 'GFlag_GameClear' flag which is normally activated when you complete the game. Unlocks things like the All-cast review.")))
+				{
+					SetGlobal("GFlag_GameClear", GetGlobal("GFlag_GameClear") == 0 ? 1 : 0);
+				}
+
+				if (Button(new GUIContent($"Toggle GHighestChapter 0 <-> 999 (is {GetGlobal("GHighestChapter")})", "Toggle the 'GHighestChapter' flag which indicates the highest chapter you have completed.\n\n" +
+					"When >= 1, unlocks the extras menu.\n" +
+					"Also unlocks other things like which chapters are shown on the chapter jump menu, etc.")))
+				{
+					bool isZero = GetGlobal("GHighestChapter") == 0;
+					SetGlobal("GHighestChapter", isZero ? 999 : 0);
+				}
+			}
+			GUILayout.EndHorizontal();
+
 			Label($"Restore Settings {(GetGlobal("GMOD_SETTING_LOADER") == 3 ? "" : ": <Restart Pending>")}");
 
 			GUILayout.BeginHorizontal();
@@ -321,6 +446,43 @@ Sets the script censorship level
 				}
 			}
 			GUILayout.EndHorizontal();
+		}
+
+		private void OnGUIComputedLipsync()
+		{
+			Label("Computed Lipsync Options");
+			GUILayout.BeginHorizontal();
+			Label(new GUIContent("LipSync Thresh 1: ", "Above this threshold, expression 1 will be used.\n\n" +
+				"Below or equal to this threshold, expression 0 will be used.\n\n" +
+				"Only saved until the game restarts"));
+			TextField_ComputedLipSyncThreshold1 = GUILayout.TextField(TextField_ComputedLipSyncThreshold1);
+
+			Label(new GUIContent("LipSync Thresh 2: ", "Above this thireshold, expression 2 will be used\n\n" +
+				"Only saved until the game restarts"));
+			TextField_ComputedLipSyncThreshold2 = GUILayout.TextField(TextField_ComputedLipSyncThreshold2);
+
+			if (Button(new GUIContent("Set", "Tries to set the given lipsync thresholds\n\n")))
+			{
+				if (float.TryParse(TextField_ComputedLipSyncThreshold1, out float threshold1) &&
+					float.TryParse(TextField_ComputedLipSyncThreshold2, out float threshold2) &&
+					threshold1 >= 0 &&
+					threshold1 <= 1 &&
+					threshold2 >= 0 &&
+					threshold2 <= 1)
+				{
+					GameSystem.Instance.SceneController.MODSetExpressionThresholds(threshold1, threshold2);
+				}
+				else
+				{
+					MODToaster.Show("Invalid thresholds - each threshold should be a value between 0 and 1");
+				}
+			}
+			GUILayout.EndHorizontal();
+
+			if(this.radioForceComputedLipsync.OnGUIFragment(GameSystem.Instance.SceneController.MODGetForceComputedLipsync()) is bool newForceComputedLipsync)
+			{
+				GameSystem.Instance.SceneController.MODSetForceComputedLipsync(newForceComputedLipsync);
+			}
 		}
 
 		public bool UserCanClose() => true;

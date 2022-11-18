@@ -10,7 +10,7 @@ namespace MOD.Scripts.Core.Scene
 {
 	public class MODSceneController
 	{
-		private const int MAX_CHARACTERS = 100;
+		public static int MAX_CHARACTERS = 100;
 		public static int MODLipSync_Character_Audio;
 
 		public struct Filter
@@ -193,6 +193,14 @@ namespace MOD.Scripts.Core.Scene
 
 		public static void ApplyFilters(int layer, Texture2D texture)
 		{
+			// This avoids a crash when "GetPixels32 called on a degenerate image (dimensions 0x0)"
+			// "UnityException: Texture '' is not configured correctly to allow GetPixels"
+			if (texture.width == 0 || texture.height == 0)
+			{
+				Debug.LogError("WARNING: ApplyFilters() called on texture with zero width and zero height. No filters will be applied.");
+				return;
+			}
+
 			if (!TryGetLayerFilter(layer, out Filter value)) { return; }
 			var watch = System.Diagnostics.Stopwatch.StartNew();
 			var pixels = texture.GetPixels32();
@@ -273,13 +281,6 @@ namespace MOD.Scripts.Core.Scene
 			MODLipSync_Priority = new int[MAX_CHARACTERS];
 			MODLipSync_Channel = new int[MAX_CHARACTERS];
 			MODLipSync_CoroutineId = new ulong[MAX_CHARACTERS];
-		}
-
-		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
-		{
-			int num = MODLipSync_Layer[charnum];
-			string textureName = MODLipSync_Texture[charnum] + expressionnum;
-			return LoadTextureWithFilters(num, textureName);
 		}
 
 		static MODSceneController()

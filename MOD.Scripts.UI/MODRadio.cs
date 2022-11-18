@@ -33,6 +33,16 @@ namespace MOD.Scripts.UI
 			this.asButtons = asButtons;
 		}
 
+		public bool? OnGUIFragment(bool displayedRadio, bool hideLabel = false)
+		{
+			if(OnGUIFragment(displayedRadio ? 1 : 0, hideLabel) is int newValue)
+			{
+				return newValue != 0;
+			}
+
+			return null;
+		}
+
 		/// <summary>
 		/// NOTE: only call this function within OnGUI()
 		/// Displays the radio, calling onRadioChange when the user clicks on a different radio value.
@@ -96,5 +106,10 @@ namespace MOD.Scripts.UI
 		}
 
 		public GUIContent[] GetContents() => this.radioContents;
+
+		public void SetLabel(string label)
+		{
+			this.label = label;
+		}
 	}
 }

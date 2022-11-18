@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +29,13 @@ namespace Assets.Scripts.UI.Choice
 
 		public void Create(List<string> optstrings, int count)
 		{
+			// The text X offset is only necessary when in 16:9 mode - when in 4:3 mode just use an offset of 0
+			float GUIXOffset = GameSystem.Instance.GetGUIOffset();
+			if(BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode").IntValue() == 1)
+			{
+				GUIXOffset = 0;
+			}
+
 			GameObject gameObject = GameObject.FindGameObjectWithTag("PrimaryUIPanel");
 			for (int i = 0; i < count; i++)
 			{
@@ -44,21 +52,21 @@ namespace Assets.Scripts.UI.Choice
 					float x;
 					if (i == count - 1 && count % 2 == 1)
 					{
-						x = GameSystem.Instance.GetGUIOffset();
+						x = GUIXOffset;
 					}
 					else if (i % 2 == 0)
 					{
-						x = GameSystem.Instance.GetGUIOffset() - 300f;
+						x = GUIXOffset - 300f;
 					}
 					else
 					{
-						x = GameSystem.Instance.GetGUIOffset() + 300f;
+						x = GUIXOffset + 300f;
 					}
 					gameObject2.transform.localPosition = new Vector3(x, (float)(-75 * (i / 2) + 27 * count - 100), 0f);
 				}
 				else
 				{
-					gameObject2.transform.localPosition = new Vector3(GameSystem.Instance.GetGUIOffset(), (float)(-75 * i + 27 * count + 50), 0f);
+					gameObject2.transform.localPosition = new Vector3(GUIXOffset, (float)(-75 * i + 27 * count + 50), 0f);
 				}
 				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
 				component.ChangeText(optstrings[i]);
