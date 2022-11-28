@@ -26,6 +26,19 @@ namespace Assets.Scripts.UI.ChapterScreen
 			});
 			GameSystem.Instance.ExecuteActions();
 			TipsManager.ReturnPage = 0;
+
+			// There are multiple instances of this ChapterScreen object. Make sure we're modifying the right one.
+			if(this == GameSystem.Instance.FragmentChapterPrefab)
+			{
+				// These buttons appear before entering the fragment selection screen.
+				// There are two buttons, one to proceed to the fragment screen, and one to enter the save/load screen
+				TextRefresher textRefresher = ChapterButtons[0].TextMesh.GetComponent<TextRefresher>();
+				textRefresher.Japanese = "カケラつむぎをする";
+			}
+			else if(this == GameSystem.Instance.ChapterScreenPrefab)
+			{
+				// These buttons appear at the end of every chapter (???)
+			}
 		}
 
 		public void Hide(Action onFinish)
