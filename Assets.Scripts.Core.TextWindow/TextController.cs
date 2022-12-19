@@ -225,6 +225,7 @@ namespace Assets.Scripts.Core.TextWindow
 			englishtext = string.Empty;
 			japanesetext = string.Empty;
 			txt = string.Empty;
+			gameSystem.MainUIController.HideCarret();
 			AudioController.Instance.ClearVoiceQueue();
 		}
 
