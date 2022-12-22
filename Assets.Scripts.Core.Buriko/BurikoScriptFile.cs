@@ -660,7 +660,6 @@ namespace Assets.Scripts.Core.Buriko
 			this.gameSystem.MainUIController.HideLayerBackground(0.25f);
 			gameSystem.DisplayChoices(stringList, num);
 			gameSystem.ExecuteActions();
-			gameSystem.AddWait(new Wait(1f, WaitTypes.WaitForTime, null));
 			return null;
 		}
 
