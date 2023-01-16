@@ -170,10 +170,6 @@ Sets the script censorship level
 			resolutionMenu.OnBeforeMenuVisible();
 			audioOptionsMenu.OnBeforeMenuVisible();
 
-			if(GameSystem.Instance.AspectRatio != 1f / 0.5625f)
-			{
-				MODToaster.Show("WARNING: Wrong aspect ratio - copy previous chap init.txt");
-			}
 			GameSystem.Instance.SceneController.MODGetExpressionThresholds(out float threshold1, out float threshold2);
 			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
 			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
