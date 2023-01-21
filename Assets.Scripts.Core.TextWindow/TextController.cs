@@ -260,6 +260,7 @@ namespace Assets.Scripts.Core.TextWindow
 			englishtext = "";
 			japanesetext = "";
 			txt = "";
+			gameSystem.MainUIController.HideCarret();
 			AudioController.Instance.ClearVoiceQueue();
 		}
 
