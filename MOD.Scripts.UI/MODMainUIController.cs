@@ -260,8 +260,8 @@ namespace MOD.Scripts.UI
 			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
 			{
 				aDVModeWindowPosX = RyukishiModeWindowPosX - 20;
-				aDVModeWindowSizeX = RyukishiModeWindowSizeX + 15;
-				aDVModeFontSize = ADVModeFontSize * 9 / 10;
+				aDVModeWindowSizeX = RyukishiModeWindowSizeX - 60;
+				aDVModeFontSize = ADVModeFontSize * 85 / 100;
 			}
 
 			GameSystem.Instance.TextController.NameFormat = aDVModeNameFormat;
