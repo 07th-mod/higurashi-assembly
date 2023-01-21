@@ -352,8 +352,10 @@ namespace Assets.Scripts.Core
 			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
 			{
 				AspectRatio = 4f / 3f;
-				MODActions.SetTextWindowAppearance((MODActions.ModPreset) MODActions.GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
 			}
+
+			// Text window may need to be resized to fit different screen size due to aspect ratio change
+			MODActions.SetTextWindowAppearance((MODActions.ModPreset)MODActions.GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
 
 			if (!IsFullscreen)
 			{
