@@ -105,6 +105,10 @@ namespace MOD.Scripts.UI
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
 
+			// Always reset experimental 4:3 mode when setting any preset
+			BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode43Aspect", 0);
+			GameSystem.Instance.UpdateAspectRatio();
+
 			BurikoMemory.Instance.GetCustomFlagPresetInstance().DisablePresetAndSavePresetToMemory();
 			if (setting == ModPreset.Console)
 			{
