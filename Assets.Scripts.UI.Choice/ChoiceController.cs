@@ -70,6 +70,10 @@ namespace Assets.Scripts.UI.Choice
 				}
 				ChoiceButton component = gameObject2.GetComponent<ChoiceButton>();
 				component.ChangeText(optstrings[i]);
+				if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+				{
+					component.SetFontSize(component.GetFontSize() * .75f);
+				}
 				component.SetCallback(this, delegate
 				{
 					GameSystem.Instance.ScriptSystem.SetFlag("SelectResult", id);

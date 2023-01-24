@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
 using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioStretchBackgrounds;
 		private readonly MODRadio radioTextWindowModeAndCrop;
 		private readonly MODRadio radioForceComputedLipsync;
+		private readonly MODRadio radioRyukishiExperimentalAspect;
 
 		private readonly MODTabControl tabControl;
 
@@ -142,6 +144,18 @@ Sets the script censorship level
 				new MODTabControl.TabProperties("Graphics", "Sprites, Backgrounds, CGs, Resolution", GraphicsTabOnGUI),
 				new MODTabControl.TabProperties("Audio", "BGM and SE options", AudioTabOnGUI),
 				new MODTabControl.TabProperties("Troubleshooting", "Tools to help you if something goes wrong", TroubleShootingTabOnGUI),
+			});
+
+			radioRyukishiExperimentalAspect = new MODRadio("Original/Ryukishi Experimental 4:3 Aspect Ratio", new GUIContent[]{
+				new GUIContent("16:9 (default)", "The game's aspect ratio will be 16:9.\n\n" +
+				"When playing in OG mode, the left and right of the screen will be padded to 4:3 with black bars."),
+				new GUIContent("4:3", "The game's aspect ratio will be 4:3, however this may cause some issues when playing our mod.\n" +
+				"Only use this option if your monitor is 4:3 aspect ratio, like an old CRT monitor.\n\n" +
+				"Please note the following:\n\n" +
+				" - You should enable the Original/Ryukishi preset before enabling this option. Using other settings should all work, but are not well tested.\n\n" +
+				" - 16:9 images will be squished to fit in 4:3 so they don't get cut off. This includes text images, and PS3 CG images if enabled.\n\n" +
+				" - You may see graphical artifacts just after this is enabled - they should fix after the next character transition or text clear\n\n"
+				),
 			});
 
 			customFlagPreset = Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetCustomFlagPresetInstance();
@@ -258,12 +272,14 @@ Sets the script censorship level
 				if (this.radioBackgrounds.OnGUIFragment(GetGlobal("GBackgroundSet")) is int background)
 				{
 					MODActions.SetFlagFromUserInput("GBackgroundSet", background, showInfoToast: false);
+					GameSystem.Instance.UpdateAspectRatio();
 					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
 
 				if (this.radioStretchBackgrounds.OnGUIFragment(GetGlobal("GStretchBackgrounds")) is int stretchBackgrounds)
 				{
 					MODActions.SetFlagFromUserInput("GStretchBackgrounds", stretchBackgrounds, showInfoToast: false);
+					GameSystem.Instance.UpdateAspectRatio();
 					GameSystem.Instance.SceneController.ReloadAllImages();
 				}
 			}
@@ -271,6 +287,13 @@ Sets the script censorship level
 			if (this.radioTextWindowModeAndCrop.OnGUIFragment(MODActions.GetADVNVLRyukishiModeFromFlags()) is int windowMode)
 			{
 				MODActions.SetTextWindowAppearance((MODActions.ModPreset) windowMode, showInfoToast: false);
+				GameSystem.Instance.SceneController.ReloadAllImages();
+			}
+
+			if (this.radioRyukishiExperimentalAspect.OnGUIFragment(GetGlobal("GRyukishiMode43Aspect")) is int experimentalAspect)
+			{
+				SetGlobal("GRyukishiMode43Aspect", experimentalAspect);
+				GameSystem.Instance.UpdateAspectRatio();
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 

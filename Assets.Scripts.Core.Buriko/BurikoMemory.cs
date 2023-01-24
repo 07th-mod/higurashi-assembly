@@ -109,6 +109,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GStretchBackgrounds", 527);
 			variableReference.Add("GBackgroundSet", 528);
 			variableReference.Add("GAudioSet", 529);
+			variableReference.Add("GRyukishiMode43Aspect", 530);
 			variableReference.Add("LConsoleArc", 600);
 			variableReference.Add("GConsoleChoice", 601);
 			// 611 - 629 used for additional chapter progress info

@@ -1935,6 +1935,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("SetScreenAspect");
 			string s = ReadVariable().StringValue();
 			float newratio = 1f / float.Parse(s, CultureInfo.InvariantCulture);
+			gameSystem.SetDefaultAspect(newratio);
 			gameSystem.UpdateAspectRatio(newratio);
 			return BurikoVariable.Null;
 		}
