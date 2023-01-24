@@ -635,7 +635,6 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			gameSystem.DisplayChoices(stringList, num);
 			gameSystem.ExecuteActions();
-			gameSystem.AddWait(new Wait(1f, WaitTypes.WaitForTime, null));
 			return null;
 		}
 
@@ -1911,6 +1910,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("SetScreenAspect");
 			string s = ReadVariable().StringValue();
 			float newratio = 1f / float.Parse(s, CultureInfo.InvariantCulture);
+			gameSystem.SetDefaultAspect(newratio);
 			gameSystem.UpdateAspectRatio(newratio);
 			return BurikoVariable.Null;
 		}
