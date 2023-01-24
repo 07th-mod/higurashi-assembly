@@ -97,5 +97,8 @@ namespace Assets.Scripts.UI.Choice
 				fadeInTime -= Time.deltaTime;
 			}
 		}
+
+		public float GetFontSize() => ButtonTextMesh.fontSize;
+		public void SetFontSize(float fontSize) => ButtonTextMesh.fontSize = fontSize;
 	}
 }

@@ -352,16 +352,42 @@ namespace Assets.Scripts.Core.Scene
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
-				// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
-				ryukishiClamp = isBustShot &&
-					Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
-					Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
-					(texturePath.Contains("sprite/") ||
-					texturePath.Contains("sprite\\") ||
-					texturePath.Contains("portrait/") ||
-					texturePath.Contains("portrait\\")); // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+				bool isSpriteOrPortrait = texturePath.Contains("sprite/") ||
+						texturePath.Contains("sprite\\") ||
+						texturePath.Contains("portrait/") ||
+						texturePath.Contains("portrait\\");
 
-				stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+				if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+				{
+					// When using true 4:3 mode, we don't need to clamp the sprites, as they are automatically cut off by the viewport
+					ryukishiClamp = false;
+
+					// When using true 4:3 aspect mode, any 16:9 images (except for sprites) should be squished to 4:3.
+					// This make sure any text or other images don't get cut off
+					// We could letter-box the images, but in some cases whatever is behind the image may show up? Not sure.
+					stretchToFit = !isSpriteOrPortrait;
+
+					// Do not stretch if the image is more than 5% off a 16:9 aspect ratio.
+					// Likely these are special images like credits images or effect images.
+					float targetAspect = 16f / 9f;
+					float imageAspect = (float)width / (float)height;
+					Debug.Log($"{texturePath}: aspect: {imageAspect} ref: {targetAspect}");
+					if(imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
+					{
+						stretchToFit = false;
+					}
+				}
+				else
+				{
+					// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
+					ryukishiClamp = isBustShot &&
+						Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
+						Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+						isSpriteOrPortrait; // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
+
+					// When using old backgrounds with stretch backgrounds enabled, stretch old 4:3 backgrounds to 16:9 to fill the screen
+					stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+				}
 			}
 
 			if (mesh == null ||

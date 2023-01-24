@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -109,6 +110,11 @@ namespace Assets.Scripts.UI.Choice
 				// Set hitbox size *after* changing text, so the hitbox matches the text bounds
 				hitbox.size = tmp.bounds.size;
 				hitbox.center = tmp.bounds.center;
+
+				if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+				{
+					component.SetFontSize(component.GetFontSize() * .75f);
+				}
 
 				component.SetCallback(this, delegate
 				{

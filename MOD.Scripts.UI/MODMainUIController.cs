@@ -144,6 +144,12 @@ namespace MOD.Scripts.UI
 
 		public void WideGuiPositionStore()
 		{
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				RyukishiGuiPositionStore();
+				return;
+			}
+
 			GameSystem.Instance.MainUIController.UpdateGuiPosition(WideModeGuiPosX, WideModeGuiPosY);
 		}
 
@@ -250,6 +256,14 @@ namespace MOD.Scripts.UI
 			int aDVModeCharSpacing = ADVModeCharSpacing;
 			int aDVModeLineSpacing = ADVModeLineSpacing;
 			int aDVModeFontSize = ADVModeFontSize;
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				aDVModeWindowPosX = RyukishiModeWindowPosX - 20;
+				aDVModeWindowSizeX = RyukishiModeWindowSizeX - 60;
+				aDVModeFontSize = ADVModeFontSize * 85 / 100;
+			}
+
 			GameSystem.Instance.TextController.SetNameFormat(aDVModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(aDVModeWindowPosX, aDVModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(aDVModeWindowSizeX, aDVModeWindowSizeY);
@@ -275,6 +289,13 @@ namespace MOD.Scripts.UI
 			int nVLModeCharSpacing = NVLModeCharSpacing;
 			int nVLModeLineSpacing = NVLModeLineSpacing;
 			int nVLModeFontSize = NVLModeFontSize;
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				nVLModeWindowPosX = RyukishiModeWindowPosX;
+				nVLModeWindowSizeX = RyukishiModeWindowSizeX - 100;
+			}
+
 			GameSystem.Instance.TextController.SetNameFormat(nVLModeNameFormat);
 			GameSystem.Instance.MainUIController.SetWindowPos(nVLModeWindowPosX, nVLModeWindowPosY);
 			GameSystem.Instance.MainUIController.SetWindowSize(nVLModeWindowSizeX, nVLModeWindowSizeY);
@@ -287,6 +308,12 @@ namespace MOD.Scripts.UI
 
 		public void NVLADVModeSettingStore()
 		{
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				RyukishiModeSettingStore();
+				return;
+			}
+
 			string nVLADVModeNameFormat = NVLADVModeNameFormat;
 			int nVLADVModeWindowPosX = NVLADVModeWindowPosX;
 			int nVLADVModeWindowPosY = NVLADVModeWindowPosY;
