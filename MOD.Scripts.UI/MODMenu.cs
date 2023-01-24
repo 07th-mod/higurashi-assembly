@@ -180,6 +180,13 @@ You can try the following yourself to fix the issue.
 
 			// Position the top-left x so the button is aligned with the config menu background, with a small margin
 			float xOffset = Screen.width / 8 + Screen.width / 64;
+
+			// Reposition button in 4:3 mode otherwise it would overlap the settings text
+			if(BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				xOffset = 7 * Screen.width / 128;
+			}
+
 			// Position the top-left y to vertically center the button
 			float yOffset = Screen.height / 2 - areaHeight/2;
 
@@ -344,8 +351,10 @@ You can try the following yourself to fix the issue.
 			{
 				float totalAreaWidth = styleManager.Group.menuWidth;
 
-				float areaWidth = Mathf.Round(totalAreaWidth * 9/16);
-				float toolTipWidth = Mathf.Round(totalAreaWidth * 7/16);
+				float toolTipSubtraction = totalAreaWidth * styleManager.Group.toolTipShrinkage;
+
+				float areaWidth = Mathf.Round(totalAreaWidth * 9/16) + toolTipSubtraction;
+				float toolTipWidth = Mathf.Round(totalAreaWidth * 7/16) - toolTipSubtraction;
 
 				float areaHeight = styleManager.Group.menuHeight;
 

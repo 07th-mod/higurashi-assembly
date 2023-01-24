@@ -62,7 +62,7 @@ namespace MOD.Scripts.UI
 							new_height = 15360;
 						}
 						screenHeightString = $"{new_height}";
-						int new_width = Mathf.RoundToInt(new_height * 16f / 9f);
+						int new_width = Mathf.RoundToInt(new_height * GameSystem.Instance.AspectRatio);
 						GameSystem.Instance.SetResolution(new_width, new_height, Screen.fullScreen);
 						PlayerPrefs.SetInt("width", new_width);
 						PlayerPrefs.SetInt("height", new_height);
@@ -85,7 +85,7 @@ namespace MOD.Scripts.UI
 				height = 15360;
 			}
 			screenHeightString = $"{height}";
-			int width = Mathf.RoundToInt(height * 16f / 9f);
+			int width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
 			GameSystem.Instance.SetResolution(width, height, Screen.fullScreen);
 			PlayerPrefs.SetInt("width", width);
 			PlayerPrefs.SetInt("height", height);
