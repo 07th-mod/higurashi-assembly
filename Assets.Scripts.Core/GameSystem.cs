@@ -13,6 +13,7 @@ using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -202,6 +203,8 @@ namespace Assets.Scripts.Core
 
 		private bool hasBrokenWindowResize;
 
+		private float defaultAspect;
+
 		private float _configMenuFontSize = 0;
 		public float ConfigMenuFontSize
 		{
@@ -345,9 +348,25 @@ namespace Assets.Scripts.Core
 			MainUIController.InitializeModMenuAndToaster(this);
 		}
 
+		public void SetDefaultAspect(float defaultAspect)
+		{
+			this.defaultAspect = defaultAspect;
+		}
+
+		public void UpdateAspectRatio() => UpdateAspectRatio(defaultAspect);
+
 		public void UpdateAspectRatio(float newratio)
 		{
 			AspectRatio = newratio;
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+			{
+				AspectRatio = 4f / 3f;
+			}
+
+			// Text window may need to be resized to fit different screen size due to aspect ratio change
+			MODActions.SetTextWindowAppearance((MODActions.ModPreset)MODActions.GetADVNVLRyukishiModeFromFlags(), showInfoToast: false);
+
 			if (!IsFullscreen)
 			{
 				int width = Mathf.RoundToInt((float)Screen.height * AspectRatio);
@@ -521,7 +540,7 @@ namespace Assets.Scripts.Core
 		public void LeaveChoices()
 		{
 			PopStateStack();
-			AddWait(new Wait(0.5f, WaitTypes.WaitForTime, delegate
+			AddWait(new Wait(ChoiceButton.fadeTime, WaitTypes.WaitForTime, delegate
 			{
 				ChoiceController.Destroy();
 				ChoiceController = null;
