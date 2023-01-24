@@ -68,11 +68,29 @@ namespace MOD.Scripts.UI
 			ReloadMenu();
 		}
 
-		public void OnGUI(bool hideLabel=false)
+		public void OnGUI(bool setupMenu=false)
 		{
+			bool hideLabel = setupMenu;
+
+			Label("The patch supports different Background Music (BGM) and Sound Effects(SE). Please click the button below for more information.");
+
+			// Add extra spacing on setup menu so it looks nicer
+			if(setupMenu)
+			{
+				GUILayout.Space(20);
+			}
+
 			if (Button(new GUIContent("Open BGM/SE FAQ: 07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/", "Click here to open the  Background Music (BGM) and Sound Effects (SE) FAQ in your browser.\n\nThe BGM/SE FAQ contains information on the settings below.")))
 			{
 				Application.OpenURL("https://07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/");
+			}
+
+			GUILayout.Space(20);
+
+			if (setupMenu)
+			{
+				Label("To continue, please choose a BGM/SE option below (hover button for info).\n" +
+					"You can change this option later via the mod menu.");
 			}
 
 			if (MODAudioSet.Instance.HasAudioSetsDefined())
