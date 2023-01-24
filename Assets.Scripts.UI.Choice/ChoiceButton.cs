@@ -15,7 +15,11 @@ namespace Assets.Scripts.UI.Choice
 
 		public UITweener ColorTweener;
 
-		private float fadeInTime = 0.5f;
+		public static float fadeTime = .25f;
+		private float tweenTimer;
+
+		// This prevents the user selecting a choice before the choices are fully loaded
+		private float fadeInTime = fadeTime/2;
 
 		private ClickCallback clickCallback;
 
@@ -43,7 +47,8 @@ namespace Assets.Scripts.UI.Choice
 		{
 			LeanTween.cancel(base.gameObject);
 			Color color = ButtonTextMesh.color;
-			LeanTween.value(base.gameObject, UpdateAlpha, color.a, alpha, fadeInTime);
+			tweenTimer = fadeTime;
+			LeanTween.value(base.gameObject, UpdateAlpha, color.a, alpha, tweenTimer);
 		}
 
 		private void OnClick()
@@ -60,7 +65,7 @@ namespace Assets.Scripts.UI.Choice
 
 		private void OnHover(bool ishover)
 		{
-			if (GameSystem.Instance.GameState == GameState.ChoiceScreen)
+			if (GameSystem.Instance.GameState == GameState.ChoiceScreen && isEnabled)
 			{
 				if (ishover)
 				{
@@ -116,7 +121,18 @@ namespace Assets.Scripts.UI.Choice
 
 		private void Update()
 		{
-			fadeInTime -= Time.deltaTime;
+			if(tweenTimer > 0)
+			{
+				tweenTimer -= Time.deltaTime;
+			}
+
+			if(fadeInTime > 0)
+			{
+				fadeInTime -= Time.deltaTime;
+			}
 		}
+
+		public float GetFontSize() => ButtonTextMesh.fontSize;
+		public void SetFontSize(float fontSize) => ButtonTextMesh.fontSize = fontSize;
 	}
 }
