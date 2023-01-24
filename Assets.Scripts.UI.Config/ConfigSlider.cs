@@ -27,22 +27,22 @@ namespace Assets.Scripts.UI.Config
 			switch (base.name) // All slider labels match original order, functionality in comment
 			{
 			case "0-TextSpeed": // Window Opacity:
-				num = (int)(GameSystem.Instance.MessageWindowOpacity * 100f);
+				num = BurikoMemory.Instance.GetGlobalFlag("GWindowOpacity").IntValue();
 				break;
 			case "1-AutoSpeed": // Voice Volume:
-				num = (int)(GameSystem.Instance.AudioController.VoiceVolume * 100f);
+				num = BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue();
 				break;
 			case "2-AutoPageSpeed": // BGM Volume
-				num = (int)(GameSystem.Instance.AudioController.BGMVolume * 100f);
+				num = BurikoMemory.Instance.GetGlobalFlag("GBGMVolume").IntValue();
 				break;
 			case "3-WindowOpacity": // SE Volume
-				num = (int)(GameSystem.Instance.AudioController.SoundVolume * 100f);
+				num = BurikoMemory.Instance.GetGlobalFlag("GSEVolume").IntValue();
 				break;
 			case "4-BGMVolume": // Text / Auto text speed
-				num = GameSystem.Instance.TextController.TextSpeed;
+				num = BurikoMemory.Instance.GetGlobalFlag("GMessageSpeed").IntValue();
 				break;
 			case "5-SEVolume":  // Auto Page Speed
-				num = GameSystem.Instance.TextController.AutoPageSpeed;
+				num = BurikoMemory.Instance.GetGlobalFlag("GAutoAdvSpeed").IntValue();
 				break;
 			}
 			slider.value = (float)num / 100f;

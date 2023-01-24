@@ -17,6 +17,7 @@ namespace MOD.Scripts.UI
 		{
 			public int menuHeight;
 			public int menuWidth;
+			public float toolTipShrinkage;
 			public GUIStyle modMenuSelectionGrid;   // Used for SelectionGrid widgets
 			public GUIStyle errorLabel;
 			public GUIStyle button;
@@ -39,22 +40,38 @@ namespace MOD.Scripts.UI
 		public Texture2D modGUIBackgroundTextureTransparent;
 		public Texture2D modGUIBackgroundTextureLight;
 
-		StyleGroup style480;
-		StyleGroup style720;
-		StyleGroup style1080;
+		// These style groups use the naming convention:
+		// style[VERTICAL_SCREEN_HEIGHT]_[MENU_WIDTH]x[MENU_HEIGHT]
+		StyleGroup style1080_1200x950;
+		StyleGroup style720_1000x660;
+		StyleGroup style720_960x660;
+		StyleGroup style480_850x480;
+		StyleGroup style480_640x480;
+
 		public StyleGroup Group
 		{
-			get {
-				if (Screen.height >= 1080)
+			get
+			{
+				if (Screen.height >= 1080 && Screen.width >= 1200)
 				{
-					return style1080;
+					return style1080_1200x950;
 				}
-				else if (Screen.height >= 720)
+				else if (Screen.height >= 720 && Screen.width >= 1000)
 				{
-					return style720;
+					return style720_1000x660;
 				}
-
-				return style480;
+				else if(Screen.height >= 720 && Screen.width >= 960)
+				{
+					return style720_960x660;
+				}
+				else if(Screen.height >= 480 && Screen.width >= 850)
+				{
+					return style480_850x480;
+				}
+				else
+				{
+					return style480_640x480;
+				}
 			}
 		}
 
@@ -110,7 +127,16 @@ namespace MOD.Scripts.UI
 			modGUIBackgroundTextureLight.Apply();
 
 
-			style480 = GenerateWidgetStyles(
+			style480_640x480 = GenerateWidgetStyles(
+				menuWidth: 640,
+				menuHeight: 480,
+				guiScale: .8f,
+				margin: new RectOffset(0, 0, 0, 0),
+				padding: new RectOffset(0, 0, 0, 0),
+				toolTipShrinkage: .15f
+			);
+
+			style480_850x480 = GenerateWidgetStyles(
 				menuWidth: 850,
 				menuHeight: 480,
 				guiScale: .9f,
@@ -118,7 +144,15 @@ namespace MOD.Scripts.UI
 				padding: new RectOffset(0, 0, 0, 0)
 			);
 
-			style720 = GenerateWidgetStyles(
+			style720_960x660 = GenerateWidgetStyles(
+				menuWidth: 960,
+				menuHeight: 660,
+				guiScale: 1.1f,
+				margin: new RectOffset(1, 1, 1, 1),
+				padding: new RectOffset(1, 1, 1, 1)
+			);
+
+			style720_1000x660 = GenerateWidgetStyles(
 				menuWidth: 1000,
 				menuHeight: 660,
 				guiScale: 1.1f,
@@ -126,7 +160,7 @@ namespace MOD.Scripts.UI
 				padding: new RectOffset(1, 1, 1, 1)
 			);
 
-			style1080 = GenerateWidgetStyles(
+			style1080_1200x950 = GenerateWidgetStyles(
 				menuWidth: 1200,
 				menuHeight: 950,
 				guiScale: 1.25f,
@@ -177,7 +211,7 @@ namespace MOD.Scripts.UI
 			modMenuAreaStyleTransparent.normal.background = modGUIBackgroundTextureTransparent;
 		}
 
-		private StyleGroup GenerateWidgetStyles(int menuWidth, int menuHeight, float guiScale, RectOffset margin, RectOffset padding)
+		private StyleGroup GenerateWidgetStyles(int menuWidth, int menuHeight, float guiScale, RectOffset margin, RectOffset padding, float toolTipShrinkage = 0)
 		{
 			// Button style
 			GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
@@ -232,6 +266,7 @@ namespace MOD.Scripts.UI
 				label = labelStyle,
 				headingLabel = headingLabelStyle,
 				upperLeftHeadingLabel = upperLeftHeadingLabelStyle,
+				toolTipShrinkage = toolTipShrinkage,
 			};
 		}
 	}

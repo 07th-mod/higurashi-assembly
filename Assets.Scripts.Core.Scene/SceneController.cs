@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.AssetManagement;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Scene;
 using System;
@@ -982,7 +983,7 @@ namespace Assets.Scripts.Core.Scene
 			streamReader.Close();
 			for (int k = 0; k < exparray.Length; k++)
 			{
-				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId) || !MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
 				{
 					break;
 				}
@@ -1035,7 +1036,7 @@ namespace Assets.Scripts.Core.Scene
 			for (int chunk = 0; chunk < 10 * numChunks; chunk++)
 			{
 				// Forcibly stop the lipsync animation if it's not meant to be playing at this time?
-				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId))
+				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId) || !MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
 				{
 					break;
 				}
@@ -1139,7 +1140,15 @@ namespace Assets.Scripts.Core.Scene
 				}
 			}
 
-			MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+			// Most of the time we want to reset the sprite back to the 'default' pose when lipsync finishes (even if the
+			// lipsync option is already 'disabled') to prevent having a character with their mouth stuck open.
+			//
+			// However, if artset is changed while lipsync in progress (for example to OG sprites), then we don't want to
+			// overwrite the OG sprite's texture with the Console texture.
+			if(AssetManager.Instance.CurrentArtsetIndex == 0)
+			{
+				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+			}
 		}
 
 		public void MODLipSyncStart(int character, int audiolayer, string audiofile, AudioClip audioClip)
