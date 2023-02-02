@@ -23,6 +23,7 @@ namespace MOD.Scripts.UI
 			public GUIStyle button;
 			public GUIStyle selectedButton;
 			public GUIStyle label;             //Used for normal Label widgets
+			public GUIStyle labelRightAlign;
 			public GUIStyle headingLabel;
 			public GUIStyle upperLeftHeadingLabel;
 		}
@@ -230,6 +231,11 @@ namespace MOD.Scripts.UI
 				padding = padding,
 			};
 
+			GUIStyle labelStyleRightAlign = new GUIStyle(labelStyle)
+			{
+				alignment = TextAnchor.MiddleRight,
+			};
+
 			// Heading text style
 			GUIStyle headingLabelStyle = new GUIStyle(labelStyle)
 			{
@@ -264,6 +270,7 @@ namespace MOD.Scripts.UI
 				button = buttonStyle,
 				selectedButton = selectedButtonStyle,
 				label = labelStyle,
+				labelRightAlign = labelStyleRightAlign,
 				headingLabel = headingLabelStyle,
 				upperLeftHeadingLabel = upperLeftHeadingLabelStyle,
 				toolTipShrinkage = toolTipShrinkage,

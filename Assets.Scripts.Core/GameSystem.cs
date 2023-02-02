@@ -1059,7 +1059,7 @@ namespace Assets.Scripts.Core
 			}
 		}
 
-		public Resolution GetFullscreenResolution()
+		public Resolution GetFullscreenResolution(bool useOverride = true, bool doLogging = true)
 		{
 			Resolution resolution = new Resolution();
 			string source = "";
@@ -1119,17 +1119,24 @@ namespace Assets.Scripts.Core
 				PlayerPrefs.SetInt("fullscreen_height_override", 0);
 			}
 
-			if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
+			if(useOverride)
 			{
-				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
-				source += " + Width Override";
+				if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
+				{
+					resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+					source += " + Width Override";
+				}
+				if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
+				{
+					resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+					source += " + Height Override";
+				}
 			}
-			if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
+
+			if(doLogging)
 			{
-				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
-				source += " + Height Override";
+				Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			}
-			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			return resolution;
 		}
 
