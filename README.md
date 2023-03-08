@@ -95,32 +95,47 @@ Use the `-to` command to process just part of the video for testing. For example
 
 ## Build details
 
-Build info:
+### Building on Windows
+
 * These projects (`Assembly-CSharp.csproj`) have been built successfully with Visual Studio Community 2017 v15.7.5 and msbuild v15.7.180.61344, though in theory any compiler supporting C# 7.1 should suffice.
 * To build with Visual Studio, load the sln file and use build command.
-* To build with msbuild, execute `msbuild Assembly-CSharp.csproj` via the command line.  On Windows, this may require a developer command prompt to have `msbuild` in your PATH; this comes with Visual Studio.
-* The resulting `Assembly-CSharp.dll` will be located at `bin/Debug/Assembly-CSharp.dll`.
 
-The built DLLs are available here:
+### Building on Linux
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=oni-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Onikakushi](https://07th-mod.com/higurashi_dlls/onikakushi/Assembly-CSharp.dll)
+* On Linux, you can use Mono to build the DLL using the `msbuild` command (see below)(just run `msbuild /p:Configuration=Release`)
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=wata-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Watanagashi](https://07th-mod.com/higurashi_dlls/watanagashi/Assembly-CSharp.dll)
+### Using msbuild (Windows or Linux with Mono installed)
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=tata-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Tatarigoroshi](https://07th-mod.com/higurashi_dlls/tatarigoroshi/Assembly-CSharp.dll)
+* On Windows, you will need to open a develop this may require a developer command prompt (type in your search bar after VS is installed) to be able to run `msbuild`
+* Use `msbuild` to build a debug DLL
+* Use `msbuild /p:Configuration=Release` to build a release DLL
+* The resulting `Assembly-CSharp.dll` will be located at `bin/Debug/Assembly-CSharp.dll` or `bin/Release/Assembly-CSharp.dll`
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=hima-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Himatsubushi](https://07th-mod.com/higurashi_dlls/himatsubushi/Assembly-CSharp.dll)
+## CI Setup
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=mea-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Meakashi](https://07th-mod.com/higurashi_dlls/meakashi/Assembly-CSharp.dll)
+Previously we had our CI running on Travis, but we've now switched over to Github Actions on each individual mod's repository (NOT in this repository!).
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=tsumi-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Tsumihoroboshi](https://07th-mod.com/higurashi_dlls/tsumihoroboshi/Assembly-CSharp.dll)
+Each time we publish a new release of the core part of the mod, the CI on each repository fetches the corresponding branch and compiles a DLL. The DLL is then included in the release archive.
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=mina-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Minagoroshi](https://07th-mod.com/higurashi_dlls/minagoroshi/Assembly-CSharp.dll)
+The CI on this repository just compiles on every push, to make sure you haven't broken anything.
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=matsuri-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Matsuribayashi](https://07th-mod.com/higurashi_dlls/matsuribayashi/Assembly-CSharp.dll)
+The CI uses Mono which is bundled with the `ubuntu-latest` runner on Github actions to compile the DLL (the old Travis runner also used Linux/Mono to compile for a very long time without any issues).
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=rei-mod)](https://travis-ci.com/07th-mod/higurashi-assembly) [Rei](https://07th-mod.com/higurashi_dlls/rei/Assembly-CSharp.dll)
+## Pre-Built Releases
 
-[![Build Status](https://travis-ci.com/07th-mod/higurashi-assembly.svg?branch=console-arcs)](https://travis-ci.com/07th-mod/higurashi-assembly) [Console Arcs](https://07th-mod.com/higurashi_dlls/consolearcs/Assembly-CSharp.dll)
+You can find the releases each chapter here.
 
-Other branches may not have up-to-date READMEs.
+The DLL will be located in the `HigurashiEp[EPISODE_NUMBER]_Data\Managed\Assembly-CSharp.dll` in the release archive `.zip` file, along with a version information .txt file.
+
+| Branch       | Repo Link                                                               |  Note                                           |
+|--------------|-------------------------------------------------------------------------|-------------------------------------------------|
+| oni-mod      |[Ch.1 Onikakushi](https://github.com/07th-mod/onikakushi)                |                                                 |
+| wata-mod     |[Ch.2 Watanagashi](https://github.com/07th-mod/watanagashi)              |                                                 |
+| tata-mod     |[Ch.3 Tatarigoroshi](https://github.com/07th-mod/tatarigoroshi)          |                                                 |
+| hima-mod     |[Ch.4 Himatsubushi](https://github.com/07th-mod/himatsubushi)            |                                                 |
+| mea-mod      |[Ch.5 Meakashi](https://github.com/07th-mod/meakashi)                    |                                                 |
+| tsumi-mod    |[Ch.6 Tsumihoroboshi](https://github.com/07th-mod/tsumihoroboshi)        |                                                 |
+| mina-mod     |[Ch.7 Minagoroshi](https://github.com/07th-mod/minagoroshi)              |                                                 |
+| matsuri-mod  |[Ch.8 Matsuribayashi](https://github.com/07th-mod/matsuribayashi)        |                                                 |
+| rei-mod      |[Ch.9 Rei](https://github.com/07th-mod/higurashi-rei)                    | Uses new Unity 2019.4.X                         |
+| console-arcs |[Console Arcs](https://github.com/07th-mod/higurashi-console-arcs )      | Based on Ch.4 Himatsubishi DLL                  |
