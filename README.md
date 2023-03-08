@@ -106,7 +106,8 @@ Use the `-to` command to process just part of the video for testing. For example
 
 ### Using msbuild (Windows or Linux with Mono installed)
 
-* On Windows, you will need to open a develop this may require a developer command prompt (type in your search bar after VS is installed) to be able to run `msbuild`
+* On Windows, you will need to open a Developer Command Prompt to be able to run `msbuild`
+    * Try typing `Developer Command Prompt` in your search bar after VS is installed to find it
 * Use `msbuild` to build a debug DLL
 * Use `msbuild /p:Configuration=Release` to build a release DLL
 * The resulting `Assembly-CSharp.dll` will be located at `bin/Debug/Assembly-CSharp.dll` or `bin/Release/Assembly-CSharp.dll`
@@ -117,7 +118,7 @@ Previously we had our CI running on Travis, but we've now switched over to Githu
 
 Each time we publish a new release of the core part of the mod, the CI on each repository fetches the corresponding branch and compiles a DLL. The DLL is then included in the release archive.
 
-The CI on this repository just compiles on every push, to make sure you haven't broken anything.
+The CI on this repository is only used to make sure nothing is broken, by compiling the project on every push or pull request.
 
 The CI uses Mono which is bundled with the `ubuntu-latest` runner on Github actions to compile the DLL (the old Travis runner also used Linux/Mono to compile for a very long time without any issues).
 
