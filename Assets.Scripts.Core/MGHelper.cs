@@ -258,7 +258,7 @@ namespace Assets.Scripts.Core
 			}
 
 			// exit if a the "already upgraded" marker exists
-			string upgradeMarkerPath = Path.Combine(defaultSaveFolder, "subdir-upgrade.txt");
+			string upgradeMarkerPath = Path.Combine(Application.streamingAssetsPath, "subdir-upgrade.txt");
 			if (File.Exists(upgradeMarkerPath))
 			{
 				return;
