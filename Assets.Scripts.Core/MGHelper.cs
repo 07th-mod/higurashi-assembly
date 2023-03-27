@@ -297,14 +297,15 @@ namespace Assets.Scripts.Core
 
 			// ONLY if upgrade was successful, write the "already upgraded" marker.
 			// If upgrade failed, will try again next time game launches
+			// NOTE: cannot play sound with MODToaster because BurikoMemory isn't loaded at this point.
 			if(failCount == 0)
 			{
 				File.WriteAllText(upgradeMarkerPath, $"{subdir} Subdirectory Upgrade Successful");
-				MODToaster.Show($"Cloud Saves Fix: Successfully copied {passCount} files!", toastDuration: 10);
+				MODToaster.Show($"Cloud Saves Fix: Successfully copied {passCount} files!", maybeSound: null, toastDuration: 10);
 			}
 			else
 			{
-				MODToaster.Show($"Cloud Saves Fix: {failCount} files failed like {failingFilename}!", toastDuration: 10);
+				MODToaster.Show($"Cloud Saves Fix: {failCount} files failed like {failingFilename}!", maybeSound: null, toastDuration: 10);
 			}
 		}
 
