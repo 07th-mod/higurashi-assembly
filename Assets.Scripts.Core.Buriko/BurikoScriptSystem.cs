@@ -43,6 +43,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			Logger.Log("Preparing BurikoScriptSystem.");
 			LoadGameScripts();
+			MGHelper.UpgradeSavesIfNecessary();
 			saveManager = new BurikoSaveManager();
 			memoryManager = new BurikoMemory();
 			Instance = this;
@@ -326,9 +327,9 @@ namespace Assets.Scripts.Core.Buriko
 				byte[] array = CLZF2.Compress(snapshotData);
 				MGHelper.KeyEncode(array);
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
-				File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
+				File.WriteAllBytes(MGHelper.GetSavePath(str + ".dat"), array);
 				saveManager.UpdateSaveSlot(slotnum);
-				GameSystem.Instance.SceneController.WriteScreenshot(Path.Combine(MGHelper.GetSavePath(), str + ".png"));
+				GameSystem.Instance.SceneController.WriteScreenshot(MGHelper.GetSavePath(str + ".png"));
 			}
 		}
 

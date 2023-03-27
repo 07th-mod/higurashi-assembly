@@ -399,8 +399,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadScreenshot(string filename)
 		{
-			string savePath = MGHelper.GetSavePath();
-			string path = Path.Combine(savePath, filename.ToLower());
+			string path = MGHelper.GetSavePath(filename.ToLower());
 			if (File.Exists(path))
 			{
 				try

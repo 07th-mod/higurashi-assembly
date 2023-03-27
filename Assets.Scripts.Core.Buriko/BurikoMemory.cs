@@ -494,7 +494,7 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void LoadGlobals()
 		{
-			string path = Path.Combine(MGHelper.GetSavePath(), "global.dat");
+			string path = MGHelper.GetSavePath("global.dat");
 			if (!File.Exists(path))
 			{
 				SetGlobalFlag("GUsePrompts", 1);
@@ -600,7 +600,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
-			File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+			File.WriteAllBytes(MGHelper.GetSavePath("global.dat"), array);
 		}
 
 		/// <summary>

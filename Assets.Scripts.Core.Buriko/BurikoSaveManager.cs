@@ -16,12 +16,12 @@ namespace Assets.Scripts.Core.Buriko
 			lastSaveError = null;
 			for (int i = 0; i < 100; i++)
 			{
-				string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", i.ToString("D3")));
+				string path = MGHelper.GetSavePath(string.Format("save{0}.dat", i.ToString("D3")));
 				GetSaveData(i, path);
 			}
 			for (int j = 0; j < 3; j++)
 			{
-				string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", j.ToString("D1")));
+				string path2 = MGHelper.GetSavePath(string.Format("qsave{0}.dat", j.ToString("D1")));
 				GetSaveData(j + 100, path2);
 			}
 		}
@@ -37,8 +37,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void DeleteSave(int slot)
 		{
-			string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", slot.ToString("D3")));
-			string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.png", slot.ToString("D3")));
+			string path = MGHelper.GetSavePath(string.Format("save{0}.dat", slot.ToString("D3")));
+			string path2 = MGHelper.GetSavePath(string.Format("save{0}.png", slot.ToString("D3")));
 			if (File.Exists(path))
 			{
 				File.Delete(path);
@@ -109,7 +109,7 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void UpdateSaveSlot(int slot)
 		{
-			GetSaveData(path: (slot >= 100) ? Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", (slot - 100).ToString("D1"))) : Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", slot.ToString("D3"))), slot: slot);
+			GetSaveData(path: (slot >= 100) ? MGHelper.GetSavePath(string.Format("qsave{0}.dat", (slot - 100).ToString("D1"))) : MGHelper.GetSavePath(string.Format("save{0}.dat", slot.ToString("D3"))), slot: slot);
 		}
 	}
 }

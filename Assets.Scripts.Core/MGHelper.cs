@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using System;
 using System.IO;
 using UnityEngine;
@@ -220,7 +221,91 @@ namespace Assets.Scripts.Core
 			return result;
 		}
 
-		public static string GetSavePath()
+		// Upgrade old console arc saves to new format compatible with cloud saves
+		//
+		// For console arcs, we used to save to a subdirectory called "console", located inside
+		// the normal Ch.4 save directory, to prevent interfering with regular Ch.4 saves or accidentally
+		// reading Ch.4 normal or global save data into the Console arcs.
+		//
+		// However, Steam is not setup to recognize subdirectories, so Steam Cloud won't
+		// synchronize anything in the subfolder
+		//
+		// The new save format saves everything into the normal Ch.4 save folder,
+		// but with a prefix 'console-', to prevent interference with normal Ch.4 saves
+		//
+		// To upgrade users still on the old save format, This function copies out the files
+		// in the 'console-' folder to the upper directory, prefixing them with 'console-'
+		//
+		// This function should be called exactly once every time the game runs, before
+		// the global.dat or any saves are loaded.
+		public static void UpgradeSavesIfNecessary()
+		{
+			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+
+			// exit if no subdir for this chapter
+			if (string.IsNullOrEmpty(subdir))
+			{
+				return;
+			}
+
+			string defaultSaveFolder = GetSaveFolder();
+
+			// exit if subdir folder doesn't exist
+			string legacySaveFolder = Path.Combine(defaultSaveFolder, subdir);
+			if (!Directory.Exists(legacySaveFolder))
+			{
+				return;
+			}
+
+			// exit if a the "already upgraded" marker exists
+			string upgradeMarkerPath = Path.Combine(defaultSaveFolder, "subdir-upgrade.txt");
+			if (File.Exists(upgradeMarkerPath))
+			{
+				return;
+			}
+
+			// copy every file from subdir folder to save folder directory, prefixed with the name of the subdir
+			// note that the below will never overwrite any existing files as we NEVER want to overwrite existing saves
+			Debug.Log($"UpgradeSavesIfNecessary: Beginning '{subdir}' upgrade");
+
+			string failingFilename = "";
+			int failCount = 0;
+			foreach (string sourcePath in Directory.GetFiles(legacySaveFolder))
+			{
+				string filename = Path.GetFileName(sourcePath);
+				string destPath = GetSavePath(filename);
+				if(File.Exists(destPath))
+				{
+					Logger.Log($"UpgradeSavesIfNecessary: Skipping {destPath} as it already exists...");
+					continue;
+				}
+
+				Logger.Log($"UpgradeSavesIfNecessary: Copying {sourcePath} to {destPath}...");
+				try
+				{
+					File.Copy(sourcePath, destPath);
+				}
+				catch (Exception e)
+				{
+					failCount++;
+					failingFilename = filename;
+					Logger.Log($"UpgradeSavesIfNecessary: Failed to copy from {sourcePath} to {destPath}: {e}");
+				}
+			}
+
+			// ONLY if upgrade was successful, write the "already upgraded" marker.
+			// If upgrade failed, will try again next time game launches
+			if(failCount == 0)
+			{
+				File.WriteAllText(upgradeMarkerPath, $"{subdir} Subdirectory Upgrade Successful");
+			}
+			else
+			{
+				MODToaster.Show($"Upgrade Saves: {failCount} files failed like {failingFilename}!");
+			}
+		}
+
+		public static string GetSaveFolder()
 		{
 			string savePath;
 			if (Application.platform == RuntimePlatform.OSXPlayer)
@@ -245,13 +330,36 @@ namespace Assets.Scripts.Core
 				}
 				savePath = _savepath;
 			}
-			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
-			if (!string.IsNullOrEmpty(subdir))
-			{
-				savePath = Path.Combine(savePath, subdir);
-			}
 			Directory.CreateDirectory(savePath);
 			return savePath;
+		}
+
+		private static string GetPrefix(string filename)
+		{
+			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+
+			// If this chapter does not use subdir/prefix, just return empty prefix
+			if (string.IsNullOrEmpty(subdir))
+			{
+				return "";
+			}
+
+			string prefix = $"{subdir}-";
+
+			// If the filename already has the prefix, don't add it again
+			// This is necessary because some of the code isn't aware of the prefix, and can call
+			// GetSavePath on a filename which already has the prefix, which would add it twice without the below check
+			if (filename.StartsWith(prefix))
+			{
+				return "";
+			}
+
+			return prefix;
+		}
+
+		public static string GetSavePath(string filename)
+		{
+			return Path.Combine(GetSaveFolder(), GetPrefix(filename) + filename);
 		}
 
 		public static string GetDataPath()
