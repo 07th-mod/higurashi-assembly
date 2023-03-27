@@ -266,9 +266,10 @@ namespace Assets.Scripts.Core
 
 			// copy every file from subdir folder to save folder directory, prefixed with the name of the subdir
 			// note that the below will never overwrite any existing files as we NEVER want to overwrite existing saves
-			Debug.Log($"UpgradeSavesIfNecessary: Beginning '{subdir}' upgrade");
+			Debug.Log($"UpgradeSavesIfNecessary(): Beginning '{subdir}' upgrade");
 
 			string failingFilename = "";
+			int passCount = 0;
 			int failCount = 0;
 			foreach (string sourcePath in Directory.GetFiles(legacySaveFolder))
 			{
@@ -276,20 +277,21 @@ namespace Assets.Scripts.Core
 				string destPath = GetSavePath(filename);
 				if(File.Exists(destPath))
 				{
-					Logger.Log($"UpgradeSavesIfNecessary: Skipping {destPath} as it already exists...");
+					Logger.Log($"UpgradeSavesIfNecessary(): Skipping {destPath} as it already exists...");
 					continue;
 				}
 
-				Logger.Log($"UpgradeSavesIfNecessary: Copying {sourcePath} to {destPath}...");
+				Logger.Log($"UpgradeSavesIfNecessary(): Copying {sourcePath} to {destPath}...");
 				try
 				{
 					File.Copy(sourcePath, destPath);
+					passCount++;
 				}
 				catch (Exception e)
 				{
 					failCount++;
 					failingFilename = filename;
-					Logger.Log($"UpgradeSavesIfNecessary: Failed to copy from {sourcePath} to {destPath}: {e}");
+					Logger.Log($"UpgradeSavesIfNecessary(): Failed to copy from {sourcePath} to {destPath}: {e}");
 				}
 			}
 
@@ -298,10 +300,11 @@ namespace Assets.Scripts.Core
 			if(failCount == 0)
 			{
 				File.WriteAllText(upgradeMarkerPath, $"{subdir} Subdirectory Upgrade Successful");
+				MODToaster.Show($"Cloud Saves Fix: Successfully copied {passCount} files!", toastDuration: 10);
 			}
 			else
 			{
-				MODToaster.Show($"Upgrade Saves: {failCount} files failed like {failingFilename}!");
+				MODToaster.Show($"Cloud Saves Fix: {failCount} files failed like {failingFilename}!", toastDuration: 10);
 			}
 		}
 
