@@ -29,6 +29,9 @@ namespace Assets.Scripts.Core
 
 		private static bool typeCheck;
 
+		// All chapters have prefix 'mod-' in front of save files
+		private const string MOD_SAVE_PREFIX = "mod-";
+
 		public static void ClampValuesIfNecessary(Vector3[] vertices, Vector2[] uv, bool ryukishiClamp, int finalXOffset)
 		{
 			float scaleFromOrigin(float value, float scale)
@@ -274,6 +277,13 @@ namespace Assets.Scripts.Core
 			foreach (string sourcePath in Directory.GetFiles(legacySaveFolder))
 			{
 				string filename = Path.GetFileName(sourcePath);
+
+				// Don't process any saves which already have the prefix - they are not legacy saves.
+				if(filename.StartsWith(MOD_SAVE_PREFIX))
+				{
+					continue;
+				}
+
 				string destPath = GetSavePath(filename);
 				if(File.Exists(destPath))
 				{
@@ -340,8 +350,7 @@ namespace Assets.Scripts.Core
 
 		private static string GetSavePrefix(string filename)
 		{
-			// All chapters have prefix 'mod-' in front of save files
-			string prefix = "mod-";
+			string prefix = MOD_SAVE_PREFIX;
 
 			// Previously saves went to a subdirectory for Console chapters. Now
 			// we amend the subdirectory name to the prefix, so that Steam
@@ -355,12 +364,12 @@ namespace Assets.Scripts.Core
 			// If the filename already has the prefix, don't add it again
 			// This is necessary because some of the code isn't aware of the prefix, and can call
 			// GetSavePath on a filename which already has the prefix, which would add it twice without the below check
-			if (filename.StartsWith(prefix))
+			if (filename.StartsWith(MOD_SAVE_PREFIX))
 			{
 				return "";
 			}
 
-			return prefix;
+			return MOD_SAVE_PREFIX;
 		}
 
 		public static string GetSavePath(string filename)
