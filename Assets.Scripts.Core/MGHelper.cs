@@ -243,14 +243,16 @@ namespace Assets.Scripts.Core
 		// the global.dat or any saves are loaded.
 		public static void UpgradeSavesIfNecessary()
 		{
+			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+
 			// exit if the "already upgraded" marker exists
-			string upgradeMarkerPath = Path.Combine(Application.streamingAssetsPath, "subdir-upgrade.txt");
+			string markerPrefix = string.IsNullOrEmpty(subdir) ? "mod" : subdir;
+			string upgradeMarkerPath = Path.Combine(Application.streamingAssetsPath, $"subdir-{markerPrefix}-upgrade-marker.txt");
 			if (File.Exists(upgradeMarkerPath))
 			{
 				return;
 			}
 
-			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
 			string defaultSaveFolder = GetSaveFolder();
 
 			// If a subdir was previously used, check that folder,
