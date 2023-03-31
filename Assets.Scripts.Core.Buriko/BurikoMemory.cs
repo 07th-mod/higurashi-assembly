@@ -492,6 +492,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
+		// Note: If the global save format below is updated, the GetGlobalSaveType() in MODSaves must be updated accordingly!
 		public void LoadGlobals()
 		{
 			string path = MGHelper.GetSavePath("global.dat");

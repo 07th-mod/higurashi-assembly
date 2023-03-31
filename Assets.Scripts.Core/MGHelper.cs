@@ -243,28 +243,57 @@ namespace Assets.Scripts.Core
 		// the global.dat or any saves are loaded.
 		public static void UpgradeSavesIfNecessary()
 		{
-			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
-
-			// exit if no subdir for this chapter
-			if (string.IsNullOrEmpty(subdir))
-			{
-				return;
-			}
-
-			string defaultSaveFolder = GetSaveFolder();
-
-			// exit if subdir folder doesn't exist
-			string legacySaveFolder = Path.Combine(defaultSaveFolder, subdir);
-			if (!Directory.Exists(legacySaveFolder))
-			{
-				return;
-			}
-
-			// exit if a the "already upgraded" marker exists
+			// exit if the "already upgraded" marker exists
 			string upgradeMarkerPath = Path.Combine(Application.streamingAssetsPath, "subdir-upgrade.txt");
 			if (File.Exists(upgradeMarkerPath))
 			{
 				return;
+			}
+
+			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+			string defaultSaveFolder = GetSaveFolder();
+
+			// If a subdir was previously used, check that folder,
+			// otherwise check the normal save folder for saves to migrate.
+			string folderToProcess;
+			if (string.IsNullOrEmpty(subdir))
+			{
+				/////////// For normal chapters, save files will be in the root of the save folder ///////////
+				folderToProcess = defaultSaveFolder;
+
+				string legacyGlobalDatPath = Path.Combine(GetSaveFolder(), "global.dat");
+
+				// Exit if global.dat missing - no legacy modded saves to migrate
+				if (!File.Exists(legacyGlobalDatPath))
+				{
+					return;
+				}
+
+				// Exit if global.dat is vanilla, as we don't want to migrate vanilla saves
+				// If can't determine the type of global.dat, assume it is modded.
+				GlobalSaveType saveType = MODSaves.GetGlobalSaveType(legacyGlobalDatPath);
+				if (saveType == GlobalSaveType.Vanilla)
+				{
+					return;
+				}
+				else if(saveType == GlobalSaveType.Unknown)
+				{
+					Logger.LogWarning("WARNING: Global Save might be corrupted! Couldn't determine if it was modded or unmodded.");
+				}
+			}
+			else
+			{
+				/////////// For console arcs, save files will be in the 'console' subfolder (subdir = 'console') ///////////
+				// These files cannot be vanilla, since the vanilla game does not save in a subfolder.
+
+				// exit if subdir folder doesn't exist
+				string legacySaveFolder = Path.Combine(defaultSaveFolder, subdir);
+				if (!Directory.Exists(legacySaveFolder))
+				{
+					return;
+				}
+
+				folderToProcess = legacySaveFolder;
 			}
 
 			// copy every file from subdir folder to save folder directory, prefixed with the name of the subdir
@@ -274,7 +303,7 @@ namespace Assets.Scripts.Core
 			string failingFilename = "";
 			int passCount = 0;
 			int failCount = 0;
-			foreach (string sourcePath in Directory.GetFiles(legacySaveFolder))
+			foreach (string sourcePath in Directory.GetFiles(folderToProcess))
 			{
 				string filename = Path.GetFileName(sourcePath);
 
