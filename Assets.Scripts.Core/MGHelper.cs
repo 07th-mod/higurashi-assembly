@@ -294,7 +294,13 @@ namespace Assets.Scripts.Core
 				Logger.Log($"UpgradeSavesIfNecessary(): Copying {sourcePath} to {destPath}...");
 				try
 				{
-					File.Copy(sourcePath, destPath);
+					// Copy the save to a temp file, then move the temp file into place
+					// This should help make this process more atomic/prevent
+					// errors with half-written save files
+					string tempPath = Path.GetTempFileName();
+					File.Copy(sourcePath, tempPath, true);
+					File.Move(tempPath, destPath);
+					File.Delete(tempPath);
 					passCount++;
 				}
 				catch (Exception e)
