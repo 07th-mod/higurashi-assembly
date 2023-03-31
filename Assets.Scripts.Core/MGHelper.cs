@@ -338,17 +338,19 @@ namespace Assets.Scripts.Core
 			return savePath;
 		}
 
-		private static string GetPrefix(string filename)
+		private static string GetSavePrefix(string filename)
 		{
+			// All chapters have prefix 'mod-' in front of save files
+			string prefix = "mod-";
+
+			// Previously saves went to a subdirectory for Console chapters. Now
+			// we amend the subdirectory name to the prefix, so that Steam
+			// Cloud can synchronize the saves (Steam cloud won't look inside subdirectories)
 			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
-
-			// If this chapter does not use subdir/prefix, just return empty prefix
-			if (string.IsNullOrEmpty(subdir))
+			if (!string.IsNullOrEmpty(subdir))
 			{
-				return "";
+				prefix += $"{subdir}-";
 			}
-
-			string prefix = $"{subdir}-";
 
 			// If the filename already has the prefix, don't add it again
 			// This is necessary because some of the code isn't aware of the prefix, and can call
@@ -363,7 +365,7 @@ namespace Assets.Scripts.Core
 
 		public static string GetSavePath(string filename)
 		{
-			return Path.Combine(GetSaveFolder(), GetPrefix(filename) + filename);
+			return Path.Combine(GetSaveFolder(), GetSavePrefix(filename) + filename);
 		}
 
 		public static string GetDataPath()
