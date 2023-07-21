@@ -177,6 +177,44 @@ namespace MOD.Scripts.UI
 			MODToaster.Show($"Voice Volume: {BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue()}", maybeSound: null);
 		}
 
+		private static void ForceEnterEasterEggIfOnTitleScreen()
+		{
+			var gameSystem = GameSystem.Instance;
+
+			if (gameSystem.GameState == GameState.TitleScreen)
+			{
+				if (gameSystem.GetStateObject() is Assets.Scripts.Core.State.StateTitle stateTitle)
+				{
+					// This appears to close the title menu
+					stateTitle.RequestLeave();
+
+					try
+					{
+						// We want to return to flow after running the easter egg, so first jump to flow
+						BurikoScriptSystem.Instance.JumpToScript("flow", "main");
+						// For some reason, just calliing "Jump To Script" doesn't reset the current line number, so force it to 0
+						BurikoScriptSystem.Instance.GetCurrentScript().JumpToLineNum(0);
+
+						// Then, call the easter egg. When the easter egg finishes, it should return to start of flow
+						BurikoScriptSystem.Instance.CallScript("title_easter_egg");
+
+						// Not sure if this is required.
+						BurikoMemory.Instance.ResetScope();
+
+						// Probably not useful - remove?
+						// BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+
+						gameSystem.AudioController.StopAllAudio();
+						gameSystem.AudioController.PlaySystemSound("wa_040.ogg");
+					}
+					catch (Exception e)
+					{
+						Debug.Log($"Failed to launch easter egg script: {e}");
+					}
+				}
+			}
+		}
+
 		private static void ModHandleUserAction(Action action)
 		{
 			switch (action)
@@ -280,6 +318,8 @@ namespace MOD.Scripts.UI
 				case Action.VoiceVolumeDown:
 					MODActions.AdjustVoiceVolumeRelative(-5);
 					ShowToastVoiceVoume();
+
+					ForceEnterEasterEggIfOnTitleScreen();
 					break;
 
 				case Action.VoiceVolumeMax:
