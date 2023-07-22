@@ -10,8 +10,8 @@ namespace MOD.Scripts.UI
 {
 	static class TitleEasterEggRunner
 	{
-		static int DEBUG_lastRightClickCount = 0;
-		const int rightClickCountToEnterEasterEgg = 3;
+		static int DEBUG_lastRightClickCount = 0; // !!!!! REMOVE THIS LINE ////
+		const int rightClickCountToEnterEasterEgg = 3; // !!!!! Change to 20 for final version ////
 		static int rightClickCount = 0;
 
 		public static void OnRightClick()
@@ -22,9 +22,23 @@ namespace MOD.Scripts.UI
 			{
 				if (gameSystem.GetStateObject() is Assets.Scripts.Core.State.StateTitle stateTitle)
 				{
-					rightClickCount++;
+					if(rightClickCount < rightClickCountToEnterEasterEgg)
+					{
+						rightClickCount++;
+					}
+				}
+			}
+		}
 
-					if(rightClickCount >= rightClickCountToEnterEasterEgg)
+		public static bool TryEnterEasterEgg()
+		{
+			var gameSystem = GameSystem.Instance;
+
+			if (gameSystem.GameState == GameState.TitleScreen)
+			{
+				if (gameSystem.GetStateObject() is Assets.Scripts.Core.State.StateTitle stateTitle)
+				{
+					if (rightClickCount >= rightClickCountToEnterEasterEgg)
 					{
 						rightClickCount = 0;
 
@@ -54,9 +68,13 @@ namespace MOD.Scripts.UI
 						{
 							Debug.Log($"Failed to launch easter egg script: {e}");
 						}
+
+						return true;
 					}
 				}
 			}
+
+			return false;
 		}
 
 		public static void Update()

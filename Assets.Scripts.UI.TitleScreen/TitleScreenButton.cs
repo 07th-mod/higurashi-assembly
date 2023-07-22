@@ -61,11 +61,14 @@ namespace Assets.Scripts.UI.TitleScreen
 						gameSystem.ExecuteActions();
 						break;
 					case "4-Exit":
-						GameSystem.Instance.PushStateObject(new StateDialogPrompt(PromptType.DialogExit, delegate
+						if(!MOD.Scripts.UI.TitleEasterEggRunner.TryEnterEasterEgg())
 						{
-							gameSystem.CanExit = true;
-							Application.Quit();
-						}, null));
+							GameSystem.Instance.PushStateObject(new StateDialogPrompt(PromptType.DialogExit, delegate
+							{
+								gameSystem.CanExit = true;
+								Application.Quit();
+							}, null));
+						}
 						break;
 					default:
 						Debug.Log("Button ID not found: " + base.name);
