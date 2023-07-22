@@ -8,9 +8,74 @@ using UnityEngine;
 
 namespace MOD.Scripts.UI
 {
+	static class TitleEasterEggRunner
+	{
+		static int DEBUG_lastRightClickCount = 0;
+		const int rightClickCountToEnterEasterEgg = 3;
+		static int rightClickCount = 0;
+
+		public static void OnRightClick()
+		{
+			var gameSystem = GameSystem.Instance;
+
+			if (gameSystem.GameState == GameState.TitleScreen)
+			{
+				if (gameSystem.GetStateObject() is Assets.Scripts.Core.State.StateTitle stateTitle)
+				{
+					rightClickCount++;
+
+					if(rightClickCount >= rightClickCountToEnterEasterEgg)
+					{
+						rightClickCount = 0;
+
+						// This appears to close the title menu
+						stateTitle.RequestLeave();
+
+						try
+						{
+							// We want to return to flow after running the easter egg, so first jump to flow
+							BurikoScriptSystem.Instance.JumpToScript("flow", "main");
+							// For some reason, just calliing "Jump To Script" doesn't reset the current line number, so force it to 0
+							BurikoScriptSystem.Instance.GetCurrentScript().JumpToLineNum(0);
+
+							// Then, call the easter egg. When the easter egg finishes, it should return to start of flow
+							BurikoScriptSystem.Instance.CallScript("title_easter_egg");
+
+							// Not sure if this is required.
+							BurikoMemory.Instance.ResetScope();
+
+							// Probably not useful - remove?
+							// BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+
+							gameSystem.AudioController.StopAllAudio();
+							gameSystem.AudioController.PlaySystemSound("wa_040.ogg");
+						}
+						catch (Exception e)
+						{
+							Debug.Log($"Failed to launch easter egg script: {e}");
+						}
+					}
+				}
+			}
+		}
+
+		public static void Update()
+		{
+			if(GameSystem.Instance.GameState != GameState.TitleScreen)
+			{
+				rightClickCount = 0;
+			}
+
+			if(DEBUG_lastRightClickCount != rightClickCount)
+			{
+				Debug.Log($"Right click count changed from {DEBUG_lastRightClickCount} to {rightClickCount}");
+				DEBUG_lastRightClickCount = rightClickCount;
+			}
+		}
+	}
+
 	static class MODKeyboardShortcuts
 	{
-
 		public static bool ModInputHandlingAllowed()
 		{
 			GameSystem gameSystem = GameSystem.Instance;
@@ -72,6 +137,7 @@ namespace MOD.Scripts.UI
 			DebugMode,
 			RestoreSettings,
 			ToggleAudioSet,
+			TitleEasterEggRightClick,
 		}
 
 		private static Action? GetUserAction()
@@ -168,6 +234,10 @@ namespace MOD.Scripts.UI
 			{
 				return Action.VoiceVolumeDown;
 			}
+			else if((GameSystem.Instance.GameState == GameState.TitleScreen) && Input.GetMouseButtonDown(1))
+			{
+				return Action.TitleEasterEggRightClick;
+			}
 
 			return null;
 		}
@@ -175,44 +245,6 @@ namespace MOD.Scripts.UI
 		private static void ShowToastVoiceVoume()
 		{
 			MODToaster.Show($"Voice Volume: {BurikoMemory.Instance.GetGlobalFlag("GVoiceVolume").IntValue()}", maybeSound: null);
-		}
-
-		private static void ForceEnterEasterEggIfOnTitleScreen()
-		{
-			var gameSystem = GameSystem.Instance;
-
-			if (gameSystem.GameState == GameState.TitleScreen)
-			{
-				if (gameSystem.GetStateObject() is Assets.Scripts.Core.State.StateTitle stateTitle)
-				{
-					// This appears to close the title menu
-					stateTitle.RequestLeave();
-
-					try
-					{
-						// We want to return to flow after running the easter egg, so first jump to flow
-						BurikoScriptSystem.Instance.JumpToScript("flow", "main");
-						// For some reason, just calliing "Jump To Script" doesn't reset the current line number, so force it to 0
-						BurikoScriptSystem.Instance.GetCurrentScript().JumpToLineNum(0);
-
-						// Then, call the easter egg. When the easter egg finishes, it should return to start of flow
-						BurikoScriptSystem.Instance.CallScript("title_easter_egg");
-
-						// Not sure if this is required.
-						BurikoMemory.Instance.ResetScope();
-
-						// Probably not useful - remove?
-						// BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
-
-						gameSystem.AudioController.StopAllAudio();
-						gameSystem.AudioController.PlaySystemSound("wa_040.ogg");
-					}
-					catch (Exception e)
-					{
-						Debug.Log($"Failed to launch easter egg script: {e}");
-					}
-				}
-			}
 		}
 
 		private static void ModHandleUserAction(Action action)
@@ -318,8 +350,6 @@ namespace MOD.Scripts.UI
 				case Action.VoiceVolumeDown:
 					MODActions.AdjustVoiceVolumeRelative(-5);
 					ShowToastVoiceVoume();
-
-					ForceEnterEasterEggIfOnTitleScreen();
 					break;
 
 				case Action.VoiceVolumeMax:
@@ -360,6 +390,10 @@ namespace MOD.Scripts.UI
 					}
 					break;
 
+				case Action.TitleEasterEggRightClick:
+					TitleEasterEggRunner.OnRightClick();
+					break;
+
 				default:
 					Assets.Scripts.Core.Logger.Log($"Warning: Unknown mod action {action} was requested to be executed");
 					break;
@@ -372,6 +406,8 @@ namespace MOD.Scripts.UI
 		/// <returns>Currently the return value is not used for anything</returns>
 		public static bool ModInputHandler()
 		{
+			TitleEasterEggRunner.Update();
+
 			if (GetUserAction() is Action action)
 			{
 				if (action == Action.ModMenu)
