@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static MOD.Scripts.UI.MODMenuCommon;
+using MOD.Scripts.Core.Localization;
 
 namespace MOD.Scripts.UI
 {
 	class MODMenuResolution
 	{
 		private string overrideFullScreenResolutionDescription =
-			"Set a custom fullscreen resolution\n\n" +
-			"Use this option only if the fullscreen resolution is detected incorrectly (such as on some Linux systems)\n" +
-			"You can manually type in a resolution to use below.\n\n" +
-			"Click 'Clear Override' to let the game automatically determine the fullscreen resolution";
+			Loc.MODMenuResolution_0; //Set a custom fullscreen resolution\n\nUse this option only if the fullscreen resolution is detected incorrectly (such as on some Linux systems)\nYou can manually type in a resolution to use below.\n\nClick 'Clear Override' to let the game automatically determine the fullscreen resolution
 
 		private string screenHeightString;
 		private string fullscreenWidthOverrideString;
@@ -44,31 +42,30 @@ namespace MOD.Scripts.UI
 
 		public void OnGUI()
 		{
-			Label("Windowed Resolution Settings");
+			Label(Loc.MODMenuResolution_1); //Windowed Resolution Settings
 			{
 				GUILayout.BeginHorizontal();
 
 				if (!GameSystem.Instance.IsFullscreen)
 				{
-					if (Button(new GUIContent("480p", "Set resolution to 853 x 480"))) { SetAndSaveResolution(480); }
-					if (Button(new GUIContent("720p", "Set resolution to 1280 x 720"))) { SetAndSaveResolution(720); }
-					if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
-					if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
+					if (Button(new GUIContent(Loc.MODMenuResolution_2, Loc.MODMenuResolution_3))) { SetAndSaveResolution(480); } //480p | Set resolution to 853 x 480
+					if (Button(new GUIContent(Loc.MODMenuResolution_4, Loc.MODMenuResolution_5))) { SetAndSaveResolution(720); } //720p | Set resolution to 1280 x 720
+					if (Button(new GUIContent(Loc.MODMenuResolution_6, Loc.MODMenuResolution_7))) { SetAndSaveResolution(1080); } //1080p | Set resolution to 1920 x 1080
+					if (Button(new GUIContent(Loc.MODMenuResolution_8, Loc.MODMenuResolution_9))) { SetAndSaveResolution(1440); } //1440p | Set resolution to 2560 x 1440
 
 					screenHeightString = GUILayout.TextField(screenHeightString);
-					if (Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.\n\n" +
-						"Height set automatically to maintain 16:9 aspect ratio.")))
+					if (Button(new GUIContent(Loc.MODMenuResolution_10, Loc.MODMenuResolution_11))) //Set | Sets a custom resolution - mainly for windowed mode.\n\nHeight set automatically to maintain 16:9 aspect ratio.
 					{
 						if (int.TryParse(screenHeightString, out int new_height))
 						{
 							if (new_height < 480)
 							{
-								MODToaster.Show("Height too small - must be at least 480 pixels");
+								MODToaster.Show(Loc.MODMenuResolution_12); //Height too small - must be at least 480 pixels
 								new_height = 480;
 							}
 							else if (new_height > 15360)
 							{
-								MODToaster.Show("Height too big - must be less than 15360 pixels");
+								MODToaster.Show(Loc.MODMenuResolution_13); //Height too big - must be less than 15360 pixels
 								new_height = 15360;
 							}
 							screenHeightString = $"{new_height}";
@@ -82,14 +79,14 @@ namespace MOD.Scripts.UI
 
 				if (GameSystem.Instance.IsFullscreen)
 				{
-					if (Button(new GUIContent("Click here to go Windowed to change these settings", "Toggle Fullscreen")))
+					if (Button(new GUIContent(Loc.MODMenuResolution_14, Loc.MODMenuResolution_15))) //Click here to go Windowed to change these settings | Toggle Fullscreen
 					{
 						GameSystem.Instance.DeFullscreen(PlayerPrefs.GetInt("width"), PlayerPrefs.GetInt("height"));
 					}
 				}
 				else
 				{
-					if (Button(new GUIContent("Go Fullscreen", "Toggle Fullscreen")))
+					if (Button(new GUIContent(Loc.MODMenuResolution_16, Loc.MODMenuResolution_17))) //Go Fullscreen | Toggle Fullscreen
 					{
 						GameSystem.Instance.GoFullscreen();
 					}
@@ -102,24 +99,24 @@ namespace MOD.Scripts.UI
 
 			Resolution detectedRes = GameSystem.Instance.GetFullscreenResolution(useOverride: false, doLogging: false);
 			Resolution actualRes = GameSystem.Instance.GetFullscreenResolution(useOverride: true, doLogging: false);
-			string overrideString = FullscreenOverrideEnabled() ? $"{actualRes.width} x {actualRes.height}" : "Off";
-			Label($"Fullscreen Resolution Override (Detected: {detectedRes.width} x {detectedRes.height} Override: {overrideString})");
+			string overrideString = FullscreenOverrideEnabled() ? $"{actualRes.width} x {actualRes.height}" : Loc.MODMenuResolution_18; //Off
+			Label(Loc.MODMenuResolution_19 + $"{detectedRes.width} x {detectedRes.height}" + Loc.MODMenuResolution_20 + $"{overrideString})"); //Fullscreen Resolution Override (Detected:  |  Override:
 			{
 				GUILayout.BeginHorizontal();
 
 					GUILayout.BeginHorizontal();
-					LabelRightAlign("Width:");
+					LabelRightAlign(Loc.MODMenuResolution_21); //Width:
 					fullscreenWidthOverrideString = GUILayout.TextField(fullscreenWidthOverrideString, 5);
 					GUILayout.EndHorizontal();
 
 					GUILayout.BeginHorizontal();
-					LabelRightAlign("Height:");
+					LabelRightAlign(Loc.MODMenuResolution_22); //Height:
 					fullscreenHeightOverrideString = GUILayout.TextField(fullscreenHeightOverrideString, 5);
 					GUILayout.EndHorizontal();
 
 
 				bool shouldUpdateFullscreenResolution = false;
-				string gameClearButtonText = overrideFullResCountdown > 0 ? $"Click {overrideFullResCountdown} times to override resolution" : $"Override Fullscreen Resolution";
+				string gameClearButtonText = overrideFullResCountdown > 0 ? Loc.MODMenuResolution_23 + $" ({overrideFullResCountdown})" : Loc.MODMenuResolution_24; //Click repeatedly to override resolution | Override Fullscreen Resolution
 				if (Button(new GUIContent(gameClearButtonText, overrideFullScreenResolutionDescription)))
 				{
 					if (overrideFullResCountdown > 0)
@@ -140,17 +137,17 @@ namespace MOD.Scripts.UI
 							}
 							else
 							{
-								MODToaster.Show("Invalid Height");
+								MODToaster.Show(Loc.MODMenuResolution_25); //Invalid Height
 							}
 						}
 						else
 						{
-							MODToaster.Show("Invalid Width");
+							MODToaster.Show(Loc.MODMenuResolution_26); //Invalid Width
 						}
 					}
 				}
 
-				if (Button(new GUIContent("Clear Override", overrideFullScreenResolutionDescription)))
+				if (Button(new GUIContent(Loc.MODMenuResolution_27, overrideFullScreenResolutionDescription))) //Clear Override
 				{
 					PlayerPrefs.SetInt("fullscreen_width_override", 0);
 					PlayerPrefs.SetInt("fullscreen_height_override", 0);
@@ -172,12 +169,12 @@ namespace MOD.Scripts.UI
 		{
 			if (height < 480)
 			{
-				MODToaster.Show("Height too small - must be at least 480 pixels");
+				MODToaster.Show(Loc.MODMenuResolution_28); //Height too small - must be at least 480 pixels
 				height = 480;
 			}
 			else if (height > 15360)
 			{
-				MODToaster.Show("Height too big - must be less than 15360 pixels");
+				MODToaster.Show(Loc.MODMenuResolution_29); //Height too big - must be less than 15360 pixels
 				height = 15360;
 			}
 			screenHeightString = $"{height}";

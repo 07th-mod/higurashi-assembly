@@ -12,7 +12,7 @@ using Assets.Scripts.UI.CGGallery;
 using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
-using MOD.Scripts.Core;
+using MOD.Scripts.Core.Localization;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
