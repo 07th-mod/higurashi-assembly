@@ -232,7 +232,7 @@ namespace Assets.Scripts.Core
 		{
 			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
 			MainUIController.InitializeToaster();
-			MODLocalization.LoadFromJSON();
+			Loc.LoadFromJSON();
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();

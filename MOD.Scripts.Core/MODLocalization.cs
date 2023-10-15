@@ -24,7 +24,7 @@ namespace MOD.Scripts.Core
 		}
 	}
 
-	public class MODLocalization
+	public class Loc
 	{
 		private static bool initializeAttempted;
 		private static readonly LocalizationEntry notInitializedEntry;
@@ -32,7 +32,7 @@ namespace MOD.Scripts.Core
 		private static readonly LocalizationInfo fallbackInfo;
 		private static LocalizationInfo info;
 
-		static MODLocalization()
+		static Loc()
 		{
 			// This entry is shown if you try to access this class too early (before GameSystem has inititalized).
 			notInitializedEntry = new LocalizationEntry()
