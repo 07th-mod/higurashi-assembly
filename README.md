@@ -33,7 +33,9 @@ Ongoing development will be based on the `mod` branch and the relevant branch fo
 
 ## Decompilation
 
-The decompiled code was created via ILSpy commit 3fb25e543bda4ac6664b44b7183b5e29161b51b9.
+I think the following versions of ILSpy were used for decompilation:
+ - For Chapters 1-8, ILSpy commit 3fb25e543bda4ac6664b44b7183b5e29161b51b9 was used for decompilation
+ - For Chapters 9 and above, ILSpy 5.0.2 was used for decompilation (https://github.com/icsharpcode/ILSpy/releases/tag/v5.0.2 / 77385d4904ced2a31e73f172c544201cacc063b3)
 
 This requires both the MG and the steam versions of the game.
 
