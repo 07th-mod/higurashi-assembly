@@ -9,23 +9,47 @@ namespace Assets.Scripts.UI.ChapterPreview
 	{
 		public UIButton Button;
 
+		public UISprite Sprite;
+
 		public GameObject Description;
 
 		public GameObject DescriptionJp;
 
+		public GameObject LockedDescription;
+
+		public GameObject LockedDescriptionJp;
+
 		public int ValueFlag;
 
-		private float lockout = 1.1f;
+		private float lockout = 0.3f;
+
+		public int ChapterNum;
+
+		public bool Locked;
 
 		public void Disable()
 		{
-			Button.isEnabled = false;
+			Button.enabled = false;
+		}
+
+		public void Enable()
+		{
+			Button.enabled = true;
+		}
+
+		public void BlockChapter()
+		{
+			Description = LockedDescription;
+			DescriptionJp = LockedDescriptionJp;
+			Button.hoverSprite = Button.normalSprite;
+			Button.pressedSprite = Button.normalSprite;
+			Locked = true;
 		}
 
 		public void Update()
 		{
 			lockout -= Time.deltaTime;
-			if (!(lockout > 0f))
+			if (!(lockout > 0f) && Button.isEnabled && !(Description == null) && !(DescriptionJp == null))
 			{
 				if (GameSystem.Instance.UseEnglishText)
 				{
@@ -43,14 +67,20 @@ namespace Assets.Scripts.UI.ChapterPreview
 		public void OnClick()
 		{
 			lockout -= Time.deltaTime;
-			if (!(lockout > 0f) && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ChapterPreview)
+			if (lockout > 0f || Locked || UICamera.currentTouchID < -1 || GameSystem.Instance.GameState != GameState.ChapterPreview)
 			{
-				StateChapterPreview stateChapterPreview = GameSystem.Instance.GetStateObject() as StateChapterPreview;
-				if (stateChapterPreview != null)
+				return;
+			}
+			StateChapterPreview stateChapterPreview = GameSystem.Instance.GetStateObject() as StateChapterPreview;
+			if (stateChapterPreview != null)
+			{
+				if (ValueFlag != 0)
 				{
-					BurikoScriptSystem.Instance.SetFlag("LOCALWORK_NO_RESULT", ValueFlag);
-					stateChapterPreview.RequestLeave();
+					Button.normalSprite = Button.hoverSprite;
+					Button.disabledSprite = Button.hoverSprite;
 				}
+				BurikoScriptSystem.Instance.SetFlag("LOCALWORK_NO_RESULT", ValueFlag);
+				stateChapterPreview.RequestLeave();
 			}
 		}
 	}

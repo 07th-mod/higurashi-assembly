@@ -39,6 +39,7 @@ namespace Assets.Scripts.Core.SteamWorks
 				Debug.Log("Steam initialization skipped as one of the requisite files was not present.");
 				return;
 			}
+			uint.Parse(File.ReadAllText(path));
 			GameObject gameObject = new GameObject("SteamManager");
 			steamManager = gameObject.AddComponent<SteamManager>();
 			userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);

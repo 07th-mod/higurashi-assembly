@@ -1,27 +1,30 @@
-using Assets.Scripts.UI.ChapterPreview;
+using Assets.Scripts.UI.Extra;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.State
 {
-	internal class StateChapterPreview : IGameState
+	internal class StateMusicRoom : IGameState
 	{
 		private GameSystem gameSystem;
 
-		private ChapterPreviewManager previewScreen;
+		private MusicRoomManager musicRoom;
 
 		private bool isLeaving;
 
-		public StateChapterPreview()
+		public StateMusicRoom()
 		{
 			gameSystem = GameSystem.Instance;
-			GameObject gameObject = Object.Instantiate(gameSystem.ChapterPreviewPrefab);
-			previewScreen = gameObject.GetComponent<ChapterPreviewManager>();
-			previewScreen.Show();
+			GameObject gameObject = Object.Instantiate(gameSystem.MusicRoomPrefab);
+			musicRoom = gameObject.GetComponent<MusicRoomManager>();
+			GameSystem.Instance.IsForceSkip = false;
+			GameSystem.Instance.IsSkipping = false;
+			GameSystem.Instance.IsAuto = false;
+			musicRoom.Show();
 		}
 
 		public void RequestLeaveImmediate()
 		{
-			Object.Destroy(previewScreen.gameObject);
+			Object.Destroy(musicRoom.gameObject);
 			gameSystem.PopStateStack();
 			isLeaving = true;
 		}
@@ -30,7 +33,7 @@ namespace Assets.Scripts.Core.State
 		{
 			if (!isLeaving)
 			{
-				previewScreen.Hide(delegate
+				musicRoom.Hide(delegate
 				{
 					gameSystem.PopStateStack();
 				});
@@ -40,9 +43,10 @@ namespace Assets.Scripts.Core.State
 
 		public void OnLeaveState()
 		{
+			Debug.Log(string.Format("OnLeave {0} {1}", "StateMusicRoom", isLeaving));
 			if (!isLeaving)
 			{
-				previewScreen.Hide(delegate
+				musicRoom.Hide(delegate
 				{
 				});
 			}
@@ -59,7 +63,7 @@ namespace Assets.Scripts.Core.State
 
 		public GameState GetStateType()
 		{
-			return GameState.ChapterPreview;
+			return GameState.MusicRoom;
 		}
 	}
 }

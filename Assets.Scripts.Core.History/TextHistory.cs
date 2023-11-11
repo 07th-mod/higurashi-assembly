@@ -1,4 +1,3 @@
-using Assets.Scripts.Core.Audio;
 using System.Collections.Generic;
 using TMPro;
 
@@ -7,8 +6,6 @@ namespace Assets.Scripts.Core.History
 	public class TextHistory
 	{
 		private List<HistoryLine> lines = new List<HistoryLine>();
-
-		private AudioInfo lastVoice;
 
 		private HistoryLine last;
 
@@ -43,13 +40,19 @@ namespace Assets.Scripts.Core.History
 			{
 				last.TextEnglish += english;
 				last.TextJapanese += japanese;
+				return;
 			}
-			else
+			string english2 = english;
+			string japanese2 = japanese;
+			if (!string.IsNullOrWhiteSpace(nameen))
 			{
-				string english2 = string.Format(GameSystem.Instance.TextController.NameFormat, nameen) + english;
-				string japanese2 = string.Format(GameSystem.Instance.TextController.NameFormat, namejp) + japanese;
-				last = new HistoryLine(english2, japanese2, null);
+				english2 = string.Format(GameSystem.Instance.TextController.NameHistoryFormat, nameen) + english;
 			}
+			if (!string.IsNullOrEmpty(namejp))
+			{
+				japanese2 = string.Format(GameSystem.Instance.TextController.NameHistoryFormat, namejp) + japanese;
+			}
+			last = new HistoryLine(english2, japanese2, null);
 		}
 
 		public void PushHistory()

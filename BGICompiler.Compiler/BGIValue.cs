@@ -16,6 +16,11 @@ namespace BGICompiler.Compiler
 
 		private BurikoMathType mathType;
 
+		public override string ToString()
+		{
+			return tree.Text;
+		}
+
 		public bool GetBool()
 		{
 			if (Type != BurikoValueType.Bool)
@@ -70,6 +75,12 @@ namespace BGICompiler.Compiler
 			case "%":
 				mathType = BurikoMathType.Modulus;
 				return true;
+			case "&&":
+				mathType = BurikoMathType.And;
+				return true;
+			case "||":
+				mathType = BurikoMathType.Or;
+				return true;
 			default:
 				return false;
 			}
@@ -79,6 +90,7 @@ namespace BGICompiler.Compiler
 		{
 			BGIValue bGIValue = new BGIValue(baseTree.GetChild(0));
 			BGIValue bGIValue2 = new BGIValue(baseTree.GetChild(1));
+			IsMath(baseTree.Text);
 			output.Write((short)Type);
 			output.Write((short)mathType);
 			bGIValue.Output();
@@ -176,7 +188,11 @@ namespace BGICompiler.Compiler
 				OutputVar(output);
 				break;
 			default:
-				throw new Exception("Unhandled Variable Type " + Type);
+				if (tree != null)
+				{
+					throw new Exception($"Unhandled Variable Type: {Type} Value: {tree.Text}");
+				}
+				throw new Exception($"Unhandled Variable Type: {Type} Value: NO VALUE");
 			}
 		}
 
@@ -206,6 +222,11 @@ namespace BGICompiler.Compiler
 				break;
 			case "TYPEVARIABLE":
 				Type = BurikoValueType.Variable;
+				baseTree = tree;
+				tree = baseTree.GetChild(0);
+				break;
+			case "TYPEMATH":
+				Type = BurikoValueType.Math;
 				baseTree = tree;
 				tree = baseTree.GetChild(0);
 				break;

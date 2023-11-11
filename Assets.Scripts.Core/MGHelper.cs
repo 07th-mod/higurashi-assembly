@@ -178,7 +178,20 @@ namespace Assets.Scripts.Core
 			}
 		}
 
-		public static Vector3 ReadVector3(BinaryReader br)
+		public static void Write(this BinaryWriter bw, Color32 c)
+		{
+			bw.Write(c.r);
+			bw.Write(c.g);
+			bw.Write(c.b);
+			bw.Write(c.a);
+		}
+
+		public static Color32 ReadColor32(this BinaryReader br)
+		{
+			return new Color32(br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
+		}
+
+		public static Vector3 ReadVector3(this BinaryReader br)
 		{
 			Vector3 result = default(Vector3);
 			result.x = br.ReadSingle();
@@ -187,12 +200,12 @@ namespace Assets.Scripts.Core
 			return result;
 		}
 
-		public static Vector3 ReadVector2(this BinaryReader br)
+		public static Vector2 ReadVector2(this BinaryReader br)
 		{
-			Vector2 v = default(Vector2);
-			v.x = br.ReadSingle();
-			v.y = br.ReadSingle();
-			return v;
+			Vector2 result = default(Vector2);
+			result.x = br.ReadSingle();
+			result.y = br.ReadSingle();
+			return result;
 		}
 
 		public static Vector2? ReadOptionalVector2(this BinaryReader br)
@@ -205,6 +218,39 @@ namespace Assets.Scripts.Core
 			value.x = br.ReadSingle();
 			value.y = br.ReadSingle();
 			return value;
+		}
+
+		public static void Write(this BinaryWriter bw, Vector4 v)
+		{
+			bw.Write(v.x);
+			bw.Write(v.y);
+			bw.Write(v.z);
+			bw.Write(v.w);
+		}
+
+		public static Vector4 ReadVector4(this BinaryReader br)
+		{
+			return new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+		}
+
+		public static void WriteOptionalString(this BinaryWriter bw, string val)
+		{
+			if (string.IsNullOrWhiteSpace(val))
+			{
+				bw.Write(value: false);
+				return;
+			}
+			bw.Write(value: true);
+			bw.Write(val);
+		}
+
+		public static string ReadOptionalString(this BinaryReader br, string defaultValue = null)
+		{
+			if (br.ReadBoolean())
+			{
+				return br.ReadString();
+			}
+			return null;
 		}
 
 		public static void WriteColor(BinaryWriter br, Color c)

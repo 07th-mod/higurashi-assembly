@@ -34,6 +34,12 @@ namespace Assets.Scripts.Core.Scene
 
 		private Shader fadeShader;
 
+		private Shader scrollShader;
+
+		private string maskTextureName;
+
+		private Texture2D maskTexture;
+
 		public float Depth
 		{
 			get
@@ -62,10 +68,25 @@ namespace Assets.Scripts.Core.Scene
 		public void SetTransitionMask(string maskname, int style)
 		{
 			sceneMaterial.shader = maskShader;
-			Texture2D value = AssetManager.Instance.LoadTexture(maskname);
-			sceneMaterial.SetTexture("_Mask", value);
+			if (maskTexture != null)
+			{
+				AssetManager.Instance.ReleaseTexture(maskTextureName, maskTexture);
+			}
+			maskTextureName = maskname;
+			maskTexture = AssetManager.Instance.LoadTexture(maskname);
+			sceneMaterial.SetTexture("_Mask", maskTexture);
 			sceneMaterial.SetFloat("_Fuzzyness", (style == 1) ? 0.01f : 0.75f);
 			UpdateRange(0f);
+		}
+
+		public void SetScrollX(float x)
+		{
+			sceneMaterial.SetFloat("_ScrollX", x);
+		}
+
+		public void SetScrollY(float y)
+		{
+			sceneMaterial.SetFloat("_ScrollY", y);
 		}
 
 		public void StartTransition(float time)
@@ -78,8 +99,69 @@ namespace Assets.Scripts.Core.Scene
 		public void FadeSceneIn(float time)
 		{
 			base.gameObject.SetActive(value: true);
+			base.transform.localPosition = Vector3.zero;
 			sceneMaterial.shader = fadeShader;
 			StartTransition(time);
+		}
+
+		public void ScrollSceneIn(float time, int direction)
+		{
+			base.gameObject.SetActive(value: true);
+			if (direction < 0 || direction > 3)
+			{
+				throw new Exception("Invalid scene scroll direction: " + direction);
+			}
+			sceneMaterial.shader = scrollShader;
+			SetScrollY(0f);
+			SetScrollX(0f);
+			if (direction == 0)
+			{
+				SetScrollX(-1f);
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", -1f, "to", 0f, "time", time, "onupdate", "SetScrollX", "oncomplete", "StopFadeIn"));
+			}
+			if (direction == 1)
+			{
+				SetScrollX(1f);
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", 1f, "to", 0f, "time", time, "onupdate", "SetScrollX", "oncomplete", "StopFadeIn"));
+			}
+			if (direction == 2)
+			{
+				SetScrollY(-1f);
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", -1f, "to", 0f, "time", time, "onupdate", "SetScrollY", "oncomplete", "StopFadeIn"));
+			}
+			if (direction == 3)
+			{
+				SetScrollY(1f);
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", 1f, "to", 0f, "time", time, "onupdate", "SetScrollY", "oncomplete", "StopFadeIn"));
+			}
+		}
+
+		public void ScrollSceneOut(float time, int direction)
+		{
+			base.gameObject.SetActive(value: true);
+			if (direction < 0 || direction > 3)
+			{
+				throw new Exception("Invalid scene scroll direction: " + direction);
+			}
+			sceneMaterial.shader = scrollShader;
+			SetScrollY(0f);
+			SetScrollX(0f);
+			if (direction == 0)
+			{
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", 0f, "to", 1f, "time", time, "onupdate", "SetScrollX", "oncomplete", "StopFadeIn"));
+			}
+			if (direction == 1)
+			{
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", 0f, "to", -1f, "time", time, "onupdate", "SetScrollX", "oncomplete", "StopFadeIn"));
+			}
+			if (direction == 2)
+			{
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", 0f, "to", 1f, "time", time, "onupdate", "SetScrollY", "oncomplete", "StopFadeIn"));
+			}
+			if (direction == 3)
+			{
+				iTween.ValueTo(base.gameObject, iTween.Hash("from", 0f, "to", -1f, "time", time, "onupdate", "SetScrollY", "oncomplete", "StopFadeIn"));
+			}
 		}
 
 		public void StopFadeIn()
@@ -91,11 +173,11 @@ namespace Assets.Scripts.Core.Scene
 			{
 				if (layer.gameObject.layer != sceneController.GetActiveLayerMask())
 				{
-					if (layer.gameObject.layer == LayerMask.NameToLayer("RenderBoth"))
+					if (layer.gameObject.layer == LayerMask.NameToLayer("RenderBoth") && !layer.IsPersistent)
 					{
 						layer.gameObject.layer = sceneController.GetActiveLayerMask();
 					}
-					else if (layer.Priority < SceneController.UpperLayerRange && layer.tag != "BackgroundLayer")
+					else if (layer.tag != "BackgroundLayer" && !layer.IsPersistent)
 					{
 						layer.HideLayer();
 					}
@@ -149,6 +231,7 @@ namespace Assets.Scripts.Core.Scene
 			defaultShader = Shader.Find("MGShader/SceneOpaque");
 			maskShader = Shader.Find("MGShader/SceneFadeWithMask");
 			fadeShader = Shader.Find("MGShader/SceneFade");
+			scrollShader = Shader.Find("MGShader/SceneScroll");
 			sceneMaterial = new Material(defaultShader);
 		}
 

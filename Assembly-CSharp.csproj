@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{503A3D69-A749-4B75-AF6B-3F55F069427D}</ProjectGuid>
+    <ProjectGuid>{CA54FB4F-044E-429A-9E28-D7AE73C1C881}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <AssemblyName>Assembly-CSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -25,6 +26,12 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="netstandard">
@@ -81,11 +88,17 @@
     <Reference Include="Unity.TextMeshPro">
       <HintPath>DLLs\Unity.TextMeshPro.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>DLLs\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>DLLs\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
-      <HintPath>DLLs\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>DLLs\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>DLLs\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +115,7 @@
     <Compile Include="Assets.Scripts.Core.AssetManagement\AssetManager.cs" />
     <Compile Include="Assets.Scripts.Core.AssetManagement\PacArchive.cs" />
     <Compile Include="Assets.Scripts.Core.AssetManagement\PacEntity.cs" />
+    <Compile Include="Assets.Scripts.Core.AssetManagement\TextureReference.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioController.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioFinishCallback.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
@@ -139,6 +153,7 @@
     <Compile Include="Assets.Scripts.Core.Scene\BlackBars.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\FilmEffector.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\FragmentController.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\GameVideoPlayer.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\Layer.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\LayerOld.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\LayerPool.cs" />
@@ -147,6 +162,7 @@
     <Compile Include="Assets.Scripts.Core.Scene\SceneController.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\SceneControllerOld.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\SceneOld.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\ShakeFollower.cs" />
     <Compile Include="Assets.Scripts.Core.Scene\Shaker.cs" />
     <Compile Include="Assets.Scripts.Core.State\IGameState.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateChapterJump.cs" />
@@ -156,7 +172,9 @@
     <Compile Include="Assets.Scripts.Core.State\StateExtraScreen.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateFragmentList.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateHistory.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateMusicRoom.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateNormal.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateOmakeSection.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateSaveLoad.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateTitle.cs" />
     <Compile Include="Assets.Scripts.Core.State\StateViewTips.cs" />
@@ -167,6 +185,7 @@
     <Compile Include="Assets.Scripts.Core.TextWindow\FaceController.cs" />
     <Compile Include="Assets.Scripts.Core.TextWindow\TextCharacter.cs" />
     <Compile Include="Assets.Scripts.Core.TextWindow\TextController.cs" />
+    <Compile Include="Assets.Scripts.Core\Extensions.cs" />
     <Compile Include="Assets.Scripts.Core\GameState.cs" />
     <Compile Include="Assets.Scripts.Core\GameSystem.cs" />
     <Compile Include="Assets.Scripts.Core\KeyHook.cs" />
@@ -199,8 +218,13 @@
     <Compile Include="Assets.Scripts.UI.Config\ScreenSwitcherButton.cs" />
     <Compile Include="Assets.Scripts.UI.Config\SwitchButton.cs" />
     <Compile Include="Assets.Scripts.UI.Config\SwitchButtonObj.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\BgmDataInfo.cs" />
     <Compile Include="Assets.Scripts.UI.Extra\ExtraButton.cs" />
     <Compile Include="Assets.Scripts.UI.Extra\ExtraManager.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\MusicRoomEntry.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\MusicRoomManager.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\PlayMode.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\TwoLanguageString.cs" />
     <Compile Include="Assets.Scripts.UI.Fragments\FragmentEntryButton.cs" />
     <Compile Include="Assets.Scripts.UI.Fragments\FragmentsManager.cs" />
     <Compile Include="Assets.Scripts.UI.Fragments\FragmentSpinner.cs" />

@@ -36,11 +36,22 @@ namespace Assets.Scripts.Core.Scene
 		public void ReturnLayer(Layer layer)
 		{
 			GameObject gameObject = layer.gameObject;
-			gameObject.transform.parent = base.transform;
-			gameObject.layer = LayerMask.NameToLayer("NotRendered");
-			gameObject.SetActive(value: false);
-			layerList.Push(gameObject);
-			layerObjList.Add(gameObject);
+			if (!layerObjList.Contains(gameObject))
+			{
+				if (layer.IsInUse || !string.IsNullOrWhiteSpace(layer.PrimaryName))
+				{
+					Debug.LogWarning("Warning! Attempting to return layer " + layer.name + " to the pool while it still active!");
+				}
+				if (layer.IsPersistent)
+				{
+					layer.IsPersistent = false;
+				}
+				gameObject.transform.parent = base.transform;
+				gameObject.layer = LayerMask.NameToLayer("NotRendered");
+				gameObject.SetActive(value: false);
+				layerList.Push(gameObject);
+				layerObjList.Add(gameObject);
+			}
 		}
 
 		public bool IsInPool(GameObject layer)

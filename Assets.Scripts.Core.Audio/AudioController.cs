@@ -187,9 +187,19 @@ namespace Assets.Scripts.Core.Audio
 			channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)].RegisterCallback(callback);
 		}
 
+		public void AddBgmFinishCallback(int channel, AudioFinishCallback callback)
+		{
+			channelDictionary[GetChannelByTypeChannel(AudioType.BGM, channel)].RegisterCallback(callback);
+		}
+
 		public float GetRemainingSEPlayTime(int channel)
 		{
 			return channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)].GetRemainingPlayTime();
+		}
+
+		public string GetBGMPlayTimeAsString(int channel)
+		{
+			return channelDictionary[GetChannelByTypeChannel(AudioType.BGM, channel)].GetTrackTime();
 		}
 
 		public float GetRemainingVoicePlayTime(int channel)
@@ -205,12 +215,12 @@ namespace Assets.Scripts.Core.Audio
 			if (currentAudio[AudioType.BGM].ContainsKey(channel))
 			{
 				currentAudio[AudioType.BGM][channel].Volume = volume;
+				audioLayerUnity.StartVolumeFade(volume, time2);
 			}
 			else
 			{
-				Debug.LogWarning("ChangeVolumeOfBGM could not find existing currentAudio for channel!");
+				Debug.LogWarning($"ChangeVolumeOfBGM could not find existing currentAudio for channel {channel}!");
 			}
-			audioLayerUnity.StartVolumeFade(volume, time2);
 		}
 
 		public void FadeOutBGM(int channel, int time, bool waitForFade)
@@ -275,7 +285,7 @@ namespace Assets.Scripts.Core.Audio
 
 		public void PlayVoice(string filename, int channel, float volume)
 		{
-			string text = filename.Substring(0, 4);
+			filename.Substring(0, 4);
 			if (0 == 0)
 			{
 				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
@@ -337,6 +347,10 @@ namespace Assets.Scripts.Core.Audio
 				{
 					audioLayerUnity.StopAudio();
 				}
+				if (currentAudio[AudioType.BGM].ContainsKey(i))
+				{
+					currentAudio[AudioType.BGM].Remove(i);
+				}
 			}
 			for (int j = 0; j < 8; j++)
 			{
@@ -353,6 +367,10 @@ namespace Assets.Scripts.Core.Audio
 				{
 					audioLayerUnity3.StopAudio();
 				}
+				if (currentAudio[AudioType.Voice].ContainsKey(k))
+				{
+					currentAudio[AudioType.Voice].Remove(k);
+				}
 			}
 		}
 
@@ -367,7 +385,7 @@ namespace Assets.Scripts.Core.Audio
 			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(type, channel)];
 			if (audioLayerUnity.IsPlaying() && currentAudio[AudioType.BGM].TryGetValue(channel, out AudioInfo value) && value.Filename == filename)
 			{
-				audioLayerUnity.SetCurrentVolume(volume);
+				audioLayerUnity.FinishChangingVolume(volume);
 				return;
 			}
 			if (audioLayerUnity.IsPlaying())
@@ -388,6 +406,16 @@ namespace Assets.Scripts.Core.Audio
 			{
 				audioLayerUnity.StartVolumeFade(volume, fadeintime);
 			}
+		}
+
+		public void EnableBgmLoop(int channelId)
+		{
+			channelDictionary[GetChannelByTypeChannel(AudioType.BGM, channelId)].ChangeLoopingStatus(loop: true);
+		}
+
+		public void DisableBgmLoop(int channelId)
+		{
+			channelDictionary[GetChannelByTypeChannel(AudioType.BGM, channelId)].ChangeLoopingStatus(loop: false);
 		}
 
 		private int GetChannelByTypeChannel(AudioType type, int ch)

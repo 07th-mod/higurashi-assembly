@@ -3,6 +3,7 @@ using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
 using System;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.SaveLoad
@@ -47,8 +48,44 @@ namespace Assets.Scripts.UI.SaveLoad
 					text = entry.Text;
 				}
 			}
-			BottomLabel.text = text.Replace("\n", " ").TrimStart(' ', '\n');
+			BottomLabel.text = CleanText(text);
 			SaveTexture.mainTexture = AssetManager.Instance.LoadScreenshot(Path.GetFileNameWithoutExtension(entry.Path) + ".png");
+		}
+
+		public static string CleanText(string text)
+		{
+			if (string.IsNullOrEmpty(text))
+			{
+				return string.Empty;
+			}
+			StringBuilder stringBuilder = new StringBuilder(text.Length);
+			bool flag = false;
+			bool flag2 = false;
+			foreach (char c in text)
+			{
+				if (!flag && c == ' ')
+				{
+					continue;
+				}
+				switch (c)
+				{
+				case '\n':
+					stringBuilder.Append(' ');
+					continue;
+				case '<':
+					flag2 = true;
+					continue;
+				case '>':
+					flag2 = false;
+					continue;
+				}
+				if (!flag2)
+				{
+					flag = true;
+					stringBuilder.Append(c);
+				}
+			}
+			return stringBuilder.ToString();
 		}
 
 		private void DisableButton()

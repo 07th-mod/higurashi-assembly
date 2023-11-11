@@ -14,8 +14,18 @@ namespace Assets.Scripts.Core.State
 		public StateTitle()
 		{
 			gameSystem = GameSystem.Instance;
-			GameObject gameObject = UnityEngine.Object.Instantiate(gameSystem.TitlePrefab);
-			titleScreen = gameObject.GetComponent<TitleScreen>();
+			bool flag = false;
+			TitleScreen x = UnityEngine.Object.FindObjectOfType<TitleScreen>();
+			if (x == null)
+			{
+				GameObject gameObject = UnityEngine.Object.Instantiate(gameSystem.TitlePrefab);
+				titleScreen = gameObject.GetComponent<TitleScreen>();
+			}
+			else
+			{
+				titleScreen = x;
+				flag = true;
+			}
 			BurikoMemory.Instance.ResetFlags();
 			gameSystem.IsSkipping = false;
 			gameSystem.IsForceSkip = false;
@@ -25,7 +35,10 @@ namespace Assets.Scripts.Core.State
 			{
 				throw new Exception("Failed to instantiate titleScreen!");
 			}
-			titleScreen.Enter();
+			if (!flag)
+			{
+				titleScreen.Enter();
+			}
 		}
 
 		public void RequestLeave()

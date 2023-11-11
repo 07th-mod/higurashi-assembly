@@ -1,4 +1,3 @@
-using Assets.Scripts.Core.Buriko;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -64,15 +63,6 @@ namespace Assets.Scripts.UI.TitleScreen
 
 		public void Enter()
 		{
-			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag("GOmakeUnlock");
-			BackgroundTexture.mainTexture = ((!globalFlag.BoolValue()) ? BG1 : BG2);
-			if (!globalFlag.BoolValue())
-			{
-				Sprites[4].transform.localPosition = new Vector3(0f, 25f, 0f);
-				UISprite uISprite = Sprites[3];
-				Sprites.RemoveAt(3);
-				Object.Destroy(uISprite.gameObject);
-			}
 			foreach (UISprite sprite in Sprites)
 			{
 				sprite.color = new Color(1f, 1f, 1f, 0f);

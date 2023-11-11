@@ -36,6 +36,8 @@ namespace Assets.Scripts.Core.Scene
 
 		private const string shaderMaskedName = "MGShader/LayerMasked";
 
+		private const string shaderMaskedCrossfadeName = "MGShader/LayerMaskedCrossfade";
+
 		private const string shaderMultiplyName = "MGShader/LayerMultiply";
 
 		private const string shaderReverseZName = "MGShader/LayerShaderReverseZ";
@@ -45,6 +47,8 @@ namespace Assets.Scripts.Core.Scene
 		private Shader shaderAlphaBlend;
 
 		private Shader shaderCrossfade;
+
+		private Shader shaderMaskedCrossfade;
 
 		private Shader shaderMasked;
 
@@ -59,6 +63,8 @@ namespace Assets.Scripts.Core.Scene
 		public bool IsInitialized;
 
 		public bool IsStatic;
+
+		public bool IsPersistent;
 
 		public bool FadingOut;
 
@@ -166,11 +172,11 @@ namespace Assets.Scripts.Core.Scene
 			isInMotion = true;
 			if (path.Length > 1)
 			{
-				iTween.MoveTo(base.gameObject, iTween.Hash("path", array, "movetopath", false, "time", time, "islocal", true, "easetype", iTween.EaseType.linear));
+				iTween.MoveTo(base.gameObject, iTween.Hash("path", array, "movetopath", false, "time", time, "islocal", true, "easetype", iTween.EaseType.linear, "delay", 0.0001f));
 			}
 			else
 			{
-				iTween.MoveTo(base.gameObject, iTween.Hash("position", array[1], "time", time, "islocal", true, "easetype", iTween.EaseType.linear));
+				iTween.MoveTo(base.gameObject, iTween.Hash("position", array[1], "time", time, "islocal", true, "easetype", iTween.EaseType.linear, "delay", 0.0001f));
 			}
 		}
 
@@ -187,102 +193,91 @@ namespace Assets.Scripts.Core.Scene
 			}
 			targetPosition = new Vector3(x, -y, base.transform.localPosition.z);
 			targetScale = new Vector3(num, num, 1f);
+			if (Mathf.Approximately(wait, 0f))
+			{
+				FinishAll();
+				return;
+			}
 			if (adjustAlpha)
 			{
-				startRange = targetAlpha;
-				targetRange = alpha;
-				targetAlpha = alpha;
-			}
-			GameSystem.Instance.RegisterAction(delegate
-			{
-				if (Mathf.Approximately(wait, 0f))
+				if (Mathf.Approximately(alpha, 0f))
 				{
-					FinishAll();
+					FadeOut(wait);
 				}
 				else
 				{
-					if (adjustAlpha)
-					{
-						if (Mathf.Approximately(alpha, 0f))
-						{
-							FadeOut(wait);
-						}
-						else
-						{
-							FadeTo(alpha, wait);
-						}
-					}
-					iTween.EaseType easeType = iTween.EaseType.linear;
-					switch (easetype)
-					{
-					case 0:
-						easeType = iTween.EaseType.linear;
-						break;
-					case 1:
-						easeType = iTween.EaseType.easeInOutSine;
-						break;
-					case 2:
-						easeType = iTween.EaseType.easeInOutSine;
-						break;
-					case 3:
-						easeType = iTween.EaseType.easeInOutQuad;
-						break;
-					case 4:
-						easeType = iTween.EaseType.easeInSine;
-						break;
-					case 5:
-						easeType = iTween.EaseType.easeOutSine;
-						break;
-					case 6:
-						easeType = iTween.EaseType.easeInQuad;
-						break;
-					case 7:
-						easeType = iTween.EaseType.easeOutQuad;
-						break;
-					case 8:
-						easeType = iTween.EaseType.easeInCubic;
-						break;
-					case 9:
-						easeType = iTween.EaseType.easeOutCubic;
-						break;
-					case 10:
-						easeType = iTween.EaseType.easeInQuart;
-						break;
-					case 11:
-						easeType = iTween.EaseType.easeOutQuart;
-						break;
-					case 12:
-						easeType = iTween.EaseType.easeInExpo;
-						break;
-					case 13:
-						easeType = iTween.EaseType.easeOutExpo;
-						break;
-					case 14:
-						easeType = iTween.EaseType.easeInExpo;
-						break;
-					case 15:
-						easeType = iTween.EaseType.easeOutExpo;
-						break;
-					}
-					iTween.ScaleTo(base.gameObject, iTween.Hash("scale", targetScale, "time", wait, "islocal", true, "easetype", easeType, "oncomplete", "FinishAll", "oncompletetarget", base.gameObject));
-					iTween.MoveTo(base.gameObject, iTween.Hash("position", targetPosition, "time", wait, "islocal", true, "easetype", easeType, "oncomplete", "FinishAll", "oncompletetarget", base.gameObject));
-					if (isBlocking)
-					{
-						if (Mathf.Approximately(alpha, 0f) & adjustAlpha)
-						{
-							GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, HideLayer));
-						}
-						else
-						{
-							GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
-						}
-					}
-					else if (wait > 0f)
-					{
-						StartCoroutine(WaitThenFinish(wait));
-					}
+					FadeTo(alpha, wait);
 				}
-			});
+			}
+			iTween.EaseType easeType = iTween.EaseType.linear;
+			switch (easetype)
+			{
+			case 0:
+				easeType = iTween.EaseType.linear;
+				break;
+			case 1:
+				easeType = iTween.EaseType.easeInOutSine;
+				break;
+			case 2:
+				easeType = iTween.EaseType.easeInOutSine;
+				break;
+			case 3:
+				easeType = iTween.EaseType.easeInOutQuad;
+				break;
+			case 4:
+				easeType = iTween.EaseType.easeInSine;
+				break;
+			case 5:
+				easeType = iTween.EaseType.easeOutSine;
+				break;
+			case 6:
+				easeType = iTween.EaseType.easeInQuad;
+				break;
+			case 7:
+				easeType = iTween.EaseType.easeOutQuad;
+				break;
+			case 8:
+				easeType = iTween.EaseType.easeInCubic;
+				break;
+			case 9:
+				easeType = iTween.EaseType.easeOutCubic;
+				break;
+			case 10:
+				easeType = iTween.EaseType.easeInQuart;
+				break;
+			case 11:
+				easeType = iTween.EaseType.easeOutQuart;
+				break;
+			case 12:
+				easeType = iTween.EaseType.easeInExpo;
+				break;
+			case 13:
+				easeType = iTween.EaseType.easeOutExpo;
+				break;
+			case 14:
+				easeType = iTween.EaseType.easeInExpo;
+				break;
+			case 15:
+				easeType = iTween.EaseType.easeOutExpo;
+				break;
+			}
+			iTween.ScaleTo(base.gameObject, iTween.Hash("scale", targetScale, "time", wait, "islocal", true, "easetype", easeType, "oncomplete", "FinishAll", "oncompletetarget", base.gameObject));
+			iTween.MoveTo(base.gameObject, iTween.Hash("position", targetPosition, "time", wait, "islocal", true, "easetype", easeType, "oncomplete", "FinishAll", "oncompletetarget", base.gameObject));
+			if (isBlocking)
+			{
+				if (Mathf.Approximately(alpha, 0f) && adjustAlpha)
+				{
+					GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, HideLayer));
+				}
+				else
+				{
+					GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
+				}
+			}
+			else if (wait > 0f)
+			{
+				StartCoroutine(WaitThenFinish(wait));
+			}
 		}
 
 		public IEnumerator WaitThenFinish(float time)
@@ -293,118 +288,100 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeOutLayer(float time, bool isBlocking)
 		{
-			if (!(primary == null))
+			if (primary == null)
 			{
-				float current = targetRange;
-				targetRange = 0f;
-				targetAlpha = 0f;
-				GameSystem.Instance.RegisterAction(delegate
-				{
-					if (Mathf.Approximately(time, 0f))
-					{
-						HideLayer();
-					}
-					else
-					{
-						material.shader = shaderDefault;
-						current = 1f;
-						FadingOut = true;
-						iTween.ValueTo(base.gameObject, iTween.Hash("from", current, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "HideLayer"));
-						if (isBlocking)
-						{
-							GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForMove, HideLayer));
-						}
-					}
-				});
+				Debug.LogWarning("$Can't fade out layer " + base.name + ", layer has no primary texture!");
+				return;
+			}
+			float num = targetRange;
+			targetRange = 0f;
+			targetAlpha = 0f;
+			if (Mathf.Approximately(time, 0f))
+			{
+				HideLayer();
+				return;
+			}
+			material.shader = shaderDefault;
+			num = 1f;
+			FadingOut = true;
+			iTween.ValueTo(base.gameObject, iTween.Hash("from", num, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "HideLayer"));
+			if (isBlocking)
+			{
+				GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForMove, HideLayer));
 			}
 		}
 
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
 		{
-			Texture2D tex = AssetManager.Instance.LoadTexture(textureName);
-			Texture2D texmask = AssetManager.Instance.LoadTexture(maskName);
-			if (tex == null)
+			material.shader = shaderMasked;
+			SetPrimaryTexture(textureName);
+			SetMaskTexture(maskName);
+			startRange = 0f;
+			targetRange = 1f;
+			targetAlpha = 1f;
+			targetAngle = 0f;
+			shaderType = 0;
+			if (mesh == null)
 			{
-				throw new Exception("Failed to load texture: " + textureName);
-			}
-			GameSystem.Instance.RegisterAction(delegate
-			{
-				material.shader = shaderMasked;
-				SetPrimaryTexture(tex);
-				SetMaskTexture(texmask);
-				PrimaryName = textureName;
-				MaskName = maskName;
-				startRange = 0f;
-				targetRange = 1f;
-				targetAlpha = 1f;
-				targetAngle = 0f;
-				shaderType = 0;
-				if (mesh == null)
+				alignment = LayerAlignment.AlignCenter;
+				if ((x != 0 || y != 0) && !isBustshot)
 				{
-					alignment = LayerAlignment.AlignCenter;
-					if ((x != 0 || y != 0) && !isBustshot)
+					alignment = LayerAlignment.AlignTopleft;
+				}
+				if (!forceSize.HasValue)
+				{
+					if (origin.HasValue)
 					{
-						alignment = LayerAlignment.AlignTopleft;
-					}
-					if (!forceSize.HasValue)
-					{
-						if (origin.HasValue)
-						{
-							CreateMesh(tex.width, tex.height, origin.GetValueOrDefault());
-						}
-						else
-						{
-							CreateMesh(tex.width, tex.height, alignment);
-						}
+						CreateMesh(primary.width, primary.height, origin.GetValueOrDefault());
 					}
 					else
 					{
-						ForceSize = forceSize;
-						if (origin.HasValue)
-						{
-							CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), origin.GetValueOrDefault());
-						}
-						else
-						{
-							CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), alignment);
-						}
+						CreateMesh(primary.width, primary.height, alignment);
 					}
 				}
-				SetRange(startRange);
-				base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
-				targetPosition = base.transform.localPosition;
-				targetScale = base.transform.localScale;
-				meshRenderer.enabled = true;
-				material.SetFloat("_Fuzziness", (style == 0) ? 0.7f : 0.01f);
-				material.SetFloat("_Direction", 1f);
-				FadeInLayer(wait);
-				if (isBlocking)
+				else
 				{
-					GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
+					ForceSize = forceSize;
+					if (origin.HasValue)
+					{
+						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), origin.GetValueOrDefault());
+					}
+					else
+					{
+						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), alignment);
+					}
 				}
-			});
+			}
+			SetRange(startRange);
+			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
+			targetPosition = base.transform.localPosition;
+			targetScale = base.transform.localScale;
+			meshRenderer.enabled = true;
+			material.SetFloat("_Fuzziness", (style == 0) ? 0.7f : 0.01f);
+			material.SetFloat("_Direction", 1f);
+			FadeInLayer(wait);
+			if (isBlocking)
+			{
+				GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
+			}
 		}
 
 		public void FadeLayerWithMask(string maskName, int style, float time, bool isBlocking)
 		{
-			Texture2D texmask = AssetManager.Instance.LoadTexture(maskName);
-			GameSystem.Instance.RegisterAction(delegate
+			FinishAll();
+			material.shader = shaderMasked;
+			SetMaskTexture(maskName);
+			material.SetFloat("_Fuzziness", (style == 0) ? 0.7f : 0.01f);
+			material.SetFloat("_Direction", 0f);
+			startRange = 0f;
+			targetRange = 1f;
+			targetAlpha = 0f;
+			SetRange(startRange);
+			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "HideLayer"));
+			if (isBlocking)
 			{
-				FinishAll();
-				material.shader = shaderMasked;
-				SetMaskTexture(texmask);
-				material.SetFloat("_Fuzziness", (style == 0) ? 0.7f : 0.01f);
-				material.SetFloat("_Direction", 0f);
-				startRange = 0f;
-				targetRange = 1f;
-				targetAlpha = 0f;
-				SetRange(startRange);
-				iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "HideLayer"));
-				if (isBlocking)
-				{
-					GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForMove, HideLayer));
-				}
-			});
+				GameSystem.Instance.AddWait(new Wait(time, WaitTypes.WaitForMove, HideLayer));
+			}
 		}
 
 		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, Vector2? forceSize, float alpha, bool isBustshot, int type, float wait, bool isBlocking)
@@ -415,7 +392,25 @@ namespace Assets.Scripts.Core.Scene
 				HideLayer();
 				return;
 			}
-			Texture2D texture2D = AssetManager.Instance.LoadTexture(textureName);
+			if (primary != null)
+			{
+				material.shader = shaderCrossfade;
+				SetSecondaryTexture(PrimaryName);
+				SetPrimaryTexture(textureName);
+				startRange = 0f;
+				targetRange = 1f;
+				targetAlpha = 1f;
+			}
+			else
+			{
+				material.shader = shaderDefault;
+				if (type == 3)
+				{
+					material.shader = shaderMultiply;
+				}
+				SetPrimaryTexture(textureName);
+			}
+			Texture2D texture2D = primary;
 			if (texture2D == null)
 			{
 				Logger.LogError("Failed to load texture " + textureName);
@@ -426,7 +421,6 @@ namespace Assets.Scripts.Core.Scene
 			targetAlpha = alpha;
 			meshRenderer.enabled = true;
 			shaderType = type;
-			PrimaryName = textureName;
 			float num = 1f;
 			if (z > 0)
 			{
@@ -471,24 +465,6 @@ namespace Assets.Scripts.Core.Scene
 					}
 				}
 			}
-			if (primary != null)
-			{
-				material.shader = shaderCrossfade;
-				SetSecondaryTexture(primary);
-				SetPrimaryTexture(texture2D);
-				startRange = 1f;
-				targetRange = 0f;
-				targetAlpha = 1f;
-			}
-			else
-			{
-				material.shader = shaderDefault;
-				if (type == 3)
-				{
-					material.shader = shaderMultiply;
-				}
-				SetPrimaryTexture(texture2D);
-			}
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
 			base.transform.localScale = new Vector3(num, num, 1f);
@@ -502,17 +478,10 @@ namespace Assets.Scripts.Core.Scene
 			{
 				GameSystem.Instance.RegisterAction(delegate
 				{
-					if (Mathf.Approximately(wait, 0f))
+					FadeInLayer(wait);
+					if (isBlocking)
 					{
-						FinishFade();
-					}
-					else
-					{
-						FadeInLayer(wait);
-						if (isBlocking)
-						{
-							GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
-						}
+						GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
 					}
 				});
 			}
@@ -537,15 +506,42 @@ namespace Assets.Scripts.Core.Scene
 
 		public void CrossfadeLayer(string targetImage, float wait, bool isBlocking)
 		{
-			Texture2D primaryTexture = AssetManager.Instance.LoadTexture(targetImage);
 			material.shader = shaderCrossfade;
-			SetSecondaryTexture(primary);
-			SetPrimaryTexture(primaryTexture);
-			PrimaryName = targetImage;
-			startRange = 1f;
-			targetRange = 0f;
+			SetSecondaryTexture(PrimaryName);
+			SetPrimaryTexture(targetImage);
+			startRange = 0f;
+			targetRange = 1f;
 			targetAlpha = 1f;
 			SetRange(startRange);
+			GameSystem.Instance.RegisterAction(delegate
+			{
+				if (Mathf.Approximately(wait, 0f))
+				{
+					FinishFade();
+				}
+				else
+				{
+					FadeInLayer(wait);
+					if (isBlocking)
+					{
+						GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishFade));
+					}
+				}
+			});
+		}
+
+		public void CrossfadeLayerWithMask(string targetImage, string mask, int style, float wait, bool isBlocking)
+		{
+			material.shader = shaderMaskedCrossfade;
+			SetSecondaryTexture(PrimaryName);
+			SetPrimaryTexture(targetImage);
+			SetMaskTexture(mask);
+			startRange = 0f;
+			targetRange = 1f;
+			targetAlpha = 1f;
+			SetRange(startRange);
+			material.SetFloat("_Fuzziness", (style == 0) ? 0.7f : 0.01f);
+			material.SetFloat("_Direction", 1f);
 			GameSystem.Instance.RegisterAction(delegate
 			{
 				if (Mathf.Approximately(wait, 0f))
@@ -591,8 +587,9 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeInLayer(float time)
 		{
+			targetAlpha = targetRange;
 			iTween.Stop(base.gameObject);
-			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "FinishFade"));
+			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "FinishFade", "delay", 0.001f));
 		}
 
 		public void FadeTo(float alpha, float time)
@@ -600,6 +597,7 @@ namespace Assets.Scripts.Core.Scene
 			iTween.Stop(base.gameObject);
 			startRange = targetRange;
 			targetRange = alpha;
+			targetAlpha = alpha;
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "FinishFade"));
 		}
 
@@ -612,6 +610,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 			FadingOut = true;
 			targetRange = 0f;
+			targetAlpha = 0f;
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "HideLayer"));
 		}
 
@@ -628,12 +627,16 @@ namespace Assets.Scripts.Core.Scene
 		public void FinishFade()
 		{
 			iTween.Stop(base.gameObject);
-			SetRange(targetRange);
+			ReleaseSecondaryTexture();
+			ReleaseMaskTexture();
+			material.shader = shaderDefault;
+			SetPrimaryTexture(PrimaryName);
+			SetRange(targetAlpha);
 		}
 
 		public void SetRange(float a)
 		{
-			if (material.shader.name != shaderCrossfade.name && material.shader.name != shaderMasked.name)
+			if (material.shader.name != shaderCrossfade.name && material.shader.name != shaderMasked.name && material.shader.name != shaderMaskedCrossfade.name)
 			{
 				material.SetFloat("_Alpha", a);
 			}
@@ -643,23 +646,64 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void SetPrimaryTexture(Texture2D tex)
+		private void SetPrimaryTexture(string texName)
 		{
-			primary = tex;
-			material.SetTexture("_Primary", primary);
-			meshRenderer.enabled = true;
+			if (!(PrimaryName == texName))
+			{
+				Texture2D x = AssetManager.Instance.LoadTexture(texName);
+				if (x == null)
+				{
+					throw new Exception("Failed to load texture: " + texName);
+				}
+				if (primary != null)
+				{
+					AssetManager.Instance.ReleaseTexture(PrimaryName, primary);
+				}
+				primary = x;
+				PrimaryName = texName;
+				material.SetTexture("_Primary", primary);
+				meshRenderer.enabled = true;
+			}
 		}
 
-		private void SetSecondaryTexture(Texture2D tex)
+		private void SetSecondaryTexture(string texName)
 		{
-			secondary = tex;
-			material.SetTexture("_Secondary", secondary);
+			if (!(SecondaryName == texName))
+			{
+				Texture2D x = AssetManager.Instance.LoadTexture(texName);
+				if (x == null)
+				{
+					throw new Exception("Failed to load texture: " + texName);
+				}
+				if (secondary != null)
+				{
+					Debug.LogWarning("Layer " + base.name + " already has a secondary texture " + SecondaryName + ", replacing with " + texName);
+					AssetManager.Instance.ReleaseTexture(SecondaryName, secondary);
+				}
+				secondary = x;
+				SecondaryName = texName;
+				material.SetTexture("_Secondary", secondary);
+			}
 		}
 
-		private void SetMaskTexture(Texture2D tex)
+		private void SetMaskTexture(string texName)
 		{
-			mask = tex;
-			material.SetTexture("_Mask", mask);
+			if (!(MaskName == texName))
+			{
+				Texture2D x = AssetManager.Instance.LoadTexture(texName);
+				if (x == null)
+				{
+					throw new Exception("Failed to load texture: " + texName);
+				}
+				if (mask != null)
+				{
+					Debug.LogWarning($"Layer {base.name} already has a mask texture {mask}, replacing with {texName}");
+					AssetManager.Instance.ReleaseTexture(MaskName, mask);
+				}
+				mask = x;
+				MaskName = texName;
+				material.SetTexture("_Mask", mask);
+			}
 		}
 
 		public void HideLayer()
@@ -682,38 +726,42 @@ namespace Assets.Scripts.Core.Scene
 				HideLayer();
 				return;
 			}
-			Texture2D texture2D = AssetManager.Instance.LoadTexture(PrimaryName);
-			if (texture2D == null)
-			{
-				Logger.LogError("Failed to load texture " + PrimaryName);
-			}
-			else
-			{
-				SetPrimaryTexture(texture2D);
-			}
+			string primaryName = PrimaryName;
+			string secondaryName = SecondaryName;
+			string maskName = MaskName;
+			ReleasePrimaryTexture();
+			ReleaseSecondaryTexture();
+			ReleaseMaskTexture();
+			SetPrimaryTexture(primaryName);
+			SetSecondaryTexture(secondaryName);
+			SetMaskTexture(maskName);
 		}
 
 		public void ReleaseTextures()
 		{
+			ReleaseSecondaryTexture();
+			ReleaseMaskTexture();
+			ReleasePrimaryTexture();
+			material.shader = shaderDefault;
+			UnityEngine.Object.Destroy(mesh);
+			mesh = null;
+			meshFilter.mesh = null;
+			FadingOut = false;
+			ForceSize = null;
+			shaderType = 0;
+			targetAngle = 0f;
+			targetAlpha = 0f;
+			targetRange = 0f;
+		}
+
+		private void ReleasePrimaryTexture()
+		{
 			if (!(primary == null))
 			{
-				ReleaseSecondaryTexture();
-				ReleaseMaskTexture();
-				UnityEngine.Object.Destroy(primary);
+				AssetManager.Instance.ReleaseTexture(PrimaryName, primary);
 				primary = null;
-				material.shader = shaderDefault;
-				material.SetTexture("_Primary", null);
-				meshRenderer.enabled = false;
 				PrimaryName = "";
-				SecondaryName = "";
-				MaskName = "";
-				UnityEngine.Object.Destroy(mesh);
-				mesh = null;
-				meshFilter.mesh = null;
-				FadingOut = false;
-				ForceSize = null;
-				shaderType = 0;
-				targetAngle = 0f;
+				material.SetTexture("_Primary", null);
 			}
 		}
 
@@ -721,7 +769,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			if (!(secondary == null))
 			{
-				UnityEngine.Object.Destroy(secondary);
+				AssetManager.Instance.ReleaseTexture(SecondaryName, secondary);
 				secondary = null;
 				SecondaryName = "";
 				material.SetTexture("_Secondary", null);
@@ -732,7 +780,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			if (!(mask == null))
 			{
-				UnityEngine.Object.Destroy(mask);
+				AssetManager.Instance.ReleaseTexture(MaskName, mask);
 				mask = null;
 				MaskName = "";
 				material.SetTexture("_Mask", null);
@@ -794,6 +842,7 @@ namespace Assets.Scripts.Core.Scene
 			shaderDefault = Shader.Find("MGShader/LayerShader");
 			shaderAlphaBlend = Shader.Find("MGShader/LayerShaderAlpha");
 			shaderCrossfade = Shader.Find("MGShader/LayerCrossfade4");
+			shaderMaskedCrossfade = Shader.Find("MGShader/LayerMaskedCrossfade");
 			shaderMasked = Shader.Find("MGShader/LayerMasked");
 			shaderMultiply = Shader.Find("MGShader/LayerMultiply");
 			shaderReverseZ = Shader.Find("MGShader/LayerShaderReverseZ");
@@ -814,11 +863,12 @@ namespace Assets.Scripts.Core.Scene
 			br.Write(targetPosition);
 			br.Write(targetScale);
 			br.Write(PrimaryName);
-			br.Write(targetAlpha);
+			br.Write(targetRange);
 			br.Write((int)alignment);
 			br.Write(Origin);
 			br.Write(ForceSize);
 			br.Write(shaderType);
+			br.Write(IsPersistent);
 		}
 
 		private void Awake()

@@ -50,7 +50,7 @@ namespace Assets.Scripts.Core.Buriko
 			Filename = filename;
 		}
 
-		public void InitializeScript()
+		public void InitializeScript(bool JumpToScript = true)
 		{
 			MemoryStream memoryStream = new MemoryStream(AssetManager.Instance.GetScriptData(Filename));
 			BinaryReader binaryReader = new BinaryReader(memoryStream);
@@ -78,7 +78,10 @@ namespace Assets.Scripts.Core.Buriko
 			memoryStream.Close();
 			dataStream = new MemoryStream(dataSegment);
 			dataReader = new BinaryReader(dataStream);
-			JumpToBlock("main");
+			if (JumpToScript)
+			{
+				JumpToBlock("main");
+			}
 			IsInitialized = true;
 			LineNum = 0;
 		}
@@ -202,8 +205,20 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationLoadValueFromLocalWork()
 		{
 			SetOperationType("LoadValueFromLocalWork");
-			string flagname = ReadVariable().VariableName();
-			return BurikoMemory.Instance.GetFlag(flagname);
+			string text = ReadVariable().VariableName();
+			BurikoVariable flag = BurikoMemory.Instance.GetFlag(text);
+			if (Application.isEditor && gameSystem.DebugMemory)
+			{
+				if (flag.Type == BurikoValueType.String)
+				{
+					Debug.Log("LoadValueFromLocalWork " + text + ": " + flag.StringValue());
+				}
+				else
+				{
+					Debug.Log("LoadValueFromLocalWork " + text + ": " + flag.StringValue());
+				}
+			}
+			return flag;
 		}
 
 		private BurikoVariable OperationCallScript()
@@ -247,6 +262,15 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationCallScriptSection()
+		{
+			SetOperationType("CallScriptSection");
+			string scriptname = ReadVariable().StringValue();
+			string blockname = ReadVariable().StringValue();
+			scriptSystem.CallScript(scriptname, blockname);
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationShiftSection()
 		{
 			SetOperationType("ShiftSection");
@@ -265,26 +289,39 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetLocalFlag()
 		{
 			SetOperationType("SetLocalFlag");
-			string flagname = ReadVariable().VariableName();
-			int val = ReadVariable().IntValue();
-			BurikoMemory.Instance.SetFlag(flagname, val);
+			string text = ReadVariable().VariableName();
+			int num = ReadVariable().IntValue();
+			BurikoMemory.Instance.SetFlag(text, num);
+			if (Application.isEditor && gameSystem.DebugFlags)
+			{
+				Debug.Log($"SetLocalFlag {text}: {num}");
+			}
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationSetGlobalFlag()
 		{
 			SetOperationType("SetGlobalFlag");
-			string flagname = ReadVariable().VariableName();
-			int val = ReadVariable().IntValue();
-			BurikoMemory.Instance.SetGlobalFlag(flagname, val);
+			string text = ReadVariable().VariableName();
+			int num = ReadVariable().IntValue();
+			if (Application.isEditor && gameSystem.DebugFlags)
+			{
+				Debug.Log($"SetGlobalFlag {text}: {num}");
+			}
+			BurikoMemory.Instance.SetGlobalFlag(text, num);
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationGetGlobalFlag()
 		{
 			SetOperationType("LoadValueFromLocalWork");
-			string flagname = ReadVariable().VariableName();
-			return BurikoMemory.Instance.GetGlobalFlag(flagname);
+			string text = ReadVariable().VariableName();
+			BurikoVariable globalFlag = BurikoMemory.Instance.GetGlobalFlag(text);
+			if (Application.isEditor && gameSystem.DebugFlags)
+			{
+				Debug.Log($"GetGlobalFlag {text}: {globalFlag.IntValue()}");
+			}
+			return globalFlag;
 		}
 
 		private BurikoVariable OperationWait()
@@ -313,6 +350,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("SetValidityOfInput");
 			bool canInput = ReadVariable().BoolValue();
 			gameSystem.CanInput = canInput;
+			gameSystem.IsSkipping = false;
 			return BurikoVariable.Null;
 		}
 
@@ -382,8 +420,16 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				gameSystem.TextHistory.PushHistory();
 			}
-			gameSystem.TextController.SetText(text, text3, burikoTextModes, 1);
-			gameSystem.TextController.SetText(text2, text4, burikoTextModes, 2);
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				gameSystem.TextController.SetText(text2, text4, burikoTextModes, 2);
+				gameSystem.TextController.SetText(text, text3, burikoTextModes, 1);
+			}
+			else
+			{
+				gameSystem.TextController.SetText(text, text3, burikoTextModes, 1);
+				gameSystem.TextController.SetText(text2, text4, burikoTextModes, 2);
+			}
 			gameSystem.ExecuteActions();
 			scriptSystem.TakeSaveSnapshot();
 			return BurikoVariable.Null;
@@ -406,7 +452,8 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				gameSystem.TextHistory.PushHistory();
 			}
-			gameSystem.TextController.SetText(text, text2, burikoTextModes, 0);
+			bool skipUpdate = string.IsNullOrWhiteSpace(text2.Trim()) && burikoTextModes != BurikoTextModes.WaitForInput && burikoTextModes != BurikoTextModes.Normal;
+			gameSystem.TextController.SetText(text, text2, burikoTextModes, 0, skipUpdate);
 			gameSystem.ExecuteActions();
 			scriptSystem.TakeSaveSnapshot();
 			return BurikoVariable.Null;
@@ -456,8 +503,8 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			else
 			{
-				gameSystem.MainUIController.FadeOut(0.5f, isBlocking: true);
-				gameSystem.SceneController.FadeFace(0.5f, isblocking: true);
+				gameSystem.MainUIController.FadeOut(gameSystem.TextController.WindowFadeOutTime, isBlocking: true);
+				gameSystem.SceneController.FadeFace(gameSystem.TextController.WindowFadeOutTime, isblocking: true);
 			}
 			gameSystem.ExecuteActions();
 			return BurikoVariable.Null;
@@ -511,6 +558,14 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("StopBGM");
 			int channel = ReadVariable().IntValue();
 			AudioController.Instance.StopBGM(channel);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationDisableLoopingOfBGM()
+		{
+			SetOperationType("DisableLoopingOfBGM");
+			int channelId = ReadVariable().IntValue();
+			AudioController.Instance.DisableBgmLoop(channelId);
 			return BurikoVariable.Null;
 		}
 
@@ -622,6 +677,13 @@ namespace Assets.Scripts.Core.Buriko
 			return new BurikoVariable(1);
 		}
 
+		private BurikoVariable OperationStopAllSound()
+		{
+			SetOperationType("StopAllSound");
+			AudioController.Instance.StopAllAudio();
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationSelect()
 		{
 			int num = ReadVariable().IntValue();
@@ -640,7 +702,8 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationPreloadBitmap()
 		{
 			SetOperationType("PreloadBitmap");
-			ReadVariable().StringValue();
+			string textureName = ReadVariable().StringValue();
+			AssetManager.Instance.PreloadTexture(textureName);
 			return BurikoVariable.Null;
 		}
 
@@ -721,11 +784,11 @@ namespace Assets.Scripts.Core.Buriko
 			int vector = ReadVariable().IntValue();
 			int level = ReadVariable().IntValue();
 			int num = ReadVariable().IntValue();
-			int loopcount = ReadVariable().IntValue();
+			int num2 = ReadVariable().IntValue();
 			int attenuation = ReadVariable().IntValue();
-			float speed = (float)num / 1000f;
-			gameSystem.SceneController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking: false);
-			gameSystem.MainUIController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking: true);
+			float num3 = (float)num / 1000f;
+			gameSystem.SceneController.ShakeScene(num3, level, attenuation, vector, num2, isblocking: true);
+			gameSystem.MainUIController.FollowShake(gameSystem.SceneController.SceneCameras, num3 * (float)num2);
 			return BurikoVariable.Null;
 		}
 
@@ -744,36 +807,55 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationDrawBG()
 		{
 			SetOperationType("DrawBG");
-			string texture = ReadVariable().StringValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			string filename = ReadVariable().StringValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.DrawBG(texture, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(filename);
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawBG(filename, time, isblocking: true);
+				gameSystem.ExecuteActions();
+			}
 		}
 
 		private BurikoVariable OperationFadeBG()
 		{
 			SetOperationType("FadeBG");
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.DrawBG("black", wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture("black");
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawBG("black", time, isblocking: true);
+			}
 		}
 
 		private BurikoVariable OperationRotateBG()
@@ -871,19 +953,62 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		private BurikoVariable OperationDrawSceneWithScroll()
+		{
+			SetOperationType("DrawSceneWithScroll");
+			string texture = ReadVariable().StringValue();
+			int direction = ReadVariable().IntValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			if (gameSystem.IsSkipping)
+			{
+				time = 0f;
+			}
+			if (GameSystem.Instance.MessageBoxVisible)
+			{
+				if (gameSystem.IsSkipping)
+				{
+					gameSystem.MainUIController.FadeOut(0f, isBlocking: false);
+				}
+				else
+				{
+					gameSystem.MainUIController.FadeOut(0.5f, isBlocking: true);
+				}
+				gameSystem.RegisterDelayedAction(delegate
+				{
+					gameSystem.SceneController.DrawSceneWithScroll(texture, direction, time);
+					gameSystem.ExecuteActions();
+				});
+				if (!gameSystem.IsSkipping)
+				{
+					gameSystem.ExecuteActions();
+				}
+			}
+			else
+			{
+				gameSystem.SceneController.DrawSceneWithScroll(texture, direction, time);
+				gameSystem.ExecuteActions();
+			}
+			BurikoMemory.Instance.SetCGFlag(texture);
+			return BurikoVariable.Null;
+		}
+
 		private BurikoVariable OperationChangeScene()
 		{
 			SetOperationType("ChangeScene");
-			string text = ReadVariable().StringValue();
+			string texture = ReadVariable().StringValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
 			}
-			gameSystem.SceneController.DrawScene(text, time);
-			gameSystem.ExecuteActions();
-			BurikoMemory.Instance.SetCGFlag(text);
+			AssetManager.Instance.PreloadTexture(texture);
+			gameSystem.RegisterDelayedAction(delegate
+			{
+				gameSystem.SceneController.DrawScene(texture, time);
+				gameSystem.ExecuteActions();
+			});
+			BurikoMemory.Instance.SetCGFlag(texture);
 			return BurikoVariable.Null;
 		}
 
@@ -903,7 +1028,7 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationFadeSceneWithMask()
 		{
 			SetOperationType("FadeSceneWithMask");
-			string maskname = ReadVariable().StringValue();
+			string mask = ReadVariable().StringValue();
 			int style = ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
@@ -911,147 +1036,227 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				time = 0f;
 			}
-			gameSystem.SceneController.DrawSceneWithMask("black", maskname, style, time);
-			gameSystem.ExecuteActions();
+			AssetManager.Instance.PreloadTexture(mask);
+			gameSystem.RegisterDelayedAction(delegate
+			{
+				gameSystem.SceneController.DrawSceneWithMask("black", mask, style, time);
+				gameSystem.ExecuteActions();
+			});
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationDrawBustshot()
 		{
 			SetOperationType("DrawBustshot");
-			int num = ReadVariable().IntValue();
-			string textureName = ReadVariable().StringValue();
+			int layer = ReadVariable().IntValue();
+			string filename = ReadVariable().StringValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 			int z = ReadVariable().IntValue();
 			bool move = ReadVariable().BoolValue();
-			int oldx = ReadVariable().IntValue();
-			int oldy = ReadVariable().IntValue();
-			int oldz = ReadVariable().IntValue();
+			int initx = ReadVariable().IntValue();
+			int inity = ReadVariable().IntValue();
+			int initz = ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
-			int type = ReadVariable().IntValue();
-			int num2 = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
-			if (num2 == 0)
+			int style = ReadVariable().IntValue();
+			int priority = ReadVariable().IntValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool blocking = ReadVariable().BoolValue();
+			if (priority == 0)
 			{
-				num2 = num;
+				priority = layer;
 			}
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.DrawBustshot(num, textureName, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(filename);
+			if (blocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawBustshot(layer, filename, x, y, z, initx, inity, initz, move, priority, style, time, blocking);
+			}
 		}
 
 		private BurikoVariable OperationMoveBustshot()
 		{
 			SetOperationType("MoveBustshot");
 			int layer = ReadVariable().IntValue();
-			string textureName = ReadVariable().StringValue();
+			string filename = ReadVariable().StringValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 			int z = ReadVariable().IntValue();
 			ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.MoveBustshot(layer, textureName, x, y, z, wait, flag);
-			if (flag)
+			if (isblocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.MoveBustshot(layer, filename, x, y, z, time, isblocking);
+			}
 		}
 
 		private BurikoVariable OperationFadeBustshot()
 		{
 			SetOperationType("FadeBustshot");
 			int layer = ReadVariable().IntValue();
-			bool flag = ReadVariable().BoolValue();
+			bool move = ReadVariable().BoolValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 			int z = ReadVariable().IntValue();
 			int angle = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag2 = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
-				flag = false;
+				time = 0f;
+				move = false;
 			}
-			if (flag)
+			gameSystem.SceneController.EndLayerPersistence(layer);
+			if (num)
 			{
-				gameSystem.SceneController.MoveSprite(layer, x, y, z, angle, 0, 0f, wait, flag2);
+				Action();
+				gameSystem.ExecuteActions();
 			}
 			else
 			{
-				gameSystem.SceneController.FadeSprite(layer, wait, flag2);
-			}
-			if (flag2)
-			{
-				gameSystem.ExecuteActions();
+				gameSystem.RegisterAction(Action);
 			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				if (move)
+				{
+					gameSystem.SceneController.MoveSprite(layer, x, y, z, angle, 0, 0f, time, isblocking: true);
+				}
+				else
+				{
+					gameSystem.SceneController.FadeSprite(layer, time, isblocking: true);
+				}
+			}
 		}
 
 		private BurikoVariable OperationChangeBustshot()
 		{
 			SetOperationType("ChangeBustshot");
 			int layer = ReadVariable().IntValue();
-			string textureName = ReadVariable().StringValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			string filename = ReadVariable().StringValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.ChangeBustshot(layer, textureName, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(filename);
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.ChangeBustshot(layer, filename, time, isblocking: true);
+			}
+		}
+
+		private BurikoVariable OperationChangeBustshotWithFiltering()
+		{
+			SetOperationType("ChangeBustshotWithFiltering");
+			int layer = ReadVariable().IntValue();
+			string filename = ReadVariable().StringValue();
+			string mask = ReadVariable().StringValue();
+			int style = ReadVariable().IntValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
+			if (gameSystem.IsSkipping)
+			{
+				time = 0f;
+			}
+			AssetManager.Instance.PreloadTexture(filename);
+			AssetManager.Instance.PreloadTexture(mask);
+			if (num)
+			{
+				Action();
+				gameSystem.ExecuteActions();
+			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
+			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.ChangeBustshotWithFiltering(layer, filename, mask, style, time, isblocking: true);
+			}
 		}
 
 		private BurikoVariable OperationDrawBustshotWithFiltering()
 		{
 			SetOperationType("DrawBustshotWithFiltering");
 			int layer = ReadVariable().IntValue();
-			string textureName = ReadVariable().StringValue();
+			string filename = ReadVariable().StringValue();
 			string mask = ReadVariable().StringValue();
-			int type = ReadVariable().IntValue();
+			int style = ReadVariable().IntValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 			bool move = ReadVariable().BoolValue();
-			int oldx = ReadVariable().IntValue();
-			int oldy = ReadVariable().IntValue();
-			int oldz = ReadVariable().IntValue();
-			int z = ReadVariable().IntValue();
+			int initx = ReadVariable().IntValue();
+			int inity = ReadVariable().IntValue();
+			int initz = ReadVariable().IntValue();
 			int originx = ReadVariable().IntValue();
+			int originy = ReadVariable().IntValue();
 			int priority = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, type, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(filename);
+			AssetManager.Instance.PreloadTexture(mask);
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawBustshotWithFiltering(layer, filename, mask, x, y, originx, originy, 0, 0, 0, initx, inity, initz, move, priority, style, time, isblocking: true);
+			}
 		}
 
 		private BurikoVariable OperationFadeBustshotWithFiltering()
@@ -1062,41 +1267,59 @@ namespace Assets.Scripts.Core.Buriko
 			ReadVariable().BoolValue();
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.FadeBustshotWithFiltering(layer, mask, style, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(mask);
+			gameSystem.SceneController.EndLayerPersistence(layer);
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.FadeBustshotWithFiltering(layer, mask, style, time, isblocking: true);
+			}
 		}
 
 		private BurikoVariable OperationDrawFace()
 		{
 			SetOperationType("DrawFace");
 			string texture = ReadVariable().StringValue();
-			float num = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				num = 0f;
-				flag = false;
+				time = 0f;
+				isblocking = false;
 			}
-			gameSystem.SceneController.DrawFace(texture, num, flag);
 			if (!gameSystem.MessageBoxVisible)
 			{
-				gameSystem.MainUIController.FadeIn(num);
+				gameSystem.MainUIController.FadeIn(time);
 			}
-			if (flag || gameSystem.IsSkipping)
+			if (isblocking || gameSystem.IsSkipping)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawFace(texture, time, isblocking);
+			}
 		}
 
 		private BurikoVariable OperationFadeFace()
@@ -1131,82 +1354,105 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationDrawSprite()
 		{
 			SetOperationType("DrawSprite");
-			int num = ReadVariable().IntValue();
-			string text = ReadVariable().StringValue();
-			string text2 = ReadVariable().StringValue();
+			int layNum = ReadVariable().IntValue();
+			string spriteName = ReadVariable().StringValue();
+			string maskName = ReadVariable().StringValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 			int z = ReadVariable().IntValue();
-			int originx = ReadVariable().IntValue();
-			int originy = ReadVariable().IntValue();
+			int originX = ReadVariable().IntValue();
+			int originY = ReadVariable().IntValue();
 			int angle = ReadVariable().IntValue();
 			ReadVariable().BoolValue();
 			ReadVariable().BoolValue();
 			int style = ReadVariable().IntValue();
-			float alpha = (float)ReadVariable().IntValue() / 256f;
+			float transparancy = (float)ReadVariable().IntValue() / 256f;
 			int priority = ReadVariable().IntValue();
 			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
 				wait = 0f;
 			}
-			gameSystem.SceneController.DrawSprite(num, text, text2, x, y, z, originx, originy, 0, 0, angle, style, alpha, priority, wait, flag);
-			if (text2 != "")
+			AssetManager.Instance.PreloadTexture(spriteName);
+			if (!string.IsNullOrWhiteSpace(maskName))
 			{
-				gameSystem.SceneController.SetLayerToDepthMasked(num);
+				AssetManager.Instance.PreloadTexture(maskName);
 			}
-			if (flag)
+			if (isblocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
-			BurikoMemory.Instance.SetCGFlag(text);
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
+			BurikoMemory.Instance.SetCGFlag(spriteName);
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawSprite(layNum, spriteName, maskName, x, y, z, originX, originY, 0, 0, angle, style, transparancy, priority, wait, isblocking);
+				if (maskName != "")
+				{
+					gameSystem.SceneController.SetLayerToDepthMasked(layNum);
+				}
+			}
 		}
 
 		private BurikoVariable OperationDrawSpriteFixedSize()
 		{
 			SetOperationType("DrawSpriteFixedSize");
-			int num = ReadVariable().IntValue();
-			string text = ReadVariable().StringValue();
-			string text2 = ReadVariable().StringValue();
+			int layNum = ReadVariable().IntValue();
+			string spriteName = ReadVariable().StringValue();
+			string maskName = ReadVariable().StringValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 			int z = ReadVariable().IntValue();
-			int originx = ReadVariable().IntValue();
-			int originy = ReadVariable().IntValue();
-			int overridew = ReadVariable().IntValue();
-			int overrideh = ReadVariable().IntValue();
+			int originX = ReadVariable().IntValue();
+			int originY = ReadVariable().IntValue();
+			int fixedX = ReadVariable().IntValue();
+			int fixedY = ReadVariable().IntValue();
 			int angle = ReadVariable().IntValue();
 			ReadVariable().BoolValue();
 			ReadVariable().BoolValue();
 			int style = ReadVariable().IntValue();
-			float alpha = (float)ReadVariable().IntValue() / 256f;
+			float transparancy = (float)ReadVariable().IntValue() / 256f;
 			int priority = ReadVariable().IntValue();
 			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
 				wait = 0f;
 			}
-			gameSystem.SceneController.DrawSprite(num, text, text2, x, y, z, originx, originy, overridew, overrideh, angle, style, alpha, priority, wait, flag);
-			if (text2 != "")
+			AssetManager.Instance.PreloadTexture(spriteName);
+			AssetManager.Instance.PreloadTexture(maskName);
+			if (isblocking)
 			{
-				gameSystem.SceneController.SetLayerToDepthMasked(num);
-			}
-			if (flag)
-			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
-			BurikoMemory.Instance.SetCGFlag(text);
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
+			BurikoMemory.Instance.SetCGFlag(spriteName);
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawSprite(layNum, spriteName, maskName, x, y, z, originX, originY, fixedX, fixedY, angle, style, transparancy, priority, wait, isblocking);
+				if (maskName != "")
+				{
+					gameSystem.SceneController.SetLayerToDepthMasked(layNum);
+				}
+			}
 		}
 
 		private BurikoVariable OperationDrawSpriteWithFiltering()
 		{
 			SetOperationType("DrawSpriteWithFiltering");
 			int layer = ReadVariable().IntValue();
-			string text = ReadVariable().StringValue();
+			string filename = ReadVariable().StringValue();
 			string mask = ReadVariable().StringValue();
 			int style = ReadVariable().IntValue();
 			int x = ReadVariable().IntValue();
@@ -1216,68 +1462,96 @@ namespace Assets.Scripts.Core.Buriko
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			int priority = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.DrawSpriteWithFiltering(layer, text, mask, x, y, 0, 0, style, priority, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(filename);
+			AssetManager.Instance.PreloadTexture(mask);
+			if (isblocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
-			BurikoMemory.Instance.SetCGFlag(text);
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
+			BurikoMemory.Instance.SetCGFlag(filename);
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawSpriteWithFiltering(layer, filename, mask, x, y, 0, 0, style, priority, time, isblocking);
+			}
 		}
 
 		private BurikoVariable OperationDrawSpriteWithFilteringFixedSize()
 		{
-			SetOperationType("DrawSpriteWithFiltering");
+			SetOperationType("DrawSpriteWithFilteringFixedSize");
 			int layer = ReadVariable().IntValue();
-			string text = ReadVariable().StringValue();
+			string filename = ReadVariable().StringValue();
 			string mask = ReadVariable().StringValue();
 			int style = ReadVariable().IntValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
-			int overridew = ReadVariable().IntValue();
-			int overrideh = ReadVariable().IntValue();
+			int fixedx = ReadVariable().IntValue();
+			int fixedy = ReadVariable().IntValue();
 			ReadVariable().BoolValue();
 			ReadVariable().BoolValue();
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			int priority = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.DrawSpriteWithFiltering(layer, text, mask, x, y, overridew, overrideh, style, priority, wait, flag);
-			if (flag)
+			AssetManager.Instance.PreloadTexture(filename);
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
-			BurikoMemory.Instance.SetCGFlag(text);
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
+			BurikoMemory.Instance.SetCGFlag(filename);
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawSpriteWithFiltering(layer, filename, mask, x, y, fixedx, fixedy, style, priority, time, isBlocking: true);
+			}
 		}
 
 		private BurikoVariable OperationFadeSprite()
 		{
 			SetOperationType("FadeSprite");
 			int layer = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.FadeSprite(layer, wait, flag);
-			if (flag)
+			gameSystem.SceneController.EndLayerPersistence(layer);
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.FadeSprite(layer, time, isblocking: true);
+			}
 		}
 
 		private BurikoVariable OperationFadeSpriteWithFiltering()
@@ -1286,18 +1560,26 @@ namespace Assets.Scripts.Core.Buriko
 			int layer = ReadVariable().IntValue();
 			string mask = ReadVariable().StringValue();
 			int style = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool num = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.FadeSpriteWithFiltering(layer, mask, style, wait, flag);
-			if (flag)
+			if (num)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.FadeSpriteWithFiltering(layer, mask, style, time, isblocking: true);
+			}
 		}
 
 		private BurikoVariable OperationMoveSprite()
@@ -1308,21 +1590,29 @@ namespace Assets.Scripts.Core.Buriko
 			int y = ReadVariable().IntValue();
 			int z = ReadVariable().IntValue();
 			int angle = ReadVariable().IntValue();
-			float num = (float)ReadVariable().IntValue() / 256f;
-			int easetype = ReadVariable().IntValue();
+			float alpha = (float)ReadVariable().IntValue() / 256f;
+			int style = ReadVariable().IntValue();
 			ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			gameSystem.SceneController.MoveSprite(layer, x, y, z, angle, easetype, 1f - num, wait, flag);
-			if (flag)
+			if (isblocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.MoveSprite(layer, x, y, z, angle, style, 1f - alpha, time, isblocking);
+			}
 		}
 
 		private BurikoVariable OperationMoveSpriteEx()
@@ -1331,25 +1621,33 @@ namespace Assets.Scripts.Core.Buriko
 			int layer = ReadVariable().IntValue();
 			string filename = ReadVariable().StringValue();
 			ReadVariable().IntValue();
-			int count = ReadVariable().IntValue();
+			int points = ReadVariable().IntValue();
 			BurikoReference burikoReference = ReadVariable().VariableValue();
 			ReadVariable().IntValue();
 			float alpha = (float)ReadVariable().IntValue() / 256f;
 			ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
-			bool flag = ReadVariable().BoolValue();
-			BurikoVector burikoVector = BurikoMemory.Instance.GetMemory(burikoReference.Property) as BurikoVector;
-			if (burikoVector == null)
+			bool isblocking = ReadVariable().BoolValue();
+			BurikoVector obj = BurikoMemory.Instance.GetMemory(burikoReference.Property) as BurikoVector;
+			if (obj == null)
 			{
 				throw new Exception("Can't get ST_Vector object with name of " + burikoReference.Property);
 			}
-			gameSystem.SceneController.MoveSpriteEx(layer, filename, burikoVector.GetElements(count), alpha, time, flag);
-			if (flag)
+			if (isblocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.MoveSpriteEx(layer, filename, obj.GetElements(points), alpha, time, isblocking);
+			}
 		}
 
 		private BurikoVariable OperationControlMotionOfSprite()
@@ -1623,27 +1921,35 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationDrawStandgraphic()
 		{
 			SetOperationType("DrawStandgraphic");
-			int num = ReadVariable().IntValue();
-			string textureName = ReadVariable().StringValue();
-			bool flag = ReadVariable().BoolValue();
-			int oldx = ReadVariable().IntValue();
-			float wait = (float)ReadVariable().IntValue() / 1000f;
-			bool flag2 = ReadVariable().BoolValue();
+			int posnum = ReadVariable().IntValue();
+			string filename = ReadVariable().StringValue();
+			bool move = ReadVariable().BoolValue();
+			int startx = ReadVariable().IntValue();
+			float time = (float)ReadVariable().IntValue() / 1000f;
+			bool isblocking = ReadVariable().BoolValue();
 			if (gameSystem.IsSkipping)
 			{
-				wait = 0f;
+				time = 0f;
 			}
-			int num2 = Mathf.RoundToInt(D2BGetPosition(num));
-			if (!flag)
+			int endx = Mathf.RoundToInt(D2BGetPosition(posnum));
+			if (!move)
 			{
-				oldx = num2;
+				startx = endx;
 			}
-			gameSystem.SceneController.DrawBustshot(num, textureName, num2, 0, 0, oldx, 0, 0, flag, num, 0, wait, flag2);
-			if (flag2)
+			if (isblocking)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+			void Action()
+			{
+				gameSystem.SceneController.DrawBustshot(posnum, filename, endx, 0, 0, startx, 0, 0, move, posnum, 0, time, isblocking);
+			}
 		}
 
 		private BurikoVariable OperationDrawBustFace()
@@ -2036,7 +2342,12 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationGetAchievement()
 		{
 			SetOperationType("GetAchievement");
-			gameSystem.SteamController.AddAchievement(ReadVariable().StringValue());
+			string text = ReadVariable().StringValue();
+			if (Application.isEditor)
+			{
+				Debug.Log("Achievement Unlocked! " + text);
+			}
+			gameSystem.SteamController.AddAchievement(text);
 			return BurikoVariable.Null;
 		}
 
@@ -2064,14 +2375,46 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetLineSpacing()
 		{
 			SetOperationType("SetLineSpacing");
-			gameSystem.MainUIController.SetLineSpacing(ReadVariable().IntValue());
+			gameSystem.TextController.SetLineSpacing(ReadVariable().IntValue());
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetJpLineSpacing()
+		{
+			SetOperationType("SetJpLineSpacing");
+			gameSystem.TextController.SetLineSpacingJp(ReadVariable().IntValue());
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationSetFontSize()
 		{
 			SetOperationType("SetFontSize");
-			gameSystem.MainUIController.SetFontSize(ReadVariable().IntValue());
+			gameSystem.TextController.SetFontSize(ReadVariable().IntValue());
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetJpFontSize()
+		{
+			SetOperationType("SetFontSize");
+			gameSystem.TextController.SetJpFontSize(ReadVariable().IntValue());
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetNameColor()
+		{
+			SetOperationType("SetNameColor");
+			byte r = (byte)ReadVariable().IntValue();
+			byte g = (byte)ReadVariable().IntValue();
+			byte b = (byte)ReadVariable().IntValue();
+			byte a = byte.MaxValue;
+			gameSystem.TextController.NameColor = new Color32(r, g, b, a);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationResetNameColor()
+		{
+			SetOperationType("ResetNameColor");
+			gameSystem.TextController.NameColor = Color.white;
 			return BurikoVariable.Null;
 		}
 
@@ -2096,19 +2439,37 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetWindowMargins()
 		{
 			SetOperationType("SetWindowMargins");
-			int left = ReadVariable().IntValue();
-			int top = ReadVariable().IntValue();
-			int right = ReadVariable().IntValue();
-			int bottom = ReadVariable().IntValue();
-			gameSystem.MainUIController.SetWindowMargins(left, top, right, bottom);
+			int num = ReadVariable().IntValue();
+			int num2 = ReadVariable().IntValue();
+			int num3 = ReadVariable().IntValue();
+			int num4 = ReadVariable().IntValue();
+			gameSystem.TextController.WindowMargins = new Vector4(num, num2, num3, num4);
+			gameSystem.TextController.WindowMarginsJp = new Vector4(num, num2, num3, num4);
+			gameSystem.TextController.RefreshMargins();
 			return BurikoVariable.Null;
 		}
 
 		private BurikoVariable OperationSetNameFormat()
 		{
 			SetOperationType("SetNameFormat");
-			string nameFormat = ReadVariable().StringValue();
+			string nameFormat = ReadVariable().StringValue().Replace("\\n", "\n");
 			gameSystem.TextController.NameFormat = nameFormat;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetJpNameFormat()
+		{
+			SetOperationType("SetJpNameFormat");
+			string nameFormatJp = ReadVariable().StringValue().Replace("\\n", "\n");
+			gameSystem.TextController.NameFormatJp = nameFormatJp;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetNameHistoryFormat()
+		{
+			SetOperationType("SetNameHistoryFormat");
+			string nameHistoryFormat = ReadVariable().StringValue().Replace("\\n", "\n");
+			gameSystem.TextController.NameHistoryFormat = nameHistoryFormat;
 			return BurikoVariable.Null;
 		}
 
@@ -2185,6 +2546,114 @@ namespace Assets.Scripts.Core.Buriko
 				IBurikoObject memory = BurikoMemory.Instance.GetMemory("WindowBackground");
 				BurikoReference reference2 = new BurikoReference("bg", 0);
 				memory.SetValue(reference2, var);
+			}
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetWindowNameBackground()
+		{
+			SetOperationType("OperationSetWindowNameBackground");
+			BurikoVariable var = new BurikoVariable(ReadVariable().StringValue());
+			if (!BurikoMemory.Instance.IsMemory("WindowNameBackground"))
+			{
+				BurikoString burikoString = new BurikoString();
+				burikoString.Create(1);
+				BurikoReference reference = new BurikoReference("bg", 0);
+				burikoString.SetValue(reference, var);
+				BurikoMemory.Instance.AddMemory("WindowNameBackground", burikoString);
+			}
+			else
+			{
+				IBurikoObject memory = BurikoMemory.Instance.GetMemory("WindowNameBackground");
+				BurikoReference reference2 = new BurikoReference("bg", 0);
+				memory.SetValue(reference2, var);
+			}
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetWindowFadeTime()
+		{
+			SetOperationType("OperationSetWindowFadeTime");
+			float windowFadeTime = (float)ReadVariable().IntValue() / 1000f;
+			gameSystem.TextController.WindowFadeTime = windowFadeTime;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationSetWindowFadeOutTime()
+		{
+			SetOperationType("OperationSetWindowFadeOutTime");
+			float windowFadeOutTime = (float)ReadVariable().IntValue() / 1000f;
+			gameSystem.TextController.WindowFadeOutTime = windowFadeOutTime;
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMakeLayerPersistent()
+		{
+			SetOperationType("MakeLayerPersistent");
+			int layerId = ReadVariable().IntValue();
+			gameSystem.SceneController.MakeLayerPersistent(layerId);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationEndLayerPersistence()
+		{
+			SetOperationType("EndLayerPersistence");
+			int layerId = ReadVariable().IntValue();
+			gameSystem.SceneController.EndLayerPersistence(layerId);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationGetLayerPriority()
+		{
+			SetOperationType("GetLayerPriority");
+			int id = ReadVariable().IntValue();
+			return new BurikoVariable(gameSystem.SceneController.GetLayerPriority(id));
+		}
+
+		private BurikoVariable OperationIsUnityEditor()
+		{
+			SetOperationType("IsUnityEditor");
+			if (Application.isEditor)
+			{
+				return new BurikoVariable(1);
+			}
+			return new BurikoVariable(0);
+		}
+
+		private BurikoVariable OperationPlayVideo()
+		{
+			SetOperationType("PlayVideo");
+			string path = ReadVariable().StringValue();
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			gameSystem.SceneController.CreateVideoPlayer(path, new Vector2Int(x, y));
+			gameSystem.IsSkipping = false;
+			gameSystem.IsAuto = false;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationOmakeScreenSection()
+		{
+			SetOperationType("OmakeScreenSection");
+			if (gameSystem.ScriptSystem.GetFlag("OmakeState") == 3)
+			{
+				gameSystem.PushStateObject(new StateMusicRoom());
+			}
+			else
+			{
+				gameSystem.PushStateObject(new StateOmakeSection());
+			}
+			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationDebugMessage()
+		{
+			SetOperationType("DebugMessage");
+			string str = ReadVariable().StringValue();
+			if (Application.isEditor)
+			{
+				Debug.Log("Script debug message: " + str);
 			}
 			return BurikoVariable.Null;
 		}
@@ -2278,6 +2747,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationPlayBGM();
 			case BurikoOperations.StopBGM:
 				return OperationStopBGM();
+			case BurikoOperations.DisableLoopingOfBGM:
+				return OperationDisableLoopingOfBGM();
 			case BurikoOperations.ChangeVolumeOfBGM:
 				return OperationChangeVolumeOfBGM();
 			case BurikoOperations.FadeOutBGM:
@@ -2296,6 +2767,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationWaitToFinishVoicePlaying();
 			case BurikoOperations.WaitToFinishSEPlaying:
 				return OperationWaitToFinishSEPlaying();
+			case BurikoOperations.StopAllSound:
+				return OperationStopAllSound();
 			case BurikoOperations.PreloadBitmap:
 				return OperationPreloadBitmap();
 			case BurikoOperations.StartShakingOfAllObjects:
@@ -2324,6 +2797,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationDrawScene();
 			case BurikoOperations.DrawSceneWithMask:
 				return OperationDrawSceneWithMask();
+			case BurikoOperations.DrawSceneWithScroll:
+				return OperationDrawSceneWithScroll();
 			case BurikoOperations.ChangeScene:
 				return OperationChangeScene();
 			case BurikoOperations.FadeScene:
@@ -2338,6 +2813,8 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationFadeBustshot();
 			case BurikoOperations.ChangeBustshot:
 				return OperationChangeBustshot();
+			case BurikoOperations.ChangeBustshotWithFiltering:
+				return OperationChangeBustshotWithFiltering();
 			case BurikoOperations.DrawBustshotWithFiltering:
 				return OperationDrawBustshotWithFiltering();
 			case BurikoOperations.DrawFace:
@@ -2452,8 +2929,16 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetCharSpacing();
 			case BurikoOperations.SetLineSpacing:
 				return OperationSetLineSpacing();
+			case BurikoOperations.SetJpLineSpacing:
+				return OperationSetJpLineSpacing();
 			case BurikoOperations.SetFontSize:
 				return OperationSetFontSize();
+			case BurikoOperations.SetJpFontSize:
+				return OperationSetJpFontSize();
+			case BurikoOperations.SetNameColor:
+				return OperationSetNameColor();
+			case BurikoOperations.ResetNameColor:
+				return OperationResetNameColor();
 			case BurikoOperations.SetWindowPos:
 				return OperationSetWindowPos();
 			case BurikoOperations.SetWindowSize:
@@ -2462,6 +2947,10 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetWindowMargins();
 			case BurikoOperations.SetNameFormat:
 				return OperationSetNameFormat();
+			case BurikoOperations.SetJpNameFormat:
+				return OperationSetJpNameFormat();
+			case BurikoOperations.SetNameHistoryFormat:
+				return OperationSetNameHistoryFormat();
 			case BurikoOperations.SetScreenAspect:
 				return OperationSetScreenAspect();
 			case BurikoOperations.SetGuiPosition:
@@ -2486,6 +2975,26 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationSetWindowBackground();
 			case BurikoOperations.JumpScriptSection:
 				return OperationJumpScriptSection();
+			case BurikoOperations.SetWindowFadeTime:
+				return OperationSetWindowFadeTime();
+			case BurikoOperations.SetWindowFadeOutTime:
+				return OperationSetWindowFadeOutTime();
+			case BurikoOperations.CallScriptSection:
+				return OperationCallScriptSection();
+			case BurikoOperations.MakeLayerPersistent:
+				return OperationMakeLayerPersistent();
+			case BurikoOperations.EndLayerPersistence:
+				return OperationEndLayerPersistence();
+			case BurikoOperations.GetLayerPriority:
+				return OperationGetLayerPriority();
+			case BurikoOperations.IsUnityEditor:
+				return OperationIsUnityEditor();
+			case BurikoOperations.PlayVideo:
+				return OperationPlayVideo();
+			case BurikoOperations.OmakeScreenSection:
+				return OperationOmakeScreenSection();
+			case BurikoOperations.DebugMessage:
+				return OperationDebugMessage();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -2511,7 +3020,7 @@ namespace Assets.Scripts.Core.Buriko
 				members = burikoVariable.IntValue();
 			}
 			IBurikoObject burikoObject;
-			if (!(text == "char"))
+			if (!(text == "string") && !(text == "char"))
 			{
 				if (!(text == "ST_MtnCtrlElement"))
 				{
@@ -2548,8 +3057,12 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("Assignment");
 			BurikoReference burikoReference = BurikoVariable.ReadReference(dataReader);
-			BurikoVariable var = ReadVariable();
-			BurikoMemory.Instance.GetMemory(burikoReference.Property).SetValue(burikoReference, var);
+			BurikoVariable burikoVariable = ReadVariable();
+			BurikoMemory.Instance.GetMemory(burikoReference.Property).SetValue(burikoReference, burikoVariable);
+			if (Application.isEditor && GameSystem.Instance.DebugMemory)
+			{
+				Debug.Log($"Setting {burikoReference.Property}[{burikoReference.Member}] to {burikoVariable.StringValue()}");
+			}
 		}
 
 		public void CommandIf()

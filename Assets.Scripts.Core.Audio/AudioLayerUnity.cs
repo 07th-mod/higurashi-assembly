@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.Core.Audio
 {
@@ -30,8 +31,6 @@ namespace Assets.Scripts.Core.Audio
 
 		private string loadedName;
 
-		private long loopPoint;
-
 		private byte[] bytes;
 
 		private float[] chvolume = new float[2]
@@ -46,7 +45,11 @@ namespace Assets.Scripts.Core.Audio
 
 		private Coroutine loadCoroutine;
 
+		private string trackName;
+
 		public int pages;
+
+		public bool hasCallback => finishCallback != null;
 
 		public void Prepare(int newid)
 		{
@@ -55,7 +58,8 @@ namespace Assets.Scripts.Core.Audio
 
 		public void RegisterCallback(AudioFinishCallback callback)
 		{
-			finishCallback = (AudioFinishCallback)Delegate.Combine(finishCallback, callback);
+			Debug.Log("RegisterAudioCallback");
+			finishCallback = callback;
 		}
 
 		public void SetBaseVolume(float val)
@@ -68,10 +72,22 @@ namespace Assets.Scripts.Core.Audio
 			subVolume = val;
 		}
 
+		public void FinishChangingVolume(float val)
+		{
+			iTween.Stop(base.gameObject);
+			subVolume = val;
+		}
+
+		public void ChangeLoopingStatus(bool loop)
+		{
+			isLoop = loop;
+			audioSource.loop = loop;
+		}
+
 		public void StartVolumeFade(float end, float time)
 		{
 			iTween.Stop(base.gameObject);
-			iTween.ValueTo(base.gameObject, iTween.Hash("from", subVolume, "to", end, "time", time, "onupdate", "SetCurrentVolume", "oncomplete", "SetCurrentVolume", "oncompleteparams", end));
+			iTween.ValueTo(base.gameObject, iTween.Hash("from", subVolume, "to", end, "time", time, "onupdate", "SetCurrentVolume", "oncomplete", "FinishChangingVolume", "oncompleteparams", end));
 		}
 
 		public void FadeOut(float time)
@@ -124,6 +140,17 @@ namespace Assets.Scripts.Core.Audio
 			return audioSource.isPlaying;
 		}
 
+		public string GetTrackTime()
+		{
+			if (!audioSource.isPlaying)
+			{
+				return "";
+			}
+			string str = TimeSpan.FromSeconds(audioSource.time).ToString("m\\:ss");
+			string str2 = TimeSpan.FromSeconds(audioClip.length).ToString("m\\:ss");
+			return str + " / " + str2;
+		}
+
 		public float GetRemainingPlayTime()
 		{
 			if (audioSource.loop)
@@ -135,16 +162,43 @@ namespace Assets.Scripts.Core.Audio
 
 		private IEnumerator WaitForLoad(string filename, AudioType type)
 		{
-			string audioFilePath = AssetManager.Instance.GetAudioFilePath(filename, type);
-			if (!File.Exists(audioFilePath))
+			string text = AssetManager.Instance.GetAudioFilePath(filename, type);
+			bool flag = File.Exists(text);
+			if (!flag && type == AudioType.BGM)
 			{
-				Debug.Log("Audio file does not exist: " + audioFilePath);
+				string audioFilePath = AssetManager.Instance.GetAudioFilePath(filename, AudioType.SE);
+				if (File.Exists(audioFilePath))
+				{
+					text = audioFilePath;
+					flag = true;
+				}
+				if (!flag && filename.StartsWith("se/"))
+				{
+					audioFilePath = AssetManager.Instance.GetAudioFilePath(filename.Substring(3), AudioType.SE);
+					if (File.Exists(audioFilePath))
+					{
+						text = audioFilePath;
+						flag = true;
+					}
+				}
+			}
+			if (!flag)
+			{
+				Debug.Log("Audio file does not exist: " + text);
 				yield break;
 			}
-			WWW audioLoader = new WWW("file:///" + audioFilePath);
-			yield return audioLoader;
+			string s = text.Replace("\\", "/");
+			trackName = filename;
+			string uri2 = UnityWebRequest.EscapeURL(s);
+			uri2 = ((Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.LinuxPlayer) ? ("file:///" + uri2) : ("file://" + uri2));
+			UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(uri2, UnityEngine.AudioType.OGGVORBIS);
+			yield return req.SendWebRequest();
 			loadedName = filename;
-			audioClip = audioLoader.GetAudioClip(threeD: false, type == AudioType.BGM);
+			if (req.isNetworkError || req.isHttpError)
+			{
+				Debug.LogError("Could not load audio clip \"" + uri2 + "\", error: " + req.error);
+			}
+			audioClip = DownloadHandlerAudioClip.GetContent(req);
 			while (audioClip.loadState != AudioDataLoadState.Loaded)
 			{
 				yield return null;
@@ -171,6 +225,7 @@ namespace Assets.Scripts.Core.Audio
 			audioType = type;
 			subVolume = startvolume;
 			isLoop = loop;
+			finishCallback = null;
 			loadCoroutine = StartCoroutine(WaitForLoad(filename, type));
 		}
 
@@ -196,8 +251,13 @@ namespace Assets.Scripts.Core.Audio
 			{
 				audioController = AudioController.Instance;
 			}
+			audioClip.name = trackName;
 			audioSource.clip = audioClip;
 			audioSource.loop = isLoop;
+			audioSource.bypassEffects = true;
+			audioSource.bypassListenerEffects = true;
+			audioSource.bypassReverbZones = true;
+			audioSource.spatialBlend = 0f;
 			audioSource.priority = audioController.GetPriorityByType(audioType);
 			volume = audioController.GetVolumeByType(audioType) * subVolume;
 			audioSource.PlayDelayed(0.0001f);

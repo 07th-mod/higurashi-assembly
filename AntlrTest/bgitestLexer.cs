@@ -38,7 +38,7 @@ namespace AntlrTest
 
 			private static readonly short[][] DFA9_transition;
 
-			public override string Description => "1:1: Tokens : ( T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | ID | INT | HEXINT | COMMENT | WS | STRING | CHAR | COMMA | NOT | BWOR | BWAND | OR | AND | RPAREN | LPAREN | HASH | SEMICOLON | RSQ | LSQ | LCURL | RCURL | PLUS | MINUS | TIMES | DIVIDE | MOD | EQ | ASSIGN | NEQ | GTHAN | LTHAN | LEQ | GEQ | SHIFT_LEFT | SHIFT_RIGHT );";
+			public override string Description => "1:1: Tokens : ( T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | ID | INT | HEXINT | COMMENT | WS | STRING | CHAR | COMMA | NOT | BWOR | BWAND | OR | AND | RPAREN | LPAREN | HASH | SEMICOLON | RSQ | LSQ | LCURL | RCURL | PLUS | MINUS | TIMES | DIVIDE | MOD | EQ | ASSIGN | NEQ | GTHAN | LTHAN | LEQ | GEQ | SHIFT_LEFT | SHIFT_RIGHT );";
 
 			static DFA9()
 			{
@@ -267,9 +267,9 @@ namespace AntlrTest
 
 		public const int VARDECL = 59;
 
-		public const int WS = 60;
+		public const int VARDECLASSIGN = 60;
 
-		public const int T__61 = 61;
+		public const int WS = 61;
 
 		public const int T__62 = 62;
 
@@ -283,9 +283,11 @@ namespace AntlrTest
 
 		public const int T__67 = 67;
 
+		public const int T__68 = 68;
+
 		private DFA9 dfa9;
 
-		public override string GrammarFileName => "D:\\Projects\\higurashi-ch-6-tsumihoroboshi\\Assets\\Scripts\\Compiler\\BGICompiler\\Grammar\\bgitest.g";
+		public override string GrammarFileName => "F:\\ProjectsSSD\\HigurashiHou\\HigurashiHouGit\\Higurashi-Hou-Unity\\Assets\\Scripts\\Compiler\\BGICompiler\\Grammar\\bgitest.g";
 
 		public bgitestLexer()
 		{
@@ -301,22 +303,6 @@ namespace AntlrTest
 		{
 		}
 
-		[GrammarRule("T__61")]
-		private void mT__61()
-		{
-			try
-			{
-				int type = 61;
-				int channel = 0;
-				Match(46);
-				state.type = type;
-				state.channel = channel;
-			}
-			finally
-			{
-			}
-		}
-
 		[GrammarRule("T__62")]
 		private void mT__62()
 		{
@@ -324,7 +310,7 @@ namespace AntlrTest
 			{
 				int type = 62;
 				int channel = 0;
-				Match("FALSE");
+				Match(46);
 				state.type = type;
 				state.channel = channel;
 			}
@@ -340,7 +326,7 @@ namespace AntlrTest
 			{
 				int type = 63;
 				int channel = 0;
-				Match("NULL");
+				Match("FALSE");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -356,7 +342,7 @@ namespace AntlrTest
 			{
 				int type = 64;
 				int channel = 0;
-				Match("TRUE");
+				Match("NULL");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -372,7 +358,7 @@ namespace AntlrTest
 			{
 				int type = 65;
 				int channel = 0;
-				Match("else");
+				Match("TRUE");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -388,7 +374,7 @@ namespace AntlrTest
 			{
 				int type = 66;
 				int channel = 0;
-				Match("if");
+				Match("else");
 				state.type = type;
 				state.channel = channel;
 			}
@@ -403,6 +389,22 @@ namespace AntlrTest
 			try
 			{
 				int type = 67;
+				int channel = 0;
+				Match("if");
+				state.type = type;
+				state.channel = channel;
+			}
+			finally
+			{
+			}
+		}
+
+		[GrammarRule("T__68")]
+		private void mT__68()
+		{
+			try
+			{
+				int type = 68;
 				int channel = 0;
 				Match("include");
 				state.type = type;
@@ -837,7 +839,7 @@ namespace AntlrTest
 		{
 			try
 			{
-				int type = 60;
+				int type = 61;
 				int channel = 0;
 				if ((input.LA(1) < 9 || input.LA(1) > 10) && input.LA(1) != 13 && input.LA(1) != 32)
 				{
@@ -1490,25 +1492,25 @@ namespace AntlrTest
 			switch (num)
 			{
 			case 1:
-				mT__61();
-				break;
-			case 2:
 				mT__62();
 				break;
-			case 3:
+			case 2:
 				mT__63();
 				break;
-			case 4:
+			case 3:
 				mT__64();
 				break;
-			case 5:
+			case 4:
 				mT__65();
 				break;
-			case 6:
+			case 5:
 				mT__66();
 				break;
-			case 7:
+			case 6:
 				mT__67();
+				break;
+			case 7:
+				mT__68();
 				break;
 			case 8:
 				mID();

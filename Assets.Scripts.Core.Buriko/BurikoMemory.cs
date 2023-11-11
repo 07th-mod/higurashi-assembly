@@ -35,6 +35,8 @@ namespace Assets.Scripts.Core.Buriko
 			private set;
 		}
 
+		public int ScopeLevel => scopeLevel;
+
 		private void LoadFlags()
 		{
 			for (int i = 0; i < 11; i++)
@@ -46,18 +48,33 @@ namespace Assets.Scripts.Core.Buriko
 		public void AddScope()
 		{
 			scopeLevel++;
+			if (Application.isEditor && GameSystem.Instance.DebugScope)
+			{
+				Debug.Log($"Scope level increased to {scopeLevel}");
+			}
 		}
 
 		public void DropScope()
 		{
 			int count = memorylist.Count;
 			scopeLevel--;
+			if (Application.isEditor && GameSystem.Instance.DebugScope)
+			{
+				Debug.Log($"Scope level decreased to {scopeLevel}");
+			}
 			memorylist = memorylist.Where((KeyValuePair<string, BurikoMemoryEntry> a) => a.Value.Scope <= scopeLevel).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
-			Debug.Log($"Dropping scope changed the number of objects in memory from {count} to {memorylist.Count}");
+			if (Application.isEditor && GameSystem.Instance.DebugScope)
+			{
+				Debug.Log($"Dropping scope changed the number of objects in memory from {count} to {memorylist.Count}");
+			}
 		}
 
 		public void ResetScope()
 		{
+			if (Application.isEditor && GameSystem.Instance.DebugScope)
+			{
+				Debug.Log("Scope reset to 0");
+			}
 			scopeLevel = 0;
 			memorylist = memorylist.Where((KeyValuePair<string, BurikoMemoryEntry> a) => a.Value.Scope <= scopeLevel).ToDictionary((KeyValuePair<string, BurikoMemoryEntry> a) => a.Key, (KeyValuePair<string, BurikoMemoryEntry> a) => a.Value);
 		}
@@ -77,6 +94,10 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void SetFlag(string flagname, int val)
 		{
+			if (Application.isEditor && GameSystem.Instance.DebugMemory)
+			{
+				Debug.Log($"SetFlag {flagname} {val}");
+			}
 			if (!variableReference.TryGetValue(flagname, out int value))
 			{
 				throw new Exception("Unable to set flag with the name " + flagname + ", flag not found.");
@@ -93,6 +114,10 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void SetGlobalFlag(string flagname, int val)
 		{
+			if (Application.isEditor && GameSystem.Instance.DebugMemory)
+			{
+				Debug.Log($"SetGlobalFlag {flagname} {val}");
+			}
 			if (!variableReference.TryGetValue(flagname, out int value))
 			{
 				throw new Exception("Unable to set flag with the name " + flagname + ", flag not found.");
@@ -221,7 +246,15 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void AddMemory(string name, IBurikoObject obj)
 		{
-			memorylist.Add(name, new BurikoMemoryEntry(scopeLevel, obj));
+			BurikoMemoryEntry value = new BurikoMemoryEntry(scopeLevel, obj);
+			if (memorylist.ContainsKey(name))
+			{
+				memorylist[name] = value;
+			}
+			else
+			{
+				memorylist.Add(name, new BurikoMemoryEntry(scopeLevel, obj));
+			}
 		}
 
 		public byte[] SaveMemory()
@@ -371,7 +404,6 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				Debug.LogWarning(message);
 			}
-			Debug.Log(string.Format("Saikoroshi: {0} Hirukowashi: {1} Batsukoishi: {2}", GetGlobalFlag("GSaikoroshi"), GetGlobalFlag("GHirukowashi"), GetGlobalFlag("GBatsukoishi")));
 		}
 
 		public void SaveGlobals()
@@ -396,7 +428,7 @@ namespace Assets.Scripts.Core.Buriko
 		public BurikoMemory()
 		{
 			memorylist = new Dictionary<string, BurikoMemoryEntry>();
-			foreach (BurikoFlagInfo item in JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(AssetManager.Instance.LoadTextDataString("localflags.txt")))
+			foreach (BurikoFlagInfo item in JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(AssetManager.Instance.LoadTextDataString("localflags.txt"))!)
 			{
 				if (variableReference.ContainsKey(item.Name))
 				{
@@ -407,7 +439,7 @@ namespace Assets.Scripts.Core.Buriko
 					variableReference.Add(item.Name, item.Id);
 				}
 			}
-			foreach (BurikoFlagInfo item2 in JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(AssetManager.Instance.LoadTextDataString("globalflags.txt")))
+			foreach (BurikoFlagInfo item2 in JsonConvert.DeserializeObject<List<BurikoFlagInfo>>(AssetManager.Instance.LoadTextDataString("globalflags.txt"))!)
 			{
 				if (variableReference.ContainsKey(item2.Name))
 				{

@@ -1,5 +1,6 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.State;
+using Assets.Scripts.UI.SaveLoad;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -96,11 +97,11 @@ namespace Assets.Scripts.UI.Prompt
 			TopBox.text = top;
 			if (GameSystem.Instance.UseEnglishText)
 			{
-				BottomBox.text = bottom.Replace("\n", " ").TrimStart(' ', '\n');
+				BottomBox.text = SaveLoadEntry.CleanText(bottom);
 			}
 			else
 			{
-				BottomBox.text = bottomjp.Replace("\n", " ").TrimStart(' ', '\n');
+				BottomBox.text = SaveLoadEntry.CleanText(bottomjp);
 			}
 		}
 

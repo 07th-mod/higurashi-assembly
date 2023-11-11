@@ -38,7 +38,7 @@ namespace Assets.Scripts.UI.TitleScreen
 				switch (base.name)
 				{
 				case "0-Start":
-					BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
+					BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
 					stateTitle.RequestLeave();
 					gameSystem.AudioController.StopAllAudio();
 					gameSystem.AudioController.PlaySystemSound("wa_040.ogg");
@@ -51,11 +51,11 @@ namespace Assets.Scripts.UI.TitleScreen
 					gameSystem.SwitchToConfig(0, showMessageWindow: false);
 					break;
 				case "3-CGGallery":
-					BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 1);
+					BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", 0);
 					BurikoMemory.Instance.SetFlag("TipsMode", 1);
 					stateTitle.RequestLeave();
 					gameSystem.AudioController.FadeOutBGM(2, 1000, waitForFade: false);
-					BurikoScriptSystem.Instance.CallBlock("ViewTipsDisplay");
+					BurikoScriptSystem.Instance.CallBlock("OmakeLoop");
 					gameSystem.SceneController.DrawScene("black", 0.5f);
 					gameSystem.ExecuteActions();
 					break;
@@ -66,6 +66,10 @@ namespace Assets.Scripts.UI.TitleScreen
 						Application.Quit();
 					}, null));
 					break;
+				case "TitleArea":
+					BurikoScriptSystem.Instance.CallBlock("TitleClick");
+					gameSystem.PopStateStack();
+					return;
 				default:
 					Debug.Log("Button ID not found: " + base.name);
 					break;

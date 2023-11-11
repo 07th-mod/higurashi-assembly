@@ -28,11 +28,19 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public int OverrideTextSpeed = -1;
 
+		public float WindowFadeTime = 0.2f;
+
+		public float WindowFadeOutTime = 0.5f;
+
 		private float timePerChar = 0.025f;
 
 		private float timeForFade = 0.15f;
 
 		private float timePerLine = 1f;
+
+		public int FontSize = 32;
+
+		public int FontSizeJp = 32;
 
 		private string txt = "";
 
@@ -46,7 +54,21 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public string NameFormat = "";
 
+		public string NameFormatJp = "";
+
+		public string NameHistoryFormat = "";
+
+		public int LineSpacing = 1;
+
+		public int LineSpacingJp = 1;
+
+		public Vector4 WindowMargins = Vector4.zero;
+
+		public Vector4 WindowMarginsJp = Vector4.zero;
+
 		public static Color32 TextColor = Color.white;
+
+		public Color32 NameColor = Color.white;
 
 		private BurikoTextModes lastMode;
 
@@ -66,6 +88,78 @@ namespace Assets.Scripts.Core.TextWindow
 			else
 			{
 				timeForFade = 0f;
+			}
+		}
+
+		public void SetFontSize(int size)
+		{
+			FontSize = size;
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.fontSize = size;
+			}
+		}
+
+		public void SetJpFontSize(int size)
+		{
+			FontSizeJp = size;
+			if (!GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.fontSize = size;
+			}
+		}
+
+		public void RefreshFontSize()
+		{
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.fontSize = FontSize;
+			}
+			else
+			{
+				TextArea.fontSize = FontSizeJp;
+			}
+		}
+
+		public void SetLineSpacing(int spacing)
+		{
+			LineSpacing = spacing;
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.lineSpacing = LineSpacing;
+			}
+		}
+
+		public void SetLineSpacingJp(int spacing)
+		{
+			LineSpacingJp = spacing;
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.lineSpacing = LineSpacingJp;
+			}
+		}
+
+		public void RefreshLineSpacing()
+		{
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.lineSpacing = LineSpacing;
+			}
+			else
+			{
+				TextArea.lineSpacing = LineSpacingJp;
+			}
+		}
+
+		public void RefreshMargins()
+		{
+			if (GameSystem.Instance.UseEnglishText)
+			{
+				TextArea.margin = WindowMargins;
+			}
+			else
+			{
+				TextArea.margin = WindowMarginsJp;
 			}
 		}
 
@@ -279,6 +373,9 @@ namespace Assets.Scripts.Core.TextWindow
 			TextArea.text = text;
 			TextColor = BurikoMemory.Instance.GetFlag("LTextColor").IntValue().ToColor32();
 			TextArea.color = TextColor;
+			RefreshFontSize();
+			RefreshMargins();
+			RefreshLineSpacing();
 		}
 
 		public void SetTextPoint(int x, int y)
@@ -374,33 +471,73 @@ namespace Assets.Scripts.Core.TextWindow
 			}
 		}
 
+		private int GetNameSkipLength(string name)
+		{
+			int num = 0;
+			bool flag = false;
+			foreach (char num2 in name)
+			{
+				if (num2 == '<')
+				{
+					flag = true;
+				}
+				if (num2 == '>')
+				{
+					flag = false;
+				}
+				if (!flag)
+				{
+					num++;
+				}
+			}
+			return num;
+		}
+
+		private string FormatName(string name, bool isEnglish)
+		{
+			string text = name;
+			if (NameColor != Color.white && !string.IsNullOrWhiteSpace(name))
+			{
+				text = $"<color=#{NameColor.r:x2}{NameColor.g:x2}{NameColor.b:x2}>{name}</color>";
+			}
+			if (string.IsNullOrEmpty(NameFormat))
+			{
+				return text;
+			}
+			if (isEnglish)
+			{
+				return string.Format(NameFormat, text);
+			}
+			return string.Format(NameFormatJp, text);
+		}
+
 		private void CreateText(string name, string text, BurikoTextModes textMode, bool noUpdate = false)
 		{
 			isFading = (!gameSystem.IsSkipping && !noUpdate);
-			string text2 = string.Format(NameFormat, name);
+			string name2 = FormatName(name, gameSystem.UseEnglishText);
 			if (appendNext)
 			{
 				int length = txt.Length;
 				txt += text;
-				string text3 = txt;
-				string text4 = text3.Substring(length);
+				string text2 = txt;
+				string text3 = text2.Substring(length);
 				if (noUpdate)
 				{
-					AddText(text4, text4.Length, isFade: false, addToTime: false);
+					AddText(text3, text3.Length, isFade: false, addToTime: false);
 				}
 				else
 				{
-					AddText(text4, 0, isFading, addToTime: true);
+					AddText(text3, 0, isFading, addToTime: true);
 				}
-				txt = text3;
+				txt = text2;
 			}
 			else
 			{
 				charList.Clear();
-				string text3 = text;
-				int length2 = text2.Length;
-				AddText(text3, length2, isFading, addToTime: true);
-				txt = text3;
+				string text2 = text;
+				int nameSkipLength = GetNameSkipLength(name2);
+				AddText(text2, nameSkipLength, isFading, addToTime: true);
+				txt = text2;
 			}
 			if (isFading)
 			{
@@ -456,21 +593,16 @@ namespace Assets.Scripts.Core.TextWindow
 
 		public void SetText(string name, string text, BurikoTextModes textMode, int language, bool skipUpdate = false)
 		{
-			if (!appendNext)
-			{
-				text = string.Format(NameFormat, name) + text;
-			}
 			if (language == 1 && GameSystem.Instance.UseEnglishText)
 			{
 				japaneseprev = japanesetext;
-				if (appendNext)
+				if (prevAppendState)
 				{
 					japanesetext += text;
+					return;
 				}
-				else
-				{
-					japanesetext = text;
-				}
+				text = FormatName(name, isEnglish: false) + text;
+				japanesetext = text;
 				return;
 			}
 			if (language == 2 && !GameSystem.Instance.UseEnglishText)
@@ -487,12 +619,15 @@ namespace Assets.Scripts.Core.TextWindow
 				if (prevAppendState)
 				{
 					englishtext += text;
+					return;
 				}
-				else
-				{
-					englishtext = text;
-				}
+				text = FormatName(name, isEnglish: true) + text;
+				englishtext = text;
 				return;
+			}
+			if (!appendNext)
+			{
+				text = FormatName(name, gameSystem.UseEnglishText) + text;
 			}
 			if (textTimeRemaining < 0f)
 			{
@@ -540,7 +675,7 @@ namespace Assets.Scripts.Core.TextWindow
 					gameSystem.ExecuteActions();
 					return;
 				}
-				if (gameSystem.IsSkipping)
+				if (gameSystem.IsSkipping || Mathf.Approximately(0f, WindowFadeTime))
 				{
 					gameSystem.MainUIController.ShowMessageBox();
 					CreateText(name, text, textMode);
@@ -549,8 +684,8 @@ namespace Assets.Scripts.Core.TextWindow
 				}
 				else
 				{
-					gameSystem.MainUIController.FadeIn(0.2f);
-					gameSystem.AddWait(new Wait(0.2f, WaitTypes.WaitForMove, delegate
+					gameSystem.MainUIController.FadeIn(WindowFadeTime);
+					gameSystem.AddWait(new Wait(WindowFadeTime, WaitTypes.WaitForMove, delegate
 					{
 						CreateText(name, text, textMode);
 						appendNext = (textMode != BurikoTextModes.Normal);

@@ -28,6 +28,8 @@ namespace Assets.Scripts.Core.Scene
 
 		private bool infinite;
 
+		private bool isHalfSwing;
+
 		public static void ShakeObject(GameObject target, float speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
 		{
 			Shaker component = target.GetComponent<Shaker>();
@@ -35,10 +37,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				component.StopShake();
 			}
-			GameSystem.Instance.RegisterAction(delegate
-			{
-				target.AddComponent<Shaker>().StartShake(speed, level, attenuation, vector, loopcount, isblocking);
-			});
+			target.AddComponent<Shaker>().StartShake(speed, level, attenuation, vector, loopcount, isblocking);
 			if (isblocking)
 			{
 				GameSystem.Instance.ExecuteActions();
@@ -58,21 +57,25 @@ namespace Assets.Scripts.Core.Scene
 			remainingcount = loopcount;
 			timeperswing = speed;
 			timetoswitch = timeperswing / 2f;
+			isHalfSwing = true;
 			if (timeperswing < 0.01f)
 			{
 				timeperswing = 0.01f;
 			}
-			float num = timeperswing * (float)loopcount + (float)loopcount * 0.005f + timetoswitch;
-			num += (float)loopcount * 0.005f;
+			float length = timeperswing * (float)loopcount;
+			if (loopcount >= 2)
+			{
+				length = timeperswing * (float)(loopcount - 2) + timeperswing;
+			}
 			if (loopcount == 0)
 			{
-				num = 2.14748365E+09f;
+				length = 2.14748365E+09f;
 				infinite = true;
 			}
 			UpdateShake();
 			if (isblocking && loopcount != 0)
 			{
-				GameSystem.Instance.AddWait(new Wait(num, WaitTypes.WaitForMove, StopShake));
+				GameSystem.Instance.AddWait(new Wait(length, WaitTypes.WaitForMove, StopShake));
 			}
 			if (isblocking)
 			{
@@ -132,23 +135,39 @@ namespace Assets.Scripts.Core.Scene
 			}
 			timetoswitch -= Time.deltaTime;
 			float num = 1f - timetoswitch / timeperswing;
+			if (isHalfSwing)
+			{
+				num = 1f - timetoswitch / (timeperswing / 2f);
+			}
 			float x = (float)Sine.EaseInOut(num, lastPos.x, destination.x - lastPos.x, 1.0);
 			float y = (float)Sine.EaseInOut(num, lastPos.y, destination.y - lastPos.y, 1.0);
 			base.transform.localPosition = new Vector3(x, y, base.transform.localPosition.z);
-			if (!(timetoswitch > 0f))
+			if (timetoswitch > 0f)
 			{
-				base.transform.localPosition = destination;
-				if (remainingcount > 0 || infinite)
+				return;
+			}
+			base.transform.localPosition = destination;
+			if (remainingcount > 0 || infinite)
+			{
+				timetoswitch += timeperswing;
+				if (remainingcount > 1)
 				{
-					timetoswitch = timeperswing;
 					UpdateShake();
-					remainingcount--;
+					isHalfSwing = false;
 				}
 				else
 				{
-					isActive = false;
-					base.transform.localPosition = srcPos;
+					lastPos = destination;
+					destination = Vector3.zero;
+					timetoswitch /= 2f;
+					isHalfSwing = true;
 				}
+				remainingcount--;
+			}
+			else
+			{
+				isActive = false;
+				base.transform.localPosition = srcPos;
 			}
 		}
 

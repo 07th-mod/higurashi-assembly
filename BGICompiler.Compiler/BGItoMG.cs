@@ -88,26 +88,35 @@ namespace BGICompiler.Compiler
 			for (int i = start; i < tree.ChildCount; i++)
 			{
 				ITree child = tree.GetChild(i);
-				switch (child.ToString())
+				try
 				{
-				case "IF":
-					Cmd_LineNum(child.Line);
-					ParseIf(child);
-					break;
-				case "OPERATION":
-					Cmd_LineNum(child.Line);
-					OutputCmd(BurikoCommands.Operation);
-					new OperationHandler().ParseOperation(child);
-					break;
-				case "VARDECL":
-					ParseVarDecl(child);
-					break;
-				case "ASSIGN":
-					ParseAssignment(child);
-					break;
-				default:
-					Debug.LogError("Unhandled type " + child.ToString());
-					break;
+					switch (child.ToString())
+					{
+					case "IF":
+						Cmd_LineNum(child.Line);
+						ParseIf(child);
+						break;
+					case "OPERATION":
+						Cmd_LineNum(child.Line);
+						OutputCmd(BurikoCommands.Operation);
+						new OperationHandler().ParseOperation(child);
+						break;
+					case "VARDECL":
+						ParseVarDecl(child);
+						break;
+					case "ASSIGN":
+						ParseAssignment(child);
+						break;
+					default:
+						Debug.LogError("Unhandled type " + child.ToString());
+						break;
+					}
+				}
+				catch (Exception exception)
+				{
+					Debug.LogError($"{child.Line}: Failed to parse output! Tree type: {child.ToString()}");
+					Debug.LogException(exception);
+					throw;
 				}
 			}
 		}
@@ -132,13 +141,21 @@ namespace BGICompiler.Compiler
 				ITree child2 = child.GetChild(1);
 				if (child2.Text != "INDEX")
 				{
-					throw new Exception($"{child2.Line}: Invalid variable declaration!");
+					throw new Exception("Invalid variable index");
 				}
 				new BGIValue(child2.GetChild(0)).Output();
 			}
 			else
 			{
 				Output.Write((short)1);
+			}
+			if (tree.ChildCount > 2)
+			{
+				BGIValue bGIValue = new BGIValue(child);
+				BGIValue bGIValue2 = new BGIValue(tree.GetChild(2));
+				OutputCmd(BurikoCommands.Assignment);
+				bGIValue.Output();
+				bGIValue2.Output();
 			}
 		}
 

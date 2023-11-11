@@ -14,12 +14,19 @@ public class TextRefresher : MonoBehaviour
 
 	private TextMeshPro textMesh;
 
+	private TextMeshProUGUI uiTextMesh;
+
 	public string English;
 
 	public string Japanese;
 
 	private void UpdateText()
 	{
+		if (uiTextMesh != null)
+		{
+			uiTextMesh.text = (language ? English : Japanese);
+			return;
+		}
 		if (textMesh != null)
 		{
 			textMesh.text = (language ? English : Japanese);
@@ -36,6 +43,7 @@ public class TextRefresher : MonoBehaviour
 		language = GameSystem.Instance.UseEnglishText;
 		label = GetComponent<UILabel>();
 		textMesh = GetComponent<TextMeshPro>();
+		uiTextMesh = GetComponent<TextMeshProUGUI>();
 		UpdateText();
 	}
 

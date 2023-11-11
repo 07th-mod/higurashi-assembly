@@ -4,6 +4,7 @@ using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.TextWindow;
 using System.Collections;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -35,6 +36,10 @@ namespace Assets.Scripts.UI
 		private GameObject mainuiPanel;
 
 		private Layer bgLayer;
+
+		private int fontSize;
+
+		private int jpFontSize;
 
 		private bool carretVisible;
 
@@ -79,6 +84,11 @@ namespace Assets.Scripts.UI
 		public void ShakeScene(float speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
 		{
 			Shaker.ShakeObject(mainuiPanel.gameObject, speed, level, attenuation, vector, loopcount, isblocking);
+		}
+
+		public void FollowShake(GameObject target, float time)
+		{
+			ShakeFollower.FollowShakeOfObject(mainuiPanel.gameObject, target, time, 1.6f, flipPosition: true);
 		}
 
 		public void SetWindowOpacity(float alpha)
@@ -240,11 +250,6 @@ namespace Assets.Scripts.UI
 			TextWindow.lineSpacing = spacing;
 		}
 
-		public void SetFontSize(int size)
-		{
-			TextWindow.fontSize = size;
-		}
-
 		public void SetWindowPos(int x, int y)
 		{
 			TextWindow.gameObject.transform.localPosition = new Vector3(x, y, 0f);
@@ -329,6 +334,44 @@ namespace Assets.Scripts.UI
 			carretVisible = false;
 			CarretPageSprite.SetActive(value: false);
 			CarretLineSprite.SetActive(value: false);
+		}
+
+		public void Serialize(BinaryWriter bw)
+		{
+			bw.Write(TextWindow.characterSpacing);
+			bw.Write(TextWindow.gameObject.transform.localPosition);
+			bw.Write(TextWindow.rectTransform.sizeDelta);
+			bw.Write(gameSystem.TextController.WindowFadeTime);
+			bw.Write(gameSystem.TextController.WindowFadeOutTime);
+			bw.Write(gameSystem.TextController.FontSize);
+			bw.Write(gameSystem.TextController.FontSizeJp);
+			bw.Write(gameSystem.TextController.NameColor);
+			bw.Write(gameSystem.TextController.WindowMargins);
+			bw.Write(gameSystem.TextController.WindowMarginsJp);
+			bw.Write(gameSystem.TextController.LineSpacing);
+			bw.Write(gameSystem.TextController.LineSpacingJp);
+			bw.WriteOptionalString(gameSystem.TextController.NameFormat);
+			bw.WriteOptionalString(gameSystem.TextController.NameFormatJp);
+			bw.WriteOptionalString(gameSystem.TextController.NameHistoryFormat);
+		}
+
+		public void Deserialize(BinaryReader br)
+		{
+			TextWindow.characterSpacing = br.ReadSingle();
+			TextWindow.gameObject.transform.localPosition = br.ReadVector3();
+			TextWindow.rectTransform.sizeDelta = br.ReadVector2();
+			gameSystem.TextController.WindowFadeTime = br.ReadSingle();
+			gameSystem.TextController.WindowFadeOutTime = br.ReadSingle();
+			gameSystem.TextController.SetFontSize(br.ReadInt32());
+			gameSystem.TextController.SetJpFontSize(br.ReadInt32());
+			gameSystem.TextController.NameColor = br.ReadColor32();
+			gameSystem.TextController.WindowMargins = br.ReadVector4();
+			gameSystem.TextController.WindowMarginsJp = br.ReadVector4();
+			gameSystem.TextController.SetLineSpacing(br.ReadInt32());
+			gameSystem.TextController.SetLineSpacingJp(br.ReadInt32());
+			gameSystem.TextController.NameFormat = br.ReadOptionalString("");
+			gameSystem.TextController.NameFormatJp = br.ReadOptionalString("");
+			gameSystem.TextController.NameHistoryFormat = br.ReadOptionalString("");
 		}
 
 		private void Start()

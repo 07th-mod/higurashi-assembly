@@ -86,6 +86,12 @@ namespace Assets.Scripts.Core
 
 		public GameObject LoadingBox;
 
+		public GameObject ScenarioLockSectionPrefab;
+
+		public GameObject StaffRoomSectionPrefab;
+
+		public GameObject MusicRoomPrefab;
+
 		public StateTitle TitleScreenState;
 
 		public TextMeshPro LoadingText;
@@ -149,6 +155,12 @@ namespace Assets.Scripts.Core
 		private int actionCount;
 
 		private GameState gameState;
+
+		public bool DebugFlags;
+
+		public bool DebugScope;
+
+		public bool DebugMemory;
 
 		public bool MessageBoxVisible;
 
@@ -333,7 +345,6 @@ namespace Assets.Scripts.Core
 		{
 			if (stateStack.Count == 0)
 			{
-				Debug.Log("PopStateStack has no state to remove.");
 				curStateObj = new StateNormal();
 				inputHandler = curStateObj.InputHandler;
 				GameState = GameState.Normal;
@@ -341,7 +352,6 @@ namespace Assets.Scripts.Core
 			}
 			if (curStateObj != null)
 			{
-				Debug.Log("PopStateStack - Calling OnLeaveState");
 				curStateObj.OnLeaveState();
 				curStateObj = null;
 			}
@@ -353,7 +363,6 @@ namespace Assets.Scripts.Core
 			{
 				curStateObj.OnRestoreState();
 			}
-			Debug.Log("StateStack now has " + stateStack.Count + " entries.");
 		}
 
 		private void PushStateStack(MGHelper.InputHandler newHandler, GameState newState)
@@ -524,8 +533,8 @@ namespace Assets.Scripts.Core
 				PopStateStack();
 				UpdateWaits();
 				MessageBoxVisible = true;
-				MainUIController.FadeIn(0.2f);
-				SceneController.RevealFace(0.2f);
+				MainUIController.FadeIn(TextController.WindowFadeTime);
+				SceneController.RevealFace(TextController.WindowFadeTime);
 				ExecuteActions();
 				blockInputTime = 0.25f;
 			}
@@ -603,8 +612,8 @@ namespace Assets.Scripts.Core
 		public void RevealMessageBox()
 		{
 			MessageBoxVisible = true;
-			MainUIController.FadeIn(0.5f);
-			SceneController.RevealFace(0.5f);
+			MainUIController.FadeIn(TextController.WindowFadeTime);
+			SceneController.RevealFace(TextController.WindowFadeTime);
 			ExecuteActions();
 		}
 
@@ -892,7 +901,7 @@ namespace Assets.Scripts.Core
 			Logger.Update();
 			if (blockInputTime <= 0f)
 			{
-				if ((CanInput || GameState != GameState.Normal) && (!Application.isFocused || inputHandler == null || !inputHandler()))
+				if ((CanInput || GameState != GameState.Normal) && (inputHandler == null || !inputHandler()))
 				{
 					return;
 				}
@@ -923,12 +932,12 @@ namespace Assets.Scripts.Core
 						TextController.Update();
 						if (!IsSkipping)
 						{
-							goto IL_0103;
+							goto IL_00fb;
 						}
 						skipWait -= Time.deltaTime;
 						if (!(skipWait <= 0f))
 						{
-							goto IL_0103;
+							goto IL_00fb;
 						}
 						if (!HasExistingWaits() && gameState == GameState.Normal)
 						{
@@ -936,18 +945,18 @@ namespace Assets.Scripts.Core
 							{
 								skipWait = 0.1f;
 							}
-							goto IL_0103;
+							goto IL_00fb;
 						}
 						ClearAllWaits();
 					}
-					goto end_IL_0099;
-					IL_0103:
+					goto end_IL_0091;
+					IL_00fb:
 					float num = Time.time + 1f;
 					while (!HasExistingWaits() && !(Time.time > num) && !HasExistingWaits() && delayedActions == null && CanAdvance && !WaitOnDelayedAction && gameState == GameState.Normal)
 					{
 						ScriptSystem.Advance();
 					}
-					end_IL_0099:;
+					end_IL_0091:;
 				}
 				catch (Exception)
 				{

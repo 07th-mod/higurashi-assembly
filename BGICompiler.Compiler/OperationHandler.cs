@@ -74,6 +74,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("WaitToFinishSEPlaying", new OpType(BurikoOperations.WaitToFinishSEPlaying, "i"));
 			paramLookup.Add("PlayVoice", new OpType(BurikoOperations.PlayVoice, "isi"));
 			paramLookup.Add("WaitToFinishVoicePlaying", new OpType(BurikoOperations.WaitToFinishVoicePlaying, "i"));
+			paramLookup.Add("StopAllSound", new OpType(BurikoOperations.StopAllSound, ""));
 			paramLookup.Add("PreloadBitmap", new OpType(BurikoOperations.PreloadBitmap, "s"));
 			paramLookup.Add("StartShakingOfAllObjects", new OpType(BurikoOperations.StartShakingOfAllObjects, "iiiiib"));
 			paramLookup.Add("TerminateShakingOfAllObjects", new OpType(BurikoOperations.TerminateShakingOfAllObjects, "ib"));
@@ -91,6 +92,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("RotateBG", new OpType(BurikoOperations.RotateBG, "iiiiiiibiiiiib"));
 			paramLookup.Add("DrawScene", new OpType(BurikoOperations.DrawScene, "si"));
 			paramLookup.Add("DrawSceneWithMask", new OpType(BurikoOperations.DrawSceneWithMask, "ssiii"));
+			paramLookup.Add("DrawSceneWithScroll", new OpType(BurikoOperations.DrawSceneWithScroll, "sii"));
 			paramLookup.Add("ChangeScene", new OpType(BurikoOperations.ChangeScene, "sii"));
 			paramLookup.Add("FadeScene", new OpType(BurikoOperations.FadeScene, "i"));
 			paramLookup.Add("FadeSceneWithMask", new OpType(BurikoOperations.FadeSceneWithMask, "siii"));
@@ -98,6 +100,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("MoveBustshot", new OpType(BurikoOperations.MoveBustshot, "isiiiiib"));
 			paramLookup.Add("FadeBustshot", new OpType(BurikoOperations.FadeBustshot, "ibiiiiib"));
 			paramLookup.Add("ChangeBustshot", new OpType(BurikoOperations.ChangeBustshot, "isib"));
+			paramLookup.Add("ChangeBustshotWithFiltering", new OpType(BurikoOperations.ChangeBustshotWithFiltering, "issiib"));
 			paramLookup.Add("DrawBustshotWithFiltering", new OpType(BurikoOperations.DrawBustshotWithFiltering, "issiiibiiiiiiib"));
 			paramLookup.Add("DrawFace", new OpType(BurikoOperations.DrawFace, "sib"));
 			paramLookup.Add("FadeFace", new OpType(BurikoOperations.FadeFace, "ib"));
@@ -108,6 +111,8 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("FadeSpriteWithFiltering", new OpType(BurikoOperations.FadeSpriteWithFiltering, "isiib"));
 			paramLookup.Add("MoveSprite", new OpType(BurikoOperations.MoveSprite, "iiiiiiiiib"));
 			paramLookup.Add("MoveSpriteEx", new OpType(BurikoOperations.MoveSpriteEx, "isiiviiiiib"));
+			paramLookup.Add("MakeLayerPersistent", new OpType(BurikoOperations.MakeLayerPersistent, "i"));
+			paramLookup.Add("EndLayerPersistence", new OpType(BurikoOperations.EndLayerPersistence, "i"));
 			paramLookup.Add("ControlMotionOfSprite", new OpType(BurikoOperations.ControlMotionOfSprite, "iivi"));
 			paramLookup.Add("GetPositionOfSprite", new OpType(BurikoOperations.GetPositionOfSprite, "vi"));
 			paramLookup.Add("EnableHorizontalGradation", new OpType(BurikoOperations.EnableHorizontalGradation, "iib"));
@@ -139,6 +144,7 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("SetFontId", new OpType(BurikoOperations.SetFontId, "i"));
 			paramLookup.Add("SetCharSpacing", new OpType(BurikoOperations.SetCharSpacing, "i"));
 			paramLookup.Add("SetLineSpacing", new OpType(BurikoOperations.SetLineSpacing, "i"));
+			paramLookup.Add("SetJpLineSpacing", new OpType(BurikoOperations.SetJpLineSpacing, "i"));
 			paramLookup.Add("SetFontSize", new OpType(BurikoOperations.SetFontSize, "i"));
 			paramLookup.Add("SetWindowPos", new OpType(BurikoOperations.SetWindowPos, "ii"));
 			paramLookup.Add("SetWindowSize", new OpType(BurikoOperations.SetWindowSize, "ii"));
@@ -162,8 +168,12 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("CloseGallery", new OpType(BurikoOperations.CloseGallery, ""));
 			paramLookup.Add("SetSkipAll", new OpType(BurikoOperations.SetSkipAll, "b"));
 			paramLookup.Add("SetNameFormat", new OpType(BurikoOperations.SetNameFormat, "s"));
+			paramLookup.Add("SetJpNameFormat", new OpType(BurikoOperations.SetJpNameFormat, "s"));
+			paramLookup.Add("SetNameHistoryFormat", new OpType(BurikoOperations.SetNameHistoryFormat, "s"));
 			paramLookup.Add("SetScreenAspect", new OpType(BurikoOperations.SetScreenAspect, "s"));
 			paramLookup.Add("SetGUIPosition", new OpType(BurikoOperations.SetGuiPosition, "ii"));
+			paramLookup.Add("SetWindowFadeTime", new OpType(BurikoOperations.SetWindowFadeTime, "i"));
+			paramLookup.Add("SetWindowFadeOutTime", new OpType(BurikoOperations.SetWindowFadeOutTime, "i"));
 			paramLookup.Add("DrawFragment", new OpType(BurikoOperations.DrawFragment, "ssi"));
 			paramLookup.Add("StopFragment", new OpType(BurikoOperations.StopFragment, "i"));
 			paramLookup.Add("DrawSpriteFixedSize", new OpType(BurikoOperations.DrawSpriteFixedSize, "issiiiiiiiibbiiiib"));
@@ -173,6 +183,16 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("FragmentListScreen", new OpType(BurikoOperations.FragmentListScreen, ""));
 			paramLookup.Add("SetWindowBackground", new OpType(BurikoOperations.SetWindowBackground, "s"));
 			paramLookup.Add("JumpScriptSection", new OpType(BurikoOperations.JumpScriptSection, "ss"));
+			paramLookup.Add("CallScriptSection", new OpType(BurikoOperations.CallScriptSection, "ss"));
+			paramLookup.Add("GetLayerPriority", new OpType(BurikoOperations.GetLayerPriority, "i"));
+			paramLookup.Add("SetNameColor", new OpType(BurikoOperations.SetNameColor, "iii"));
+			paramLookup.Add("ResetNameColor", new OpType(BurikoOperations.ResetNameColor, ""));
+			paramLookup.Add("SetJpFontSize", new OpType(BurikoOperations.SetJpFontSize, "i"));
+			paramLookup.Add("IsUnityEditor", new OpType(BurikoOperations.IsUnityEditor, ""));
+			paramLookup.Add("PlayVideo", new OpType(BurikoOperations.PlayVideo, "sii"));
+			paramLookup.Add("OmakeScreenSection", new OpType(BurikoOperations.OmakeScreenSection, ""));
+			paramLookup.Add("DisableLoopingOfBGM", new OpType(BurikoOperations.DisableLoopingOfBGM, "i"));
+			paramLookup.Add("DebugMessage", new OpType(BurikoOperations.DebugMessage, "s"));
 			paramLookup.Add("Break", new OpType(BurikoOperations.Break, ""));
 		}
 

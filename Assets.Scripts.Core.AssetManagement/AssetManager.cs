@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.AssetManagement
@@ -19,6 +20,8 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		private string assetPath = Application.streamingAssetsPath;
 
+		private Dictionary<string, TextureReference> textureReferences = new Dictionary<string, TextureReference>();
+
 		public int CurrentLoading;
 
 		public int MaxLoading;
@@ -26,6 +29,8 @@ namespace Assets.Scripts.Core.AssetManagement
 		public bool AbortLoading;
 
 		private List<string> scriptList = new List<string>();
+
+		private List<string> removalList = new List<string>(4);
 
 		public static AssetManager Instance => _instance ?? (_instance = GameSystem.Instance.AssetManager);
 
@@ -210,8 +215,26 @@ namespace Assets.Scripts.Core.AssetManagement
 			return File.ReadAllLines(Path.Combine(Path.Combine(Application.streamingAssetsPath, "Data"), dataName)).ToList();
 		}
 
-		public Texture2D LoadTexture(string textureName)
+		public Texture2D PreloadTexture(string textureName)
 		{
+			if (string.IsNullOrWhiteSpace(textureName))
+			{
+				return null;
+			}
+			return LoadTexture(textureName, 0);
+		}
+
+		public Texture2D LoadTexture(string textureName, int refCount = 1)
+		{
+			if (textureReferences.TryGetValue(textureName, out TextureReference value))
+			{
+				if (refCount > 0)
+				{
+					value.Count++;
+				}
+				return value.Texture;
+			}
+			string key = textureName;
 			textureName = FixPath(textureName);
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
@@ -271,7 +294,64 @@ namespace Assets.Scripts.Core.AssetManagement
 			{
 				windowTexture = texture2D;
 			}
+			textureReferences.Add(key, new TextureReference
+			{
+				Count = refCount,
+				Texture = texture2D
+			});
 			return texture2D;
+		}
+
+		public void ReleaseTexture(string textureName, Texture2D texture)
+		{
+			if (!textureReferences.TryGetValue(textureName, out TextureReference value))
+			{
+				Debug.LogError($"Could not release texture {textureName}, it does not exist in thee AssetManager texture table! Texture is {texture}");
+				UnityEngine.Object.Destroy(texture);
+				return;
+			}
+			value.Count--;
+			if (value.Count == 0)
+			{
+				UnityEngine.Object.Destroy(texture);
+				textureReferences.Remove(textureName);
+			}
+		}
+
+		public void CleanUpTextures()
+		{
+			foreach (KeyValuePair<string, TextureReference> textureReference in textureReferences)
+			{
+				if (textureReference.Value.Count == 0)
+				{
+					removalList.Add(textureReference.Key);
+					UnityEngine.Object.Destroy(textureReference.Value.Texture);
+				}
+			}
+			if (removalList.Count != 0)
+			{
+				foreach (string removal in removalList)
+				{
+					textureReferences.Remove(removal);
+				}
+				removalList.Clear();
+			}
+		}
+
+		public void DebugOutputTextureReferenceStatus()
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.AppendLine($"Texture Reference Status - {textureReferences.Count} active textures.");
+			foreach (KeyValuePair<string, TextureReference> textureReference in textureReferences)
+			{
+				stringBuilder.AppendLine($"Texture {textureReference.Key} referenced {textureReference.Value.Count} times.");
+			}
+			Debug.Log(stringBuilder.ToString());
+		}
+
+		public string GetVideoClipPath(string fileName)
+		{
+			return Path.Combine(assetPath, fileName);
 		}
 
 		public Cubemap LoadCubemap(string path)

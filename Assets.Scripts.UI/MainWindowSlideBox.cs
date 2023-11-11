@@ -12,8 +12,6 @@ namespace Assets.Scripts.UI
 
 		private bool autoHide;
 
-		private bool isoffset;
-
 		private void OnHover(bool hover)
 		{
 			if (hover && !isOpen && (GameSystem.Instance.GameState == GameState.Normal || GameSystem.Instance.GameState == GameState.ChoiceScreen))

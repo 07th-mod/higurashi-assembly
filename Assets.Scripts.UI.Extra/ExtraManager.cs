@@ -1,3 +1,4 @@
+using Assets.Scripts.Core;
 using Assets.Scripts.UI.Tips;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,26 @@ namespace Assets.Scripts.UI.Extra
 
 		public void Show()
 		{
-			LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
+			if (base.gameObject.name.Contains("StaffRoom") && GameSystem.Instance.UseEnglishText)
+			{
+				for (int i = 0; i < ExtraButtons.Count; i++)
+				{
+					ExtraButtons[i].transform.localPosition -= new Vector3(0f, 10f, 0f);
+				}
+			}
+			SetFade(0f);
+			GameSystem.Instance.RegisterAction(delegate
+			{
+				LTDescr lTDescr = LeanTween.value(base.gameObject, SetFade, 0f, 1f, 0.8f);
+				lTDescr.onComplete = (Action)Delegate.Combine(lTDescr.onComplete, (Action)delegate
+				{
+					ExtraButtons.ForEach(delegate(ExtraButton a)
+					{
+						a.Enable();
+					});
+				});
+			});
+			GameSystem.Instance.ExecuteActions();
 			TipsManager.ReturnPage = 0;
 		}
 

@@ -74,7 +74,11 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
-			Logger.Log((currentScript != null) ? $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})" : $"Starting at script {scriptname} (block {blockname})");
+			AssetManager.Instance.CleanUpTextures();
+			if (Application.isEditor)
+			{
+				Debug.Log((currentScript != null) ? $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})" : $"Starting at script {scriptname} (block {blockname})");
+			}
 			callStack.Clear();
 			scriptname = scriptname.ToLower();
 			if (!scriptFiles.TryGetValue(scriptname + ".mg", out currentScript))
@@ -93,7 +97,10 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
-			Logger.Log($"{currentScript.Filename}: calling script {scriptname} (block {blockname})");
+			if (Application.isEditor)
+			{
+				Debug.Log($"{currentScript.Filename}: calling script {scriptname} (block {blockname})");
+			}
 			callStack.Push(new BurikoStackEntry(currentScript, currentScript.Position, currentScript.LineNum));
 			scriptname = scriptname.ToLower();
 			if (!scriptFiles.TryGetValue(scriptname + ".mg", out currentScript))
@@ -102,7 +109,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			if (!currentScript.IsInitialized)
 			{
-				currentScript.InitializeScript();
+				currentScript.InitializeScript(JumpToScript: false);
 			}
 			memoryManager.AddScope();
 			currentScript.JumpToBlock(blockname);
@@ -112,7 +119,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			if (callStack.Count <= 0)
 			{
-				throw new Exception("Could not return from script, as the script is currently at the bottom of the call stack.");
+				throw new Exception($"Could not return from script {currentScript.Filename} line {currentScript.LineNum}, as the script is currently at the bottom of the call stack. Current scope: {memoryManager.ScopeLevel}");
 			}
 			BurikoStackEntry burikoStackEntry = callStack.Pop();
 			if (!burikoStackEntry.Script.IsInitialized)
@@ -253,6 +260,7 @@ namespace Assets.Scripts.Core.Buriko
 							binaryWriter.Write("");
 							binaryWriter.Write(value: false);
 						}
+						GameSystem.Instance.MainUIController.Serialize(binaryWriter);
 						binaryWriter.Write(callStack.Count);
 						foreach (BurikoStackEntry item in callStack.Reverse())
 						{
@@ -383,6 +391,7 @@ namespace Assets.Scripts.Core.Buriko
 							tempSnapshotText[1] = text2;
 							GameSystem.Instance.TextController.SetAppendState(append: false);
 						}
+						GameSystem.Instance.MainUIController.Deserialize(binaryReader);
 						callStack.Clear();
 						int num2 = binaryReader.ReadInt32();
 						for (int i = 0; i < num2; i++)

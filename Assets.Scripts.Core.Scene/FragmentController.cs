@@ -25,24 +25,21 @@ namespace Assets.Scripts.Core.Scene
 			{
 				Terminate();
 			}
+			cubemapName = cname;
+			fragementPrefab = pname;
+			fragment = Object.Instantiate(Resources.Load<GameObject>(fragementPrefab));
+			mr = fragment.GetComponent<MeshRenderer>();
+			cubemap = GameSystem.Instance.AssetManager.LoadCubemap(cubemapName);
+			mr.sharedMaterial.SetTexture("_RefractTex", cubemap);
+			mr.sharedMaterial.SetFloat("_Alpha", 0f);
 			GameSystem.Instance.RegisterAction(delegate
 			{
-				cubemapName = cname;
-				fragementPrefab = pname;
-				fragment = Object.Instantiate(Resources.Load<GameObject>(fragementPrefab));
-				mr = fragment.GetComponent<MeshRenderer>();
-				cubemap = GameSystem.Instance.AssetManager.LoadCubemap(cubemapName);
-				mr.sharedMaterial.SetTexture("_RefractTex", cubemap);
-				mr.sharedMaterial.SetFloat("_Alpha", 0f);
-				GameSystem.Instance.RegisterAction(delegate
+				tween = LeanTween.value(fragment, delegate(float f)
 				{
-					tween = LeanTween.value(fragment, delegate(float f)
-					{
-						mr.sharedMaterial.SetFloat("_Alpha", f);
-					}, 0f, 1f, time);
-				});
-				IsActive = true;
+					mr.sharedMaterial.SetFloat("_Alpha", f);
+				}, 0f, 1f, time);
 			});
+			IsActive = true;
 		}
 
 		public void StopFragment(float time)

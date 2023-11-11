@@ -11,221 +11,227 @@ namespace AntlrTest
 	{
 		private static class Follow
 		{
-			public static readonly BitSet _directive_in_program151 = new BitSet(new ulong[1]
+			public static readonly BitSet _directive_in_program155 = new BitSet(new ulong[1]
 			{
 				1310722uL
 			});
 
-			public static readonly BitSet _block_in_program153 = new BitSet(new ulong[1]
+			public static readonly BitSet _block_in_program157 = new BitSet(new ulong[1]
 			{
 				1310722uL
 			});
 
-			public static readonly BitSet _HASH_in_directive166 = new BitSet(new ulong[2]
+			public static readonly BitSet _HASH_in_directive170 = new BitSet(new ulong[2]
 			{
 				0uL,
-				8uL
+				16uL
 			});
 
-			public static readonly BitSet _67_in_directive168 = new BitSet(new ulong[1]
+			public static readonly BitSet _68_in_directive172 = new BitSet(new ulong[1]
 			{
 				35184372088832uL
 			});
 
-			public static readonly BitSet _STRING_in_directive170 = new BitSet(new ulong[1]
+			public static readonly BitSet _STRING_in_directive174 = new BitSet(new ulong[1]
 			{
 				2uL
-			});
-
-			public static readonly BitSet _ID_in_block184 = new BitSet(new ulong[1]
-			{
-				1048576uL
 			});
 
 			public static readonly BitSet _ID_in_block188 = new BitSet(new ulong[1]
 			{
+				1048576uL
+			});
+
+			public static readonly BitSet _ID_in_block192 = new BitSet(new ulong[1]
+			{
 				134217728uL
 			});
 
-			public static readonly BitSet _LPAREN_in_block190 = new BitSet(new ulong[1]
+			public static readonly BitSet _LPAREN_in_block194 = new BitSet(new ulong[1]
 			{
 				1099511627776uL
 			});
 
-			public static readonly BitSet _RPAREN_in_block192 = new BitSet(new ulong[1]
+			public static readonly BitSet _RPAREN_in_block196 = new BitSet(new ulong[1]
 			{
 				33554432uL
 			});
 
-			public static readonly BitSet _LCURL_in_block194 = new BitSet(new ulong[2]
+			public static readonly BitSet _LCURL_in_block198 = new BitSet(new ulong[2]
 			{
 				549756862464uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _operations_in_block196 = new BitSet(new ulong[1]
+			public static readonly BitSet _operations_in_block200 = new BitSet(new ulong[1]
 			{
 				549755813888uL
 			});
 
-			public static readonly BitSet _RCURL_in_block199 = new BitSet(new ulong[1]
+			public static readonly BitSet _RCURL_in_block203 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _operation_in_operations223 = new BitSet(new ulong[2]
+			public static readonly BitSet _operation_in_operations227 = new BitSet(new ulong[2]
 			{
 				1048578uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _declaration_in_operation237 = new BitSet(new ulong[1]
+			public static readonly BitSet _declaration_in_operation241 = new BitSet(new ulong[1]
 			{
 				4398046511104uL
 			});
 
-			public static readonly BitSet _SEMICOLON_in_operation239 = new BitSet(new ulong[1]
+			public static readonly BitSet _SEMICOLON_in_operation243 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _if_in_operation246 = new BitSet(new ulong[1]
+			public static readonly BitSet _if_in_operation250 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _function_in_operation252 = new BitSet(new ulong[1]
+			public static readonly BitSet _function_in_operation256 = new BitSet(new ulong[1]
 			{
 				4398046511104uL
 			});
 
-			public static readonly BitSet _SEMICOLON_in_operation254 = new BitSet(new ulong[1]
+			public static readonly BitSet _SEMICOLON_in_operation258 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _assignment_in_operation261 = new BitSet(new ulong[1]
+			public static readonly BitSet _assignment_in_operation265 = new BitSet(new ulong[1]
 			{
 				4398046511104uL
 			});
 
-			public static readonly BitSet _SEMICOLON_in_operation263 = new BitSet(new ulong[1]
+			public static readonly BitSet _SEMICOLON_in_operation267 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _ID_in_declaration275 = new BitSet(new ulong[1]
+			public static readonly BitSet _ID_in_declaration279 = new BitSet(new ulong[1]
 			{
 				1048576uL
 			});
 
-			public static readonly BitSet _variable_in_declaration277 = new BitSet(new ulong[1]
+			public static readonly BitSet _variable_in_declaration281 = new BitSet(new ulong[1]
+			{
+				34uL
+			});
+
+			public static readonly BitSet _ASSIGN_in_declaration284 = new BitSet(new ulong[2]
+			{
+				9223407223526916096uL,
+				3uL
+			});
+
+			public static readonly BitSet _obj_in_declaration286 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _ID_in_function298 = new BitSet(new ulong[1]
+			public static readonly BitSet _ID_in_function312 = new BitSet(new ulong[1]
 			{
 				134217728uL
 			});
 
-			public static readonly BitSet _LPAREN_in_function300 = new BitSet(new ulong[2]
+			public static readonly BitSet _LPAREN_in_function314 = new BitSet(new ulong[2]
 			{
-				13835094341465931776uL,
-				1uL
+				9223408323038543872uL,
+				3uL
 			});
 
-			public static readonly BitSet _parameters_in_function302 = new BitSet(new ulong[1]
+			public static readonly BitSet _parameters_in_function316 = new BitSet(new ulong[1]
 			{
 				1099511627776uL
 			});
 
-			public static readonly BitSet _RPAREN_in_function305 = new BitSet(new ulong[1]
+			public static readonly BitSet _RPAREN_in_function319 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _variable_in_assignment327 = new BitSet(new ulong[1]
+			public static readonly BitSet _variable_in_assignment341 = new BitSet(new ulong[1]
 			{
 				32uL
 			});
 
-			public static readonly BitSet _ASSIGN_in_assignment329 = new BitSet(new ulong[2]
+			public static readonly BitSet _ASSIGN_in_assignment343 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _obj_in_assignment331 = new BitSet(new ulong[1]
+			public static readonly BitSet _obj_in_assignment345 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _obj_in_parameters353 = new BitSet(new ulong[1]
+			public static readonly BitSet _obj_in_parameters367 = new BitSet(new ulong[1]
 			{
 				1026uL
 			});
 
-			public static readonly BitSet _COMMA_in_parameters356 = new BitSet(new ulong[2]
+			public static readonly BitSet _COMMA_in_parameters370 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _obj_in_parameters358 = new BitSet(new ulong[1]
+			public static readonly BitSet _obj_in_parameters372 = new BitSet(new ulong[1]
 			{
 				1026uL
 			});
 
-			public static readonly BitSet _ID_in_variable383 = new BitSet(new ulong[1]
+			public static readonly BitSet _ID_in_variable397 = new BitSet(new ulong[1]
 			{
-				2305843009482129410uL
+				4611686018695823362uL
 			});
 
-			public static readonly BitSet _LSQ_in_variable386 = new BitSet(new ulong[2]
+			public static readonly BitSet _LSQ_in_variable400 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _value_in_variable390 = new BitSet(new ulong[1]
+			public static readonly BitSet _value_in_variable404 = new BitSet(new ulong[1]
 			{
 				2199023255552uL
 			});
 
-			public static readonly BitSet _RSQ_in_variable392 = new BitSet(new ulong[1]
+			public static readonly BitSet _RSQ_in_variable406 = new BitSet(new ulong[1]
 			{
-				2305843009213693954uL
+				4611686018427387906uL
 			});
 
-			public static readonly BitSet _61_in_variable397 = new BitSet(new ulong[1]
+			public static readonly BitSet _62_in_variable411 = new BitSet(new ulong[1]
 			{
 				1048576uL
 			});
 
-			public static readonly BitSet _variable_in_variable401 = new BitSet(new ulong[1]
+			public static readonly BitSet _variable_in_variable415 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _op_compare_in_obj439 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_compare_in_obj453 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _value_in_obj445 = new BitSet(new ulong[1]
+			public static readonly BitSet _value_in_obj459 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _MINUS_in_value456 = new BitSet(new ulong[1]
+			public static readonly BitSet _MINUS_in_value470 = new BitSet(new ulong[1]
 			{
 				16777216uL
-			});
-
-			public static readonly BitSet _INT_in_value458 = new BitSet(new ulong[1]
-			{
-				2uL
 			});
 
 			public static readonly BitSet _INT_in_value472 = new BitSet(new ulong[1]
@@ -233,309 +239,325 @@ namespace AntlrTest
 				2uL
 			});
 
-			public static readonly BitSet _HEXINT_in_value488 = new BitSet(new ulong[1]
+			public static readonly BitSet _INT_in_value486 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _STRING_in_value502 = new BitSet(new ulong[1]
+			public static readonly BitSet _HEXINT_in_value502 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _63_in_value516 = new BitSet(new ulong[1]
+			public static readonly BitSet _STRING_in_value516 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _64_in_value528 = new BitSet(new ulong[1]
+			public static readonly BitSet _64_in_value530 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _62_in_value542 = new BitSet(new ulong[1]
+			public static readonly BitSet _65_in_value542 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _variable_in_value556 = new BitSet(new ulong[1]
+			public static readonly BitSet _63_in_value556 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _function_in_value570 = new BitSet(new ulong[1]
+			public static readonly BitSet _variable_in_value570 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _LPAREN_in_value584 = new BitSet(new ulong[2]
+			public static readonly BitSet _function_in_value584 = new BitSet(new ulong[1]
 			{
-				13835093241954304000uL,
-				1uL
+				2uL
 			});
 
-			public static readonly BitSet _op_compare_in_value586 = new BitSet(new ulong[1]
+			public static readonly BitSet _LPAREN_in_value598 = new BitSet(new ulong[2]
+			{
+				9223407223526916096uL,
+				3uL
+			});
+
+			public static readonly BitSet _op_compare_in_value600 = new BitSet(new ulong[1]
 			{
 				1099511627776uL
 			});
 
-			public static readonly BitSet _RPAREN_in_value588 = new BitSet(new ulong[1]
+			public static readonly BitSet _RPAREN_in_value602 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _value_in_op_mult607 = new BitSet(new ulong[1]
+			public static readonly BitSet _value_in_op_mult621 = new BitSet(new ulong[1]
 			{
 				140737488359426uL
 			});
 
-			public static readonly BitSet _TIMES_in_op_mult614 = new BitSet(new ulong[2]
+			public static readonly BitSet _TIMES_in_op_mult628 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _value_in_op_mult617 = new BitSet(new ulong[1]
-			{
-				140737488359426uL
-			});
-
-			public static readonly BitSet _DIVIDE_in_op_mult625 = new BitSet(new ulong[2]
-			{
-				13835093241954304000uL,
-				1uL
-			});
-
-			public static readonly BitSet _value_in_op_mult628 = new BitSet(new ulong[1]
+			public static readonly BitSet _value_in_op_mult631 = new BitSet(new ulong[1]
 			{
 				140737488359426uL
 			});
 
-			public static readonly BitSet _op_mult_in_op_add645 = new BitSet(new ulong[1]
+			public static readonly BitSet _DIVIDE_in_op_mult639 = new BitSet(new ulong[2]
+			{
+				9223407223526916096uL,
+				3uL
+			});
+
+			public static readonly BitSet _value_in_op_mult642 = new BitSet(new ulong[1]
+			{
+				140737488359426uL
+			});
+
+			public static readonly BitSet _op_mult_in_op_add659 = new BitSet(new ulong[1]
 			{
 				277025390594uL
 			});
 
-			public static readonly BitSet _PLUS_in_op_add652 = new BitSet(new ulong[2]
+			public static readonly BitSet _PLUS_in_op_add666 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_mult_in_op_add655 = new BitSet(new ulong[1]
-			{
-				277025390594uL
-			});
-
-			public static readonly BitSet _MINUS_in_op_add663 = new BitSet(new ulong[2]
-			{
-				13835093241954304000uL,
-				1uL
-			});
-
-			public static readonly BitSet _op_mult_in_op_add666 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_mult_in_op_add669 = new BitSet(new ulong[1]
 			{
 				277025390594uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare683 = new BitSet(new ulong[1]
+			public static readonly BitSet _MINUS_in_op_add677 = new BitSet(new ulong[2]
 			{
-				69323669522uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _AND_in_op_compare690 = new BitSet(new ulong[2]
+			public static readonly BitSet _op_mult_in_op_add680 = new BitSet(new ulong[1]
 			{
-				13835093241954304000uL,
-				1uL
+				277025390594uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare693 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare697 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _OR_in_op_compare701 = new BitSet(new ulong[2]
+			public static readonly BitSet _AND_in_op_compare704 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare704 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare707 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _LEQ_in_op_compare712 = new BitSet(new ulong[2]
+			public static readonly BitSet _OR_in_op_compare715 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare715 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare718 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _GEQ_in_op_compare723 = new BitSet(new ulong[2]
+			public static readonly BitSet _LEQ_in_op_compare726 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare726 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare729 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _LTHAN_in_op_compare734 = new BitSet(new ulong[2]
+			public static readonly BitSet _GEQ_in_op_compare737 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare737 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare740 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _GTHAN_in_op_compare745 = new BitSet(new ulong[2]
+			public static readonly BitSet _LTHAN_in_op_compare748 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare748 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare751 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _EQ_in_op_compare756 = new BitSet(new ulong[2]
+			public static readonly BitSet _GTHAN_in_op_compare759 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _op_add_in_op_compare759 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_add_in_op_compare762 = new BitSet(new ulong[1]
 			{
-				69323669522uL
+				77913604114uL
 			});
 
-			public static readonly BitSet _66_in_if778 = new BitSet(new ulong[1]
+			public static readonly BitSet _EQ_in_op_compare770 = new BitSet(new ulong[2]
+			{
+				9223407223526916096uL,
+				3uL
+			});
+
+			public static readonly BitSet _op_add_in_op_compare773 = new BitSet(new ulong[1]
+			{
+				77913604114uL
+			});
+
+			public static readonly BitSet _NEQ_in_op_compare781 = new BitSet(new ulong[2]
+			{
+				9223407223526916096uL,
+				3uL
+			});
+
+			public static readonly BitSet _op_add_in_op_compare784 = new BitSet(new ulong[1]
+			{
+				77913604114uL
+			});
+
+			public static readonly BitSet _67_in_if803 = new BitSet(new ulong[1]
 			{
 				134217728uL
 			});
 
-			public static readonly BitSet _LPAREN_in_if780 = new BitSet(new ulong[2]
+			public static readonly BitSet _LPAREN_in_if805 = new BitSet(new ulong[2]
 			{
-				13835093241954304000uL,
-				1uL
+				9223407223526916096uL,
+				3uL
 			});
 
-			public static readonly BitSet _obj_in_if782 = new BitSet(new ulong[1]
+			public static readonly BitSet _obj_in_if807 = new BitSet(new ulong[1]
 			{
 				1099511627776uL
 			});
 
-			public static readonly BitSet _RPAREN_in_if784 = new BitSet(new ulong[2]
+			public static readonly BitSet _RPAREN_in_if809 = new BitSet(new ulong[2]
 			{
 				34603008uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _LCURL_in_if788 = new BitSet(new ulong[2]
+			public static readonly BitSet _LCURL_in_if813 = new BitSet(new ulong[2]
 			{
 				549756862464uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _operations_in_if792 = new BitSet(new ulong[1]
+			public static readonly BitSet _operations_in_if817 = new BitSet(new ulong[1]
 			{
 				549755813888uL
 			});
 
-			public static readonly BitSet _RCURL_in_if794 = new BitSet(new ulong[2]
+			public static readonly BitSet _RCURL_in_if819 = new BitSet(new ulong[2]
 			{
 				2uL,
-				2uL
+				4uL
 			});
 
-			public static readonly BitSet _operation_in_if801 = new BitSet(new ulong[2]
+			public static readonly BitSet _operation_in_if826 = new BitSet(new ulong[2]
 			{
 				2uL,
-				2uL
+				4uL
 			});
 
-			public static readonly BitSet _65_in_if805 = new BitSet(new ulong[2]
+			public static readonly BitSet _66_in_if830 = new BitSet(new ulong[2]
 			{
 				34603008uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _LCURL_in_if809 = new BitSet(new ulong[2]
+			public static readonly BitSet _LCURL_in_if834 = new BitSet(new ulong[2]
 			{
 				549756862464uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _operations_in_if813 = new BitSet(new ulong[1]
+			public static readonly BitSet _operations_in_if838 = new BitSet(new ulong[1]
 			{
 				549755813888uL
 			});
 
-			public static readonly BitSet _RCURL_in_if815 = new BitSet(new ulong[1]
+			public static readonly BitSet _RCURL_in_if840 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _operation_in_if822 = new BitSet(new ulong[1]
+			public static readonly BitSet _operation_in_if847 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _operations_in_synpred3_bgitest196 = new BitSet(new ulong[1]
+			public static readonly BitSet _operations_in_synpred3_bgitest200 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _parameters_in_synpred8_bgitest302 = new BitSet(new ulong[1]
+			public static readonly BitSet _parameters_in_synpred9_bgitest316 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _op_compare_in_synpred13_bgitest439 = new BitSet(new ulong[1]
+			public static readonly BitSet _op_compare_in_synpred14_bgitest453 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _65_in_synpred36_bgitest805 = new BitSet(new ulong[2]
+			public static readonly BitSet _66_in_synpred38_bgitest830 = new BitSet(new ulong[2]
 			{
 				34603008uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _LCURL_in_synpred36_bgitest809 = new BitSet(new ulong[2]
+			public static readonly BitSet _LCURL_in_synpred38_bgitest834 = new BitSet(new ulong[2]
 			{
 				549756862464uL,
-				4uL
+				8uL
 			});
 
-			public static readonly BitSet _operations_in_synpred36_bgitest813 = new BitSet(new ulong[1]
+			public static readonly BitSet _operations_in_synpred38_bgitest838 = new BitSet(new ulong[1]
 			{
 				549755813888uL
 			});
 
-			public static readonly BitSet _RCURL_in_synpred36_bgitest815 = new BitSet(new ulong[1]
+			public static readonly BitSet _RCURL_in_synpred38_bgitest840 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 
-			public static readonly BitSet _operation_in_synpred36_bgitest822 = new BitSet(new ulong[1]
+			public static readonly BitSet _operation_in_synpred38_bgitest847 = new BitSet(new ulong[1]
 			{
 				2uL
 			});
 		}
 
-		internal static readonly string[] tokenNames = new string[68]
+		internal static readonly string[] tokenNames = new string[69]
 		{
 			"<invalid>",
 			"<EOR>",
@@ -597,6 +619,7 @@ namespace AntlrTest
 			"TYPEVARIABLE",
 			"VAR",
 			"VARDECL",
+			"VARDECLASSIGN",
 			"WS",
 			"'.'",
 			"'FALSE'",
@@ -721,9 +744,9 @@ namespace AntlrTest
 
 		public const int VARDECL = 59;
 
-		public const int WS = 60;
+		public const int VARDECLASSIGN = 60;
 
-		public const int T__61 = 61;
+		public const int WS = 61;
 
 		public const int T__62 = 62;
 
@@ -736,6 +759,8 @@ namespace AntlrTest
 		public const int T__66 = 66;
 
 		public const int T__67 = 67;
+
+		public const int T__68 = 68;
 
 		private ITreeAdaptor adaptor;
 
@@ -753,7 +778,7 @@ namespace AntlrTest
 
 		public override string[] TokenNames => tokenNames;
 
-		public override string GrammarFileName => "D:\\Projects\\higurashi-ch-6-tsumihoroboshi\\Assets\\Scripts\\Compiler\\BGICompiler\\Grammar\\bgitest.g";
+		public override string GrammarFileName => "F:\\ProjectsSSD\\HigurashiHou\\HigurashiHouGit\\Higurashi-Hou-Unity\\Assets\\Scripts\\Compiler\\BGICompiler\\Grammar\\bgitest.g";
 
 		public bgitestParser(ITokenStream input)
 			: this(input, new RecognizerSharedState())
@@ -803,7 +828,7 @@ namespace AntlrTest
 							switch (num)
 							{
 							case 1:
-								PushFollow(Follow._directive_in_program151);
+								PushFollow(Follow._directive_in_program155);
 								astParserRuleReturnScope2 = directive();
 								PopFollow();
 								if (!state.failed)
@@ -816,7 +841,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 2:
-								PushFollow(Follow._block_in_program153);
+								PushFollow(Follow._block_in_program157);
 								astParserRuleReturnScope3 = block();
 								PopFollow();
 								if (!state.failed)
@@ -870,13 +895,13 @@ namespace AntlrTest
 			IToken token2 = null;
 			IToken token3 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token HASH");
-			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token 67");
+			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token 68");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token STRING");
 			try
 			{
 				try
 				{
-					token = (IToken)Match(input, 18, Follow._HASH_in_directive166);
+					token = (IToken)Match(input, 18, Follow._HASH_in_directive170);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -885,7 +910,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token);
 					}
-					token2 = (IToken)Match(input, 67, Follow._67_in_directive168);
+					token2 = (IToken)Match(input, 68, Follow._68_in_directive172);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -894,7 +919,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream2.Add(token2);
 					}
-					token3 = (IToken)Match(input, 45, Follow._STRING_in_directive170);
+					token3 = (IToken)Match(input, 45, Follow._STRING_in_directive174);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -958,7 +983,7 @@ namespace AntlrTest
 			{
 				try
 				{
-					token2 = (IToken)Match(input, 20, Follow._ID_in_block184);
+					token2 = (IToken)Match(input, 20, Follow._ID_in_block188);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -967,7 +992,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token2);
 					}
-					token = (IToken)Match(input, 20, Follow._ID_in_block188);
+					token = (IToken)Match(input, 20, Follow._ID_in_block192);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -976,7 +1001,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token);
 					}
-					token3 = (IToken)Match(input, 27, Follow._LPAREN_in_block190);
+					token3 = (IToken)Match(input, 27, Follow._LPAREN_in_block194);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -985,7 +1010,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream2.Add(token3);
 					}
-					token4 = (IToken)Match(input, 40, Follow._RPAREN_in_block192);
+					token4 = (IToken)Match(input, 40, Follow._RPAREN_in_block196);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -994,7 +1019,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream3.Add(token4);
 					}
-					token5 = (IToken)Match(input, 25, Follow._LCURL_in_block194);
+					token5 = (IToken)Match(input, 25, Follow._LCURL_in_block198);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1011,7 +1036,7 @@ namespace AntlrTest
 							switch (input.LA(1))
 							{
 							case 20:
-							case 66:
+							case 67:
 								num = 1;
 								break;
 							case 39:
@@ -1028,7 +1053,7 @@ namespace AntlrTest
 						}
 						if (num == 1)
 						{
-							PushFollow(Follow._operations_in_block196);
+							PushFollow(Follow._operations_in_block200);
 							astParserRuleReturnScope2 = operations();
 							PopFollow();
 							if (state.failed)
@@ -1044,7 +1069,7 @@ namespace AntlrTest
 					finally
 					{
 					}
-					token6 = (IToken)Match(input, 39, Follow._RCURL_in_block199);
+					token6 = (IToken)Match(input, 39, Follow._RCURL_in_block203);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1115,7 +1140,7 @@ namespace AntlrTest
 							try
 							{
 								int num2 = input.LA(1);
-								if (num2 == 20 || num2 == 66)
+								if (num2 == 20 || num2 == 67)
 								{
 									num = 1;
 								}
@@ -1127,7 +1152,7 @@ namespace AntlrTest
 							{
 								break;
 							}
-							PushFollow(Follow._operation_in_operations223);
+							PushFollow(Follow._operation_in_operations227);
 							astParserRuleReturnScope2 = operation();
 							PopFollow();
 							if (state.failed)
@@ -1198,7 +1223,7 @@ namespace AntlrTest
 								break;
 							case 5:
 							case 28:
-							case 61:
+							case 62:
 								num = 4;
 								break;
 							default:
@@ -1210,7 +1235,7 @@ namespace AntlrTest
 								return astParserRuleReturnScope;
 							}
 							break;
-						case 66:
+						case 67:
 							num = 2;
 							break;
 						default:
@@ -1229,7 +1254,7 @@ namespace AntlrTest
 					{
 					case 1:
 						commonTree = (CommonTree)adaptor.Nil();
-						PushFollow(Follow._declaration_in_operation237);
+						PushFollow(Follow._declaration_in_operation241);
 						astParserRuleReturnScope2 = declaration();
 						PopFollow();
 						if (state.failed)
@@ -1240,7 +1265,7 @@ namespace AntlrTest
 						{
 							adaptor.AddChild(commonTree, astParserRuleReturnScope2.Tree);
 						}
-						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation239);
+						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation243);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -1248,7 +1273,7 @@ namespace AntlrTest
 						break;
 					case 2:
 						commonTree = (CommonTree)adaptor.Nil();
-						PushFollow(Follow._if_in_operation246);
+						PushFollow(Follow._if_in_operation250);
 						astParserRuleReturnScope3 = @if();
 						PopFollow();
 						if (state.failed)
@@ -1262,7 +1287,7 @@ namespace AntlrTest
 						break;
 					case 3:
 						commonTree = (CommonTree)adaptor.Nil();
-						PushFollow(Follow._function_in_operation252);
+						PushFollow(Follow._function_in_operation256);
 						astParserRuleReturnScope4 = function();
 						PopFollow();
 						if (state.failed)
@@ -1273,7 +1298,7 @@ namespace AntlrTest
 						{
 							adaptor.AddChild(commonTree, astParserRuleReturnScope4.Tree);
 						}
-						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation254);
+						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation258);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -1281,7 +1306,7 @@ namespace AntlrTest
 						break;
 					case 4:
 						commonTree = (CommonTree)adaptor.Nil();
-						PushFollow(Follow._assignment_in_operation261);
+						PushFollow(Follow._assignment_in_operation265);
 						astParserRuleReturnScope5 = assignment();
 						PopFollow();
 						if (state.failed)
@@ -1292,7 +1317,7 @@ namespace AntlrTest
 						{
 							adaptor.AddChild(commonTree, astParserRuleReturnScope5.Tree);
 						}
-						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation263);
+						_ = (IToken)Match(input, 42, Follow._SEMICOLON_in_operation267);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -1331,14 +1356,18 @@ namespace AntlrTest
 			astParserRuleReturnScope.Start = input.LT(1);
 			CommonTree commonTree = null;
 			IToken token = null;
+			IToken token2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
+			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ID");
+			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token ASSIGN");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule variable");
+			RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule obj");
 			try
 			{
 				try
 				{
-					token = (IToken)Match(input, 20, Follow._ID_in_declaration275);
+					token = (IToken)Match(input, 20, Follow._ID_in_declaration279);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1347,7 +1376,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token);
 					}
-					PushFollow(Follow._variable_in_declaration277);
+					PushFollow(Follow._variable_in_declaration281);
 					astParserRuleReturnScope2 = variable();
 					PopFollow();
 					if (state.failed)
@@ -1358,6 +1387,46 @@ namespace AntlrTest
 					{
 						rewriteRuleSubtreeStream.Add(astParserRuleReturnScope2.Tree);
 					}
+					int num = 2;
+					try
+					{
+						try
+						{
+							if (input.LA(1) == 5)
+							{
+								num = 1;
+							}
+						}
+						finally
+						{
+						}
+						if (num == 1)
+						{
+							token2 = (IToken)Match(input, 5, Follow._ASSIGN_in_declaration284);
+							if (state.failed)
+							{
+								return astParserRuleReturnScope;
+							}
+							if (state.backtracking == 0)
+							{
+								rewriteRuleTokenStream2.Add(token2);
+							}
+							PushFollow(Follow._obj_in_declaration286);
+							astParserRuleReturnScope3 = obj();
+							PopFollow();
+							if (state.failed)
+							{
+								return astParserRuleReturnScope;
+							}
+							if (state.backtracking == 0)
+							{
+								rewriteRuleSubtreeStream2.Add(astParserRuleReturnScope3.Tree);
+							}
+						}
+					}
+					finally
+					{
+					}
 					if (state.backtracking == 0)
 					{
 						astParserRuleReturnScope.Tree = commonTree;
@@ -1367,6 +1436,11 @@ namespace AntlrTest
 						oldRoot = (CommonTree)adaptor.BecomeRoot((CommonTree)adaptor.Create(59, "VARDECL"), oldRoot);
 						adaptor.AddChild(oldRoot, rewriteRuleTokenStream.NextNode());
 						adaptor.AddChild(oldRoot, rewriteRuleSubtreeStream.NextTree());
+						if (rewriteRuleSubtreeStream2.HasNext)
+						{
+							adaptor.AddChild(oldRoot, rewriteRuleSubtreeStream2.NextTree());
+						}
+						rewriteRuleSubtreeStream2.Reset();
 						adaptor.AddChild(commonTree, oldRoot);
 						astParserRuleReturnScope.Tree = commonTree;
 					}
@@ -1413,7 +1487,7 @@ namespace AntlrTest
 			{
 				try
 				{
-					token = (IToken)Match(input, 20, Follow._ID_in_function298);
+					token = (IToken)Match(input, 20, Follow._ID_in_function312);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1422,7 +1496,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token);
 					}
-					token2 = (IToken)Match(input, 27, Follow._LPAREN_in_function300);
+					token2 = (IToken)Match(input, 27, Follow._LPAREN_in_function314);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1445,15 +1519,15 @@ namespace AntlrTest
 								case 27:
 								case 31:
 								case 45:
-								case 62:
 								case 63:
 								case 64:
+								case 65:
 									break;
 								default:
 									if (num2 == 40)
 									{
 										input.LA(2);
-										if (EvaluatePredicate(synpred8_bgitest_fragment))
+										if (EvaluatePredicate(synpred9_bgitest_fragment))
 										{
 											num = 1;
 										}
@@ -1469,7 +1543,7 @@ namespace AntlrTest
 						}
 						if (num == 1)
 						{
-							PushFollow(Follow._parameters_in_function302);
+							PushFollow(Follow._parameters_in_function316);
 							astParserRuleReturnScope2 = parameters();
 							PopFollow();
 							if (state.failed)
@@ -1485,7 +1559,7 @@ namespace AntlrTest
 					finally
 					{
 					}
-					token3 = (IToken)Match(input, 40, Follow._RPAREN_in_function305);
+					token3 = (IToken)Match(input, 40, Follow._RPAREN_in_function319);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1551,7 +1625,7 @@ namespace AntlrTest
 			{
 				try
 				{
-					PushFollow(Follow._variable_in_assignment327);
+					PushFollow(Follow._variable_in_assignment341);
 					astParserRuleReturnScope2 = variable();
 					PopFollow();
 					if (state.failed)
@@ -1562,7 +1636,7 @@ namespace AntlrTest
 					{
 						rewriteRuleSubtreeStream.Add(astParserRuleReturnScope2.Tree);
 					}
-					token = (IToken)Match(input, 5, Follow._ASSIGN_in_assignment329);
+					token = (IToken)Match(input, 5, Follow._ASSIGN_in_assignment343);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1571,7 +1645,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token);
 					}
-					PushFollow(Follow._obj_in_assignment331);
+					PushFollow(Follow._obj_in_assignment345);
 					astParserRuleReturnScope3 = obj();
 					PopFollow();
 					if (state.failed)
@@ -1650,9 +1724,9 @@ namespace AntlrTest
 								case 27:
 								case 31:
 								case 45:
-								case 62:
 								case 63:
 								case 64:
+								case 65:
 									break;
 								}
 							}
@@ -1664,7 +1738,7 @@ namespace AntlrTest
 						}
 						if (num == 1)
 						{
-							PushFollow(Follow._obj_in_parameters353);
+							PushFollow(Follow._obj_in_parameters367);
 							astParserRuleReturnScope2 = obj();
 							PopFollow();
 							if (state.failed)
@@ -1694,7 +1768,7 @@ namespace AntlrTest
 									{
 										break;
 									}
-									token = (IToken)Match(input, 10, Follow._COMMA_in_parameters356);
+									token = (IToken)Match(input, 10, Follow._COMMA_in_parameters370);
 									if (state.failed)
 									{
 										return astParserRuleReturnScope;
@@ -1703,7 +1777,7 @@ namespace AntlrTest
 									{
 										rewriteRuleTokenStream.Add(token);
 									}
-									PushFollow(Follow._obj_in_parameters358);
+									PushFollow(Follow._obj_in_parameters372);
 									astParserRuleReturnScope3 = obj();
 									PopFollow();
 									if (state.failed)
@@ -1783,14 +1857,14 @@ namespace AntlrTest
 			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token ID");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token LSQ");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token RSQ");
-			RewriteRuleTokenStream rewriteRuleTokenStream4 = new RewriteRuleTokenStream(adaptor, "token 61");
+			RewriteRuleTokenStream rewriteRuleTokenStream4 = new RewriteRuleTokenStream(adaptor, "token 62");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule value");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule variable");
 			try
 			{
 				try
 				{
-					token = (IToken)Match(input, 20, Follow._ID_in_variable383);
+					token = (IToken)Match(input, 20, Follow._ID_in_variable397);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -1814,7 +1888,7 @@ namespace AntlrTest
 						}
 						if (num == 1)
 						{
-							token2 = (IToken)Match(input, 28, Follow._LSQ_in_variable386);
+							token2 = (IToken)Match(input, 28, Follow._LSQ_in_variable400);
 							if (state.failed)
 							{
 								return astParserRuleReturnScope;
@@ -1823,7 +1897,7 @@ namespace AntlrTest
 							{
 								rewriteRuleTokenStream2.Add(token2);
 							}
-							PushFollow(Follow._value_in_variable390);
+							PushFollow(Follow._value_in_variable404);
 							astParserRuleReturnScope2 = value();
 							PopFollow();
 							if (state.failed)
@@ -1834,7 +1908,7 @@ namespace AntlrTest
 							{
 								rewriteRuleSubtreeStream.Add(astParserRuleReturnScope2.Tree);
 							}
-							token3 = (IToken)Match(input, 41, Follow._RSQ_in_variable392);
+							token3 = (IToken)Match(input, 41, Follow._RSQ_in_variable406);
 							if (state.failed)
 							{
 								return astParserRuleReturnScope;
@@ -1853,7 +1927,7 @@ namespace AntlrTest
 					{
 						try
 						{
-							if (input.LA(1) == 61)
+							if (input.LA(1) == 62)
 							{
 								num2 = 1;
 							}
@@ -1863,7 +1937,7 @@ namespace AntlrTest
 						}
 						if (num2 == 1)
 						{
-							token4 = (IToken)Match(input, 61, Follow._61_in_variable397);
+							token4 = (IToken)Match(input, 62, Follow._62_in_variable411);
 							if (state.failed)
 							{
 								return astParserRuleReturnScope;
@@ -1872,7 +1946,7 @@ namespace AntlrTest
 							{
 								rewriteRuleTokenStream4.Add(token4);
 							}
-							PushFollow(Follow._variable_in_variable401);
+							PushFollow(Follow._variable_in_variable415);
 							astParserRuleReturnScope3 = variable();
 							PopFollow();
 							if (state.failed)
@@ -1961,44 +2035,44 @@ namespace AntlrTest
 						{
 						case 31:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						case 24:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						case 19:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						case 45:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
-							break;
-						case 63:
-							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						case 64:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
-						case 62:
+						case 65:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
+							break;
+						case 63:
+							input.LA(2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						case 20:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						case 27:
 							input.LA(2);
-							num = (EvaluatePredicate(synpred13_bgitest_fragment) ? 1 : 2);
+							num = (EvaluatePredicate(synpred14_bgitest_fragment) ? 1 : 2);
 							break;
 						default:
 							if (state.backtracking <= 0)
 							{
-								throw new NoViableAltException("", 10, 0, input, 1);
+								throw new NoViableAltException("", 11, 0, input, 1);
 							}
 							state.failed = true;
 							return astParserRuleReturnScope;
@@ -2011,7 +2085,7 @@ namespace AntlrTest
 					{
 					case 1:
 						commonTree = (CommonTree)adaptor.Nil();
-						PushFollow(Follow._op_compare_in_obj439);
+						PushFollow(Follow._op_compare_in_obj453);
 						astParserRuleReturnScope2 = op_compare();
 						PopFollow();
 						if (state.failed)
@@ -2025,7 +2099,7 @@ namespace AntlrTest
 						break;
 					case 2:
 						commonTree = (CommonTree)adaptor.Nil();
-						PushFollow(Follow._value_in_obj445);
+						PushFollow(Follow._value_in_obj459);
 						astParserRuleReturnScope3 = value();
 						PopFollow();
 						if (state.failed)
@@ -2086,9 +2160,9 @@ namespace AntlrTest
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token INT");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token HEXINT");
 			RewriteRuleTokenStream rewriteRuleTokenStream4 = new RewriteRuleTokenStream(adaptor, "token STRING");
-			RewriteRuleTokenStream rewriteRuleTokenStream5 = new RewriteRuleTokenStream(adaptor, "token 63");
-			RewriteRuleTokenStream rewriteRuleTokenStream6 = new RewriteRuleTokenStream(adaptor, "token 64");
-			RewriteRuleTokenStream rewriteRuleTokenStream7 = new RewriteRuleTokenStream(adaptor, "token 62");
+			RewriteRuleTokenStream rewriteRuleTokenStream5 = new RewriteRuleTokenStream(adaptor, "token 64");
+			RewriteRuleTokenStream rewriteRuleTokenStream6 = new RewriteRuleTokenStream(adaptor, "token 65");
+			RewriteRuleTokenStream rewriteRuleTokenStream7 = new RewriteRuleTokenStream(adaptor, "token 63");
 			RewriteRuleTokenStream rewriteRuleTokenStream8 = new RewriteRuleTokenStream(adaptor, "token LPAREN");
 			RewriteRuleTokenStream rewriteRuleTokenStream9 = new RewriteRuleTokenStream(adaptor, "token RPAREN");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule variable");
@@ -2115,13 +2189,13 @@ namespace AntlrTest
 						case 45:
 							num = 4;
 							break;
-						case 63:
+						case 64:
 							num = 5;
 							break;
-						case 64:
+						case 65:
 							num = 6;
 							break;
-						case 62:
+						case 63:
 							num = 7;
 							break;
 						case 20:
@@ -2139,17 +2213,18 @@ namespace AntlrTest
 									switch (num2)
 									{
 									default:
-										if (num2 != 47 && num2 != 61)
+										if (num2 != 47 && num2 != 62)
 										{
 											if (state.backtracking <= 0)
 											{
-												throw new NoViableAltException("", 11, 8, input, 2);
+												throw new NoViableAltException("", 12, 8, input, 2);
 											}
 											state.failed = true;
 											return astParserRuleReturnScope;
 										}
 										break;
 									case 31:
+									case 33:
 									case 36:
 									case 38:
 									case 40:
@@ -2182,7 +2257,7 @@ namespace AntlrTest
 						default:
 							if (state.backtracking <= 0)
 							{
-								throw new NoViableAltException("", 11, 0, input, 1);
+								throw new NoViableAltException("", 12, 0, input, 1);
 							}
 							state.failed = true;
 							return astParserRuleReturnScope;
@@ -2195,7 +2270,7 @@ namespace AntlrTest
 					switch (num)
 					{
 					case 1:
-						token = (IToken)Match(input, 31, Follow._MINUS_in_value456);
+						token = (IToken)Match(input, 31, Follow._MINUS_in_value470);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2204,7 +2279,7 @@ namespace AntlrTest
 						{
 							rewriteRuleTokenStream.Add(token);
 						}
-						token2 = (IToken)Match(input, 24, Follow._INT_in_value458);
+						token2 = (IToken)Match(input, 24, Follow._INT_in_value472);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2226,7 +2301,7 @@ namespace AntlrTest
 						}
 						break;
 					case 2:
-						token3 = (IToken)Match(input, 24, Follow._INT_in_value472);
+						token3 = (IToken)Match(input, 24, Follow._INT_in_value486);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2248,7 +2323,7 @@ namespace AntlrTest
 						}
 						break;
 					case 3:
-						token4 = (IToken)Match(input, 19, Follow._HEXINT_in_value488);
+						token4 = (IToken)Match(input, 19, Follow._HEXINT_in_value502);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2270,7 +2345,7 @@ namespace AntlrTest
 						}
 						break;
 					case 4:
-						token5 = (IToken)Match(input, 45, Follow._STRING_in_value502);
+						token5 = (IToken)Match(input, 45, Follow._STRING_in_value516);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2292,7 +2367,7 @@ namespace AntlrTest
 						}
 						break;
 					case 5:
-						token6 = (IToken)Match(input, 63, Follow._63_in_value516);
+						token6 = (IToken)Match(input, 64, Follow._64_in_value530);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2313,7 +2388,7 @@ namespace AntlrTest
 						}
 						break;
 					case 6:
-						token7 = (IToken)Match(input, 64, Follow._64_in_value528);
+						token7 = (IToken)Match(input, 65, Follow._65_in_value542);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2335,7 +2410,7 @@ namespace AntlrTest
 						}
 						break;
 					case 7:
-						token8 = (IToken)Match(input, 62, Follow._62_in_value542);
+						token8 = (IToken)Match(input, 63, Follow._63_in_value556);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2357,7 +2432,7 @@ namespace AntlrTest
 						}
 						break;
 					case 8:
-						PushFollow(Follow._variable_in_value556);
+						PushFollow(Follow._variable_in_value570);
 						astParserRuleReturnScope2 = variable();
 						PopFollow();
 						if (state.failed)
@@ -2381,7 +2456,7 @@ namespace AntlrTest
 						}
 						break;
 					case 9:
-						PushFollow(Follow._function_in_value570);
+						PushFollow(Follow._function_in_value584);
 						astParserRuleReturnScope3 = function();
 						PopFollow();
 						if (state.failed)
@@ -2405,7 +2480,7 @@ namespace AntlrTest
 						}
 						break;
 					case 10:
-						token9 = (IToken)Match(input, 27, Follow._LPAREN_in_value584);
+						token9 = (IToken)Match(input, 27, Follow._LPAREN_in_value598);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2414,7 +2489,7 @@ namespace AntlrTest
 						{
 							rewriteRuleTokenStream8.Add(token9);
 						}
-						PushFollow(Follow._op_compare_in_value586);
+						PushFollow(Follow._op_compare_in_value600);
 						astParserRuleReturnScope4 = op_compare();
 						PopFollow();
 						if (state.failed)
@@ -2425,7 +2500,7 @@ namespace AntlrTest
 						{
 							rewriteRuleSubtreeStream3.Add(astParserRuleReturnScope4.Tree);
 						}
-						token10 = (IToken)Match(input, 40, Follow._RPAREN_in_value588);
+						token10 = (IToken)Match(input, 40, Follow._RPAREN_in_value602);
 						if (state.failed)
 						{
 							return astParserRuleReturnScope;
@@ -2490,7 +2565,7 @@ namespace AntlrTest
 				try
 				{
 					commonTree = (CommonTree)adaptor.Nil();
-					PushFollow(Follow._value_in_op_mult607);
+					PushFollow(Follow._value_in_op_mult621);
 					astParserRuleReturnScope2 = value();
 					PopFollow();
 					if (state.failed)
@@ -2524,7 +2599,7 @@ namespace AntlrTest
 							switch (num)
 							{
 							case 1:
-								token = (IToken)Match(input, 47, Follow._TIMES_in_op_mult614);
+								token = (IToken)Match(input, 47, Follow._TIMES_in_op_mult628);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2534,7 +2609,7 @@ namespace AntlrTest
 									commonTree2 = (CommonTree)adaptor.Create(token);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree2, commonTree);
 								}
-								PushFollow(Follow._value_in_op_mult617);
+								PushFollow(Follow._value_in_op_mult631);
 								astParserRuleReturnScope3 = value();
 								PopFollow();
 								if (!state.failed)
@@ -2547,7 +2622,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 2:
-								token2 = (IToken)Match(input, 12, Follow._DIVIDE_in_op_mult625);
+								token2 = (IToken)Match(input, 12, Follow._DIVIDE_in_op_mult639);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2557,7 +2632,7 @@ namespace AntlrTest
 									commonTree3 = (CommonTree)adaptor.Create(token2);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree3, commonTree);
 								}
-								PushFollow(Follow._value_in_op_mult628);
+								PushFollow(Follow._value_in_op_mult642);
 								astParserRuleReturnScope4 = value();
 								PopFollow();
 								if (!state.failed)
@@ -2619,7 +2694,7 @@ namespace AntlrTest
 				try
 				{
 					commonTree = (CommonTree)adaptor.Nil();
-					PushFollow(Follow._op_mult_in_op_add645);
+					PushFollow(Follow._op_mult_in_op_add659);
 					astParserRuleReturnScope2 = op_mult();
 					PopFollow();
 					if (state.failed)
@@ -2653,7 +2728,7 @@ namespace AntlrTest
 							switch (num)
 							{
 							case 1:
-								token = (IToken)Match(input, 38, Follow._PLUS_in_op_add652);
+								token = (IToken)Match(input, 38, Follow._PLUS_in_op_add666);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2663,7 +2738,7 @@ namespace AntlrTest
 									commonTree2 = (CommonTree)adaptor.Create(token);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree2, commonTree);
 								}
-								PushFollow(Follow._op_mult_in_op_add655);
+								PushFollow(Follow._op_mult_in_op_add669);
 								astParserRuleReturnScope3 = op_mult();
 								PopFollow();
 								if (!state.failed)
@@ -2676,7 +2751,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 2:
-								token2 = (IToken)Match(input, 31, Follow._MINUS_in_op_add663);
+								token2 = (IToken)Match(input, 31, Follow._MINUS_in_op_add677);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2686,7 +2761,7 @@ namespace AntlrTest
 									commonTree3 = (CommonTree)adaptor.Create(token2);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree3, commonTree);
 								}
-								PushFollow(Follow._op_mult_in_op_add666);
+								PushFollow(Follow._op_mult_in_op_add680);
 								astParserRuleReturnScope4 = op_mult();
 								PopFollow();
 								if (!state.failed)
@@ -2743,6 +2818,7 @@ namespace AntlrTest
 			IToken token5 = null;
 			IToken token6 = null;
 			IToken token7 = null;
+			IToken token8 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope2 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope3 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope4 = null;
@@ -2751,6 +2827,7 @@ namespace AntlrTest
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope7 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope8 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope9 = null;
+			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope10 = null;
 			CommonTree commonTree2 = null;
 			CommonTree commonTree3 = null;
 			CommonTree commonTree4 = null;
@@ -2758,12 +2835,13 @@ namespace AntlrTest
 			CommonTree commonTree6 = null;
 			CommonTree commonTree7 = null;
 			CommonTree commonTree8 = null;
+			CommonTree commonTree9 = null;
 			try
 			{
 				try
 				{
 					commonTree = (CommonTree)adaptor.Nil();
-					PushFollow(Follow._op_add_in_op_compare683);
+					PushFollow(Follow._op_add_in_op_compare697);
 					astParserRuleReturnScope2 = op_add();
 					PopFollow();
 					if (state.failed)
@@ -2778,7 +2856,7 @@ namespace AntlrTest
 					{
 						while (true)
 						{
-							int num = 8;
+							int num = 9;
 							try
 							{
 								switch (input.LA(1))
@@ -2804,6 +2882,9 @@ namespace AntlrTest
 								case 14:
 									num = 7;
 									break;
+								case 33:
+									num = 8;
+									break;
 								}
 							}
 							finally
@@ -2812,7 +2893,7 @@ namespace AntlrTest
 							switch (num)
 							{
 							case 1:
-								token = (IToken)Match(input, 4, Follow._AND_in_op_compare690);
+								token = (IToken)Match(input, 4, Follow._AND_in_op_compare704);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2822,7 +2903,7 @@ namespace AntlrTest
 									commonTree2 = (CommonTree)adaptor.Create(token);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree2, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare693);
+								PushFollow(Follow._op_add_in_op_compare707);
 								astParserRuleReturnScope3 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2835,7 +2916,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 2:
-								token2 = (IToken)Match(input, 36, Follow._OR_in_op_compare701);
+								token2 = (IToken)Match(input, 36, Follow._OR_in_op_compare715);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2845,7 +2926,7 @@ namespace AntlrTest
 									commonTree3 = (CommonTree)adaptor.Create(token2);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree3, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare704);
+								PushFollow(Follow._op_add_in_op_compare718);
 								astParserRuleReturnScope4 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2858,7 +2939,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 3:
-								token3 = (IToken)Match(input, 26, Follow._LEQ_in_op_compare712);
+								token3 = (IToken)Match(input, 26, Follow._LEQ_in_op_compare726);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2868,7 +2949,7 @@ namespace AntlrTest
 									commonTree4 = (CommonTree)adaptor.Create(token3);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree4, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare715);
+								PushFollow(Follow._op_add_in_op_compare729);
 								astParserRuleReturnScope5 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2881,7 +2962,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 4:
-								token4 = (IToken)Match(input, 16, Follow._GEQ_in_op_compare723);
+								token4 = (IToken)Match(input, 16, Follow._GEQ_in_op_compare737);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2891,7 +2972,7 @@ namespace AntlrTest
 									commonTree5 = (CommonTree)adaptor.Create(token4);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree5, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare726);
+								PushFollow(Follow._op_add_in_op_compare740);
 								astParserRuleReturnScope6 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2904,7 +2985,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 5:
-								token5 = (IToken)Match(input, 29, Follow._LTHAN_in_op_compare734);
+								token5 = (IToken)Match(input, 29, Follow._LTHAN_in_op_compare748);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2914,7 +2995,7 @@ namespace AntlrTest
 									commonTree6 = (CommonTree)adaptor.Create(token5);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree6, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare737);
+								PushFollow(Follow._op_add_in_op_compare751);
 								astParserRuleReturnScope7 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2927,7 +3008,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 6:
-								token6 = (IToken)Match(input, 17, Follow._GTHAN_in_op_compare745);
+								token6 = (IToken)Match(input, 17, Follow._GTHAN_in_op_compare759);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2937,7 +3018,7 @@ namespace AntlrTest
 									commonTree7 = (CommonTree)adaptor.Create(token6);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree7, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare748);
+								PushFollow(Follow._op_add_in_op_compare762);
 								astParserRuleReturnScope8 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2950,7 +3031,7 @@ namespace AntlrTest
 								}
 								return astParserRuleReturnScope;
 							case 7:
-								token7 = (IToken)Match(input, 14, Follow._EQ_in_op_compare756);
+								token7 = (IToken)Match(input, 14, Follow._EQ_in_op_compare770);
 								if (state.failed)
 								{
 									return astParserRuleReturnScope;
@@ -2960,7 +3041,7 @@ namespace AntlrTest
 									commonTree8 = (CommonTree)adaptor.Create(token7);
 									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree8, commonTree);
 								}
-								PushFollow(Follow._op_add_in_op_compare759);
+								PushFollow(Follow._op_add_in_op_compare773);
 								astParserRuleReturnScope9 = op_add();
 								PopFollow();
 								if (!state.failed)
@@ -2968,6 +3049,29 @@ namespace AntlrTest
 									if (state.backtracking == 0)
 									{
 										adaptor.AddChild(commonTree, astParserRuleReturnScope9.Tree);
+									}
+									continue;
+								}
+								return astParserRuleReturnScope;
+							case 8:
+								token8 = (IToken)Match(input, 33, Follow._NEQ_in_op_compare781);
+								if (state.failed)
+								{
+									return astParserRuleReturnScope;
+								}
+								if (state.backtracking == 0)
+								{
+									commonTree9 = (CommonTree)adaptor.Create(token8);
+									commonTree = (CommonTree)adaptor.BecomeRoot(commonTree9, commonTree);
+								}
+								PushFollow(Follow._op_add_in_op_compare784);
+								astParserRuleReturnScope10 = op_add();
+								PopFollow();
+								if (!state.failed)
+								{
+									if (state.backtracking == 0)
+									{
+										adaptor.AddChild(commonTree, astParserRuleReturnScope10.Tree);
 									}
 									continue;
 								}
@@ -3023,12 +3127,12 @@ namespace AntlrTest
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope4 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope5 = null;
 			AstParserRuleReturnScope<CommonTree, IToken> astParserRuleReturnScope6 = null;
-			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token 66");
+			RewriteRuleTokenStream rewriteRuleTokenStream = new RewriteRuleTokenStream(adaptor, "token 67");
 			RewriteRuleTokenStream rewriteRuleTokenStream2 = new RewriteRuleTokenStream(adaptor, "token LPAREN");
 			RewriteRuleTokenStream rewriteRuleTokenStream3 = new RewriteRuleTokenStream(adaptor, "token RPAREN");
 			RewriteRuleTokenStream rewriteRuleTokenStream4 = new RewriteRuleTokenStream(adaptor, "token LCURL");
 			RewriteRuleTokenStream rewriteRuleTokenStream5 = new RewriteRuleTokenStream(adaptor, "token RCURL");
-			RewriteRuleTokenStream rewriteRuleTokenStream6 = new RewriteRuleTokenStream(adaptor, "token 65");
+			RewriteRuleTokenStream rewriteRuleTokenStream6 = new RewriteRuleTokenStream(adaptor, "token 66");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream = new RewriteRuleSubtreeStream(adaptor, "rule obj");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream2 = new RewriteRuleSubtreeStream(adaptor, "rule operations");
 			RewriteRuleSubtreeStream rewriteRuleSubtreeStream3 = new RewriteRuleSubtreeStream(adaptor, "rule operation");
@@ -3036,7 +3140,7 @@ namespace AntlrTest
 			{
 				try
 				{
-					token = (IToken)Match(input, 66, Follow._66_in_if778);
+					token = (IToken)Match(input, 67, Follow._67_in_if803);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -3045,7 +3149,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream.Add(token);
 					}
-					token2 = (IToken)Match(input, 27, Follow._LPAREN_in_if780);
+					token2 = (IToken)Match(input, 27, Follow._LPAREN_in_if805);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -3054,7 +3158,7 @@ namespace AntlrTest
 					{
 						rewriteRuleTokenStream2.Add(token2);
 					}
-					PushFollow(Follow._obj_in_if782);
+					PushFollow(Follow._obj_in_if807);
 					astParserRuleReturnScope6 = obj();
 					PopFollow();
 					if (state.failed)
@@ -3065,7 +3169,7 @@ namespace AntlrTest
 					{
 						rewriteRuleSubtreeStream.Add(astParserRuleReturnScope6.Tree);
 					}
-					token3 = (IToken)Match(input, 40, Follow._RPAREN_in_if784);
+					token3 = (IToken)Match(input, 40, Follow._RPAREN_in_if809);
 					if (state.failed)
 					{
 						return astParserRuleReturnScope;
@@ -3085,13 +3189,13 @@ namespace AntlrTest
 								num = 1;
 								break;
 							case 20:
-							case 66:
+							case 67:
 								num = 2;
 								break;
 							default:
 								if (state.backtracking <= 0)
 								{
-									throw new NoViableAltException("", 15, 0, input, 1);
+									throw new NoViableAltException("", 16, 0, input, 1);
 								}
 								state.failed = true;
 								return astParserRuleReturnScope;
@@ -3103,7 +3207,7 @@ namespace AntlrTest
 						switch (num)
 						{
 						case 1:
-							token4 = (IToken)Match(input, 25, Follow._LCURL_in_if788);
+							token4 = (IToken)Match(input, 25, Follow._LCURL_in_if813);
 							if (state.failed)
 							{
 								return astParserRuleReturnScope;
@@ -3112,7 +3216,7 @@ namespace AntlrTest
 							{
 								rewriteRuleTokenStream4.Add(token4);
 							}
-							PushFollow(Follow._operations_in_if792);
+							PushFollow(Follow._operations_in_if817);
 							astParserRuleReturnScope2 = operations();
 							PopFollow();
 							if (state.failed)
@@ -3123,7 +3227,7 @@ namespace AntlrTest
 							{
 								rewriteRuleSubtreeStream2.Add(astParserRuleReturnScope2.Tree);
 							}
-							token5 = (IToken)Match(input, 39, Follow._RCURL_in_if794);
+							token5 = (IToken)Match(input, 39, Follow._RCURL_in_if819);
 							if (state.failed)
 							{
 								return astParserRuleReturnScope;
@@ -3134,7 +3238,7 @@ namespace AntlrTest
 							}
 							break;
 						case 2:
-							PushFollow(Follow._operation_in_if801);
+							PushFollow(Follow._operation_in_if826);
 							astParserRuleReturnScope3 = operation();
 							PopFollow();
 							if (state.failed)
@@ -3156,10 +3260,10 @@ namespace AntlrTest
 					{
 						try
 						{
-							if (input.LA(1) == 65)
+							if (input.LA(1) == 66)
 							{
 								input.LA(2);
-								if (EvaluatePredicate(synpred36_bgitest_fragment))
+								if (EvaluatePredicate(synpred38_bgitest_fragment))
 								{
 									num2 = 1;
 								}
@@ -3170,7 +3274,7 @@ namespace AntlrTest
 						}
 						if (num2 == 1)
 						{
-							token6 = (IToken)Match(input, 65, Follow._65_in_if805);
+							token6 = (IToken)Match(input, 66, Follow._66_in_if830);
 							if (state.failed)
 							{
 								return astParserRuleReturnScope;
@@ -3190,13 +3294,13 @@ namespace AntlrTest
 										num3 = 1;
 										break;
 									case 20:
-									case 66:
+									case 67:
 										num3 = 2;
 										break;
 									default:
 										if (state.backtracking <= 0)
 										{
-											throw new NoViableAltException("", 16, 0, input, 1);
+											throw new NoViableAltException("", 17, 0, input, 1);
 										}
 										state.failed = true;
 										return astParserRuleReturnScope;
@@ -3208,7 +3312,7 @@ namespace AntlrTest
 								switch (num3)
 								{
 								case 1:
-									token7 = (IToken)Match(input, 25, Follow._LCURL_in_if809);
+									token7 = (IToken)Match(input, 25, Follow._LCURL_in_if834);
 									if (state.failed)
 									{
 										return astParserRuleReturnScope;
@@ -3217,7 +3321,7 @@ namespace AntlrTest
 									{
 										rewriteRuleTokenStream4.Add(token7);
 									}
-									PushFollow(Follow._operations_in_if813);
+									PushFollow(Follow._operations_in_if838);
 									astParserRuleReturnScope4 = operations();
 									PopFollow();
 									if (state.failed)
@@ -3228,7 +3332,7 @@ namespace AntlrTest
 									{
 										rewriteRuleSubtreeStream2.Add(astParserRuleReturnScope4.Tree);
 									}
-									token8 = (IToken)Match(input, 39, Follow._RCURL_in_if815);
+									token8 = (IToken)Match(input, 39, Follow._RCURL_in_if840);
 									if (state.failed)
 									{
 										return astParserRuleReturnScope;
@@ -3239,7 +3343,7 @@ namespace AntlrTest
 									}
 									break;
 								case 2:
-									PushFollow(Follow._operation_in_if822);
+									PushFollow(Follow._operation_in_if847);
 									astParserRuleReturnScope5 = operation();
 									PopFollow();
 									if (state.failed)
@@ -3331,7 +3435,7 @@ namespace AntlrTest
 		{
 			try
 			{
-				PushFollow(Follow._operations_in_synpred3_bgitest196);
+				PushFollow(Follow._operations_in_synpred3_bgitest200);
 				operations();
 				PopFollow();
 				_ = state.failed;
@@ -3341,11 +3445,11 @@ namespace AntlrTest
 			}
 		}
 
-		private void synpred8_bgitest_fragment()
+		private void synpred9_bgitest_fragment()
 		{
 			try
 			{
-				PushFollow(Follow._parameters_in_synpred8_bgitest302);
+				PushFollow(Follow._parameters_in_synpred9_bgitest316);
 				parameters();
 				PopFollow();
 				_ = state.failed;
@@ -3355,11 +3459,11 @@ namespace AntlrTest
 			}
 		}
 
-		private void synpred13_bgitest_fragment()
+		private void synpred14_bgitest_fragment()
 		{
 			try
 			{
-				PushFollow(Follow._op_compare_in_synpred13_bgitest439);
+				PushFollow(Follow._op_compare_in_synpred14_bgitest453);
 				op_compare();
 				PopFollow();
 				_ = state.failed;
@@ -3369,11 +3473,11 @@ namespace AntlrTest
 			}
 		}
 
-		private void synpred36_bgitest_fragment()
+		private void synpred38_bgitest_fragment()
 		{
 			try
 			{
-				Match(input, 65, Follow._65_in_synpred36_bgitest805);
+				Match(input, 66, Follow._66_in_synpred38_bgitest830);
 				if (!state.failed)
 				{
 					int num = 2;
@@ -3387,7 +3491,7 @@ namespace AntlrTest
 								num = 1;
 								break;
 							case 20:
-							case 66:
+							case 67:
 								num = 2;
 								break;
 							default:
@@ -3396,7 +3500,7 @@ namespace AntlrTest
 									state.failed = true;
 									return;
 								}
-								throw new NoViableAltException("", 19, 0, input, 1);
+								throw new NoViableAltException("", 20, 0, input, 1);
 							}
 						}
 						finally
@@ -3405,15 +3509,15 @@ namespace AntlrTest
 						switch (num)
 						{
 						case 1:
-							Match(input, 25, Follow._LCURL_in_synpred36_bgitest809);
+							Match(input, 25, Follow._LCURL_in_synpred38_bgitest834);
 							if (!state.failed)
 							{
-								PushFollow(Follow._operations_in_synpred36_bgitest813);
+								PushFollow(Follow._operations_in_synpred38_bgitest838);
 								operations();
 								PopFollow();
 								if (!state.failed)
 								{
-									Match(input, 39, Follow._RCURL_in_synpred36_bgitest815);
+									Match(input, 39, Follow._RCURL_in_synpred38_bgitest840);
 									if (!state.failed)
 									{
 									}
@@ -3421,7 +3525,7 @@ namespace AntlrTest
 							}
 							break;
 						case 2:
-							PushFollow(Follow._operation_in_synpred36_bgitest822);
+							PushFollow(Follow._operation_in_synpred38_bgitest847);
 							operation();
 							PopFollow();
 							_ = state.failed;
