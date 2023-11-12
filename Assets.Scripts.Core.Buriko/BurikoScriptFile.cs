@@ -1131,7 +1131,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				priority = layer;
 			}
-			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(num);
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;

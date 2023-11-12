@@ -41,7 +41,7 @@ namespace Assets.Scripts.Core.Scene
 			meshRenderer = base.gameObject.AddComponent<MeshRenderer>();
 			material = new Material(Shader.Find("MGShader/LayerShader"));
 			meshRenderer.material = material;
-			meshFilter.mesh = MGHelper.CreateMesh(640, 480, LayerAlignment.AlignCenter);
+			meshFilter.mesh = MGHelper.CreateMesh(640, 480, LayerAlignment.AlignCenter, false, 0);
 			renderTexture = new RenderTexture(size.x, size.y, 32);
 			material.SetTexture("_Primary", renderTexture);
 			player = base.gameObject.AddComponent<VideoPlayer>();

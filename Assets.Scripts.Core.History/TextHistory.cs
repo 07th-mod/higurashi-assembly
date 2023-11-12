@@ -101,7 +101,7 @@ namespace Assets.Scripts.Core.History
 			{
 				japanese2 = string.Format(GameSystem.Instance.TextController.NameHistoryFormat, namejp) + japanese;
 			}
-			last = new HistoryLine(english2, japanese2, null);
+			last = new HistoryLine(english2, japanese2);
 			if (lastVoice.Count > 0)
 			{
 				last.AddVoiceFile(lastVoice);
