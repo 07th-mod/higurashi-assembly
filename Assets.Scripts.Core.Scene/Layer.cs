@@ -417,7 +417,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
+		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking, Action<Texture2D> afterLayerUpdated)
 		{
 			material.shader = shaderMasked;
 			SetPrimaryTexture(textureName);
@@ -470,6 +470,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				GameSystem.Instance.AddWait(new Wait(wait, WaitTypes.WaitForMove, FinishAll));
 			}
+			afterLayerUpdated?.Invoke(primary);
 		}
 
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking)
