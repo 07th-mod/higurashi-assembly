@@ -1,4 +1,6 @@
 using Assets.Scripts.Core.AssetManagement;
+using MOD.Scripts.Core;
+using MOD.Scripts.Core.Scene;
 using System;
 using System.Collections;
 using System.IO;
@@ -77,6 +79,19 @@ namespace Assets.Scripts.Core.Scene
 
 		private int lastHeight;
 
+		private IEnumerator MODLipSyncCoroutine;
+
+		public Scene MODActiveScene => GetActiveScene();
+
+		private float expression2Threshold = .7f;
+		private float expression1Threshold = .3f;
+		private bool forceComputedLipsync;
+
+		static SceneController()
+		{
+			UpperLayerRange = 32;
+		}
+
 		public Layer GetIfInUse(int id)
 		{
 			if (layers[id] != null && !LayerPool.IsInPool(layers[id].gameObject) && layers[id].IsInUse)
@@ -121,6 +136,7 @@ namespace Assets.Scripts.Core.Scene
 			layer.name = "Layer " + id;
 			layer.IsPersistent = false;
 			layer.activeScene = activeScene;
+			layer.LayerID = id;
 			layers[id] = layer;
 			return layer;
 		}
@@ -242,8 +258,12 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdate)
 		{
+			if (MODSkipImage(textureName))
+			{
+				return;
+			}
 			Layer layer2 = GetLayer(layer);
 			while (layer2.FadingOut)
 			{
@@ -274,12 +294,19 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.ExecuteActions();
 		}
 
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshot(layer, textureName, x, y, z, oldx, oldy, oldz, move, priority, type, wait, isblocking, null);
+		}
+
 		public void ChangeBustshot(int layer, string textureName, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			if (!layer2.IsInUse)
 			{
 				Debug.LogWarning("Attempting to call ChangeBustshot on layer " + layer + " which is not in use! Attempting to change bustshot to : " + textureName);
+				// TODO: is this always called? Remove the below line if unnecessary (added by doddler)
 				DebugLayerInfo();
 			}
 			layer2.CrossfadeLayer(textureName, wait, isblocking);
@@ -288,6 +315,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ChangeBustshotWithFiltering(int layer, string textureName, string maskName, int style, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			if (!layer2.IsInUse)
 			{
@@ -300,6 +328,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeBustshotWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			while (layer2.FadingOut)
 			{
@@ -310,8 +339,9 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.ExecuteActions();
 		}
 
-		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			while (layer2.FadingOut)
 			{
@@ -335,7 +365,7 @@ namespace Assets.Scripts.Core.Scene
 				forceSize = new Vector2(overridew, overrideh);
 			}
 			iTween.Stop(layer2.gameObject);
-			layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, forceSize, isBustshot: true, type, wait, isblocking);
+			layer2.DrawLayerWithMask(textureName, mask, oldx, oldy, origin, forceSize, isBustshot: true, type, wait, isblocking, afterLayerUpdated);
 			layer2.SetPriority(priority);
 			if (move)
 			{
@@ -352,8 +382,14 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.ExecuteActions();
 		}
 
+		public void DrawBustshotWithFiltering(int layer, string textureName, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking)
+		{
+			DrawBustshotWithFiltering(layer, textureName, mask, x, y, z, originx, originy, overridew, overrideh, oldx, oldy, oldz, move, priority, type, wait, isblocking, afterLayerUpdated: null);
+		}
+
 		public void MoveBustshot(int layer, string textureName, int x, int y, int z, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			int x2 = (int)layer2.transform.localPosition.x;
 			int y2 = (int)layer2.transform.localPosition.y;
@@ -378,11 +414,18 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeSpriteWithFiltering(int layer, string mask, int style, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			GetLayer(layer).FadeLayerWithMask(mask, style, wait, isblocking);
 		}
 
 		public void DrawSpriteWithFiltering(int layer, string texture, string mask, int x, int y, int overridew, int overrideh, int style, int priority, float wait, bool isBlocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			UpdateLayerMask(layer2, priority);
 			Vector2? origin = null;
@@ -397,15 +440,26 @@ namespace Assets.Scripts.Core.Scene
 
 		public void FadeSprite(int layer, float wait, bool isblocking)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer ifInUse = GetIfInUse(layer);
 			if (ifInUse != null)
 			{
 				ifInUse.FadeOutLayer(wait, isblocking);
 			}
+			else
+			{
+				MOD.Scripts.Core.MODLogger.Log($"WARNING: FadeSprite Failed as layer not in use", true);
+			}
 		}
 
 		public void DrawSprite(int layer, string texture, string mask, int x, int y, int z, int originx, int originy, int overridew, int overrideh, int angle, int style, float alpha, int priority, float wait, bool isblocking)
 		{
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Layer layer2 = GetLayer(layer);
 			if (layer2.IsInUse)
 			{
@@ -434,7 +488,13 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawBG(string texture, float wait, bool isblocking)
 		{
-			GetActiveScene().BackgroundLayer.DrawLayer(texture, 0, 0, 0, null, null, 0f, isBustshot: false, 0, wait, isblocking);
+			if (MODSkipImage(texture))
+			{
+				return;
+			}
+
+			Scene scene = GetActiveScene();
+			scene.BackgroundLayer.DrawLayer(texture, 0, 0, 0, null, null, 0f, /*isBustshot:*/ false, 0, wait, isblocking);
 		}
 
 		public void SetFaceToUpperLayer(bool isUpper)
@@ -495,6 +555,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawSceneWithMask(string backgroundfilename, string maskname, int style, float time)
 		{
+			if (MODSkipImage(backgroundfilename))
+			{
+				return;
+			}
+
 			SwapActiveScenes();
 			Scene s = GetActiveScene();
 			s.UpdateRange(0f);
@@ -513,6 +578,11 @@ namespace Assets.Scripts.Core.Scene
 
 		public void DrawScene(string backgroundfilename, float time)
 		{
+			if (MODSkipImage(backgroundfilename))
+			{
+				return;
+			}
+
 			SwapActiveScenes();
 			Scene s = GetActiveScene();
 			s.GetComponent<Camera>().enabled = false;
@@ -612,11 +682,14 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ShakeBustshot(int layer, float speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
 		{
-			Shaker.ShakeObject(GetLayer(layer).gameObject, speed, level, attenuation, vector, loopcount, isblocking);
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
+			Layer layer2 = GetLayer(layer);
+			Shaker.ShakeObject(layer2.gameObject, speed, level, attenuation, vector, loopcount, isblocking);
 		}
 
 		public void StopBustshotShake(int layer)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(layer);
 			Shaker component = GetLayer(layer).GetComponent<Shaker>();
 			if (component != null)
 			{
@@ -734,6 +807,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void HideAllLayers(float time)
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateIdsForAll();
 			for (int i = 0; i < layers.Length; i++)
 			{
 				if (layers[i] != null && layers[i].IsInUse)
@@ -922,6 +996,14 @@ namespace Assets.Scripts.Core.Scene
 				}
 				layer3.ReloadTexture();
 			}
+
+			// Force Unity to unload unused assets.
+			// Higuarshi will do this if you play the game normally each time ExecuteActions()
+			// is called (it appears as "Unloading 7 unused Assets to reduce memory usage." in the log).
+			// However, if you don't advance the text, it won't ever clean up.
+			// Eventually, you can run out of memory if this function is repeatedly
+			// called (for example, constantly toggling art styles)
+			Resources.UnloadUnusedAssets();
 		}
 
 		private Scene GetActiveScene()
@@ -935,6 +1017,7 @@ namespace Assets.Scripts.Core.Scene
 
 		private void SwapActiveScenes()
 		{
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateIdsForAll();
 			if (activeScene == 0)
 			{
 				activeScene = 1;
@@ -980,20 +1063,234 @@ namespace Assets.Scripts.Core.Scene
 			lastWidth = 0;
 		}
 
+		// In Hou+, possibly this function was updated (or decompiler resulted in different output)
+		// Just to be safe, I've used the Hou+ version of the function.
+		public void UpdateScreenSize() {
+			Vector2 screenSize = NGUITools.screenSize;
+			float num = screenSize.x / screenSize.y;
+			float num2 = GameSystem.Instance.AspectRatio * 480f;
+			float num3 = 480f;
+			float num4 = (num2 / num3 > num) ? ((float)Mathf.RoundToInt(num2 / num)) : num3;
+			float num5 = 2f / num4;
+			base.gameObject.transform.localScale = new Vector3(num5, num5, num5);
+			lastWidth = Screen.width;
+			lastHeight = Screen.height;
+		}
+
 		private void Update()
 		{
 			if (Screen.width != lastWidth || Screen.height != lastHeight)
 			{
-				Vector2 screenSize = NGUITools.screenSize;
-				float num = screenSize.x / screenSize.y;
-				float num2 = GameSystem.Instance.AspectRatio * 480f;
-				float num3 = 480f;
-				float num4 = (num2 / num3 > num) ? ((float)Mathf.RoundToInt(num2 / num)) : num3;
-				float num5 = 2f / num4;
-				base.gameObject.transform.localScale = new Vector3(num5, num5, num5);
-				lastWidth = Screen.width;
-				lastHeight = Screen.height;
+				UpdateScreenSize();
 			}
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		private IEnumerator MODBakedLipSync(string path, int character, ulong coroutineId, Texture2D exp2, Texture2D exp3, Texture2D exp4)
+		{
+			StreamReader streamReader = new StreamReader(path);
+			string text = streamReader.ReadLine();
+			string[] exparray = text.Split(',');
+			streamReader.Close();
+			for (int k = 0; k < exparray.Length; k++)
+			{
+				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId) || !MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
+				{
+					break;
+				}
+				if (exparray[k] == string.Empty)
+				{
+					exparray[k] = "0";
+				}
+				if (k > 1 && !exparray[k].Equals(exparray[k - 1]))
+				{
+					switch (exparray[k])
+					{
+						case "2":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp2, coroutineId);
+							break;
+						case "1":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
+							break;
+						case "0":
+							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+							break;
+					}
+				}
+				yield return (object)new WaitForSeconds(0.0666f);
+			}
+		}
+
+		private IEnumerator MODComputedLipSync(int character, int audiolayer, AudioClip audioClip, ulong coroutineId, Texture2D exp2, Texture2D exp3, Texture2D exp4)
+		{
+			const float CHUNK_LENGTH_SECONDS = .05f;
+
+			int frameRate = audioClip.frequency;
+			//NOTE: Unity calls a "sample" what is usually called a "frame". Frames contain multiple channel's worth of information for a given point in time.
+			int numFrames = audioClip.samples;
+			int samplesPerFrame = audioClip.channels;
+
+			int framesPerChunk = (int)(CHUNK_LENGTH_SECONDS * frameRate);
+			int samplesPerChunk = framesPerChunk * samplesPerFrame;
+
+			// If there is a leftover chunk (this happens if there is a remainder during the below division), it will be excluded/skipped.
+			int numChunks = numFrames / framesPerChunk;
+
+			bool voiceStartedPlaying = false;
+
+			float[] rawAudioData = new float[samplesPerChunk];
+
+			WaitForSeconds waitTime = new WaitForSeconds(CHUNK_LENGTH_SECONDS);
+
+			// This for loop condition shouldn't ever be met, it's just here
+			// to set some upper limit (~10x the expected number of loops) on the number of iterations
+			for (int chunk = 0; chunk < 10 * numChunks; chunk++)
+			{
+				// Forcibly stop the lipsync animation if it's not meant to be playing at this time?
+				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId) || !MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
+				{
+					break;
+				}
+
+				if (GameSystem.Instance.AudioController.IsVoicePlaying(audiolayer))
+				{
+					voiceStartedPlaying = true;
+
+					// If there is less than one chunk of audio left, we are finished.
+					int frameOffset = GameSystem.Instance.AudioController.GetPlayTimeSamples(audiolayer);
+					int framesLeft = numFrames - frameOffset;
+					if (framesLeft < framesPerChunk)
+					{
+						break;
+					}
+
+					// Get the chunk we are interested in
+					// Note: If the audio finishes playing before the coroutine finishes, then
+					// audioClip somehow becomes null. I've added handling here in case this happens,
+					// although the above "is audio playing" checks should above should stop this from happening.
+					try
+					{
+						if (audioClip == null)
+						{
+							break;
+						}
+						audioClip.GetData(rawAudioData, frameOffset);
+					}
+					catch (Exception)
+					{
+						break;
+					}
+
+					// Find the max value in the chunk, with some shortcuts
+					//  - We don't care about which channel the audio comes from, so just process every sample the same, even if it's a different channel
+					//  - We only check the positive maximum of the waveform (we don't need to check the negative maximum of the waveform for our application)
+					float max = 0;
+					foreach (float data in rawAudioData)
+					{
+						if (data > max)
+						{
+							max = data;
+						}
+					}
+
+					//Use the max to determine what mouth sprite should be displayed
+					if (max > expression2Threshold)
+					{
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp2, coroutineId);
+					}
+					else if (max > expression1Threshold)
+					{
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
+					}
+					else
+					{
+						MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+					}
+				}
+				else if (voiceStartedPlaying)
+				{
+					// If the voice previously was playing, but now has stopped playing, lipsync is finished.
+					// This happens if this coroutine resumes just after the audio finishes playing.
+					break;
+				}
+
+				// This delay sets the approximate rate at which the lipsync updates
+				// the exact delay time is not critical
+				yield return waitTime;
+			}
+		}
+
+		public IEnumerator MODDrawLipSync(int character, int audiolayer, string audiofile, AudioClip audioClip)
+		{
+			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
+
+			MODLipsyncCache.TextureGroup group = MODLipsyncCache.LoadOrUseCache(maybeBaseTexture: null, character);
+
+			Texture2D exp4 = group.baseTexture_0;
+			Texture2D exp3 = group.halfOpen_1;
+			Texture2D exp2 = group.fullOpen_2;
+
+			if (forceComputedLipsync)
+			{
+				yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
+			}
+			else // If the spectrum file doesn't exist, use the "computed lipsync" method
+			{
+				string str = audiofile.Replace(".ogg", ".txt");
+				string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
+				if (File.Exists(path))
+				{
+					yield return MODBakedLipSync(path, character, coroutineId, exp2, exp3, exp4);
+				}
+				else
+				{
+					yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
+				}
+			}
+
+			// Most of the time we want to reset the sprite back to the 'default' pose when lipsync finishes (even if the
+			// lipsync option is already 'disabled') to prevent having a character with their mouth stuck open.
+			//
+			// However, if artset is changed while lipsync in progress (for example to OG sprites), then we don't want to
+			// overwrite the OG sprite's texture with the Console texture.
+			if(AssetManager.Instance.CurrentArtsetIndex == 0)
+			{
+				MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
+			}
+		}
+
+		public void MODLipSyncStart(int character, int audiolayer, string audiofile, AudioClip audioClip)
+		{
+			MODLipSyncCoroutine = MODDrawLipSync(character, audiolayer, audiofile, audioClip);
+			StartCoroutine(MODLipSyncCoroutine);
+		}
+
+		private bool MODSkipImage(string backgroundfilename)
+		{
+			if(Buriko.BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() == 1 && backgroundfilename.Contains("scene/"))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		public void MODSetForceComputedLipsync(bool forceComputedLipsync) => this.forceComputedLipsync = forceComputedLipsync;
+		public bool MODGetForceComputedLipsync() => this.forceComputedLipsync;
+
+		public void MODSetExpressionThresholds(float threshold1, float threshold2)
+		{
+			this.expression1Threshold = threshold1;
+			this.expression2Threshold = threshold2;
+		}
+
+		public void MODGetExpressionThresholds(out float threshold1, out float threshold2)
+		{
+			threshold1 = this.expression1Threshold;
+			threshold2 = this.expression2Threshold;
 		}
 	}
 }

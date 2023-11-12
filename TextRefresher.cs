@@ -29,11 +29,20 @@ public class TextRefresher : MonoBehaviour
 		}
 		if (textMesh != null)
 		{
-			textMesh.text = (language ? English : Japanese);
-			return;
+			textMesh.text = ((!language) ? Japanese : English);
+			// Game places the main menu at y +2, which puts them a bit too high in their boxes.
+			if (System.Math.Abs(textMesh.transform.localPosition.y - 2f) < 0.1)
+			{
+				Vector3 localPosition = textMesh.transform.localPosition;
+				localPosition.y = 1f;
+				textMesh.transform.localPosition = localPosition;
+			}
 		}
-		label.text = (language ? English : Japanese);
-		label.UpdateNGUIText();
+		else
+		{
+			label.text = ((!language) ? Japanese : English);
+			label.UpdateNGUIText();
+		}
 	}
 
 	private void Start()
@@ -64,5 +73,11 @@ public class TextRefresher : MonoBehaviour
 			language = GameSystem.Instance.UseEnglishText;
 			UpdateText();
 		}
+	}
+
+	public void SetFontSize(float size)
+	{
+		if (textMesh == null) { return; }
+		textMesh.fontSize = size;
 	}
 }

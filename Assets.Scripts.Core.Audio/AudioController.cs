@@ -1,3 +1,6 @@
+using MOD.Scripts.Core;
+using MOD.Scripts.Core.Audio;
+using MOD.Scripts.Core.TextWindow;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System.Collections.Generic;
@@ -82,9 +85,7 @@ namespace Assets.Scripts.Core.Audio
 				channelDictionary.Add(num, audioLayerUnity4);
 				num++;
 			}
-			AudioConfiguration configuration = AudioSettings.GetConfiguration();
-			configuration.sampleRate = 44100;
-			AudioSettings.Reset(configuration);
+			AudioSettings.outputSampleRate = 44100;
 		}
 
 		public void SerializeCurrentAudio(MemoryStream ms)
@@ -207,6 +208,15 @@ namespace Assets.Scripts.Core.Audio
 			return channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)].GetRemainingPlayTime();
 		}
 
+		/// <summary>
+		/// This gets the number of audio frames played so far on a particular audio channel (Unity calls these "samples")
+		/// </summary>
+		public int GetPlayTimeSamples(int channel)
+		{
+			AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			return audioLayerUnity.GetPlayTimeSamples();
+		}
+
 		public void ChangeVolumeOfBGM(int channel, float volume, float time)
 		{
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
@@ -223,8 +233,12 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		public void FadeOutBGM(int channel, int time, bool waitForFade)
+		public void FadeOutBGM(int channel, int time, bool waitForFade, bool noBGMTracking = false)
 		{
+			if (!noBGMTracking)
+			{
+				MODAudioTracking.Instance.ForgetLastBGM(channel);
+			}
 			float num = (float)time / 1000f;
 			int channelByTypeChannel = GetChannelByTypeChannel(AudioType.BGM, channel);
 			AudioLayerUnity audioLayerUnity = channelDictionary[channelByTypeChannel];
@@ -239,9 +253,14 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		public void StopBGM(int channel)
+		public void StopBGM(int channel, bool noBGMTracking = false)
 		{
-			channelDictionary[channel].StopAudio();
+			if (!noBGMTracking)
+			{
+				MODAudioTracking.Instance.ForgetLastBGM(channel);
+			}
+			AudioLayerUnity audioLayerUnity = channelDictionary[channel];
+			audioLayerUnity.StopAudio();
 			if (currentAudio[AudioType.BGM].ContainsKey(channel))
 			{
 				currentAudio[AudioType.BGM].Remove(channel);
@@ -252,6 +271,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = channelstart; i <= channelend; i++)
 			{
+				MODAudioTracking.Instance.ForgetLastBGM(i);
 				FadeOutBGM(i, time, waitForFade);
 			}
 		}
@@ -285,28 +305,66 @@ namespace Assets.Scripts.Core.Audio
 
 		public void PlayVoice(string filename, int channel, float volume)
 		{
-			filename.Substring(0, 4);
-			if (0 == 0)
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			if (currentAudio[AudioType.Voice].ContainsKey(channel))
 			{
-				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
-				if (currentAudio[AudioType.Voice].ContainsKey(channel))
+				currentAudio[AudioType.Voice].Remove(channel);
+			}
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename, channel));
+			if (audio.IsPlaying())
+			{
+				audio.StopAudio();
+			}
+			audio.PlayAudio(filename, AudioType.Voice, volume);
+			if (GameSystem.Instance.IsAuto)
+			{
+				audio.OnLoadCallback(delegate
 				{
-					currentAudio[AudioType.Voice].Remove(channel);
+					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
+				});
+			}
+		}
+
+		private void PlayVoices(List<List<AudioInfo>> voices, int index)
+		{
+			if (index >= voices.Count)
+			{
+				return;
+			}
+			List<AudioInfo> voiceSet = voices[index];
+			var doneCount = 0;
+			foreach (AudioInfo voice in voiceSet)
+			{
+				AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, voice.Channel)];
+				MODTextController.MODCurrentVoiceLayerDetect = voice.Channel;
+				if (currentAudio[AudioType.Voice].ContainsKey(voice.Channel))
+				{
+					currentAudio[AudioType.Voice].Remove(voice.Channel);
 				}
-				currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename));
+				currentAudio[AudioType.Voice].Add(voice.Channel, voice);
 				if (audio.IsPlaying())
 				{
 					audio.StopAudio();
 				}
-				audio.PlayAudio(filename, AudioType.Voice, volume);
-				if (GameSystem.Instance.IsAuto)
+				audio.PlayAudio(voice.Filename, AudioType.Voice, voice.Volume);
+				audio.RegisterCallback(delegate
 				{
-					audio.OnLoadCallback(delegate
+					doneCount += 1;
+					if (doneCount == voiceSet.Count)
 					{
-						GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
-					});
-				}
+						PlayVoices(voices, index + 1);
+					}
+				});
 			}
+		}
+
+		/// <summary>
+		/// Plays multiple voices in parallel/series
+		/// </summary>
+		/// <param name="voices">The voices to play.  The outer array is played in series while inner arrays are played in parallel</param>
+		public void PlayVoices(List<List<AudioInfo>> voices)
+		{
+			PlayVoices(voices, 0);
 		}
 
 		public void StopVoice(int channel)
@@ -342,6 +400,7 @@ namespace Assets.Scripts.Core.Audio
 		{
 			for (int i = 0; i < 6; i++)
 			{
+				MODAudioTracking.Instance.ForgetLastBGM(i);
 				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
 				if (audioLayerUnity.IsPlaying())
 				{
@@ -374,7 +433,7 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
-		public void PlayAudio(string filename, AudioType type, int channel, float volume, float fadeintime = 0f)
+		public void PlayAudio(string filename, AudioType type, int channel, float volume, float fadeintime = 0f, bool noBGMTracking = false)
 		{
 			float startvolume = volume;
 			if (fadeintime > 0f)
@@ -395,11 +454,16 @@ namespace Assets.Scripts.Core.Audio
 			bool loop = type == AudioType.BGM;
 			if (type == AudioType.BGM)
 			{
+				if (!noBGMTracking)
+				{
+					MODAudioTracking.Instance.SaveLastBGM(new AudioInfo(volume, filename, channel));
+				}
+
 				if (currentAudio[AudioType.BGM].ContainsKey(channel))
 				{
 					currentAudio[AudioType.BGM].Remove(channel);
 				}
-				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename));
+				currentAudio[AudioType.BGM].Add(channel, new AudioInfo(volume, filename, channel));
 			}
 			audioLayerUnity.PlayAudio(filename, type, startvolume, loop);
 			if (fadeintime > 0.05f)
@@ -489,6 +553,53 @@ namespace Assets.Scripts.Core.Audio
 			{
 				channelDictionary[GetChannelByTypeChannel(AudioType.System, l)].SetBaseVolume(SystemVolume * GlobalVolume);
 			}
+		}
+
+		public bool IsSEPlaying(int channel)
+		{
+			return channelDictionary[GetChannelByTypeChannel(AudioType.SE, channel)].IsPlaying();
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public void MODPlayVoiceLS(string filename, int channel, float volume, int character)
+		{
+			MODTextController.MODCurrentVoiceLayerDetect = channel;
+			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
+			if (currentAudio[AudioType.Voice].ContainsKey(channel))
+			{
+				currentAudio[AudioType.Voice].Remove(channel);
+			}
+			currentAudio[AudioType.Voice].Add(channel, new AudioInfo(volume, filename, channel));
+			if (audio.IsPlaying())
+			{
+				audio.StopAudio();
+			}
+
+			// Load the audio to be played, then play it on a coroutine.
+			// Once the audio is loaded (but before it starts playing), start the lipsync coroutine
+			audio.PlayAudio(filename, AudioType.Voice, volume, onAudioLoaded: (string audioFileName, AudioType audioType, AudioClip audioClip) =>
+			{
+				if (MODSystem.instance.modSceneController.MODLipSyncBoolCheck(character))
+				{
+					GameSystem.Instance.SceneController.MODLipSyncStart(character, channel, filename, audioClip);
+				}
+			});
+
+			if (GameSystem.Instance.IsAuto)
+			{
+				audio.OnLoadCallback(delegate
+				{
+					GameSystem.Instance.AddWait(new Wait(audio.GetRemainingPlayTime(), WaitTypes.WaitForVoice, null));
+				});
+			}
+		}
+
+		public Dictionary<int, AudioInfo> GetCurrrentBGM()
+		{
+			return currentAudio[AudioType.BGM];
 		}
 	}
 }

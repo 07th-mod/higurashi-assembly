@@ -1,6 +1,8 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Interfaces;
+using MOD.Scripts.Core.Audio;
+using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +30,8 @@ namespace Assets.Scripts.Core.Buriko
 		private bool hasSnapshot;
 
 		private readonly string[] tempSnapshotText = new string[2];
+
+		public bool FlowWasReached { get; private set; }
 
 		public static BurikoScriptSystem Instance
 		{
@@ -97,10 +101,12 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
-			if (Application.isEditor)
+			if(scriptname == "flow")
 			{
-				Debug.Log($"{currentScript.Filename}: calling script {scriptname} (block {blockname})");
+				FlowWasReached = true;
 			}
+
+			Logger.Log($"{currentScript.Filename}: calling script {scriptname} (block {blockname})");
 			callStack.Push(new BurikoStackEntry(currentScript, currentScript.Position, currentScript.LineNum));
 			scriptname = scriptname.ToLower();
 			if (!scriptFiles.TryGetValue(scriptname + ".mg", out currentScript))
@@ -411,6 +417,8 @@ namespace Assets.Scripts.Core.Buriko
 						currentScript.JumpToLineNum(linenum2);
 						memoryManager.LoadMemory(memoryStream);
 						AudioController.Instance.DeSerializeCurrentAudio(memoryStream);
+						// Restoring mod audio state done here to avoid changes being overwritten by above DeSerializeCurrentAudio() call
+						MODAudioTracking.Instance.RestoreState();
 						GameSystem.Instance.SceneController.DeSerializeScene(memoryStream);
 						GameSystem.Instance.ForceReturnNormalState();
 						GameSystem.Instance.CloseChoiceIfExists();
@@ -420,12 +428,16 @@ namespace Assets.Scripts.Core.Buriko
 						GameSystem.Instance.CanSkip = true;
 						GameSystem.Instance.CanInput = true;
 						GameSystem.Instance.CanSave = true;
-						int num3 = GetFlag("LTextFade");
-						if (saveInfoInSlot.Time < new DateTime(2022, 5, 1))
+						int flag2 = GetFlag("LTextFade");
+						GameSystem.Instance.TextController.SetTextFade(flag2 == 1);
+						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 && BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() == 2 && BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 0)
 						{
-							num3 = 1;
+							MODActions.DisableNVLModeINADVMode();
 						}
-						GameSystem.Instance.TextController.SetTextFade(num3 == 1);
+						if (BurikoMemory.Instance.GetGlobalFlag("GADVMode").IntValue() == 1 && BurikoMemory.Instance.GetGlobalFlag("GLinemodeSp").IntValue() == 0 && BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
+						{
+							MODActions.EnableNVLModeINADVMode();
+						}
 					}
 				}
 			}

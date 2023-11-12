@@ -1,6 +1,8 @@
-using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko;
+using Assets.Scripts.Core.Audio;
+using MOD.Scripts.Core;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Core.State
 {
@@ -29,6 +31,8 @@ namespace Assets.Scripts.Core.State
 		{
 		}
 
+		// NOTE: Returning "false" from this function prevents the game from advancing!
+		// See GameSystem.Update() in  for details.
 		public bool InputHandler()
 		{
 			if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
@@ -47,6 +51,12 @@ namespace Assets.Scripts.Core.State
 			{
 				gameSystem.IsSkipping = false;
 				gameSystem.IsForceSkip = false;
+			}
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				var voices = gameSystem.TextHistory.LatestVoice;
+				AudioController.Instance.PlayVoices(voices);
+				return false;
 			}
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
@@ -87,6 +97,8 @@ namespace Assets.Scripts.Core.State
 				}
 				return false;
 			}
+
+			// Right click or ESC key toggles the menu
 			if ((Input.GetMouseButtonDown(1) && gameSystem.IsInWindowBounds) || Input.GetKeyDown(KeyCode.Escape))
 			{
 				if (!gameSystem.MessageBoxVisible && gameSystem.GameState == GameState.Normal)
@@ -102,6 +114,8 @@ namespace Assets.Scripts.Core.State
 					}
 					return false;
 				}
+				gameSystem.IsSkipping = false;
+				gameSystem.IsForceSkip = false;
 				if (gameSystem.RightClickMenu)
 				{
 					gameSystem.SwitchToRightClickMenu();
@@ -111,7 +125,43 @@ namespace Assets.Scripts.Core.State
 					gameSystem.SwitchToHiddenWindow2();
 				}
 				return false;
+
 			}
+
+			// Quicksave
+			if (Input.GetKeyDown(KeyCode.F5))
+			{
+				if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
+				{
+					return false;
+				}
+				if (!gameSystem.HasWaitOfType(WaitTypes.WaitForInput))
+				{
+					return false;
+				}
+				if (!gameSystem.CanSave)
+				{
+					return false;
+				}
+				BurikoScriptSystem.Instance.SaveQuickSave();
+				GameSystem.Instance.AudioController.PlaySystemSound("switchsound/enable.ogg");
+			}
+
+			// Quickload
+			if (Input.GetKeyDown(KeyCode.F7))
+			{
+				if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
+				{
+					return false;
+				}
+				if (!gameSystem.HasWaitOfType(WaitTypes.WaitForInput))
+				{
+					return false;
+				}
+				BurikoScriptSystem.Instance.LoadQuickSave();
+			}
+
+			// Auto-Mode
 			if (Input.GetKeyDown(KeyCode.A))
 			{
 				gameSystem.IsAuto = !gameSystem.IsAuto;
@@ -124,28 +174,34 @@ namespace Assets.Scripts.Core.State
 					gameSystem.AddWait(new Wait(0f, WaitTypes.WaitForInput, null));
 				}
 			}
+
+			// Skip
 			if (Input.GetKeyDown(KeyCode.S))
 			{
 				gameSystem.IsSkipping = !gameSystem.IsSkipping;
 			}
+
+			// Fullscreen
 			if (Input.GetKeyDown(KeyCode.F))
 			{
-				if (Screen.fullScreen)
+				if (GameSystem.Instance.IsFullscreen)
 				{
-					int num = PlayerPrefs.GetInt("width");
-					int num2 = PlayerPrefs.GetInt("height");
-					if (num == 0 || num2 == 0)
+					int num14 = PlayerPrefs.GetInt("width");
+					int num15 = PlayerPrefs.GetInt("height");
+					if (num14 == 0 || num15 == 0)
 					{
-						num = 640;
-						num2 = 480;
+						num14 = 640;
+						num15 = 480;
 					}
-					Screen.SetResolution(num, num2, fullscreen: false);
+					GameSystem.Instance.DeFullscreen(width: num14, height: num15);
 				}
 				else
 				{
 					GameSystem.Instance.GoFullscreen();
 				}
 			}
+
+			// Toggle Language
 			if (Input.GetKeyDown(KeyCode.L))
 			{
 				if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
@@ -164,20 +220,8 @@ namespace Assets.Scripts.Core.State
 					BurikoMemory.Instance.SetGlobalFlag("GLanguage", val);
 				}
 			}
-			if (Input.GetKeyDown(KeyCode.P))
-			{
-				if (!gameSystem.MessageBoxVisible || gameSystem.IsAuto || gameSystem.IsSkipping || gameSystem.IsForceSkip)
-				{
-					return false;
-				}
-				if (!gameSystem.HasWaitOfType(WaitTypes.WaitForInput))
-				{
-					return false;
-				}
-				AssetManager.Instance.UseNewArt = !AssetManager.Instance.UseNewArt;
-				BurikoMemory.Instance.SetGlobalFlag("GArtStyle", AssetManager.Instance.UseNewArt ? 1 : 0);
-				GameSystem.Instance.SceneController.ReloadAllImages();
-			}
+
+			// Returning true here allows the game to continue
 			return true;
 		}
 

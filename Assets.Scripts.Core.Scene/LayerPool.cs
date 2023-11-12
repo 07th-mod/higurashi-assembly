@@ -35,6 +35,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ReturnLayer(Layer layer)
 		{
+			layer.LayerID = null;
 			GameObject gameObject = layer.gameObject;
 			if (!layerObjList.Contains(gameObject))
 			{
@@ -52,11 +53,12 @@ namespace Assets.Scripts.Core.Scene
 				layerList.Push(gameObject);
 				layerObjList.Add(gameObject);
 			}
-		}
-
-		public bool IsInPool(GameObject layer)
-		{
-			return layerObjList.Exists((GameObject a) => a == layer);
+			else
+			{
+				// NOTE: In Hou+, Doddler added the same fix that we previously had, (with some extra stuff),
+				// so I have used his code exactly (above), but added the below log message if a layer gets returned twice
+				MOD.Scripts.Core.MODLogger.Log("WARNING: Ignoring layer returned twice", true);
+			}
 		}
 
 		private void Initialize()

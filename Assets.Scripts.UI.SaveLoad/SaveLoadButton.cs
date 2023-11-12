@@ -21,6 +21,8 @@ namespace Assets.Scripts.UI.SaveLoad
 
 		private SaveLoadManager manager;
 
+		private static int needUIRefresh = 0;
+
 		private void OnClick()
 		{
 			if (gameSystem == null)
@@ -61,6 +63,7 @@ namespace Assets.Scripts.UI.SaveLoad
 						}
 						(gameSystem.GetStateObject() as StateChapterScreen)?.RequestLeaveImmediate();
 						GameSystem.Instance.ScriptSystem.LoadGame(slot);
+						needUIRefresh = 2;
 					});
 				}, null);
 				gameSystem.PushStateObject(state2);
@@ -160,6 +163,20 @@ namespace Assets.Scripts.UI.SaveLoad
 			if (time > 0f)
 			{
 				time -= Time.deltaTime;
+			}
+		}
+
+		public static void QuicksaveButtonFixerUpdate()
+		{
+			if (needUIRefresh == 1)
+			{
+				GameSystem.Instance.HideUIControls();
+				GameSystem.Instance.ShowUIControls();
+			}
+
+			if (needUIRefresh > 0)
+			{
+				needUIRefresh--;
 			}
 		}
 	}

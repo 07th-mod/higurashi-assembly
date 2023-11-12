@@ -11,51 +11,37 @@ namespace Assets.Scripts.UI.Config
 
 		private UIButton button;
 
+		private int Height()
+		{
+			// Old resolutions (which the assetbundle button widths are based on) were 640x480, 800x600, and 1024x768
+			// New resolutions are 1280x720, 1920x1080, and 2560x1440
+			switch (Width)
+			{
+				case 640:
+					return 720;
+				case 800:
+					return 1080;
+				case 1024:
+					return 1440;
+				default:
+					Debug.LogWarning("Found unexpected width button " + Width);
+					return Mathf.RoundToInt(Width / GameSystem.Instance.AspectRatio);
+			}
+		}
+
 		private void OnClick()
 		{
 			if (IsFullscreen)
 			{
 				GameSystem.Instance.GoFullscreen();
-				return;
 			}
-			switch (Width)
+			else
 			{
-			case 640:
-			{
-				if (Application.platform == RuntimePlatform.OSXPlayer)
-				{
-					Screen.fullScreen = false;
-				}
-				int num2 = Mathf.RoundToInt(480f * GameSystem.Instance.AspectRatio);
-				Screen.SetResolution(num2, 480, fullscreen: false);
-				PlayerPrefs.SetInt("width", num2);
-				PlayerPrefs.SetInt("height", 480);
-				break;
-			}
-			case 800:
-			{
-				if (Application.platform == RuntimePlatform.OSXPlayer)
-				{
-					Screen.fullScreen = false;
-				}
-				int num3 = Mathf.RoundToInt(600f * GameSystem.Instance.AspectRatio);
-				Screen.SetResolution(num3, 600, fullscreen: false);
-				PlayerPrefs.SetInt("width", num3);
-				PlayerPrefs.SetInt("height", 600);
-				break;
-			}
-			case 1024:
-			{
-				if (Application.platform == RuntimePlatform.OSXPlayer)
-				{
-					Screen.fullScreen = false;
-				}
-				int num = Mathf.RoundToInt(768f * GameSystem.Instance.AspectRatio);
-				Screen.SetResolution(num, 768, fullscreen: false);
-				PlayerPrefs.SetInt("width", num);
-				PlayerPrefs.SetInt("height", 768);
-				break;
-			}
+				int height = Height();
+				int width = Mathf.RoundToInt(height * GameSystem.Instance.AspectRatio);
+				GameSystem.Instance.DeFullscreen(width: width, height: height);
+				PlayerPrefs.SetInt("width", width);
+				PlayerPrefs.SetInt("height", height);
 			}
 		}
 
@@ -63,9 +49,9 @@ namespace Assets.Scripts.UI.Config
 		{
 			if (IsFullscreen)
 			{
-				return Screen.fullScreen;
+				return GameSystem.Instance.IsFullscreen;
 			}
-			return Width == Screen.width;
+			return Screen.height == Height();
 		}
 
 		private void Start()

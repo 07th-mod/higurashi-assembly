@@ -5,10 +5,16 @@ using Assets.Scripts.Core.Buriko.VarTypes;
 using Assets.Scripts.Core.Scene;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core;
+using MOD.Scripts.Core.Audio;
+using MOD.Scripts.Core.Scene;
+using MOD.Scripts.Core.State;
+using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Core.Buriko
@@ -480,15 +486,15 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetSpeedOfMessage()
 		{
 			SetOperationType("SetSpeedOfMessage");
-			bool num = ReadVariable().BoolValue();
-			int overrideTextSpeed = ReadVariable().IntValue();
-			if (!num)
+			bool flag = ReadVariable().BoolValue();
+			int num = ReadVariable().IntValue();
+			if (!flag)
 			{
 				gameSystem.TextController.OverrideTextSpeed = -1;
 			}
 			else
 			{
-				gameSystem.TextController.OverrideTextSpeed = overrideTextSpeed;
+				gameSystem.TextController.OverrideTextSpeed = 50 * (num / 100);
 			}
 			return BurikoVariable.Null;
 		}
@@ -541,15 +547,35 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
-		private BurikoVariable OperationPlayBGM()
+		private void PlayBGMCommon(out string filename, out int channel, out float volume, out float fadeInTime)
 		{
 			SetOperationType("PlayBGM");
-			int channel = ReadVariable().IntValue();
-			string filename = ReadVariable().StringValue() + ".ogg";
-			int num = ReadVariable().IntValue();
-			int num2 = ReadVariable().IntValue();
-			float volume = (float)num / 128f;
-			AudioController.Instance.PlayAudio(filename, Assets.Scripts.Core.Audio.AudioType.BGM, channel, volume, num2);
+			channel = ReadVariable().IntValue();
+			filename = ReadVariable().StringValue() + ".ogg";
+			volume = (float)ReadVariable().IntValue() / 128f;
+			fadeInTime = (float)ReadVariable().IntValue();
+		}
+
+		private BurikoVariable OperationPlayBGM()
+		{
+			PlayBGMCommon(out string filename, out int channel, out float volume, out float fadeInTime);
+			AudioController.Instance.PlayAudio(filename, Assets.Scripts.Core.Audio.AudioType.BGM, channel, volume, fadeInTime);
+			return BurikoVariable.Null;
+		}
+		private BurikoVariable OperationMODPlayBGM()
+		{
+			PlayBGMCommon(out string filename, out int channel, out float volume, out float fadeInTime);
+
+			// OperationMODPlayBGM accepts one extra argument - the GAltBGMflow setting where this bgm should be played
+			int targetBGMFlow = ReadVariable().IntValue();
+
+			MODAudioTracking.Instance.SaveLastAltBGM(targetBGMFlow, new AudioInfo(volume, filename, channel));
+
+			if(BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == targetBGMFlow)
+			{
+				AudioController.Instance.PlayAudio(filename, Assets.Scripts.Core.Audio.AudioType.BGM, channel, volume, fadeInTime, noBGMTracking: true);
+			}
+
 			return BurikoVariable.Null;
 		}
 
@@ -579,19 +605,45 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
-		private BurikoVariable OperationFadeOutBGM()
+		private void FadeBGMCommon(out int channel, out int time, out bool waitForFade)
 		{
 			SetOperationType("FadeOutBGM");
-			int channel = ReadVariable().IntValue();
-			int num = ReadVariable().IntValue();
-			bool waitForFade = ReadVariable().BoolValue();
-			if (gameSystem.IsSkipping || num == 0)
+			channel = ReadVariable().IntValue();
+			time = ReadVariable().IntValue();
+			waitForFade = ReadVariable().BoolValue();
+		}
+
+		private BurikoVariable OperationFadeOutBGM()
+		{
+			FadeBGMCommon(out int channel, out int time, out bool waitForFade);
+			if (gameSystem.IsSkipping)
 			{
 				AudioController.Instance.StopBGM(channel);
 			}
 			else
 			{
-				AudioController.Instance.FadeOutBGM(channel, num, waitForFade);
+				AudioController.Instance.FadeOutBGM(channel, time, waitForFade);
+			}
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODFadeOutBGM()
+		{
+			FadeBGMCommon(out int channel, out int time, out bool waitForFade);
+			int targetBGMFlow = ReadVariable().IntValue();
+
+			MODAudioTracking.Instance.ForgetLastAltBGM(targetBGMFlow, channel);
+
+			if (BurikoMemory.Instance.GetGlobalFlag("GAltBGMflow").IntValue() == targetBGMFlow)
+			{
+				if (gameSystem.IsSkipping)
+				{
+					AudioController.Instance.StopBGM(channel, noBGMTracking: true);
+				}
+				else
+				{
+					AudioController.Instance.FadeOutBGM(channel, time, waitForFade, noBGMTracking: true);
+				}
 			}
 			return BurikoVariable.Null;
 		}
@@ -641,6 +693,7 @@ namespace Assets.Scripts.Core.Buriko
 			int channel = ReadVariable().IntValue();
 			string filename = ReadVariable().StringValue() + ".ogg";
 			float volume = (float)ReadVariable().IntValue() / 128f;
+			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			AudioController.Instance.PlayVoice(filename, channel, volume);
 			return BurikoVariable.Null;
 		}
@@ -653,7 +706,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				return new BurikoVariable(0);
 			}
-			if (gameSystem.AudioController.IsVoicePlaying(channel))
+			if (gameSystem.AudioController.IsSEPlaying(channel))
 			{
 				float remainingSEPlayTime = gameSystem.AudioController.GetRemainingSEPlayTime(channel);
 				gameSystem.AddWait(new Wait(remainingSEPlayTime, WaitTypes.WaitForAudio, null));
@@ -695,7 +748,6 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			gameSystem.DisplayChoices(stringList, num);
 			gameSystem.ExecuteActions();
-			gameSystem.AddWait(new Wait(1f, WaitTypes.WaitForTime, null));
 			return null;
 		}
 
@@ -800,6 +852,10 @@ namespace Assets.Scripts.Core.Buriko
 			float speed = 1f;
 			int loopcount = 30;
 			int attenuation = 5;
+			if (GameSystem.Instance.IsAuto)
+			{
+				loopcount = 2;
+			}
 			gameSystem.SceneController.ShakeScene(speed, level, attenuation, vector, loopcount, isblocking: true);
 			return BurikoVariable.Null;
 		}
@@ -883,6 +939,8 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("DrawScene");
 			string texture = ReadVariable().StringValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
+			MODSystem.instance.modSceneController.MODLipSyncDisableAll();
+			MODSystem.instance.modTextureController.Initialize();
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -924,6 +982,8 @@ namespace Assets.Scripts.Core.Buriko
 			int style = ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
+			MODSystem.instance.modSceneController.MODLipSyncDisableAll();
+			MODSystem.instance.modTextureController.Initialize();
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -998,6 +1058,7 @@ namespace Assets.Scripts.Core.Buriko
 			string texture = ReadVariable().StringValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
+			MODSystem.instance.modSceneController.MODLipSyncDisableAll();
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1016,6 +1077,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("FadeScene");
 			float time = (float)ReadVariable().IntValue() / 1000f;
+			MODSystem.instance.modSceneController.MODLipSyncDisableAll();
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1032,6 +1094,7 @@ namespace Assets.Scripts.Core.Buriko
 			int style = ReadVariable().IntValue();
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
+			MODSystem.instance.modSceneController.MODLipSyncDisableAll();
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1068,6 +1131,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				priority = layer;
 			}
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(num);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1131,6 +1195,7 @@ namespace Assets.Scripts.Core.Buriko
 			int angle = ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			bool num = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1237,6 +1302,7 @@ namespace Assets.Scripts.Core.Buriko
 			int priority = ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			bool num = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1269,6 +1335,7 @@ namespace Assets.Scripts.Core.Buriko
 			ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			bool num = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1370,6 +1437,7 @@ namespace Assets.Scripts.Core.Buriko
 			int priority = ReadVariable().IntValue();
 			float wait = (float)ReadVariable().IntValue() / 1000f;
 			bool isblocking = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layNum);
 			if (gameSystem.IsSkipping)
 			{
 				wait = 0f;
@@ -1505,6 +1573,7 @@ namespace Assets.Scripts.Core.Buriko
 			int priority = ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			bool num = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1533,6 +1602,7 @@ namespace Assets.Scripts.Core.Buriko
 			int layer = ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			bool num = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -1562,6 +1632,7 @@ namespace Assets.Scripts.Core.Buriko
 			int style = ReadVariable().IntValue();
 			float time = (float)ReadVariable().IntValue() / 1000f;
 			bool num = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableCurrentLayer(layer);
 			if (gameSystem.IsSkipping)
 			{
 				time = 0f;
@@ -2104,6 +2175,7 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("FadeAllBustshots");
 			float wait = (float)ReadVariable().IntValue() / 1000f;
 			bool flag = ReadVariable().BoolValue();
+			MODSystem.instance.modSceneController.MODLipSyncDisableAll();
 			if (gameSystem.IsSkipping)
 			{
 				wait = 0f;
@@ -2452,8 +2524,8 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationSetNameFormat()
 		{
 			SetOperationType("SetNameFormat");
-			string nameFormat = ReadVariable().StringValue().Replace("\\n", "\n");
-			gameSystem.TextController.NameFormat = nameFormat;
+			string nameFormat = ReadVariable().StringValue();
+			gameSystem.TextController.SetNameFormat(nameFormat);
 			return BurikoVariable.Null;
 		}
 
@@ -2478,16 +2550,28 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("SetScreenAspect");
 			string s = ReadVariable().StringValue();
 			float newratio = 1f / float.Parse(s, CultureInfo.InvariantCulture);
+			gameSystem.SetDefaultAspect(newratio);
 			gameSystem.UpdateAspectRatio(newratio);
 			return BurikoVariable.Null;
 		}
 
+		// This has been modified so that we can save the 'default' UI position
 		private BurikoVariable OperationSetGuiPosition()
 		{
 			SetOperationType("SetGUIPosition");
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
-			gameSystem.MainUIController.UpdateGuiPosition(x, y);
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			mODMainUIController.WideGuiPositionLoad(x, y);
+			return BurikoVariable.Null;
+		}
+		private BurikoVariable OperationSetRyukishiGuiPosition()
+		{
+			SetOperationType("ModRyukishiGuiPositionLoad");
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			mODMainUIController.RyukishiGuiPositionLoad(x, y);
 			return BurikoVariable.Null;
 		}
 
@@ -2995,6 +3079,58 @@ namespace Assets.Scripts.Core.Buriko
 				return OperationOmakeScreenSection();
 			case BurikoOperations.DebugMessage:
 				return OperationDebugMessage();
+			case BurikoOperations.ModEnableNVLModeInADVMode:
+				return OperationMODenableNVLModeInADVMode();
+			case BurikoOperations.ModDisableNVLModeInADVMode:
+				return OperationMODdisableNVLModeInADVMode();
+			case BurikoOperations.ModADVModeSettingLoad:
+				return OperationMODADVModeSettingLoad();
+			case BurikoOperations.ModNVLModeSettingLoad:
+				return OperationMODNVLModeSettingLoad();
+			case BurikoOperations.ModNVLADVModeSettingLoad:
+				return OperationMODNVLADVModeSettingLoad();
+			case BurikoOperations.ModCallScriptSection:
+				return OperationMODCallScriptSection();
+			case BurikoOperations.ModDrawCharacter:
+				return OperationMODDrawCharacter();
+			case BurikoOperations.ModDrawCharacterWithFiltering:
+				return OperationMODDrawCharacterWithFiltering();
+			case BurikoOperations.ModPlayVoiceLS:
+				return OperationMODPlayVoiceLS();
+			case BurikoOperations.ModPlayMovie:
+				return OperationMODPlayMovie();
+			case BurikoOperations.ModSetConfigFontSize:
+				return OperationMODSetConfigFontSize();
+			case BurikoOperations.ModSetChapterJumpFontSize:
+				return OperationMODSetChapterJumpFontSize();
+			case BurikoOperations.ModSetHighestChapterFlag:
+				return OperationMODSetHighestChapterFlag();
+			case BurikoOperations.ModGetHighestChapterFlag:
+				return OperationMODGetHighestChapterFlag();
+			case BurikoOperations.ModSetMainFontOutlineWidth:
+				return OperationMODSetMainFontOutlineWidth();
+			case BurikoOperations.ModSetLayerFilter:
+				return OperationMODSetLayerFilter();
+			case BurikoOperations.ModAddArtset:
+				return OperationMODAddArtset();
+			case BurikoOperations.ModClearArtsets:
+				return OperationMODClearArtsets();
+			case BurikoOperations.ModRyukishiModeSettingLoad:
+				return OperationMODRyukishiModeSettingLoad();
+			case BurikoOperations.ModRyukishiSetGuiPosition:
+				return OperationSetRyukishiGuiPosition();
+			case BurikoOperations.ModPlayBGM:
+				return OperationMODPlayBGM();
+			case BurikoOperations.ModFadeOutBGM:
+				return OperationMODFadeOutBGM();
+			case BurikoOperations.ModAddBGMset:
+				return OperationMODAddBGMset();
+			case BurikoOperations.ModAddSEset:
+				return OperationMODAddSEset();
+			case BurikoOperations.ModAddAudioset:
+				return OperationMODAddAudioset();
+			case BurikoOperations.ModGenericCall:
+				return OperationMODGenericCall();
 			default:
 				ScriptError("Unhandled Operation : " + op);
 				return BurikoVariable.Null;
@@ -3005,7 +3141,10 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("Operation");
 			BurikoOperations op = (BurikoOperations)dataReader.ReadInt16();
+			var watch = System.Diagnostics.Stopwatch.StartNew();
 			ExecuteOperation(op);
+			watch.Stop();
+			MODUtility.FlagMonitorOnlyLog("Executed " + opType + " in " + watch.ElapsedMilliseconds + "ms");
 		}
 
 		private void CommandDeclaration()
@@ -3133,6 +3272,508 @@ namespace Assets.Scripts.Core.Buriko
 			string message2 = $"{Filename} ({LineNum}): {message}";
 			Logger.LogError(message2);
 			throw new Exception(message2);
+		}
+
+		private BurikoVariable OperationMODenableNVLModeInADVMode()
+		{
+			SetOperationType("ModEnableNVLModeInADVMode");
+			MODActions.EnableNVLModeINADVMode();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODdisableNVLModeInADVMode()
+		{
+			SetOperationType("ModDisableNVLModeInADVMode");
+			MODActions.DisableNVLModeINADVMode();
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODADVModeSettingLoad()
+		{
+			SetOperationType("ModADVModeSettingLoad");
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			string name = ReadVariable().StringValue();
+			int posx = ReadVariable().IntValue();
+			int posy = ReadVariable().IntValue();
+			int sizex = ReadVariable().IntValue();
+			int sizey = ReadVariable().IntValue();
+			int mleft = ReadVariable().IntValue();
+			int mtop = ReadVariable().IntValue();
+			int mright = ReadVariable().IntValue();
+			int mbottom = ReadVariable().IntValue();
+			int font = ReadVariable().IntValue();
+			int cspace = ReadVariable().IntValue();
+			int lspace = ReadVariable().IntValue();
+			int fsize = ReadVariable().IntValue();
+			mODMainUIController.ADVModeSettingLoad(name, posx, posy, sizex, sizey, mleft, mtop, mright, mbottom, font, cspace, lspace, fsize);
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODNVLModeSettingLoad()
+		{
+			SetOperationType("ModNVLModeSettingLoad");
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			string name = ReadVariable().StringValue();
+			int posx = ReadVariable().IntValue();
+			int posy = ReadVariable().IntValue();
+			int sizex = ReadVariable().IntValue();
+			int sizey = ReadVariable().IntValue();
+			int mleft = ReadVariable().IntValue();
+			int mtop = ReadVariable().IntValue();
+			int mright = ReadVariable().IntValue();
+			int mbottom = ReadVariable().IntValue();
+			int font = ReadVariable().IntValue();
+			int cspace = ReadVariable().IntValue();
+			int lspace = ReadVariable().IntValue();
+			int fsize = ReadVariable().IntValue();
+			mODMainUIController.NVLModeSettingLoad(name, posx, posy, sizex, sizey, mleft, mtop, mright, mbottom, font, cspace, lspace, fsize);
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODNVLADVModeSettingLoad()
+		{
+			SetOperationType("ModNVLADVModeSettingLoad");
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			string name = ReadVariable().StringValue();
+			int posx = ReadVariable().IntValue();
+			int posy = ReadVariable().IntValue();
+			int sizex = ReadVariable().IntValue();
+			int sizey = ReadVariable().IntValue();
+			int mleft = ReadVariable().IntValue();
+			int mtop = ReadVariable().IntValue();
+			int mright = ReadVariable().IntValue();
+			int mbottom = ReadVariable().IntValue();
+			int font = ReadVariable().IntValue();
+			int cspace = ReadVariable().IntValue();
+			int lspace = ReadVariable().IntValue();
+			int fsize = ReadVariable().IntValue();
+			mODMainUIController.NVLADVModeSettingLoad(name, posx, posy, sizex, sizey, mleft, mtop, mright, mbottom, font, cspace, lspace, fsize);
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODRyukishiModeSettingLoad()
+		{
+			SetOperationType("ModRyukishiModeSettingLoad");
+			MODMainUIController mODMainUIController = new MODMainUIController();
+			string name = ReadVariable().StringValue();
+			int posx = ReadVariable().IntValue();
+			int posy = ReadVariable().IntValue();
+			int sizex = ReadVariable().IntValue();
+			int sizey = ReadVariable().IntValue();
+			int mleft = ReadVariable().IntValue();
+			int mtop = ReadVariable().IntValue();
+			int mright = ReadVariable().IntValue();
+			int mbottom = ReadVariable().IntValue();
+			int font = ReadVariable().IntValue();
+			int cspace = ReadVariable().IntValue();
+			int lspace = ReadVariable().IntValue();
+			int fsize = ReadVariable().IntValue();
+			mODMainUIController.RyukishiModeSettingLoad(name, posx, posy, sizex, sizey, mleft, mtop, mright, mbottom, font, cspace, lspace, fsize);
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODCallScriptSection()
+		{
+			SetOperationType("ModCallScriptSection");
+			string scriptname = ReadVariable().StringValue();
+			string blockname = ReadVariable().StringValue();
+			scriptSystem.CallScript(scriptname, blockname);
+			return BurikoVariable.Null;
+		}
+
+		public void MODOnlyRecompile()
+		{
+		}
+
+		public BurikoVariable OperationMODDrawCharacter()
+		{
+			SetOperationType("ModDrawBustshot");
+			int num3 = ReadVariable().IntValue();
+			int character = ReadVariable().IntValue();
+			string textureName = ReadVariable().StringValue();
+			string str = ReadVariable().StringValue();
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			int z = ReadVariable().IntValue();
+			bool move = ReadVariable().BoolValue();
+			int oldx = ReadVariable().IntValue();
+			int oldy = ReadVariable().IntValue();
+			int oldz = ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			ReadVariable().IntValue();
+			int type = ReadVariable().IntValue();
+			int num2 = ReadVariable().IntValue();
+			float wait = (float)ReadVariable().IntValue() / 1000f;
+			bool flag = ReadVariable().BoolValue();
+			string textureName2 = textureName + "0";
+			string text = textureName + str;
+
+			x = MODRyukishiRevertSpritePosition(textureName, x);
+
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
+			if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
+			{
+				textureName2 = text;
+			}
+			if (num2 == 0)
+			{
+				num2 = num3;
+			}
+			GameSystem.Instance.RegisterAction(delegate
+			{
+				MODSystem.instance.modSceneController.MODLipSyncStoreValue(num3, character, textureName, x, y, z, type, num2);
+			});
+			if (gameSystem.IsSkipping)
+			{
+				wait = 0f;
+			}
+			MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
+			// For explanation of the MODLipsyncCacheUpdate callback, see the matching call in OperationMODDrawCharacterWithFiltering()
+			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D tex) => MODLipsyncCache.MODLipsyncCacheUpdate(tex, character));
+			if (flag)
+			{
+				gameSystem.ExecuteActions();
+			}
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODDrawCharacterWithFiltering()
+		{
+			SetOperationType("ModDrawCharacterWithFiltering");
+			int layer = ReadVariable().IntValue();
+			int character = ReadVariable().IntValue();
+			string textureName = ReadVariable().StringValue();
+			string str = ReadVariable().StringValue();
+			string mask = ReadVariable().StringValue();
+			ReadVariable().IntValue();
+			int x = ReadVariable().IntValue();
+			int y = ReadVariable().IntValue();
+			bool move = ReadVariable().BoolValue();
+			int oldx = ReadVariable().IntValue();
+			int oldy = ReadVariable().IntValue();
+			int oldz = ReadVariable().IntValue();
+			int z = ReadVariable().IntValue();
+			int originx = ReadVariable().IntValue();
+			int priority = ReadVariable().IntValue();
+			float wait = (float)ReadVariable().IntValue() / 1000f;
+			bool flag = ReadVariable().BoolValue();
+			string textureName2 = textureName + "0";
+			string text = textureName + str;
+
+			x = MODRyukishiRevertSpritePosition(textureName, x);
+
+			MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
+			if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
+			{
+				textureName2 = text;
+			}
+			if (priority == 0)
+			{
+				priority = layer;
+			}
+			gameSystem.RegisterAction(delegate
+			{
+				MODSystem.instance.modSceneController.MODLipSyncStoreValue(layer, character, textureName, x, y, z, 0, priority);
+			});
+			if (gameSystem.IsSkipping)
+			{
+				wait = 0f;
+			}
+			MODSystem.instance.modTextureController.StoreLayerTexture(layer, text);
+			// I had an issue where MODLipsyncCacheUpdate() was unable to access the sprite's base texture.
+			//
+			// This is due to chained use of RegisterAction() in DrawBustshotWithFiltering(),
+			// causing the sprite texture to be updated at some unknown time in the future.
+			//
+			// To fix this, I pass in a lambda/callback which will
+			// be executed after the layer has been updated with the new texture
+			// so the cache can grab the sprite's base texture
+			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag, afterLayerUpdated: (Texture2D tex) => MODLipsyncCache.MODLipsyncCacheUpdate(tex, character));
+			if (flag)
+			{
+				gameSystem.ExecuteActions();
+			}
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODPlayVoiceLS()
+		{
+			SetOperationType("ModPlayVoiceLS");
+			int channel = ReadVariable().IntValue();
+			int character = ReadVariable().IntValue();
+			string filename = ReadVariable().StringValue() + ".ogg";
+			float volume = (float)ReadVariable().IntValue() / 128f;
+			bool flag = ReadVariable().BoolValue();
+			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
+			if ((MODSystem.instance.modSceneController.MODLipSyncIsEnabled() && !gameSystem.IsSkipping) & flag)
+			{
+				MODSystem.instance.modSceneController.MODLipSyncPrepareVoice(character, channel);
+				AudioController.Instance.MODPlayVoiceLS(filename, channel, volume, character);
+			}
+			else
+			{
+				AudioController.Instance.PlayVoice(filename, channel, volume);
+			}
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODPlayMovie()
+		{
+			SetOperationType("MODPlayMovie");
+			string moviename = ReadVariable().StringValue();
+			GameSystem.Instance.PushStateObject(new StateMovie(moviename));
+			gameSystem.ExecuteActions();
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetConfigFontSize()
+		{
+			SetOperationType("MODSetConfigFontSize");
+			int size = ReadVariable().IntValue();
+			GameSystem.Instance.ConfigMenuFontSize = size;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetChapterJumpFontSize()
+		{
+			SetOperationType("MODSetChapterJumpFontSize");
+			int japanese = ReadVariable().IntValue();
+			int english = ReadVariable().IntValue();
+			GameSystem.Instance.SetChapterJumpFontSize(japanese, english);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetHighestChapterFlag()
+		{
+			SetOperationType("MODSetHighestChapterFlag");
+			int key = ReadVariable().IntValue();
+			int value = ReadVariable().IntValue();
+			BurikoMemory.Instance.SetHighestChapterFlag(key, value);
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODGetHighestChapterFlag()
+		{
+			SetOperationType("MODGetHighestChapterFlag");
+			int key = ReadVariable().IntValue();
+			return BurikoMemory.Instance.GetHighestChapterFlag(key);
+		}
+
+		private BurikoVariable OperationMODSetMainFontOutlineWidth()
+		{
+			SetOperationType("MODSetMainFontOutlineWidth");
+			int width = ReadVariable().IntValue();
+			GameSystem.Instance.OutlineWidth = width / 100f;
+			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			return BurikoVariable.Null;
+		}
+
+		private BurikoVariable OperationMODSetLayerFilter()
+		{
+			SetOperationType("MODSetLayerFilter");
+			int layer = ReadVariable().IntValue();
+			int alpha = ReadVariable().IntValue();
+			string color = ReadVariable().StringValue();
+			MODSceneController.Filter filter;
+			switch (color.ToLower())
+			{
+				case "":
+				case "none":
+					filter = MODSceneController.Filter.Identity;
+					break;
+				case "grayscale":
+					filter = MODSceneController.Filter.Grayscale;
+					break;
+				case "flashback":
+					filter = MODSceneController.Filter.Flashback;
+					break;
+				case "night":
+					filter = MODSceneController.Filter.Night;
+					break;
+				case "sunset":
+					filter = MODSceneController.Filter.Sunset;
+					break;
+				default:
+					try
+					{
+						var split = color.Split(',').Select(Int32.Parse).ToArray();
+						if (split.Length == 3)
+						{
+							filter = new MODSceneController.Filter(split[0], 0, 0, 0, split[1], 0, 0, 0, split[2], 256);
+							break;
+						}
+						else if (split.Length == 9)
+						{
+							filter = new MODSceneController.Filter(split[0], split[1], split[2], split[3], split[4], split[5], split[6], split[7], split[8], 256);
+							break;
+						}
+					}
+					catch (FormatException) { }
+					throw new ArgumentException("Invalid color given to MODSetLayerFilter: " + color);
+			}
+			filter.a = (short)alpha;
+			MODSceneController.SetLayerFilter(layer, filter);
+			return BurikoVariable.Null;
+		}
+
+		private PathCascadeList ReadPathCascadeFromArgs()
+		{
+			string nameEN = ReadVariable().StringValue();
+			string nameJP = ReadVariable().StringValue();
+			string[] paths = ReadVariable().StringValue().Split(':');
+			return new PathCascadeList(nameEN, nameJP, paths);
+		}
+
+		public BurikoVariable OperationMODAddArtset()
+		{
+			SetOperationType("MODAddArtset");
+			AssetManager.Instance.AddArtset(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddBGMset()
+		{
+			SetOperationType("MODAddBGMset");
+			PathCascadeList cascadeList = ReadPathCascadeFromArgs();
+
+			MODAudioSet.Instance.AddBGMSet(cascadeList);
+			foreach (string path in cascadeList.paths)
+			{
+				MODBGMInfo.LoadFromJSON(path);
+			}
+
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODAddSEset()
+		{
+			SetOperationType("MODAddSEset");
+			MODAudioSet.Instance.AddSESet(ReadPathCascadeFromArgs());
+			return BurikoVariable.Null;
+		}
+
+		/// <summary>
+		/// Note: Tabs are not supported for descriptions and will be stripped out.
+		/// This is so that you can write multiple line strings in the game script without tabs appearing in the output.
+		/// </summary>
+		public BurikoVariable OperationMODAddAudioset()
+		{
+			SetOperationType("MODAddAudioSet");
+			string nameEN = ReadVariable().StringValue();
+			string descriptionEN = ReadVariable().StringValue();
+			string nameJP = ReadVariable().StringValue();
+			string descriptionJP = ReadVariable().StringValue();
+			int altBGM = ReadVariable().IntValue();
+			int altBGMflow = ReadVariable().IntValue();
+			int altSE = ReadVariable().IntValue();
+			int altSEFlow = ReadVariable().IntValue();
+			MODAudioSet.Instance.AddAudioSet(new AudioSet(nameEN, nameJP, MODUtility.StripTabs(descriptionEN), MODUtility.StripTabs(descriptionJP), altBGM, altBGMflow, altSE, altSEFlow));
+
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODClearArtsets()
+		{
+			SetOperationType("MODClearArtsets");
+			AssetManager.Instance.ClearArtsets();
+			AssetManager.Instance.ShouldSerializeArtsets = true;
+			return BurikoVariable.Null;
+		}
+
+		public BurikoVariable OperationMODGenericCall()
+		{
+			SetOperationType("MODGenericCall");
+			string callID = ReadVariable().StringValue();
+			string callParameters = ReadVariable().StringValue();
+			switch(callID)
+			{
+				case "ShowSetupMenuIfRequired":
+					if(MODAudioSet.Instance.HasAudioSetsDefined() && !MODAudioSet.Instance.GetCurrentAudioSet(out _))
+					{
+						GameSystem.Instance.MainUIController.modMenu.SetSubMenu(ModSubMenu.AudioSetup);
+						GameSystem.Instance.MainUIController.modMenu.Show();
+					}
+					break;
+
+				case "LipSyncSettings":
+					string[] lipSyncParams = callParameters.Split(',');
+
+					if(lipSyncParams.Length == 3 &&
+					   float.TryParse(lipSyncParams[0].Trim(), out float thresh1) &&
+					   float.TryParse(lipSyncParams[1].Trim(), out float thresh2) &&
+					   bool.TryParse(lipSyncParams[2].Trim(), out bool forceComputedLipsync))
+					{
+						GameSystem.Instance.SceneController.MODSetExpressionThresholds(thresh1, thresh2);
+						GameSystem.Instance.SceneController.MODSetForceComputedLipsync(forceComputedLipsync);
+					}
+					else
+					{
+						Debug.LogError("MODGenericCall Error: invalid format for LipSyncSettings, should be '.3, .7, true' for example");
+					}
+					break;
+
+				case "LipSyncCacheSettings":
+					string[] lipSyncCacheParams = callParameters.Split(',');
+					if (lipSyncCacheParams.Length == 1 && int.TryParse(lipSyncCacheParams[0].Trim(), out int maxAge))
+					{
+						MODLipsyncCache.SetMaxTextureAge(maxAge);
+					}
+					else
+					{
+						Debug.LogError("MODGenericCall Error: invalid format for LipSyncCacheSettings, should be '2' for example");
+					}
+					break;
+
+				default:
+					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
+					break;
+			}
+			return BurikoVariable.Null;
+		}
+
+		/// <summary>
+		/// 1) This function reverts the x positions of sprites when using 4:3 backgrounds to match the original game
+		/// In some places, our mod has 'spread out' the sprite positions to better match 16:9 widescreen by setting
+		/// their X position to 240/-240 instead of 160/-160 (mostly when there are 3 characters on the screen at once).
+		/// However, when playing in 4:3 mode, this causes the sprites to be more cut-off than they were in the original game.
+		/// This function attempts to revert this specific case by changing an X of 240/-240 into 160/-160.
+		///
+		/// 2) On Batsukoishi of Rei, four characters are displayed at once with the outermost at 320 and -320.
+		/// In this case we move them slightly inwards so they're not cut-off.
+		///
+		/// I also tried scaling the x coordinate by 160/240 (about 2/3), but this puts the characters unnecessarily
+		/// close together if there are only two characters on the screen.
+		/// </summary>
+		private int MODRyukishiRevertSpritePosition(string path, int x)
+		{
+			path = path.ToLower();
+
+			if(BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 && // Using OG Backgrounds AND
+			   BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0) // Not stretching backgrounds
+			{
+				if (path.StartsWith("sprite/") || path.StartsWith("portrait/")) // is from the sprite or portrait folder
+				{
+					if (x == 240) // See note 1) above
+					{
+						return 160;
+					}
+					else if (x == -240)
+					{
+						return -160;
+					}
+					else if (x == 320) // See note 2) above
+					{
+						return 240;
+					}
+					else if (x == -320)
+					{
+						return -240;
+					}
+				}
+			}
+
+			return x;
 		}
 	}
 }

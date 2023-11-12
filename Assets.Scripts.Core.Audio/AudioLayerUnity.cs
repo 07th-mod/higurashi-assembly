@@ -125,6 +125,7 @@ namespace Assets.Scripts.Core.Audio
 			loadedName = "";
 			audioClip = null;
 			iTween.Stop(base.gameObject);
+			finishCallback = null;
 		}
 
 		public bool IsPlaying()
@@ -157,10 +158,12 @@ namespace Assets.Scripts.Core.Audio
 			{
 				return -1f;
 			}
-			return audioSource.time - audioSource.clip.length;
+			return audioSource.clip.length - audioSource.time;
 		}
 
-		private IEnumerator WaitForLoad(string filename, AudioType type)
+		public int GetPlayTimeSamples() => audioSource.timeSamples;
+
+		private IEnumerator WaitForLoad(string filename, AudioType type, Action<string, AudioType, AudioClip> onAudioDataLoaded = null)
 		{
 			string text = AssetManager.Instance.GetAudioFilePath(filename, type);
 			bool flag = File.Exists(text);
@@ -203,13 +206,19 @@ namespace Assets.Scripts.Core.Audio
 			{
 				yield return null;
 			}
+
+			if(audioClip != null && onAudioDataLoaded != null)
+			{
+				onAudioDataLoaded(filename, type, audioClip);
+			}
+
 			isLoading = false;
 			isLoaded = true;
 			loadCoroutine = null;
 			OnFinishLoading();
 		}
 
-		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false)
+		public void PlayAudio(string filename, AudioType type, float startvolume = 1f, bool loop = false, Action<string, AudioType, AudioClip> onAudioLoaded = null)
 		{
 			if (IsPlaying())
 			{
@@ -226,7 +235,7 @@ namespace Assets.Scripts.Core.Audio
 			subVolume = startvolume;
 			isLoop = loop;
 			finishCallback = null;
-			loadCoroutine = StartCoroutine(WaitForLoad(filename, type));
+			loadCoroutine = StartCoroutine(WaitForLoad(filename, type, onAudioLoaded));
 		}
 
 		public void OnLoadCallback(OnFinishLoad callback)
@@ -271,12 +280,12 @@ namespace Assets.Scripts.Core.Audio
 
 		private void OnAudioEnd()
 		{
-			if (finishCallback != null)
-			{
-				finishCallback();
-			}
-			finishCallback = null;
+			AudioFinishCallback callback = finishCallback;
 			StopAudio();
+			if (callback != null)
+			{
+				callback();
+			}
 		}
 
 		private void Start()

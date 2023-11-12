@@ -194,6 +194,32 @@ namespace BGICompiler.Compiler
 			paramLookup.Add("DisableLoopingOfBGM", new OpType(BurikoOperations.DisableLoopingOfBGM, "i"));
 			paramLookup.Add("DebugMessage", new OpType(BurikoOperations.DebugMessage, "s"));
 			paramLookup.Add("Break", new OpType(BurikoOperations.Break, ""));
+			paramLookup.Add("ModEnableNVLModeInADVMode", new OpType(BurikoOperations.ModEnableNVLModeInADVMode, string.Empty));
+			paramLookup.Add("ModDisableNVLModeInADVMode", new OpType(BurikoOperations.ModDisableNVLModeInADVMode, string.Empty));
+			paramLookup.Add("ModADVModeSettingLoad", new OpType(BurikoOperations.ModADVModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModNVLModeSettingLoad", new OpType(BurikoOperations.ModNVLModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModNVLADVModeSettingLoad", new OpType(BurikoOperations.ModNVLADVModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModCallScriptSection", new OpType(BurikoOperations.ModCallScriptSection, "ss"));
+			paramLookup.Add("ModDrawCharacter", new OpType(BurikoOperations.ModDrawCharacter, "iissiiibiiiiiiiiib"));
+			paramLookup.Add("ModDrawCharacterWithFiltering", new OpType(BurikoOperations.ModDrawCharacterWithFiltering, "iisssiiibiiiiiiib"));
+			paramLookup.Add("ModPlayVoiceLS", new OpType(BurikoOperations.ModPlayVoiceLS, "iisib"));
+			paramLookup.Add("ModPlayMovie", new OpType(BurikoOperations.ModPlayMovie, "s"));
+			paramLookup.Add("ModSetConfigFontSize", new OpType(BurikoOperations.ModSetConfigFontSize, "i"));
+			paramLookup.Add("ModSetChapterJumpFontSize", new OpType(BurikoOperations.ModSetChapterJumpFontSize, "ii"));
+			paramLookup.Add("ModSetHighestChapterFlag", new OpType(BurikoOperations.ModSetHighestChapterFlag, "ii"));
+			paramLookup.Add("ModGetHighestChapterFlag", new OpType(BurikoOperations.ModGetHighestChapterFlag, "i"));
+			paramLookup.Add("ModSetMainFontOutlineWidth", new OpType(BurikoOperations.ModSetMainFontOutlineWidth, "i"));
+			paramLookup.Add("ModSetLayerFilter", new OpType(BurikoOperations.ModSetLayerFilter, "iis"));
+			paramLookup.Add("ModAddArtset", new OpType(BurikoOperations.ModAddArtset, "sss"));
+			paramLookup.Add("ModClearArtsets", new OpType(BurikoOperations.ModClearArtsets, string.Empty));
+			paramLookup.Add("ModRyukishiModeSettingLoad", new OpType(BurikoOperations.ModRyukishiModeSettingLoad, "siiiiiiiiiiii"));
+			paramLookup.Add("ModRyukishiSetGuiPosition", new OpType(BurikoOperations.ModRyukishiSetGuiPosition, "ii"));
+			paramLookup.Add("ModPlayBGM", new OpType(BurikoOperations.ModPlayBGM, "isiii"));
+			paramLookup.Add("ModFadeOutBGM", new OpType(BurikoOperations.ModFadeOutBGM, "iibi"));
+			paramLookup.Add("ModAddBGMset", new OpType(BurikoOperations.ModAddBGMset, "sss"));
+			paramLookup.Add("ModAddSEset", new OpType(BurikoOperations.ModAddSEset, "sss"));
+			paramLookup.Add("ModAddAudioset", new OpType(BurikoOperations.ModAddAudioset, "ssssiiii"));
+			paramLookup.Add("ModGenericCall", new OpType(BurikoOperations.ModGenericCall, "ss"));
 		}
 
 		public void ParamCheck(string op, BGIParameters param)

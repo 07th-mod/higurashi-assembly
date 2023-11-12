@@ -23,5 +23,7 @@ namespace Assets.Scripts.Core
 		ChapterPreview,
 		OmakeSection,
 		MusicRoom
+		Movie,
+		MODDisableInput
 	}
 }

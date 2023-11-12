@@ -1,5 +1,6 @@
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.UI.TitleScreen;
+using MOD.Scripts.UI;
 using System;
 using UnityEngine;
 
@@ -27,6 +28,19 @@ namespace Assets.Scripts.Core.State
 				flag = true;
 			}
 			BurikoMemory.Instance.ResetFlags();
+
+			// If you were playing in ADV mode, encountered a ModEnableNVLModeInADVMode() call, then quit to the menu, the
+			// "GLinemodeSp" (controlling if the text is drawn in NVL or ADV mode) would still be set to NVL mode.
+			//
+			// If you then started a new game, this would result in NVL mode text overlaid on the ADV mode textbox.
+			//
+			// The below call resets GLinemodeSp to 0 if in ADV mode.
+			// 'redraw' must be set to false, otherwise the textbox will appear over the title screen.
+			//
+			// Also, on older chapters which do not have a "BurikoMemory.Instance.ResetFlags()" call above,
+			// the "NVL_in_ADV" non-global flag would still be set to true. The following function also resets that flag.
+			MODActions.DisableNVLModeINADVMode(redraw: false);
+
 			gameSystem.IsSkipping = false;
 			gameSystem.IsForceSkip = false;
 			gameSystem.IsAuto = false;

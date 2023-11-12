@@ -2,6 +2,8 @@ using Assets.Scripts.Core;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using Assets.Scripts.UI.Tips;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.Extra
@@ -123,6 +125,10 @@ namespace Assets.Scripts.UI.Extra
 				base.gameObject.SetActive(value: false);
 			}
 			if (base.name == "ScenarioLock" && BurikoMemory.Instance.GetGlobalFlag("MEHEND").IntValue() > 10)
+			{
+				base.gameObject.SetActive(value: false);
+			}
+			if (base.name == "ViewTips" && !TipsData.GetVisibleTips(false, true).Tips.Any())
 			{
 				base.gameObject.SetActive(value: false);
 			}

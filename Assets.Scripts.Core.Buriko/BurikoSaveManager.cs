@@ -1,12 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Assets.Scripts.Core.Buriko
 {
 	public class BurikoSaveManager
 	{
 		private readonly Dictionary<int, SaveEntry> saveList;
+		public static string lastSaveError;
+
+		public BurikoSaveManager()
+		{
+			saveList = new Dictionary<int, SaveEntry>();
+			lastSaveError = null;
+			for (int i = 0; i < 100; i++)
+			{
+				string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", i.ToString("D3")));
+				GetSaveData(i, path);
+			}
+			for (int j = 0; j < 3; j++)
+			{
+				string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", j.ToString("D1")));
+				GetSaveData(j + 100, path2);
+			}
+		}
 
 		public SaveEntry GetSaveInfoInSlot(int slot)
 		{
@@ -64,6 +82,12 @@ namespace Assets.Scripts.Core.Buriko
 							saveEntry.Time = DateTime.FromBinary(binaryReader.ReadInt64());
 							string textJp = binaryReader.ReadString();
 							string text = saveEntry.Text = binaryReader.ReadString();
+							string pattern = "[<](size)[=][+](.+)[<][/](size)[>]";
+							// In Rei, text lines contains literal newline characters,
+							// which are not matched by '.' unless using RegexOptions.Singleline
+							textJp = Regex.Replace(textJp, pattern, string.Empty, RegexOptions.Singleline);
+							text = Regex.Replace(text, pattern, string.Empty, RegexOptions.Singleline);
+							saveEntry.Text = text;
 							saveEntry.TextJp = textJp;
 						}
 					}
@@ -75,7 +99,8 @@ namespace Assets.Scripts.Core.Buriko
 				}
 				catch (Exception ex)
 				{
-					Logger.LogWarning("Could not read from save file " + path + "\nException: " + ex);
+					lastSaveError = "Could not read from save file " + path + "\nException: " + ex;
+					Logger.LogWarning(lastSaveError);
 					throw;
 				}
 			}
@@ -84,21 +109,6 @@ namespace Assets.Scripts.Core.Buriko
 		public void UpdateSaveSlot(int slot)
 		{
 			GetSaveData(path: (slot >= 100) ? Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", (slot - 100).ToString("D1"))) : Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", slot.ToString("D3"))), slot: slot);
-		}
-
-		public BurikoSaveManager()
-		{
-			saveList = new Dictionary<int, SaveEntry>();
-			for (int i = 0; i < 100; i++)
-			{
-				string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", i.ToString("D3")));
-				GetSaveData(i, path);
-			}
-			for (int j = 0; j < 3; j++)
-			{
-				string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("qsave{0}.dat", j.ToString("D1")));
-				GetSaveData(j + 100, path2);
-			}
 		}
 	}
 }
