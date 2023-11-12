@@ -22,7 +22,7 @@ namespace Assets.Scripts.Core
 		ChapterJumpScreen,
 		ChapterPreview,
 		OmakeSection,
-		MusicRoom
+		MusicRoom,
 		Movie,
 		MODDisableInput
 	}

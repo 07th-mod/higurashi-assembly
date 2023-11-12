@@ -165,7 +165,7 @@ namespace Assets.Scripts.Core.Buriko
 		PlayVideo,
 		OmakeScreenSection,
 		DisableLoopingOfBGM,
-		DebugMessage
+		DebugMessage,
 		ModEnableNVLModeInADVMode,
 		ModDisableNVLModeInADVMode,
 		ModADVModeSettingLoad,
