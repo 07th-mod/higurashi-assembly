@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 using System.Linq;
+using Assets.Scripts.Core.Audio;
 
 namespace Assets.Scripts.Core.History
 {
