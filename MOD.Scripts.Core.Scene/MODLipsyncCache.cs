@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Core;
+using Assets.Scripts.Core.AssetManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,9 @@ using UnityEngine;
 
 namespace MOD.Scripts.Core.Scene
 {
+    // As Hou+ already provides some texture caching, some of the logic for this file has been reworked
+    // Now instead of applying caching ontop of Unity's caching system, it applies caching ontop of
+    // the game engine's caching.
     class MODLipsyncCache
     {
         public class TextureGroup
@@ -21,18 +25,21 @@ namespace MOD.Scripts.Core.Scene
             /// For example, "aka_def_0.png"
             /// </summary>
             public Texture2D baseTexture_0;
+            public string baseTexture_0_name;
 
             /// <summary>
             /// The texture of the character with a half open mouth, ending with "1"
             /// For example, "aka_def_1.png"
             /// </summary>
             public Texture2D halfOpen_1;
+            public string halfOpen_1_name;
 
             /// <summary>
             /// The texture of the character with a fully open mouth, ending with "2"
             /// For example, "aka_def_2.png"
             /// </summary>
             public Texture2D fullOpen_2;
+            public string fullOpen_2_name;
 
             /// <summary>
             /// How long since this texture group has been used. This is incremented each time
@@ -40,11 +47,20 @@ namespace MOD.Scripts.Core.Scene
             /// </summary>
             public int age;
 
-            public TextureGroup(Texture2D baseTexture_0, Texture2D halfOpen_1, Texture2D fullOpen_2)
+            public TextureGroup(
+                Texture2D baseTexture_0,
+                string baseTexture_0_name,
+                Texture2D halfOpen_1,
+                string halfOpen_1_name,
+                Texture2D fullOpen_2,
+                string fullOpen_2_name)
             {
                 this.baseTexture_0 = baseTexture_0;
+                this.baseTexture_0_name = baseTexture_0_name;
                 this.halfOpen_1 = halfOpen_1;
+                this.halfOpen_1_name = halfOpen_1_name;
                 this.fullOpen_2 = fullOpen_2;
+                this.fullOpen_2_name = fullOpen_2_name;
 
                 age = 0;
             }
@@ -62,13 +78,16 @@ namespace MOD.Scripts.Core.Scene
             // so failing to call Destroy in some circumstances is probably fine.
             public void DestroyTextures()
             {
-                if(halfOpen_1 != null)
+                TryDestroyTexture(baseTexture_0_name, baseTexture_0);
+                TryDestroyTexture(halfOpen_1_name, halfOpen_1);
+                TryDestroyTexture(fullOpen_2_name, fullOpen_2);
+            }
+
+            private void TryDestroyTexture(string textureName, Texture2D texture)
+            {
+                if(texture != null)
                 {
-                    GameObject.Destroy(halfOpen_1);
-                }
-                if(fullOpen_2 != null)
-                {
-                    GameObject.Destroy(fullOpen_2);
+                    AssetManager.Instance.ReleaseTexture(textureName, texture);
                 }
             }
 
@@ -84,7 +103,7 @@ namespace MOD.Scripts.Core.Scene
 
             public override string ToString()
             {
-                return $"TG[age: {age} base: {Print(baseTexture_0)} half: {Print(halfOpen_1)} full: {Print(fullOpen_2)}]";
+                return $"TG[age: {age} base: {baseTexture_0_name}/{Print(baseTexture_0)} half: {halfOpen_1_name}/{Print(halfOpen_1)} full: {fullOpen_2_name}/{Print(fullOpen_2)}]";
             }
         }
 
@@ -92,7 +111,7 @@ namespace MOD.Scripts.Core.Scene
         private static int maxTextureAge = 2;
         private static string debugLastEvent;
 
-        public static void MODLipsyncCacheUpdate(Texture2D baseTexture, int character)
+        public static void MODLipsyncCacheUpdate(int character)
         {
             // If lipsync not enabled, do not do any caching
             if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
@@ -140,7 +159,7 @@ namespace MOD.Scripts.Core.Scene
             }
 
             //Now pre-load the textures for the character that is about to be drawn
-            TextureGroup _ = LoadOrUseCache(baseTexture, character);
+            TextureGroup _ = LoadOrUseCache(character);
         }
 
         /// <summary>
@@ -164,7 +183,7 @@ namespace MOD.Scripts.Core.Scene
         /// <param name="character">The number of the character whose textures you want to load.
         /// This is the same character number used in the game scripts.</param>
         /// <returns></returns>
-        public static TextureGroup LoadOrUseCache(Texture2D maybeBaseTexture, int character)
+        public static TextureGroup LoadOrUseCache(int character)
         {
             DebugLog($"Texture Cache count: {cache.Keys.Count}");
             string textureName = MODSystem.instance.modSceneController.GetBaseTextureName(character);
@@ -185,7 +204,7 @@ namespace MOD.Scripts.Core.Scene
                     // Clean up the texture, then reload it from disk
                     cachedTextures.DestroyTextures();
                     cache.Remove(textureName);
-                    return LoadWithoutCache(textureName, maybeBaseTexture, character);
+                    return LoadWithoutCache(textureName, character);
                 }
 
                 // Since we just used this texture, reset its age to 0
@@ -195,24 +214,25 @@ namespace MOD.Scripts.Core.Scene
             }
             else
             {
-                return LoadWithoutCache(textureName, maybeBaseTexture, character);
+                return LoadWithoutCache(textureName, character);
             }
         }
-        private static TextureGroup LoadWithoutCache(string textureName, Texture2D maybeBaseTexture, int character)
+
+        private static TextureGroup LoadWithoutCache(string textureName, int character)
         {
-            Texture2D baseTexture = maybeBaseTexture;
-
-            if (baseTexture == null)
-            {
-                DebugLog($"LoadOrUseCache() - loading base texture from scratch ");
-                baseTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
-            }
-
             DebugLog($"LoadOrUseCache() - updating cache with char: {character}");
+
+            Texture2D baseTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0", out string baseTextureName);
+            Texture2D halfOpenTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1", out string halfOpenTextureName);
+            Texture2D fullOpenTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2", out string fullOpenTextureName);
+
             TextureGroup textureGroup = new TextureGroup(
                 baseTexture,
-                MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1"),
-                MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2")
+                baseTextureName,
+                halfOpenTexture,
+                halfOpenTextureName,
+                fullOpenTexture,
+                fullOpenTextureName
             );
 
             cache.Add(textureName, textureGroup);

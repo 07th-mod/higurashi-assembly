@@ -772,6 +772,18 @@ namespace Assets.Scripts.Core.Scene
 				material.SetFloat("_Range", a);
 			}
 		}
+
+		// Added for Hou+, and used only for lipsync, since it does not have a raw "set texture" function.
+		// We also cannot use the new SetPrimaryTexture function since it takes the texture name as arg,
+		// and immediately frees the texture when used (for lipsync, we quickly switch betweeen different
+		// textures, so want to keep them in memory until we manually release them)
+		public void ForcePrimaryTexture(Texture2D tex)
+		{
+			primary = tex;
+			material.SetTexture("_Primary", primary);
+			meshRenderer.enabled = true;
+		}
+
 		private void SetPrimaryTexture(string texName)
 		{
 			SetPrimaryTexture(texName, out string _);

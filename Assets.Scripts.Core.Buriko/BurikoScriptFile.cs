@@ -3430,7 +3430,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
 			// For explanation of the MODLipsyncCacheUpdate callback, see the matching call in OperationMODDrawCharacterWithFiltering()
-			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D tex) => MODLipsyncCache.MODLipsyncCacheUpdate(tex, character));
+			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
 			if (flag)
 			{
 				gameSystem.ExecuteActions();
@@ -3489,7 +3489,7 @@ namespace Assets.Scripts.Core.Buriko
 			// To fix this, I pass in a lambda/callback which will
 			// be executed after the layer has been updated with the new texture
 			// so the cache can grab the sprite's base texture
-			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag, afterLayerUpdated: (Texture2D tex) => MODLipsyncCache.MODLipsyncCacheUpdate(tex, character));
+			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
 			if (flag)
 			{
 				gameSystem.ExecuteActions();

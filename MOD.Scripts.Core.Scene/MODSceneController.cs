@@ -288,10 +288,10 @@ namespace MOD.Scripts.Core.Scene
 			return MODLipSync_Texture[charnum];
 		}
 
-		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum)
+		public Texture2D MODLipSyncPrepare(int charnum, string expressionnum, out string textureName)
 		{
 			int num = MODLipSync_Layer[charnum];
-			string textureName = MODLipSync_Texture[charnum] + expressionnum;
+			textureName = MODLipSync_Texture[charnum] + expressionnum;
 			return LoadTextureWithFilters(num, textureName);
 		}
 
@@ -377,7 +377,7 @@ namespace MOD.Scripts.Core.Scene
 			if (MODLipSyncIsAnimationCurrent(charnum, coroutineId))
 			{
 				int layer = MODLipSync_Layer[charnum];
-				GameSystem.Instance.SceneController.GetLayer(layer)?.SetPrimaryTexture(tex2d);
+				GameSystem.Instance.SceneController.GetLayer(layer)?.ForcePrimaryTexture(tex2d);
 			}
 		}
 	}
