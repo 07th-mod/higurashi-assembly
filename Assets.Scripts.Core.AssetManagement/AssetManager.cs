@@ -462,10 +462,15 @@ namespace Assets.Scripts.Core.AssetManagement
 			{
 				return null;
 			}
-			return LoadTexture(textureName, 0, out _);
+			return LoadTexture(textureName, out _, 0);
 		}
 
-		public Texture2D LoadTexture(string textureName, int refCount = 1, out string texturePath)
+		public Texture2D LoadTexture(string textureName, int refCount = 1)
+		{
+			return LoadTexture(textureName, out _, refCount);
+		}
+
+		public Texture2D LoadTexture(string textureName, out string texturePath, int refCount = 1)
 		{
 			if (textureReferences.TryGetValue(textureName, out TextureReference value))
 			{
@@ -473,6 +478,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				{
 					value.Count++;
 				}
+				texturePath = value.MODTexturePath;
 				return value.Texture;
 			}
 			string key = textureName;
@@ -532,7 +538,8 @@ namespace Assets.Scripts.Core.AssetManagement
 			textureReferences.Add(key, new TextureReference
 			{
 				Count = refCount,
-				Texture = texture2D
+				Texture = texture2D,
+				MODTexturePath = path,
 			});
 			texturePath = path;
 			return texture2D;
