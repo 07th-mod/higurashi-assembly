@@ -37,7 +37,7 @@ namespace Assets.Scripts.Core.Scene
 		{
 			layer.LayerID = null;
 			GameObject gameObject = layer.gameObject;
-			if (!layerObjList.Contains(gameObject))
+			if (!IsInPool(gameObject))
 			{
 				if (layer.IsInUse || !string.IsNullOrWhiteSpace(layer.PrimaryName))
 				{
@@ -59,6 +59,11 @@ namespace Assets.Scripts.Core.Scene
 				// so I have used his code exactly (above), but added the below log message if a layer gets returned twice
 				MOD.Scripts.Core.MODLogger.Log("WARNING: Ignoring layer returned twice", true);
 			}
+		}
+
+		public bool IsInPool(GameObject layer)
+		{
+			return layerObjList.Contains(layer);
 		}
 
 		private void Initialize()
