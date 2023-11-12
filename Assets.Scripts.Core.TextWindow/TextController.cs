@@ -53,7 +53,7 @@ namespace Assets.Scripts.Core.TextWindow
 
 		private string japaneseprev = "";
 
-		private string NameFormat = "";
+		public string NameFormat = "";
 
 		public string NameFormatJp = "";
 
