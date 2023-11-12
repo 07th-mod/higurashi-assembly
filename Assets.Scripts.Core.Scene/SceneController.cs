@@ -258,7 +258,7 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
-		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdate)
+		public void DrawBustshot(int layer, string textureName, int x, int y, int z, int oldx, int oldy, int oldz, bool move, int priority, int type, float wait, bool isblocking, Action<Texture2D> afterLayerUpdated)
 		{
 			if (MODSkipImage(textureName))
 			{
@@ -276,7 +276,7 @@ namespace Assets.Scripts.Core.Scene
 				oldy = y;
 				oldz = z;
 			}
-			layer2.DrawLayer(textureName, oldx, oldy, oldz, null, null, 1f, isBustshot: true, type, wait, isblocking);
+			layer2.DrawLayer(textureName, oldx, oldy, oldz, null, null, 1f, isBustshot: true, type, wait, isblocking, afterLayerUpdated);
 			layer2.SetPriority(priority);
 			if (move)
 			{

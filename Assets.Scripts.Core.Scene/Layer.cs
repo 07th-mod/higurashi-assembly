@@ -333,7 +333,53 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		// TODO: Call this from within SetPrimaryTexture (unsure if have to set for SetSecondaryTexture/SetMaskTexture?)
+		// TODO: BUG: I think this function is not implemented correctly - forceSize should skip all the logic in CreateMesh and directly use the width and height values provided
+		/*
+		 * Refer to:
+		 * 	if (mesh == null)
+			{
+				alignment = LayerAlignment.AlignCenter;
+				if ((x != 0 || y != 0) && !isBustshot)
+				{
+					alignment = LayerAlignment.AlignTopleft;
+				}
+				if (!forceSize.HasValue)
+				{
+					if (origin.HasValue)
+					{
+						CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
+					}
+					else
+					{
+						CreateMesh(texture2D.width, texture2D.height, alignment);
+					}
+				}
+				else
+				{
+					ForceSize = forceSize;
+					if (origin.HasValue)
+					{
+						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), origin.GetValueOrDefault());
+					}
+					else
+					{
+						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), alignment);
+					}
+				}
+			}
+
+			private void CreateMeshNoResize(int width, int height, Vector2 origin)
+			{
+				mesh = MGHelper.CreateMeshWithOrigin(width, height, origin);
+				meshFilter.mesh = mesh;
+			}
+
+			private void CreateMeshNoResize(int width, int height, LayerAlignment alignment)
+			{
+				mesh = MGHelper.CreateMesh(width, height, alignment);
+				meshFilter.mesh = mesh;
+			}
+		 */
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, Vector2? forceSize, bool isBustShot, int finalXOffset, string texturePath)
 		{
 			if (forceSize is Vector2 nonnullForceSize)
@@ -420,44 +466,22 @@ namespace Assets.Scripts.Core.Scene
 		public void DrawLayerWithMask(string textureName, string maskName, int x, int y, Vector2? origin, Vector2? forceSize, bool isBustshot, int style, float wait, bool isBlocking, Action<Texture2D> afterLayerUpdated)
 		{
 			material.shader = shaderMasked;
-			SetPrimaryTexture(textureName);
+			SetPrimaryTexture(textureName, out string texturePath);
 			SetMaskTexture(maskName);
 			startRange = 0f;
 			targetRange = 1f;
 			targetAlpha = 1f;
 			targetAngle = 0f;
 			shaderType = 0;
-			if (mesh == null)
-			{
-				alignment = LayerAlignment.AlignCenter;
-				if ((x != 0 || y != 0) && !isBustshot)
-				{
-					alignment = LayerAlignment.AlignTopleft;
-				}
-				if (!forceSize.HasValue)
-				{
-					if (origin.HasValue)
-					{
-						CreateMesh(primary.width, primary.height, origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMesh(primary.width, primary.height, alignment);
-					}
-				}
-				else
-				{
-					ForceSize = forceSize;
-					if (origin.HasValue)
-					{
-						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), alignment);
-					}
-				}
-			}
+			EnsureCorrectlySizedMesh(
+				width: primary.width, height: primary.height,
+				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+				origin: origin,
+				forceSize: forceSize,
+				isBustShot: isBustshot,
+				finalXOffset: x,
+				texturePath: texturePath
+			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
 			targetPosition = base.transform.localPosition;
@@ -497,6 +521,7 @@ namespace Assets.Scripts.Core.Scene
 		}
 		public void DrawLayer(string textureName, int x, int y, int z, Vector2? origin, Vector2? forceSize, float alpha, bool isBustshot, int type, float wait, bool isBlocking, Action<Texture2D> afterLayerUpdated)
 		{
+			string texturePath = null;
 			cachedIsBustShot = isBustshot;
 			FinishAll();
 			if (textureName == "")
@@ -508,7 +533,7 @@ namespace Assets.Scripts.Core.Scene
 			{
 				material.shader = shaderCrossfade;
 				SetSecondaryTexture(PrimaryName);
-				SetPrimaryTexture(textureName);
+				SetPrimaryTexture(textureName, out texturePath);
 				startRange = 0f;
 				targetRange = 1f;
 				targetAlpha = 1f;
@@ -520,7 +545,7 @@ namespace Assets.Scripts.Core.Scene
 				{
 					material.shader = shaderMultiply;
 				}
-				SetPrimaryTexture(textureName);
+				SetPrimaryTexture(textureName, out texturePath);
 			}
 			Texture2D texture2D = primary;
 			if (texture2D == null)
@@ -546,37 +571,15 @@ namespace Assets.Scripts.Core.Scene
 			{
 				Origin = origin;
 			}
-			if (mesh == null)
-			{
-				alignment = LayerAlignment.AlignCenter;
-				if ((x != 0 || y != 0) && !isBustshot)
-				{
-					alignment = LayerAlignment.AlignTopleft;
-				}
-				if (!forceSize.HasValue)
-				{
-					if (origin.HasValue)
-					{
-						CreateMesh(texture2D.width, texture2D.height, origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMesh(texture2D.width, texture2D.height, alignment);
-					}
-				}
-				else
-				{
-					ForceSize = forceSize;
-					if (origin.HasValue)
-					{
-						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), origin.GetValueOrDefault());
-					}
-					else
-					{
-						CreateMeshNoResize(Mathf.RoundToInt(forceSize.Value.x), Mathf.RoundToInt(forceSize.Value.y), alignment);
-					}
-				}
-			}
+			EnsureCorrectlySizedMesh(
+				width: texture2D.width, height: texture2D.height,
+				alignment: ((x != 0 || y != 0) && !isBustshot) ? LayerAlignment.AlignTopleft : LayerAlignment.AlignCenter,
+				origin: origin,
+				forceSize: forceSize,
+				isBustShot: isBustshot,
+				finalXOffset: x,
+				texturePath: texturePath
+			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
 			base.transform.localScale = new Vector3(num, num, 1f);
@@ -769,12 +772,17 @@ namespace Assets.Scripts.Core.Scene
 				material.SetFloat("_Range", a);
 			}
 		}
-
 		private void SetPrimaryTexture(string texName)
+		{
+			SetPrimaryTexture(texName, out string _);
+		}
+
+		// TODO: test behavior when texture missing and exception raised?
+		private void SetPrimaryTexture(string texName, out string texturePath)
 		{
 			if (!(PrimaryName == texName))
 			{
-				Texture2D x = AssetManager.Instance.LoadTexture(texName);
+				Texture2D x = AssetManager.Instance.LoadTexture(texName, out texturePath);
 				if (x == null)
 				{
 					throw new Exception("Failed to load texture: " + texName);
@@ -788,6 +796,8 @@ namespace Assets.Scripts.Core.Scene
 				material.SetTexture("_Primary", primary);
 				meshRenderer.enabled = true;
 			}
+
+			texturePath = null;
 		}
 
 		private void SetSecondaryTexture(string texName)
@@ -856,7 +866,17 @@ namespace Assets.Scripts.Core.Scene
 			ReleasePrimaryTexture();
 			ReleaseSecondaryTexture();
 			ReleaseMaskTexture();
-			SetPrimaryTexture(primaryName);
+			SetPrimaryTexture(primaryName, out string texturePath);
+			EnsureCorrectlySizedMesh(
+				primary.width,
+				primary.height,
+				alignment,
+				origin,
+				ForceSize,
+				isBustShot: cachedIsBustShot,
+				finalXOffset: (int)base.transform.localPosition.x,
+				texturePath: texturePath
+			);
 			SetSecondaryTexture(secondaryName);
 			SetMaskTexture(maskName);
 		}
