@@ -16,7 +16,7 @@ namespace Assets.Scripts.UI.ChapterPreview
 
 		public void OnClick()
 		{
-			if (UICamera.currentTouchID == -1 && GameSystem.Instance.GameState == GameState.ChapterPreview)
+			if (UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ChapterPreview)
 			{
 				StateChapterPreview stateChapterPreview = GameSystem.Instance.GetStateObject() as StateChapterPreview;
 				if (stateChapterPreview != null)
