@@ -27,7 +27,7 @@ namespace Assets.Scripts.UI.SaveLoad
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if (gameSystem.GameState == GameState.SaveLoadScreen && !(time > 0f) && UICamera.currentTouchID == -1 && isEnabled)
+			if (gameSystem.GameState == GameState.SaveLoadScreen && !(time > 0f) && UICamera.currentTouchID >= -1 && isEnabled)
 			{
 				StateSaveLoad state = gameSystem.GetStateObject() as StateSaveLoad;
 				if (state != null)

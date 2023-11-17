@@ -27,7 +27,7 @@ namespace Assets.Scripts.UI.Menu
 			{
 				return;
 			}
-			if (gameSystem.GameState == GameState.RightClickMenu && !(time > 0f) && UICamera.currentTouchID == -1 && isEnabled)
+			if (gameSystem.GameState == GameState.RightClickMenu && !(time > 0f) && UICamera.currentTouchID >= -1 && isEnabled)
 			{
 				switch (base.name)
 				{
