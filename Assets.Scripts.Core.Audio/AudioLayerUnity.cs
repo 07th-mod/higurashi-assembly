@@ -49,6 +49,8 @@ namespace Assets.Scripts.Core.Audio
 
 		public int pages;
 
+		private static bool isFirst = true;
+
 		public bool hasCallback => finishCallback != null;
 
 		public void Prepare(int newid)
@@ -187,16 +189,20 @@ namespace Assets.Scripts.Core.Audio
 				Debug.Log("Audio file does not exist: " + text);
 				yield break;
 			}
-			string s = text.Replace("\\", "/");
+			text.Replace("\\", "/");
 			trackName = filename;
-			string uri2 = UnityWebRequest.EscapeURL(s);
-			uri2 = ((Application.platform != RuntimePlatform.OSXPlayer && Application.platform != RuntimePlatform.LinuxPlayer) ? ("file:///" + uri2) : ("file://" + uri2));
-			UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(uri2, UnityEngine.AudioType.OGGVORBIS);
+			Uri baseUri = new Uri(text);
+			UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(baseUri.AbsoluteUri.Replace("+", "%2b"), UnityEngine.AudioType.OGGVORBIS);
+			if (isFirst)
+			{
+				Debug.Log(base.name + ": Loading from " + baseUri);
+			}
+			isFirst = false;
 			yield return req.SendWebRequest();
 			loadedName = filename;
 			if (req.isNetworkError || req.isHttpError)
 			{
-				Debug.LogError("Could not load audio clip \"" + uri2 + "\", error: " + req.error);
+				Debug.LogError("Could not load audio clip \"" + baseUri + "\", error: " + req.error);
 			}
 			audioClip = DownloadHandlerAudioClip.GetContent(req);
 			while (audioClip.loadState != AudioDataLoadState.Loaded)
