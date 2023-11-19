@@ -274,6 +274,7 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetFontSize(aDVModeFontSize);
 
 			// TODO: Properly implement different settings for Japanese mode (but perhaps this only applies when using unmodded ADV window?)
+			GameSystem.Instance.TextController.NameFormatJp = aDVModeNameFormat;
 			GameSystem.Instance.TextController.SetLineSpacingJp(aDVModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(aDVModeFontSize);
 		}
@@ -310,6 +311,7 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetFontSize(nVLModeFontSize);
 
 			// TODO: Properly implement different settings for Japanese mode (but perhaps this only applies when using unmodded ADV window?)
+			GameSystem.Instance.TextController.NameFormatJp = nVLModeNameFormat;
 			GameSystem.Instance.TextController.SetLineSpacingJp(nVLModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(nVLModeFontSize);
 		}
@@ -345,6 +347,7 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetFontSize(nVLADVModeFontSize);
 
 			// TODO: Properly implement different settings for Japanese mode (but perhaps this only applies when using unmodded ADV window?)
+			GameSystem.Instance.TextController.NameFormatJp = nVLADVModeNameFormat;
 			GameSystem.Instance.TextController.SetLineSpacingJp(nVLADVModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(nVLADVModeFontSize);
 		}
