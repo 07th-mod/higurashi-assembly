@@ -61,6 +61,10 @@ namespace Assets.Scripts.UI
 		public MODMenu modMenu;
 		private MODToaster toaster;
 
+		// Pretty sure the logic for this is wrong, but UpdateGuiPosition() seems to use the same logic...
+		// UpdateGuiScale() is never called, so presumably the scale is always (1,1,1) so it shouldn't make any difference.
+		public Vector3 MODGetScaledGuiPosition() => Vector3.Scale(unscaledPosition, mainuiPanel.transform.localScale);
+
 		public void UpdateGuiPosition(int x, int y)
 		{
 			unscaledPosition = new Vector3((float)x, (float)y, 0f);
@@ -114,7 +118,7 @@ namespace Assets.Scripts.UI
 
 		public void FollowShake(GameObject target, float time)
 		{
-			ShakeFollower.FollowShakeOfObject(mainuiPanel.gameObject, target, time, 1.6f, flipPosition: true);
+			ShakeFollower.MODFollowShakeOfObjectMainUIOnly(mainuiPanel.gameObject, target, time, 1.6f, flipPosition: true);
 		}
 
 		public void SetWindowOpacity(float alpha)
