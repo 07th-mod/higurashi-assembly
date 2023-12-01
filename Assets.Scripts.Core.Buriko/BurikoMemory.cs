@@ -514,17 +514,37 @@ namespace Assets.Scripts.Core.Buriko
 		public static bool MODCheckMemoryIsModded(MemoryStream ms)
 		{
 			BinaryReader binaryReader = new BinaryReader(ms);
-
-			int num = binaryReader.ReadInt32(); // Number of variables
+			JsonSerializer jsonSerializer = new JsonSerializer();
+			int num = binaryReader.ReadInt32();
 			for (int i = 0; i < num; i++)
 			{
-				string key = binaryReader.ReadString();
-				if(key == "$layerFilters") // Could also be "$artsets" or "$audioTracking" here
+				string key = binaryReader.ReadString(); // key
+				binaryReader.ReadInt32();  // scope
+				string text = binaryReader.ReadString();
+				IBurikoObject burikoObject;
+				switch (text)
+				{
+					case "String":
+						burikoObject = new BurikoString();
+						break;
+					case "MtnCtrlElement":
+						burikoObject = new BurikoMtnCtrlElement();
+						break;
+					case "Integer":
+						burikoObject = new BurikoInt();
+						break;
+					case "Vector":
+						burikoObject = new BurikoVector();
+						break;
+					default:
+						throw new InvalidDataException("Cannot populate Buriko Object of type " + text);
+				}
+				burikoObject.DeSerialize(ms);
+
+				if(key.StartsWith("$"))
 				{
 					return true;
 				}
-				binaryReader.ReadInt32(); // scope
-				binaryReader.ReadString(); // text
 			}
 
 			return false;
