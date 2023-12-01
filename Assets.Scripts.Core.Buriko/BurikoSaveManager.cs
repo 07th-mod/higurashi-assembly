@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -89,6 +90,31 @@ namespace Assets.Scripts.Core.Buriko
 							text = Regex.Replace(text, pattern, string.Empty);
 							saveEntry.Text = text;
 							saveEntry2.TextJp = textJp;
+
+							// ------------------------ MOD SAVE DETECTION BEGIN ------------------------
+							// This section was added so that the mod can tell whether a save is from the modded game or not
+							// Note that extremely old mod saves (multiple years old?) may be detected incorrectly
+
+							// Ignore serialized previous text
+							binaryReader.ReadString(); // previous text
+							binaryReader.ReadString(); // previous text
+							binaryReader.ReadBoolean(); // flag?
+
+							// Ignore serialiezd line number, call stack etc.
+							int num2 = binaryReader.ReadInt32();
+							for (int i = 0; i < num2; i++)
+							{
+								binaryReader.ReadString(); // key
+								binaryReader.ReadInt32(); // line number
+							}
+							binaryReader.ReadString(); //key2
+							binaryReader.ReadInt32(); //linenum2
+
+							// Read serialized BurikoMemory only for the purpose of determining it contains mod-only variables
+							bool isModdedSave = BurikoMemory.MODCheckMemoryIsModded(input);
+							Logger.Log($"Save {slot}/{path} is modded: {isModdedSave}");
+
+							// ------------------------ MOD SAVE DETECTION END ------------------------
 						}
 					}
 					if (saveList.ContainsKey(slot))

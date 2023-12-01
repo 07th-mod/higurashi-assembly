@@ -504,6 +504,32 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
+		/// <summary>
+		/// Checks whether BurikoMemory serialized with SaveMemory() is modded or not
+		/// (serialized as a byte[] contained in a MemoryStream).
+		/// This is a stripped down version of LoadMemory() which does not modify the memoryList variable
+		/// </summary>
+		/// <param name="ms"></param>
+		/// <returns></returns>
+		public static bool MODCheckMemoryIsModded(MemoryStream ms)
+		{
+			BinaryReader binaryReader = new BinaryReader(ms);
+
+			int num = binaryReader.ReadInt32(); // Number of variables
+			for (int i = 0; i < num; i++)
+			{
+				string key = binaryReader.ReadString();
+				if(key == "$layerFilters") // Could also be "$artsets" or "$audioTracking" here
+				{
+					return true;
+				}
+				binaryReader.ReadInt32(); // scope
+				binaryReader.ReadString(); // text
+			}
+
+			return false;
+		}
+
 		public void LoadGlobals()
 		{
 			string path = Path.Combine(MGHelper.GetSavePath(), "global.dat");
