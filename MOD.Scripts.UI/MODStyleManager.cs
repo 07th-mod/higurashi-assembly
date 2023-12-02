@@ -183,6 +183,7 @@ namespace MOD.Scripts.UI
 				alignment = TextAnchor.UpperCenter,
 				fontSize = 40,
 				fontStyle = FontStyle.Bold,
+				wordWrap = true,
 			};
 			bigToastLabelStyle.normal.background = modGUIBackgroundTexture;
 			bigToastLabelStyle.normal.textColor = Color.white;
