@@ -18,6 +18,7 @@ namespace MOD.Scripts.UI
 			public int menuHeight;
 			public int menuWidth;
 			public float toolTipShrinkage;
+			public float toastWidth;
 			public GUIStyle modMenuSelectionGrid;   // Used for SelectionGrid widgets
 			public GUIStyle errorLabel;
 			public GUIStyle button;
@@ -26,11 +27,9 @@ namespace MOD.Scripts.UI
 			public GUIStyle labelRightAlign;
 			public GUIStyle headingLabel;
 			public GUIStyle upperLeftHeadingLabel;
+			public GUIStyle bigToastLabelStyle;     // Styles used for Toasts (text popups)
+			public GUIStyle smallToastLabelStyle;
 		}
-
-		// Styles used for Toasts
-		public GUIStyle bigToastLabelStyle;
-		public GUIStyle smallToastLabelStyle;
 
 		// Styles used for the Mod menu
 		public GUIStyle modMenuAreaStyle;       //Used for Area widgets
@@ -48,12 +47,17 @@ namespace MOD.Scripts.UI
 		StyleGroup style720_960x660;
 		StyleGroup style480_850x480;
 		StyleGroup style480_640x480;
+		StyleGroup style2160_2400x1900;
 
 		public StyleGroup Group
 		{
 			get
 			{
-				if (Screen.height >= 1080 && Screen.width >= 1200)
+				if (Screen.height >= 2160 && Screen.width >= 2400)
+				{
+					return style2160_2400x1900;
+				}
+				else if (Screen.height >= 1080 && Screen.width >= 1200)
 				{
 					return style1080_1200x950;
 				}
@@ -169,29 +173,16 @@ namespace MOD.Scripts.UI
 				padding: new RectOffset(2, 2, 2, 2)
 			);
 
-			OnGUIGetLabelStyle();
+			style2160_2400x1900 = GenerateWidgetStyles(
+				menuWidth: 2400,
+				menuHeight: 1900,
+				guiScale: 2.5f,
+				margin: new RectOffset(4, 4, 4, 4),
+				padding: new RectOffset(4, 4, 4, 4)
+			);
+
+			//OnGUIGetLabelStyle();
 			OnGUIGetModStyle();
-		}
-
-		// This sets up the style of the toast notification (mostly to make the font bigger and the text anchor location)
-		// From what I've read, The GUIStyle must be initialized in OnGUI(), otherwise
-		// GUI.skin.label will not be defined, so please do not move this part elsewhere without testing it.
-		private void OnGUIGetLabelStyle()
-		{
-			bigToastLabelStyle = new GUIStyle(GUI.skin.box) //Copy the default style for 'box' as a base
-			{
-				alignment = TextAnchor.UpperCenter,
-				fontSize = 40,
-				fontStyle = FontStyle.Bold,
-				wordWrap = true,
-			};
-			bigToastLabelStyle.normal.background = modGUIBackgroundTexture;
-			bigToastLabelStyle.normal.textColor = Color.white;
-
-			smallToastLabelStyle = new GUIStyle(bigToastLabelStyle)
-			{
-				fontSize = 20,
-			};
 		}
 
 		private void OnGUIGetModStyle()
@@ -262,10 +253,27 @@ namespace MOD.Scripts.UI
 			errorLabelStyle.normal.textColor = Color.red;
 			errorLabelStyle.fontSize = Mathf.RoundToInt(guiScale * baseFontSize);
 
+			// Toast popup styles
+			GUIStyle bigToastLabelStyle = new GUIStyle(GUI.skin.box) //Copy the default style for 'box' as a base
+			{
+				alignment = TextAnchor.UpperCenter,
+				fontSize = Mathf.RoundToInt(guiScale * 3 * baseFontSize),
+				fontStyle = FontStyle.Bold,
+				wordWrap = true,
+			};
+			bigToastLabelStyle.normal.background = modGUIBackgroundTexture;
+			bigToastLabelStyle.normal.textColor = Color.white;
+
+			GUIStyle smallToastLabelStyle = new GUIStyle(bigToastLabelStyle)
+			{
+				fontSize = bigToastLabelStyle.fontSize / 2,
+			};
+
 			return new StyleGroup()
 			{
 				menuWidth = menuWidth,
 				menuHeight = menuHeight,
+				toastWidth = menuWidth,
 				modMenuSelectionGrid = modMenuSelectionGrid,
 				errorLabel = errorLabelStyle,
 				button = buttonStyle,
@@ -275,6 +283,8 @@ namespace MOD.Scripts.UI
 				headingLabel = headingLabelStyle,
 				upperLeftHeadingLabel = upperLeftHeadingLabelStyle,
 				toolTipShrinkage = toolTipShrinkage,
+				bigToastLabelStyle = bigToastLabelStyle,
+				smallToastLabelStyle = smallToastLabelStyle,
 			};
 		}
 	}
