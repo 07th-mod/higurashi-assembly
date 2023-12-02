@@ -55,7 +55,7 @@ namespace MOD.Scripts.UI
 					if (Button(new GUIContent("1080p", "Set resolution to 1920 x 1080"))) { SetAndSaveResolution(1080); }
 					if (Button(new GUIContent("1440p", "Set resolution to 2560 x 1440"))) { SetAndSaveResolution(1440); }
 
-					screenHeightString = GUILayout.TextField(screenHeightString);
+					screenHeightString = TextField(screenHeightString);
 					if (Button(new GUIContent("Set", "Sets a custom resolution - mainly for windowed mode.\n\n" +
 						"Height set automatically to maintain 16:9 aspect ratio.")))
 					{
@@ -109,12 +109,12 @@ namespace MOD.Scripts.UI
 
 					GUILayout.BeginHorizontal();
 					LabelRightAlign("Width:");
-					fullscreenWidthOverrideString = GUILayout.TextField(fullscreenWidthOverrideString, 5);
+					fullscreenWidthOverrideString = TextField(fullscreenWidthOverrideString, 5);
 					GUILayout.EndHorizontal();
 
 					GUILayout.BeginHorizontal();
 					LabelRightAlign("Height:");
-					fullscreenHeightOverrideString = GUILayout.TextField(fullscreenHeightOverrideString, 5);
+					fullscreenHeightOverrideString = TextField(fullscreenHeightOverrideString, 5);
 					GUILayout.EndHorizontal();
 
 
