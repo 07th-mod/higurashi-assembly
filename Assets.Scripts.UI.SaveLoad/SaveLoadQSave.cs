@@ -20,6 +20,10 @@ namespace Assets.Scripts.UI.SaveLoad
 			SaveButton.isEnabled = false;
 			LoadButton.isEnabled = true;
 			BottomLabel.text = entry.Time.ToString("MMM dd, yyyy h:mm tt");
+			if(!entry.IsModded)
+			{
+				BottomLabel.text = $"[UNMODDED] {BottomLabel.text}";
+			}
 			// Save button is never useful so hide it
 			SaveButton.gameObject.SetActive(false);
 		}

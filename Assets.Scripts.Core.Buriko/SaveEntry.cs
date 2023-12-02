@@ -11,5 +11,7 @@ namespace Assets.Scripts.Core.Buriko
 		public string TextJp;
 
 		public DateTime Time;
+
+		public bool IsModded;
 	}
 }

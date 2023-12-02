@@ -111,8 +111,12 @@ namespace Assets.Scripts.Core.Buriko
 							binaryReader.ReadInt32(); //linenum2
 
 							// Read serialized BurikoMemory only for the purpose of determining it contains mod-only variables
-							bool isModdedSave = BurikoMemory.MODCheckMemoryIsModded(input);
-							Logger.Log($"Save {slot}/{path} is modded: {isModdedSave}");
+							saveEntry2.IsModded = BurikoMemory.MODCheckMemoryIsModded(input);
+							if(!saveEntry2.IsModded)
+							{
+								saveEntry2.Text = $"[UNMODDED] {saveEntry2.Text}";
+								saveEntry2.TextJp = $"[UNMODDED] {saveEntry2.TextJp}";
+							}
 
 							// ------------------------ MOD SAVE DETECTION END ------------------------
 						}
