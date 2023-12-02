@@ -4,6 +4,7 @@ using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core;
 using System.IO;
 using UnityEngine;
 
@@ -46,6 +47,12 @@ namespace Assets.Scripts.UI.SaveLoad
 						{
 							return;
 						}
+
+						if(!d.IsModded && !MODSaveManager.UnmoddedLoadAllowed())
+						{
+							return;
+						}
+
 						StateDialogPrompt state2 = new StateDialogPrompt(PromptType.DialogLoad, delegate
 						{
 							state.Leave(delegate
