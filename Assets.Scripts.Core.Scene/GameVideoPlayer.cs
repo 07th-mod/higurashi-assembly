@@ -35,62 +35,26 @@ namespace Assets.Scripts.Core.Scene
 			return gameVideoPlayer;
 		}
 
-		private int RoundNearest2(float value)
+		// Rounds a float to the nearest even number (multiple of 2), then converts to an int
+		private int RoundNearestEven(float value)
 		{
 			return Mathf.RoundToInt(Mathf.Round(value / 2f) * 2f);
-		}
-
-		private Vector2Int CalculateMeshSize(Vector2Int videoResolution)
-		{
-			// Calculate screen width/heigh in same coordinate system as expected by Initialize(...)
-			// 4:3 full screen is 640x480
-			// 16:9 full screen is 854x480
-			float screen_aspect = GameSystem.Instance.AspectRatio;
-			float screen_width = RoundNearest2(screen_aspect * 480);
-			float screen_height = 480;
-
-			// Calculate video aspect. We don't care about actual video resolution
-			// (hopefully that is handled by the video player automatically...)
-			float video_width = videoResolution.x;
-			float video_height = videoResolution.y;
-			float video_aspect = video_width / video_height;
-
-			// These default values are currently never used,
-			// but would stretch video to screen regardless of aspect
-			float mesh_width = screen_width;
-			float mesh_height = screen_height;
-
-			// Compare the video aspect vs screen aspect to determine what kind of
-			// Letterboxing should be performed
-			if (video_aspect > screen_aspect)
-			{
-				// Horizontal Letterboxing
-				mesh_width = screen_width;
-				mesh_height = screen_width / video_aspect;
-			}
-			else
-			{
-				// Vertical Letterboxing
-				mesh_width = screen_height * video_aspect;
-				mesh_height = screen_height;
-			}
-
-			// Make sure returned mesh size is a multiple of 2 (just to be safe)
-			return new Vector2Int(RoundNearest2(mesh_width), RoundNearest2(mesh_height));
 		}
 
 		public void Initialize(string path, Vector2Int size)
 		{
 			// NOTE: the video will be drawn ontop of whatever is already on the screen
 			// so you should add a DrawScene( "black", 500 ); just before the movie is played.
-			Vector2Int meshSize = CalculateMeshSize(size);
+			float screen_aspect = GameSystem.Instance.AspectRatio;
+			int screen_width = RoundNearestEven(screen_aspect * 480f);
+			int screen_height = 480;
 
 			meshFilter = base.gameObject.AddComponent<MeshFilter>();
 			meshRenderer = base.gameObject.AddComponent<MeshRenderer>();
 			material = new Material(Shader.Find("MGShader/LayerShader"));
 			meshRenderer.material = material;
-			meshFilter.mesh = MGHelper.CreateMesh(meshSize.x, meshSize.y, LayerAlignment.AlignCenter, false, 0);
-			renderTexture = new RenderTexture(meshSize.x, meshSize.y, 32);
+			meshFilter.mesh = MGHelper.CreateMesh(screen_width, screen_height, LayerAlignment.AlignCenter, false, 0);
+			renderTexture = new RenderTexture(screen_width, screen_height, 32);
 			material.SetTexture("_Primary", renderTexture);
 			player = base.gameObject.AddComponent<VideoPlayer>();
 			player.renderMode = VideoRenderMode.RenderTexture;
