@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MOD.Scripts.Core
 {
-	public class MODSaveManager
+	public static class MODSaveManager
 	{
 		static int RequiredAttempts = 10;
 

@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Interfaces;
+using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.UI;
 using System;
@@ -158,6 +159,7 @@ namespace Assets.Scripts.Core.Buriko
 		public void DeleteSave(int slotnum)
 		{
 			saveManager.DeleteSave(slotnum);
+			MODSteamCloudManager.ShowSteamCloudUsage();
 		}
 
 		public bool IsSaveInSlot(int slotnum)
@@ -330,6 +332,7 @@ namespace Assets.Scripts.Core.Buriko
 				File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
 				saveManager.UpdateSaveSlot(slotnum);
 				GameSystem.Instance.SceneController.WriteScreenshot(Path.Combine(MGHelper.GetSavePath(), str + ".png"));
+				MODSteamCloudManager.ShowSteamCloudUsage();
 			}
 		}
 
