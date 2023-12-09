@@ -49,6 +49,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			string path = MGHelper.GetSavePath(string.Format("save{0}.dat", slot.ToString("D3")), allowLegacyFallback);
 			string path2 = MGHelper.GetSavePath(string.Format("save{0}.png", slot.ToString("D3")), allowLegacyFallback);
+			string legacyPath = MGHelper.GetSavePath(string.Format("save{0}.png", slot.ToString("D3")), allowLegacyFallback);
 			if (File.Exists(path))
 			{
 				File.Delete(path);
@@ -56,6 +57,10 @@ namespace Assets.Scripts.Core.Buriko
 			if (File.Exists(path2))
 			{
 				File.Delete(path2);
+			}
+			if (File.Exists(legacyPath))
+			{
+				File.Delete(legacyPath);
 			}
 			saveList.Remove(slot);
 		}

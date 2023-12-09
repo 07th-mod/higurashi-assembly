@@ -331,7 +331,7 @@ namespace Assets.Scripts.Core.Buriko
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
 				File.WriteAllBytes(MGHelper.GetSavePath(str + ".dat", allowLegacyFallback: false), array);
 				saveManager.UpdateSaveSlot(slotnum);
-				GameSystem.Instance.SceneController.WriteScreenshot(MGHelper.GetSavePath(str + ".png", allowLegacyFallback: false));
+				GameSystem.Instance.SceneController.WriteScreenshot(MGHelper.GetSavePath(str + ".jpg", allowLegacyFallback: false));
 				MODSteamCloudManager.ShowSteamCloudUsage();
 			}
 		}

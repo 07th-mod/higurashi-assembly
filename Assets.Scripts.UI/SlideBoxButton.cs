@@ -69,7 +69,7 @@ namespace Assets.Scripts.UI
 						if (!(promptController == null))
 						{
 							string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d.Path);
-							Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
+							Texture2D image = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension);
 							Debug.Log(promptController);
 							Debug.Log(d);
 							promptController.SetScreenshotDetails(image, d.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d.Text, d.TextJp);

@@ -82,6 +82,9 @@ namespace Assets.Scripts.Core.AssetManagement
 		public int numCompileOK { get; private set; }
 		public int numCompileFail { get; private set; }
 
+		public static readonly int ScreenshotWidth = 382;
+		public static readonly int ScreenshotHeight = 286;
+
 		/// <summary>
 		/// Get the artset at the given index
 		/// </summary>
@@ -397,20 +400,20 @@ namespace Assets.Scripts.Core.AssetManagement
 			return BitConverter.ToInt32(array, 0);
 		}
 
-		public Texture2D LoadScreenshot(string filename)
+		public Texture2D LoadScreenshotByNameWithoutExtension(string filenameNoExt)
 		{
-			string path = MGHelper.GetSavePath(filename.ToLower(), allowLegacyFallback: true);
+			string path = MGHelper.GetSavePath((filenameNoExt + ".jpg").ToLower(), allowLegacyFallback: true);
+			if(!File.Exists(path))
+			{
+				path = MGHelper.GetSavePath((filenameNoExt + ".png").ToLower(), allowLegacyFallback: true);
+			}
+
 			if (File.Exists(path))
 			{
 				try
 				{
 					byte[] array = File.ReadAllBytes(path);
-					byte[] array2 = new byte[4];
-					Buffer.BlockCopy(array, 16, array2, 0, 4);
-					int width = ReadLittleEndianInt32(array2);
-					Buffer.BlockCopy(array, 20, array2, 0, 4);
-					int height = ReadLittleEndianInt32(array2);
-					Texture2D texture2D = new Texture2D(width, height, TextureFormat.ARGB32, mipmap: false);
+					Texture2D texture2D = new Texture2D(ScreenshotWidth, ScreenshotHeight, TextureFormat.ARGB32, mipmap: false);
 					texture2D.LoadImage(array);
 					texture2D.filterMode = FilterMode.Bilinear;
 					texture2D.wrapMode = TextureWrapMode.Clamp;
