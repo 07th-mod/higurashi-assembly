@@ -131,7 +131,7 @@ namespace MOD.Scripts.Core
 
 			// Count number of files and total space used
 			// Subdirectories are not synchronized so just ignore them
-			string[] files = Directory.GetFiles(MGHelper.GetSavePath());
+			string[] files = Directory.GetFiles(MGHelper.GetSaveFolder());
 			int fileCount = files.Length;
 			long totalSizeBytes = 0;
 			foreach (string path in files)

@@ -459,7 +459,7 @@ namespace MOD.Scripts.UI
 
 		public static void ShowSaveFolder()
 		{
-			ShowFile(MGHelper.GetSavePath());
+			ShowFile(MGHelper.GetSaveFolder());
 		}
 		public static void ShowCompiledScripts()
 		{

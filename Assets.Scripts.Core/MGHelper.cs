@@ -1,4 +1,5 @@
 using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using System;
 using System.IO;
 using UnityEngine;
@@ -220,7 +221,14 @@ namespace Assets.Scripts.Core
 			return result;
 		}
 
-		public static string GetSavePath()
+		public static string GetSaveFolder()
+		{
+			return GetSaveFolderInternal(legacyMode: false);
+		}
+
+		// Returns the full path to the save folder.
+		// For example, on Windows: C:\Users\[YOUR_USERNAME]\AppData\Roaming\MangaGamer\higurashi01
+		private static string GetSaveFolderInternal(bool legacyMode)
 		{
 			string savePath;
 			if (Application.platform == RuntimePlatform.OSXPlayer)
@@ -245,12 +253,57 @@ namespace Assets.Scripts.Core
 				}
 				savePath = _savepath;
 			}
-			var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
-			if (!string.IsNullOrEmpty(subdir))
+			if(legacyMode)
 			{
-				savePath = Path.Combine(savePath, subdir);
+				var subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+				if (!string.IsNullOrEmpty(subdir))
+				{
+					savePath = Path.Combine(savePath, subdir);
+				}
 			}
 			Directory.CreateDirectory(savePath);
+			return savePath;
+		}
+
+		private static string GetSavePrefix(string filename)
+		{
+			string subdir = MODSystem.instance.modConfig.SaveSubdirectory;
+
+			// If this chapter does not use subdir/prefix, just return empty prefix
+			if (string.IsNullOrEmpty(subdir))
+			{
+				return "";
+			}
+
+			string prefix = $"{subdir}-";
+
+			// If the filename already has the prefix, don't add it again
+			// This is necessary because some of the code isn't aware of the prefix, and can call
+			// GetSavePath on a filename which already has the prefix, which would add it twice without the below check
+			if (filename.StartsWith(prefix))
+			{
+				return "";
+			}
+
+			return prefix;
+		}
+
+		public static string GetSavePath(string filename, bool allowLegacyFallback)
+		{
+			string savePath = Path.Combine(GetSaveFolderInternal(legacyMode: false), GetSavePrefix(filename) + filename);
+
+			if (allowLegacyFallback)
+			{
+				if(!File.Exists(savePath))
+				{
+					string legacySavePath = Path.Combine(GetSaveFolderInternal(legacyMode: true), filename);
+					if (File.Exists(legacySavePath))
+					{
+						return legacySavePath;
+					}
+				}
+			}
+
 			return savePath;
 		}
 
