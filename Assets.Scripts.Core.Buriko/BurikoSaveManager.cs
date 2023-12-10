@@ -45,23 +45,22 @@ namespace Assets.Scripts.Core.Buriko
 			DeleteSave(slot, allowLegacyFallback: true);
 		}
 
-		private void DeleteSave(int slot, bool allowLegacyFallback)
+		private void DeleteSingleSave(int slot, bool allowLegacyFallback, string extension)
 		{
-			string path = MGHelper.GetSavePath(string.Format("save{0}.dat", slot.ToString("D3")), allowLegacyFallback);
-			string path2 = MGHelper.GetSavePath(string.Format("save{0}.png", slot.ToString("D3")), allowLegacyFallback);
-			string legacyPath = MGHelper.GetSavePath(string.Format("save{0}.png", slot.ToString("D3")), allowLegacyFallback);
+			string slotNumberAsString = slot.ToString("D3");
+			string path = MGHelper.GetSavePath($"save{slotNumberAsString}{extension}", allowLegacyFallback);
 			if (File.Exists(path))
 			{
 				File.Delete(path);
 			}
-			if (File.Exists(path2))
-			{
-				File.Delete(path2);
-			}
-			if (File.Exists(legacyPath))
-			{
-				File.Delete(legacyPath);
-			}
+		}
+
+		private void DeleteSave(int slot, bool allowLegacyFallback)
+		{
+			DeleteSingleSave(slot, allowLegacyFallback, ".dat");
+			DeleteSingleSave(slot, allowLegacyFallback, ".png");
+			DeleteSingleSave(slot, allowLegacyFallback, ".jpg");
+
 			saveList.Remove(slot);
 		}
 
