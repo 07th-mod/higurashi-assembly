@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using static Assets.Scripts.Core.Buriko.BurikoScriptSystem;
 
 namespace Assets.Scripts.Core.Buriko
 {
@@ -17,12 +18,20 @@ namespace Assets.Scripts.Core.Buriko
 			lastSaveError = null;
 			for (int i = 0; i < 100; i++)
 			{
-				string path = MGHelper.GetSavePath(string.Format("save{0}.dat", i.ToString("D3")), allowLegacyFallback: true);
+				string path = MGHelper.GetSavePath(string.Format("save{0}.dat2", i.ToString("D3")), allowLegacyFallback: true);
+				if(!File.Exists(path))
+				{
+					path = Path.ChangeExtension(path, ".dat");
+				}
 				GetSaveData(i, path);
 			}
 			for (int j = 0; j < 3; j++)
 			{
-				string path2 = MGHelper.GetSavePath(string.Format("qsave{0}.dat", j.ToString("D1")), allowLegacyFallback: true);
+				string path2 = MGHelper.GetSavePath(string.Format("qsave{0}.dat2", j.ToString("D1")), allowLegacyFallback: true);
+				if (!File.Exists(path2))
+				{
+					path2 = Path.ChangeExtension(path2, ".dat");
+				}
 				GetSaveData(j + 100, path2);
 			}
 		}
@@ -58,6 +67,7 @@ namespace Assets.Scripts.Core.Buriko
 		private void DeleteSave(int slot, bool allowLegacyFallback)
 		{
 			DeleteSingleSave(slot, allowLegacyFallback, ".dat");
+			DeleteSingleSave(slot, allowLegacyFallback, ".dat2");
 			DeleteSingleSave(slot, allowLegacyFallback, ".png");
 			DeleteSingleSave(slot, allowLegacyFallback, ".jpg");
 
@@ -78,9 +88,21 @@ namespace Assets.Scripts.Core.Buriko
 					SaveEntry saveEntry = new SaveEntry();
 					saveEntry.Path = path;
 					SaveEntry saveEntry2 = saveEntry;
-					byte[] array = File.ReadAllBytes(path);
-					MGHelper.KeyEncode(array);
-					byte[] buffer = CLZF2.Decompress(array);
+
+					byte[] saveData = null;
+					if (path.ToLower().EndsWith(".dat2"))
+					{
+						byte[] packedSave = File.ReadAllBytes(path);
+						CombinedSaveData combinedData = BurikoScriptSystem.UnpackSave(packedSave);
+						saveData = combinedData.save;
+					}
+					else
+					{
+						saveData = File.ReadAllBytes(path);
+					}
+
+					MGHelper.KeyEncode(saveData);
+					byte[] buffer = CLZF2.Decompress(saveData);
 					using (MemoryStream input = new MemoryStream(buffer))
 					{
 						using (BinaryReader binaryReader = new BinaryReader(input))
@@ -152,7 +174,23 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void UpdateSaveSlot(int slot)
 		{
-			GetSaveData(path: (slot >= 100) ? MGHelper.GetSavePath(string.Format("qsave{0}.dat", (slot - 100).ToString("D1")), allowLegacyFallback: true) : MGHelper.GetSavePath(string.Format("save{0}.dat", slot.ToString("D3")), allowLegacyFallback: true), slot: slot);
+			string path = "";
+
+			if(slot >= 100)
+			{
+				path = MGHelper.GetSavePath(string.Format("qsave{0}.dat2", (slot - 100).ToString("D1")), allowLegacyFallback: true);
+			}
+			else
+			{
+				path = MGHelper.GetSavePath(string.Format("save{0}.dat2", slot.ToString("D3")), allowLegacyFallback: true);
+			}
+
+			if (!File.Exists(path))
+			{
+				path = Path.ChangeExtension(path, ".dat");
+			}
+
+			GetSaveData(slot, path);
 		}
 	}
 }

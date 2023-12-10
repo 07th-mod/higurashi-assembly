@@ -80,6 +80,8 @@ namespace Assets.Scripts.Core.Scene
 		private float expression1Threshold = .3f;
 		private bool forceComputedLipsync = true;
 
+		//private byte[] lastScreenShot = null;
+
 		static SceneController()
 		{
 			UpperLayerRange = 32;
@@ -753,27 +755,61 @@ namespace Assets.Scripts.Core.Scene
 			OnFinishAction(tex);
 		}
 
-		private IEnumerator WriteScreenshotToFile(string path)
+		private IEnumerator SaveScreenshotAsPNGInner(Action<byte[]> onComplete)
 		{
 			yield return (object)new WaitForEndOfFrame();
 			RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
 			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
 			ScreenshotCamera.targetTexture = rt;
 			ScreenshotCamera.Render();
+
+			RenderTexture lastActiveRenderTexture = RenderTexture.active;
 			RenderTexture.active = rt;
 			Texture2D tex = new Texture2D(rt.width, rt.height);
 			tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, recalculateMipMaps: true);
 			tex.Apply();
 			byte[] texout = tex.EncodeToJPG(90);
+
 			ScreenshotCamera.targetTexture = null;
+			RenderTexture.active = lastActiveRenderTexture;
+
 			UnityEngine.Object.Destroy(rt);
-			File.WriteAllBytes(path, texout);
+			onComplete(texout);
 		}
 
-		public void WriteScreenshot(string path)
+		public void SaveScreenshotAsPNG(Action<byte[]> onFinishAction)
 		{
-			StartCoroutine(WriteScreenshotToFile(path));
+			StartCoroutine(SaveScreenshotAsPNGInner(onFinishAction));
 		}
+
+		//public byte[] GetLastScreenshot()
+		//{
+		//	byte[] temp = lastScreenShot;
+		//	lastScreenShot = null;
+		//	return temp;
+		//}
+
+		//private IEnumerator WriteScreenshotToFile(string path)
+		//{
+		//	yield return (object)new WaitForEndOfFrame();
+		//	RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
+		//	ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
+		//	ScreenshotCamera.targetTexture = rt;
+		//	ScreenshotCamera.Render();
+		//	RenderTexture.active = rt;
+		//	Texture2D tex = new Texture2D(rt.width, rt.height);
+		//	tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, recalculateMipMaps: true);
+		//	tex.Apply();
+		//	byte[] texout = tex.EncodeToJPG(90);
+		//	ScreenshotCamera.targetTexture = null;
+		//	UnityEngine.Object.Destroy(rt);
+		//	File.WriteAllBytes(path, texout);
+		//}
+
+		//public void WriteScreenshot(string path)
+		//{
+		//	StartCoroutine(WriteScreenshotToFile(path));
+		//}
 
 		public void GetScreenshot(Action<Texture2D> onFinishAction)
 		{

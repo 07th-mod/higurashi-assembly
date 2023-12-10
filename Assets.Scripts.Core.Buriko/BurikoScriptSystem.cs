@@ -5,6 +5,7 @@ using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -322,17 +323,69 @@ namespace Assets.Scripts.Core.Buriko
 			memoryStream2.Dispose();
 		}
 
+		public class CombinedSaveData
+		{
+			public byte[] save;
+			public byte[] screenshot;
+
+			public CombinedSaveData(byte[] save, byte[] screenshot)
+			{
+				this.save = save;
+				this.screenshot = screenshot;
+			}
+		}
+
+		private byte[] PackSave(CombinedSaveData data)
+		{
+			using (MemoryStream memoryStream = new MemoryStream())
+			using (BinaryWriter writer = new BinaryWriter(memoryStream))
+			{
+				writer.Write((Int32)data.save.Length);
+				writer.Write(data.save);
+				writer.Write(data.screenshot);
+				return memoryStream.ToArray();
+			}
+		}
+
+		public static CombinedSaveData UnpackSave(byte[] packedSaveData)
+		{
+			using (MemoryStream memoryStream = new MemoryStream(packedSaveData))
+			using (BinaryReader reader = new BinaryReader(memoryStream))
+			{
+				int saveDataLength = reader.ReadInt32();
+
+				byte[] saveData = reader.ReadBytes(saveDataLength);
+				byte[] screenshotData = reader.ReadBytes((int)(memoryStream.Length - memoryStream.Position));
+
+				return new CombinedSaveData(saveData, screenshotData);
+			}
+		}
+
 		public void SaveGame(int slotnum)
 		{
 			if (hasSnapshot)
 			{
-				byte[] array = CLZF2.Compress(snapshotData);
-				MGHelper.KeyEncode(array);
-				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
-				File.WriteAllBytes(MGHelper.GetSavePath(str + ".dat", allowLegacyFallback: false), array);
-				saveManager.UpdateSaveSlot(slotnum);
-				GameSystem.Instance.SceneController.WriteScreenshot(MGHelper.GetSavePath(str + ".jpg", allowLegacyFallback: false));
-				MODSteamCloudManager.ShowSteamCloudUsage();
+				//TODO: disable input until coroutine finishes?
+
+				GameSystem.Instance.SceneController.SaveScreenshotAsPNG(delegate (byte[] screenshotData)
+				{
+					// Get save data and screenshot data, and combine together
+					byte[] saveData = CLZF2.Compress(snapshotData);
+					MGHelper.KeyEncode(saveData);
+					byte[] packedSave = PackSave(new CombinedSaveData(saveData, screenshotData));
+
+					// Determine where to save the file
+					string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
+					string savePath = MGHelper.GetSavePath(str + ".dat2", allowLegacyFallback: false);
+
+					// Write save to file, and update save slot
+					// TODO: implement save-temp-copy rather than direct save
+					File.WriteAllBytes(savePath, packedSave);
+					saveManager.UpdateSaveSlot(slotnum);
+
+					MODSteamCloudManager.ShowSteamCloudUsage();
+				});
+
 			}
 		}
 
@@ -343,9 +396,21 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				GameSystem.Instance.TextController.ClearText();
 				GameSystem.Instance.MainUIController.FadeOut(0f, isBlocking: true);
-				byte[] array = File.ReadAllBytes(saveInfoInSlot.Path);
-				MGHelper.KeyEncode(array);
-				byte[] buffer = tempSnapshotData = (snapshotData = CLZF2.Decompress(array));
+
+				byte[] saveData = null;
+				if(saveInfoInSlot.Path.ToLower().EndsWith(".dat2"))
+				{
+					byte[] packedSave = File.ReadAllBytes(saveInfoInSlot.Path);
+					CombinedSaveData combinedData = UnpackSave(packedSave);
+					saveData = combinedData.save;
+				}
+				else
+				{
+					saveData = File.ReadAllBytes(saveInfoInSlot.Path);
+				}
+
+				MGHelper.KeyEncode(saveData);
+				byte[] buffer = tempSnapshotData = (snapshotData = CLZF2.Decompress(saveData));
 				hasSnapshot = true;
 				GameSystem.Instance.ClearAllWaits();
 				GameSystem.Instance.ClearActions();
