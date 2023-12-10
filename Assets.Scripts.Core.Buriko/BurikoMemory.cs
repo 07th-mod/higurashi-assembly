@@ -381,7 +381,7 @@ namespace Assets.Scripts.Core.Buriko
 			new JsonSerializer().Serialize(writer, variable);
 			BurikoString str = new BurikoString();
 			str.Stringlist = new List<string> { writer.ToString() };
-			memorylist.Add(variableName, new BurikoMemoryEntry(0, str));
+			memorylist[variableName] = new BurikoMemoryEntry(0, str);
 		}
 
 		private bool tryDeserializeFromSave<T>(string variableName, out T variable)
@@ -400,12 +400,26 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
-		public byte[] SaveMemory()
+		public void RemoveModTempDataFromMemoryList()
 		{
+			memorylist.Remove("$layerFilters");
+			memorylist.Remove("$artsets");
+			memorylist.Remove("$audioTracking");
+			memorylist.Remove("$isAutoSave");
+		}
+
+		public byte[] SaveMemory(bool isAutoSave)
+		{
+			RemoveModTempDataFromMemoryList();
+
 			// Save extra variables that aren't in vanilla games into places where they'll be ignored by vanilla games
 			// In this case, the variable list seemed like a good spot (with a name that's not a valid Buriko variable name)
 			serializeToSave("$layerFilters", MODSceneController.serializableLayerFilters);
 			serializeToSave("$audioTracking", MODAudioTracking.Instance.SerializeableState());
+			if(isAutoSave)
+			{
+				serializeToSave("$isAutoSave", true);
+			}
 			if (AssetManager.Instance.ShouldSerializeArtsets)
 			{
 				serializeToSave("$artsets", AssetManager.Instance.Artsets);
@@ -439,9 +453,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			finally
 			{
-				memorylist.Remove("$layerFilters");
-				memorylist.Remove("$artsets");
-				memorylist.Remove("$audioTracking");
+				RemoveModTempDataFromMemoryList();
 			}
 		}
 
@@ -511,8 +523,10 @@ namespace Assets.Scripts.Core.Buriko
 		/// </summary>
 		/// <param name="ms"></param>
 		/// <returns></returns>
-		public static bool MODCheckMemoryIsModded(MemoryStream ms)
+		public static bool MODCheckMemoryIsModded(MemoryStream ms, out bool isAutoSave)
 		{
+			isAutoSave = false;
+			bool isModded = false;
 			BinaryReader binaryReader = new BinaryReader(ms);
 			JsonSerializer jsonSerializer = new JsonSerializer();
 			int num = binaryReader.ReadInt32();
@@ -543,11 +557,16 @@ namespace Assets.Scripts.Core.Buriko
 
 				if(key.StartsWith("$"))
 				{
-					return true;
+					isModded = true;
+
+					if(key == "$isAutoSave")
+					{
+						isAutoSave = true;
+					}
 				}
 			}
 
-			return false;
+			return isModded;
 		}
 
 		public void LoadGlobals()

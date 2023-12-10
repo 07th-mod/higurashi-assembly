@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Interfaces;
+using Assets.Scripts.UI.SaveLoad;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.UI;
@@ -27,6 +28,10 @@ namespace Assets.Scripts.Core.Buriko
 		private byte[] snapshotData;
 
 		private byte[] tempSnapshotData;
+
+		private byte[] autoSaveSnapshot;
+
+		private System.Diagnostics.Stopwatch autoSaveStopwatch = new System.Diagnostics.Stopwatch();
 
 		private bool hasSnapshot;
 
@@ -136,6 +141,85 @@ namespace Assets.Scripts.Core.Buriko
 			currentScript.Next();
 		}
 
+		private bool AutoSaveEnabled()
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				SaveEntry entry = saveManager.GetSaveInfoInSlot(i);
+				if(entry != null)
+				{
+					// If any save in slot 0-4 is an autosave, disable autosave
+					if(!entry.IsAutoSave)
+					{
+						Debug.Log($">>> Non-autosave entry in autosave slot {i}");
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+
+		private int GetOldestSlotToSave()
+		{
+			int slotToSave = -1;
+			DateTime oldestSave = DateTime.MaxValue;
+
+            for (int i = 0; i < 5; i++)
+			{
+				// If any empty slots available, save into that slot
+				SaveEntry entry = saveManager.GetSaveInfoInSlot(i);
+				if (entry == null)
+				{
+					return i;
+				}
+
+				if (entry.Time < oldestSave)
+				{
+					slotToSave = i;
+					oldestSave = entry.Time;
+				}
+			}
+
+			return slotToSave < 0 ? 0 : slotToSave;
+		}
+
+		public void AutoSaveUpdate()
+		{
+			// Start the autosave timer the first time AutoSaveUpdate() is called
+			if(!autoSaveStopwatch.IsRunning)
+			{
+				autoSaveStopwatch.Start();
+			}
+
+			if(autoSaveStopwatch.Elapsed < TimeSpan.FromSeconds(15))
+			{
+				return;
+			}
+			else
+			{
+				autoSaveStopwatch.Reset();
+				autoSaveStopwatch.Start();
+			}
+
+			try
+			{
+				if (!AutoSaveEnabled())
+				{
+					Debug.Log(">>> Not autosaving as autosave disabled!");
+					return;
+				}
+
+				int saveSlot = GetOldestSlotToSave();
+				Debug.Log($"Autosaving to slot {saveSlot}");
+				SaveGame(saveSlot, saveAutoSave: true);
+			}
+			catch (Exception)
+			{
+				MODLogger.Log("Autosave failed", withContext: true);
+			}
+		}
+
 		public void SaveQuickSave()
 		{
 			int num = memoryManager.GetGlobalFlag("GQsaveNum").IntValue();
@@ -230,7 +314,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
-		public void TakeSaveSnapshot(string text = "")
+		public void TakeSaveSnapshot(string text = "", bool isAutoSave = false)
 		{
 			if (GameSystem.Instance.CanSave)
 			{
@@ -269,12 +353,26 @@ namespace Assets.Scripts.Core.Buriko
 						}
 						binaryWriter.Write(currentScript.Filename);
 						binaryWriter.Write(currentScript.LineNum);
-						binaryWriter.Write(memoryManager.SaveMemory());
+						binaryWriter.Write(memoryManager.SaveMemory(isAutoSave));
 						AudioController.Instance.SerializeCurrentAudio(memoryStream);
 						GameSystem.Instance.SceneController.SerializeScene(memoryStream);
-						snapshotData = memoryStream.ToArray();
-						hasSnapshot = true;
+						if(isAutoSave)
+						{
+							autoSaveSnapshot = memoryStream.ToArray();
+						}
+						else
+						{
+							snapshotData = memoryStream.ToArray();
+							hasSnapshot = true;
+						}
 					}
+				}
+
+				if(!isAutoSave)
+				{
+					// Take an autosave snapshot
+					// TODO: only do this periodically (every 10 mins?)
+					TakeSaveSnapshot(text, isAutoSave: true);
 				}
 			}
 		}
@@ -324,9 +422,34 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void SaveGame(int slotnum)
 		{
+			SaveGame(slotnum, saveAutoSave: false);
+		}
+
+		public void SaveGame(int slotnum, bool saveAutoSave)
+		{
 			if (hasSnapshot)
 			{
-				byte[] array = CLZF2.Compress(snapshotData);
+				byte[] snap;
+
+				if(saveAutoSave)
+				{
+					if(autoSaveSnapshot != null)
+					{
+						snap = autoSaveSnapshot;
+						autoSaveSnapshot = null;
+					}
+					else
+					{
+						Debug.Log(">>> Can't save autosave as no autosave snapshot");
+						return;
+					}
+				}
+				else
+				{
+					snap = snapshotData;
+				}
+
+				byte[] array = CLZF2.Compress(snap);
 				MGHelper.KeyEncode(array);
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
 				File.WriteAllBytes(MGHelper.GetSavePath(str + ".dat", allowLegacyFallback: false), array);

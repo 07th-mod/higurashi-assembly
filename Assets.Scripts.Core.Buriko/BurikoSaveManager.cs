@@ -124,13 +124,19 @@ namespace Assets.Scripts.Core.Buriko
 							binaryReader.ReadInt32(); //linenum2
 
 							// Read serialized BurikoMemory only for the purpose of determining it contains mod-only variables
-							saveEntry2.IsModded = BurikoMemory.MODCheckMemoryIsModded(input);
+							saveEntry2.IsModded = BurikoMemory.MODCheckMemoryIsModded(input, out bool isAutoSave);
 							if(!saveEntry2.IsModded)
 							{
 								saveEntry2.Text = $"[UNMODDED] {saveEntry2.Text}";
 								saveEntry2.TextJp = $"[UNMODDED] {saveEntry2.TextJp}";
 							}
 
+							saveEntry2.IsAutoSave = isAutoSave; //saveEntry2.Text.StartsWith("|AUTOSAVE|");
+							if(isAutoSave)
+							{
+								saveEntry2.Text = $"[AUTO] {saveEntry2.Text}";
+								saveEntry2.TextJp = $"[AUTO] {saveEntry2.TextJp}";
+							}
 							// ------------------------ MOD SAVE DETECTION END ------------------------
 						}
 					}

@@ -352,7 +352,10 @@ namespace Assets.Scripts.Core.Buriko
 			gameSystem.TextController.SetText(text, text3, textMode, 1);
 			gameSystem.TextController.SetText(text2, text4, textMode, 2);
 			gameSystem.ExecuteActions();
-			scriptSystem.TakeSaveSnapshot(string.Empty);
+			if(textMode == BurikoTextModes.WaitForInput || textMode == BurikoTextModes.Normal)
+			{
+				scriptSystem.TakeSaveSnapshot(string.Empty);
+			}
 			return BurikoVariable.Null;
 		}
 
@@ -375,7 +378,10 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			gameSystem.TextController.SetText(text, text2, burikoTextModes, 0);
 			gameSystem.ExecuteActions();
-			scriptSystem.TakeSaveSnapshot(string.Empty);
+			if (burikoTextModes == BurikoTextModes.WaitForInput || burikoTextModes == BurikoTextModes.Normal)
+			{
+				scriptSystem.TakeSaveSnapshot(string.Empty);
+			}
 			return BurikoVariable.Null;
 		}
 
@@ -426,6 +432,14 @@ namespace Assets.Scripts.Core.Buriko
 				gameSystem.MainUIController.FadeOut(0.5f, isBlocking: true);
 				gameSystem.SceneController.FadeFace(0.5f, isblocking: true);
 			}
+
+			// Do autosave is necessary after every DisableWindow(); call,
+			// but after the window has been faded out to hide any lag it causes
+			gameSystem.RegisterAction(delegate ()
+			{
+				BurikoScriptSystem.Instance.AutoSaveUpdate();
+			});
+
 			gameSystem.ExecuteActions();
 			return BurikoVariable.Null;
 		}

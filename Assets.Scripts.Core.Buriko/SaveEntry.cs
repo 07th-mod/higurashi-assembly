@@ -13,5 +13,7 @@ namespace Assets.Scripts.Core.Buriko
 		public DateTime Time;
 
 		public bool IsModded;
+
+		public bool IsAutoSave;
 	}
 }
