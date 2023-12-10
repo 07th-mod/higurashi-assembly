@@ -323,41 +323,38 @@ namespace Assets.Scripts.Core.Buriko
 			memoryStream2.Dispose();
 		}
 
-		public class CombinedSaveData
-		{
-			public byte[] save;
-			public byte[] screenshot;
-
-			public CombinedSaveData(byte[] save, byte[] screenshot)
-			{
-				this.save = save;
-				this.screenshot = screenshot;
-			}
-		}
-
-		private byte[] PackSave(CombinedSaveData data)
+		private byte[] PackSave(byte[] save, byte[] screenshot)
 		{
 			using (MemoryStream memoryStream = new MemoryStream())
 			using (BinaryWriter writer = new BinaryWriter(memoryStream))
 			{
-				writer.Write((Int32)data.save.Length);
-				writer.Write(data.save);
-				writer.Write(data.screenshot);
+				writer.Write((Int32)save.Length);
+				writer.Write(save);
+				writer.Write(screenshot);
 				return memoryStream.ToArray();
 			}
 		}
 
-		public static CombinedSaveData UnpackSave(byte[] packedSaveData)
+		public static byte[] UnpackSaveData(byte[] packedData)
 		{
-			using (MemoryStream memoryStream = new MemoryStream(packedSaveData))
+			using (MemoryStream memoryStream = new MemoryStream(packedData))
 			using (BinaryReader reader = new BinaryReader(memoryStream))
 			{
 				int saveDataLength = reader.ReadInt32();
+				return reader.ReadBytes(saveDataLength);
+			}
+		}
 
-				byte[] saveData = reader.ReadBytes(saveDataLength);
-				byte[] screenshotData = reader.ReadBytes((int)(memoryStream.Length - memoryStream.Position));
+		public static byte[] UnpackScreenshotData(byte[] packedData)
+		{
+			using (MemoryStream memoryStream = new MemoryStream(packedData))
+			using (BinaryReader reader = new BinaryReader(memoryStream))
+			{
+				// Skip save data
+				int saveDataLength = reader.ReadInt32();
+				reader.ReadBytes(saveDataLength);
 
-				return new CombinedSaveData(saveData, screenshotData);
+				return reader.ReadBytes((int)(memoryStream.Length - memoryStream.Position));
 			}
 		}
 
@@ -372,7 +369,7 @@ namespace Assets.Scripts.Core.Buriko
 					// Get save data and screenshot data, and combine together
 					byte[] saveData = CLZF2.Compress(snapshotData);
 					MGHelper.KeyEncode(saveData);
-					byte[] packedSave = PackSave(new CombinedSaveData(saveData, screenshotData));
+					byte[] packedSave = PackSave(saveData, screenshotData);
 
 					// Determine where to save the file
 					string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
@@ -401,8 +398,7 @@ namespace Assets.Scripts.Core.Buriko
 				if(saveInfoInSlot.Path.ToLower().EndsWith(".dat2"))
 				{
 					byte[] packedSave = File.ReadAllBytes(saveInfoInSlot.Path);
-					CombinedSaveData combinedData = UnpackSave(packedSave);
-					saveData = combinedData.save;
+					saveData = BurikoScriptSystem.UnpackSaveData(packedSave);
 				}
 				else
 				{

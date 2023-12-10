@@ -93,8 +93,7 @@ namespace Assets.Scripts.Core.Buriko
 					if (path.ToLower().EndsWith(".dat2"))
 					{
 						byte[] packedSave = File.ReadAllBytes(path);
-						CombinedSaveData combinedData = BurikoScriptSystem.UnpackSave(packedSave);
-						saveData = combinedData.save;
+						saveData = BurikoScriptSystem.UnpackSaveData(packedSave);
 					}
 					else
 					{

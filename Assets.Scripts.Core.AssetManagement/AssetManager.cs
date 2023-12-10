@@ -400,37 +400,56 @@ namespace Assets.Scripts.Core.AssetManagement
 			return BitConverter.ToInt32(array, 0);
 		}
 
-		public Texture2D LoadScreenshotByNameWithoutExtension(string filenameNoExt)
+		private Texture2D LoadScreenshotFromData(byte[] array)
 		{
-			string path = MGHelper.GetSavePath((filenameNoExt + ".jpg").ToLower(), allowLegacyFallback: true);
-			if(!File.Exists(path))
+			try
 			{
-				path = MGHelper.GetSavePath((filenameNoExt + ".png").ToLower(), allowLegacyFallback: true);
+				Texture2D texture2D = new Texture2D(ScreenshotWidth, ScreenshotHeight, TextureFormat.ARGB32, mipmap: false);
+				texture2D.LoadImage(array);
+				texture2D.filterMode = FilterMode.Bilinear;
+				texture2D.wrapMode = TextureWrapMode.Clamp;
+				return texture2D;
 			}
+			catch (Exception)
+			{
+				return LoadTexture("no_data");
+			}
+		}
 
+		private Texture2D LegacyLoadScreenshot(string path)
+		{
 			if (File.Exists(path))
 			{
 				try
 				{
-					byte[] array = File.ReadAllBytes(path);
-					Texture2D texture2D = new Texture2D(ScreenshotWidth, ScreenshotHeight, TextureFormat.ARGB32, mipmap: false);
-					texture2D.LoadImage(array);
-					texture2D.filterMode = FilterMode.Bilinear;
-					texture2D.wrapMode = TextureWrapMode.Clamp;
-					return texture2D;
-					IL_008d:
-					Texture2D result;
-					return result;
+					return LoadScreenshotFromData(File.ReadAllBytes(path));
 				}
 				catch (Exception)
 				{
 					return LoadTexture("no_data");
-					IL_00a5:
-					Texture2D result;
-					return result;
 				}
 			}
+
 			return LoadTexture("no_data");
+		}
+
+		public Texture2D LoadScreenshotByNameWithoutExtension(string filenameNoExt)
+		{
+			string path = MGHelper.GetSavePath((filenameNoExt + ".dat2").ToLower(), allowLegacyFallback: true);
+			if(File.Exists(path))
+			{
+				return LoadScreenshotFromData(BurikoScriptSystem.UnpackScreenshotData(File.ReadAllBytes(path)));
+			}
+
+			// Legacy screenshots are .jpg or .png files on disk
+			path = Path.ChangeExtension(path, ".jpg");
+			if(File.Exists(path))
+			{
+				return LegacyLoadScreenshot(path);
+			}
+
+			path = Path.ChangeExtension(path, ".png");
+			return LegacyLoadScreenshot(path);
 		}
 
 		public Texture2D LoadTexture(string textureName)
