@@ -80,7 +80,7 @@ namespace Assets.Scripts.Core.Scene
 		private float expression1Threshold = .3f;
 		private bool forceComputedLipsync = true;
 
-		//private byte[] lastScreenShot = null;
+		private Coroutine saveCoroutine;
 
 		static SceneController()
 		{
@@ -779,37 +779,13 @@ namespace Assets.Scripts.Core.Scene
 
 		public void SaveScreenshotAsPNG(Action<byte[]> onFinishAction)
 		{
-			StartCoroutine(SaveScreenshotAsPNGInner(onFinishAction));
+			if(saveCoroutine != null)
+			{
+				StopCoroutine(saveCoroutine);
+			}
+
+			saveCoroutine = StartCoroutine(SaveScreenshotAsPNGInner(onFinishAction));
 		}
-
-		//public byte[] GetLastScreenshot()
-		//{
-		//	byte[] temp = lastScreenShot;
-		//	lastScreenShot = null;
-		//	return temp;
-		//}
-
-		//private IEnumerator WriteScreenshotToFile(string path)
-		//{
-		//	yield return (object)new WaitForEndOfFrame();
-		//	RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
-		//	ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
-		//	ScreenshotCamera.targetTexture = rt;
-		//	ScreenshotCamera.Render();
-		//	RenderTexture.active = rt;
-		//	Texture2D tex = new Texture2D(rt.width, rt.height);
-		//	tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, recalculateMipMaps: true);
-		//	tex.Apply();
-		//	byte[] texout = tex.EncodeToJPG(90);
-		//	ScreenshotCamera.targetTexture = null;
-		//	UnityEngine.Object.Destroy(rt);
-		//	File.WriteAllBytes(path, texout);
-		//}
-
-		//public void WriteScreenshot(string path)
-		//{
-		//	StartCoroutine(WriteScreenshotToFile(path));
-		//}
 
 		public void GetScreenshot(Action<Texture2D> onFinishAction)
 		{
