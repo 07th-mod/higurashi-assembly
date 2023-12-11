@@ -134,8 +134,8 @@ namespace Assets.Scripts.Core.Buriko
 							saveEntry2.IsAutoSave = isAutoSave; //saveEntry2.Text.StartsWith("|AUTOSAVE|");
 							if(isAutoSave)
 							{
-								saveEntry2.Text = $"[AUTO] {saveEntry2.Text}";
-								saveEntry2.TextJp = $"[AUTO] {saveEntry2.TextJp}";
+								saveEntry2.Text = $"AUTO{slot + 1}: {saveEntry2.Text}";
+								saveEntry2.TextJp = $"AUTO{slot + 1}: {saveEntry2.TextJp}";
 							}
 							// ------------------------ MOD SAVE DETECTION END ------------------------
 						}
