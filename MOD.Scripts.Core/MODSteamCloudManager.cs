@@ -28,12 +28,14 @@ namespace MOD.Scripts.Core
 			public bool steamCloudSupported;
 			public bool steamCloudIsFull;
 			public string humanReadableStatus;
+			public float steamCloudUsage;
 
-			public SteamCloudStatus(bool steamCloudSupported, bool steamCloudIsFull, string humanReadableStatus)
+			public SteamCloudStatus(bool steamCloudSupported, bool steamCloudIsFull, string humanReadableStatus, float steamCloudUsage)
 			{
 				this.steamCloudSupported = steamCloudSupported;
 				this.steamCloudIsFull = steamCloudIsFull;
 				this.humanReadableStatus = humanReadableStatus;
+				this.steamCloudUsage = steamCloudUsage;
 			}
 		}
 
@@ -78,7 +80,7 @@ namespace MOD.Scripts.Core
 				// launch the modded game, Steam Cloud won't sync. But we still show the message for this
 				// case, as the user may open Steam later on, causing a sync to occur.
 				SteamCloudStatus status = MODSteamCloudManager.GetSteamCloudStatus();
-				if (status.steamCloudSupported)
+				if (status.steamCloudSupported && status.steamCloudUsage > .9)
 				{
 					MODToaster.Show(status.humanReadableStatus);
 				}
@@ -121,12 +123,12 @@ namespace MOD.Scripts.Core
 		{
 			if (!SteamCloudSettings.isSteamInstall)
 			{
-				return new SteamCloudStatus(false, false, "Game is not Steam, so Steam Cloud not supported");
+				return new SteamCloudStatus(false, false, "Game is not Steam, so Steam Cloud not supported", steamCloudUsage: 0);
 			}
 
 			if (!PlatformSupported())
 			{
-				return new SteamCloudStatus(false, false, "Steam Cloud only supported on" + $"Win: {SteamCloudSettings.windows} Linux: {SteamCloudSettings.linux} Mac: {SteamCloudSettings.macOS}");
+				return new SteamCloudStatus(false, false, "Steam Cloud only supported on" + $"Win: {SteamCloudSettings.windows} Linux: {SteamCloudSettings.linux} Mac: {SteamCloudSettings.macOS}", steamCloudUsage: 0);
 			}
 
 			// Count number of files and total space used
@@ -160,7 +162,7 @@ namespace MOD.Scripts.Core
 				humanReadableStatus += "\nPlease delete some saves!";
 			}
 
-			return new SteamCloudStatus(true, steamCloudIsFull, humanReadableStatus);
+			return new SteamCloudStatus(true, steamCloudIsFull, humanReadableStatus, maxUsed);
 		}
 	}
 }
