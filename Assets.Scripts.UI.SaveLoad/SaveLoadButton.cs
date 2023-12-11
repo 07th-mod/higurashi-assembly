@@ -5,6 +5,7 @@ using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using System.IO;
 using UnityEngine;
 
@@ -37,7 +38,14 @@ namespace Assets.Scripts.UI.SaveLoad
 					{
 					case "Save":
 					case "0-Save":
-						manager.Save(slot);
+						if(slot < 5)
+						{
+							MODToaster.Show("Can't save to Autosave slot");
+						}
+						else
+						{
+							manager.Save(slot);
+						}
 						break;
 					case "Load":
 					case "1-Load":
