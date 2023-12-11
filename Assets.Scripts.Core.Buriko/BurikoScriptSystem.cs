@@ -181,7 +181,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				if (!AutoSaveEnabled())
 				{
-					MODToaster.Show("Please delete save slots 1-5 to enable Autosave!");
+					MODToaster.Show("Autosave Failed: Pleaes delete save slots 1-5 to fix it!", toastDuration: 10);
 					return;
 				}
 
