@@ -335,6 +335,9 @@ namespace Assets.Scripts.Core
 		public void PostLoading()
 		{
 			StartScriptSystem();
+
+			// At this point in the startup, BurikoMemory is intialized
+			GameSystem.Instance.AudioController.RefreshLayerVolumes();
 			MainUIController.InitializeModMenu(this);
 		}
 
