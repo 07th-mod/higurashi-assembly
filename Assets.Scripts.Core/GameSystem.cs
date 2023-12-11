@@ -492,8 +492,17 @@ namespace Assets.Scripts.Core
 		{
 			if (ChoiceController != null)
 			{
-				ChoiceController.Destroy();
-				ChoiceController = null;
+				if (GameSystem.Instance.GameState == GameState.ChoiceScreen)
+				{
+					// If you're currently on the choice screen, then cleanly leave the choices state and delete the choice controller
+					LeaveChoices();
+				}
+				else
+				{
+					// If you're on another screen layered ontop of the choice screen (eg the load screen), just delete the choice controller and hope for the best.
+					ChoiceController.Destroy();
+					ChoiceController = null;
+				}
 			}
 		}
 
