@@ -151,7 +151,6 @@ namespace Assets.Scripts.Core.Buriko
 					// If any save in slot 0-4 is an autosave, disable autosave
 					if(!entry.IsAutoSave)
 					{
-						Debug.Log($">>> Non-autosave entry in autosave slot {i}");
 						return false;
 					}
 				}
@@ -183,7 +182,6 @@ namespace Assets.Scripts.Core.Buriko
 				if (!AutoSaveEnabled())
 				{
 					MODToaster.Show("Please delete save slots 1-5 to enable Autosave!");
-					Debug.Log(">>> Not autosaving as autosave disabled!");
 					return;
 				}
 
@@ -201,7 +199,6 @@ namespace Assets.Scripts.Core.Buriko
 
 				// Save to slot 0
 				int saveSlot = 0;
-				Debug.Log($"Autosaving to slot {saveSlot}");
 				SaveGame(saveSlot, saveAutoSave: true);
 			}
 			catch (Exception)

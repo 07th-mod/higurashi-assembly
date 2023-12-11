@@ -47,7 +47,6 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void MoveSave(int slot, int newSlot, bool showErrorIfSourceMissing)
 		{
-			Logger.Log($"MoveSave: {slot} to {newSlot}");
 			MoveSingleSave(slot, newSlot, ".dat", showErrorIfSourceMissing);
 			MoveSingleSave(slot, newSlot, ".dat2", showErrorIfSourceMissing);
 			MoveSingleSave(slot, newSlot, ".png", showErrorIfSourceMissing);
