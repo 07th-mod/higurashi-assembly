@@ -45,10 +45,26 @@ namespace Assets.Scripts.Core.Buriko
 			DeleteSave(slot, allowLegacyFallback: true);
 		}
 
-		private void DeleteSingleSave(int slot, bool allowLegacyFallback, string extension)
+		public void MoveSave(int slot, int newSlot, bool showErrorIfSourceMissing)
+		{
+			Logger.Log($"MoveSave: {slot} to {newSlot}");
+			MoveSingleSave(slot, newSlot, ".dat", showErrorIfSourceMissing);
+			MoveSingleSave(slot, newSlot, ".dat2", showErrorIfSourceMissing);
+			MoveSingleSave(slot, newSlot, ".png", showErrorIfSourceMissing);
+			MoveSingleSave(slot, newSlot, ".jpg", showErrorIfSourceMissing);
+		}
+
+		private string GetSaveFilePath(int slot, bool allowLegacyFallback, string extension)
 		{
 			string slotNumberAsString = slot.ToString("D3");
 			string path = MGHelper.GetSavePath($"save{slotNumberAsString}{extension}", allowLegacyFallback);
+
+			return path;
+		}
+
+		private void DeleteSingleSave(int slot, bool allowLegacyFallback, string extension)
+		{
+			string path = GetSaveFilePath(slot, allowLegacyFallback, extension);
 			if (File.Exists(path))
 			{
 				File.Delete(path);
@@ -62,6 +78,34 @@ namespace Assets.Scripts.Core.Buriko
 			DeleteSingleSave(slot, allowLegacyFallback, ".jpg");
 
 			saveList.Remove(slot);
+		}
+
+		// Note: moving legacy saves not supported.
+		// Note: will not overwrite an existing save - make sure new slot is empty
+		// If move fails, error will be printed but no exception raised
+		private void MoveSingleSave(int slot, int newSlot, string extension, bool showErrorIfSourceMissing)
+		{
+			string sourcePath = GetSaveFilePath(slot, false, extension);
+			string targetPath = GetSaveFilePath(newSlot, false, extension);
+
+			try
+			{
+				if(File.Exists(sourcePath))
+				{
+					File.Move(sourcePath, targetPath);
+				}
+				else
+				{
+					if(showErrorIfSourceMissing)
+					{
+						Logger.Log($"MoveSingleSave({slot}, {newSlot}, {extension}) source path [{sourcePath}] does not exist");
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				Logger.Log($"MoveSingleSave({slot}, {newSlot}, {extension}) failed from {sourcePath} to {targetPath}: {e.ToString()}");
+			}
 		}
 
 		public bool IsSaveInSlot(int slot)

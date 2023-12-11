@@ -160,30 +160,6 @@ namespace Assets.Scripts.Core.Buriko
 			return true;
 		}
 
-		private int GetOldestSlotToSave()
-		{
-			int slotToSave = -1;
-			DateTime oldestSave = DateTime.MaxValue;
-
-            for (int i = 0; i < 5; i++)
-			{
-				// If any empty slots available, save into that slot
-				SaveEntry entry = saveManager.GetSaveInfoInSlot(i);
-				if (entry == null)
-				{
-					return i;
-				}
-
-				if (entry.Time < oldestSave)
-				{
-					slotToSave = i;
-					oldestSave = entry.Time;
-				}
-			}
-
-			return slotToSave < 0 ? 0 : slotToSave;
-		}
-
 		public void AutoSaveUpdate()
 		{
 			// Start the autosave timer the first time AutoSaveUpdate() is called
@@ -210,7 +186,20 @@ namespace Assets.Scripts.Core.Buriko
 					return;
 				}
 
-				int saveSlot = GetOldestSlotToSave();
+				// Delete save slot 5
+				DeleteSave(5);
+
+				// Move autosaves down by one, leaving slot 0 empty
+				// Need to update save slot info if the slot was updated, or else
+				// the save won't appear in the save/load menu
+				for (int i = 3; i >= 0; i--)
+				{
+					MoveSave(i, i + 1, showErrorIfSourceMissing: false);
+					saveManager.UpdateSaveSlot(i + 1);
+				}
+
+				// Save to slot 0
+				int saveSlot = 0;
 				Debug.Log($"Autosaving to slot {saveSlot}");
 				SaveGame(saveSlot, saveAutoSave: true);
 			}
@@ -244,6 +233,11 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			saveManager.DeleteSave(slotnum);
 			MODSteamCloudManager.ShowSteamCloudUsage();
+		}
+
+		public void MoveSave(int slot, int newSlot, bool showErrorIfSourceMissing)
+		{
+			saveManager.MoveSave(slot, newSlot, showErrorIfSourceMissing);
 		}
 
 		public bool IsSaveInSlot(int slotnum)
