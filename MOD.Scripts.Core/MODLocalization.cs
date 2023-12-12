@@ -14,7 +14,20 @@ namespace MOD.Scripts.Core.Localization
 
 		public string comment = defaultValue;
 		public string text = defaultValue;
-		public string textJP = defaultValue;
+
+		// Japanese Mode Note: For now, if no japanese text specified, just use the english text instead.
+		private string _textJP = null;
+		public string textJP
+		{
+			get
+			{
+				return _textJP ?? text;
+			}
+			set
+			{
+				_textJP = value;
+			}
+		}
 
 		public bool TextHasValue() => text != null && text != defaultValue;
 	}
@@ -48,14 +61,12 @@ namespace MOD.Scripts.Core.Localization
 			{
 				comment = "This shows if LoadFromJSON() has not been called yet",
 				text = "#NOT INITIALIZED#",
-				textJP = "#NOT INITIALIZED#",
 			};
 
 			defaultEntry = new LocalizationEntry()
 			{
 				comment = "This localization entry is missing!",
 				text = "#TEXT MISSING#",
-				textJP = "#TEXT MISSING#",
 			};
 
 			info = new LocalizationInfo();
@@ -81,7 +92,7 @@ namespace MOD.Scripts.Core.Localization
 
 		private static void addFallbackEntry(string name, string text)
 		{
-			addFallbackEntry(name, "#TEXT MISSING#", text, "#JP TEXT MISSING#");
+			addFallbackEntry(name, "#TEXT MISSING#", text, null);
 		}
 
 		private static LocalizationEntry GetEntry(string name)
