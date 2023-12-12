@@ -21,19 +21,33 @@ namespace Assets.Scripts.Core.SteamWorks
 
 		private bool needPushStats;
 
+		private bool isSteam;
+
 		private void Awake()
 		{
-			if (Environment.GetCommandLineArgs().Contains("-nosteam"))
-			{
-				Debug.Log("-nosteam switch set, skipping steamworks initialization.");
+			try {
+				if (Environment.GetCommandLineArgs().Contains("-nosteam"))
+				{
+					Debug.Log("-nosteam switch set, skipping steamworks initialization.");
+				}
+				else
+				{
+					GameObject gameObject = new GameObject("SteamManager");
+					steamManager = gameObject.AddComponent<SteamManager>();
+					userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);
+					gameID = new CGameID(SteamUtils.GetAppID());
+					Debug.Log("Steamworks initialized. AppId: " + gameID);
+				}
 			}
-			else
+			catch (System.InvalidOperationException e) {
+				if(e.Message == "Steamworks is not initialized.")
+				{
+					Debug.Log($"[SteamController]: Failed to initialize Steamworks. Most likely Steam not running.");
+				}
+			}
+			catch (DllNotFoundException e)
 			{
-				GameObject gameObject = new GameObject("SteamManager");
-				steamManager = gameObject.AddComponent<SteamManager>();
-				userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);
-				gameID = new CGameID(SteamUtils.GetAppID());
-				Debug.Log("Steamworks initialized. AppId: " + gameID);
+				Debug.Log($"[SteamController]: Steam DLL not found - {e.Message}");
 			}
 		}
 
