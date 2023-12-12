@@ -167,7 +167,8 @@ namespace Assets.Scripts.Core.Buriko
 				autoSaveStopwatch.Start();
 			}
 
-			if(autoSaveStopwatch.Elapsed < TimeSpan.FromSeconds(15))
+			// Autosave every 10 minutes
+			if(autoSaveStopwatch.Elapsed < TimeSpan.FromMinutes(10))
 			{
 				return;
 			}
