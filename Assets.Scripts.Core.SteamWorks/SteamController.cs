@@ -25,19 +25,34 @@ namespace Assets.Scripts.Core.SteamWorks
 
 		private void Awake()
 		{
-			try {
-				if (Environment.GetCommandLineArgs().Contains("-nosteam"))
+			if (Environment.GetCommandLineArgs().Contains("-nosteam"))
+			{
+				Debug.Log("-nosteam switch set, skipping steamworks initialization.");
+				return;
+			}
+
+			try
+			{
+				// TODO: set app id depending on the game. Best done by making a class to store game-specific information
+				// for all games, then for each chapter, specify which game is selected.
+				//
+				// TODO: add some way for user to opt-out of steam integration, even if steam is installed
+				// I did some tests and you can do this by:
+				// - Uninstalling steam
+				// - Deleting the steam_api.dll file
+				// but perhaps need a more user-friendly way.
+				if (SteamAPI.RestartAppIfNecessary(new AppId_t(310360u)))
 				{
-					Debug.Log("-nosteam switch set, skipping steamworks initialization.");
+					GameSystem.Instance.CanExit = true;
+					Application.Quit();
+					return;
 				}
-				else
-				{
-					GameObject gameObject = new GameObject("SteamManager");
-					steamManager = gameObject.AddComponent<SteamManager>();
-					userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);
-					gameID = new CGameID(SteamUtils.GetAppID());
-					Debug.Log("Steamworks initialized. AppId: " + gameID);
-				}
+
+				GameObject gameObject = new GameObject("SteamManager");
+				steamManager = gameObject.AddComponent<SteamManager>();
+				userStatsReceived = new Callback<UserStatsReceived_t>(OnUserStatsReceived);
+				gameID = new CGameID(SteamUtils.GetAppID());
+				Debug.Log("Steamworks initialized. AppId: " + gameID);
 			}
 			catch (System.InvalidOperationException e) {
 				if(e.Message == "Steamworks is not initialized.")
