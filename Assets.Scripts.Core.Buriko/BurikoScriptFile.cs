@@ -2533,7 +2533,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("SetJpNameFormat");
 			string nameFormatJp = ReadVariable().StringValue().Replace("\\n", "\n");
-			gameSystem.TextController.NameFormatJp = nameFormatJp;
+			gameSystem.TextController.SetNameFormatJp(nameFormatJp);
 			return BurikoVariable.Null;
 		}
 

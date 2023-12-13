@@ -78,7 +78,9 @@ namespace Assets.Scripts.Core.TextWindow
 		// This is only necessary for Higurashi Rei - on earlier chapters, nametags would automatically escape
 		// newlines, even on the unmodded game, but on Rei we need to do it ourselves (might be due to changes
 		// in TextMeshPro).
-		public void SetNameFormat(string rawNameFormat) => NameFormat = rawNameFormat.Replace("\\n", "\n");
+		private string EscapeNewline(string str) => str.Replace("\\n", "\n");
+		public void SetNameFormat(string rawNameFormat) => NameFormat = EscapeNewline(rawNameFormat);
+		public void SetNameFormatJp(string rawNameFormat) => NameFormatJp = EscapeNewline(rawNameFormat);
 		public string GetNameFormat() => NameFormat;
 
 		public bool IsTyping()
