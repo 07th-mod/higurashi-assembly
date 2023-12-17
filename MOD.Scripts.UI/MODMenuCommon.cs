@@ -14,6 +14,11 @@ namespace MOD.Scripts.UI
 			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.label, options);
 		}
 
+		public static void LabelRightAlign(string label, params GUILayoutOption[] options)
+		{
+			GUILayout.Label(label, MODStyleManager.OnGUIInstance.Group.labelRightAlign, options);
+		}
+
 		public static void Label(GUIContent content, params GUILayoutOption[] options)
 		{
 			GUILayout.Label(content, MODStyleManager.OnGUIInstance.Group.label, options);
@@ -56,6 +61,15 @@ namespace MOD.Scripts.UI
 			{
 				return false;
 			}
+		}
+		public static string TextField(string text, params GUILayoutOption[] options)
+		{
+			return GUILayout.TextField(text, MODStyleManager.OnGUIInstance.Group.textField, options);
+		}
+
+		public static string TextField(string text, int maxLength, params GUILayoutOption[] options)
+		{
+			return GUILayout.TextField(text, maxLength, MODStyleManager.OnGUIInstance.Group.textField, options);
 		}
 
 		public static int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();

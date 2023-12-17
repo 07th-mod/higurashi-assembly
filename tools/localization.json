@@ -1,0 +1,662 @@
+{
+	"allChapters": {
+		"CultureInfo": {
+			"text": null,
+			"comment": "The 'text' field sets the time format for the save file string, for example 'fr-FR' for French. See https://github.com/07th-mod/higurashi-assembly/issues/109 for more details. Leave as 'null' for the default setting (CultureInfo.CurrentCulture)."
+		},
+		"DateTimeFormat": {
+			"text": "ddd MMM dd, yyyy h:mm tt",
+			"comment": "The 'text' field sets the displayed date time format for save files, for example 'ddd MMM dd, yyyy h:mm tt'. See https://github.com/07th-mod/higurashi-assembly/issues/109 for more details."
+		},
+		"ExampleEntry": {
+			"text": "This text will displayed by default.",
+			"textJP": "This text will be displayed when the language is changed to Japanese in-game.",
+			"comment": "You can store comments here. Additionally, if any field is left empty and there is no hard-coded fallback, it will display as #NOT SET#"
+		},
+		"MODMenu_0": {
+			"comment": "The below entries are for the F10 mod menu, in the file MOD.Scripts.UI/MODMenu.cs. NOTE: some of these are the debug menu strings, wich the user will never use or see.",
+			"text": "[Audio Tracking] - indicates what would play on each BGM flow"
+		},
+		"MODMenu_1": {
+			"text": "[Audio Flags and last played audio]"
+		},
+		"MODMenu_2": {
+			"text": "Reset GAudioSet"
+		},
+		"MODMenu_3": {
+			"text": "Set GAudioSet to 0, to force the game to do audio setup on next startup"
+		},
+		"MODMenu_4": {
+			"text": "Close"
+		},
+		"MODMenu_5": {
+			"text": "Close the debug menu"
+		},
+		"MODMenu_6": {
+			"text": "Developer Debug Window (click to drag)"
+		},
+		"MODMenu_7": {
+			"text": "Mod Menu\n(Hotkey: F10)"
+		},
+		"MODMenu_8": {
+			"text": "BGM Info"
+		},
+		"MODMenu_9": {
+			"text": "Copy BGM Name"
+		},
+		"MODMenu_10": {
+			"text": "Show File"
+		},
+		"MODMenu_11": {
+			"text": "Open In Youtube"
+		},
+		"MODMenu_12": {
+			"text": "Note: If explorer freezes\nuninstall Web Media Extensions"
+		},
+		"MODMenu_13": {
+			"text": "X"
+		},
+		"MODMenu_14": {
+			"text": "Close the Mod menu"
+		},
+		"MODMenu_15": {
+			"text": "Please close the current menu and try again"
+		},
+		"MODMenu_16": {
+			"text": "It looks like there was a problem starting up\n\nPlease send the developers your log file (output_log.txt or Player.log).\n\nYou can try the following yourself to fix the issue.\n  1. Try waiting 30 seconds for the game to progress. If nothing happens, try restarting the game\n\n  2. Use the buttons under 'Troubleshooting' on the bottom left to show your save files, log files, and compiled scripts.\n\n  3. If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).\n\n  4. You can try to clear your compiled script files, then restart the game.\n\n  5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support."
+		},
+		"MODMenuNormal_0": {
+			"comment": "The below entries are for the F10 mod menu, in the file MOD.Scripts.UI/MODMenuNormal.cs",
+			"text": "Lip Sync for Console Sprites (Hotkey: 7)"
+		},
+		"MODMenuNormal_1": {
+			"text": "Lip Sync (NOTE: Select 'Console' sprites or preset to enable)"
+		},
+		"MODMenuNormal_2": {
+			"text": "Console"
+		},
+		"MODMenuNormal_3": {
+			"text": "Use the Console sprites"
+		},
+		"MODMenuNormal_4": {
+			"text": "MangaGamer"
+		},
+		"MODMenuNormal_5": {
+			"text": "Use Mangagamer's remake sprites"
+		},
+		"MODMenuNormal_6": {
+			"text": "Original"
+		},
+		"MODMenuNormal_7": {
+			"text": "Use Original/Ryukishi sprites"
+		},
+		"MODMenuNormal_8": {
+			"text": "Voice Matching Level (Hotkey: F2)"
+		},
+		"MODMenuNormal_9": {
+			"text": "Censorship level 0 - Equivalent to PC"
+		},
+		"MODMenuNormal_10": {
+			"text": "Censorship level 1"
+		},
+		"MODMenuNormal_11": {
+			"text": "Censorship level 2 (this is the default/recommended value)"
+		},
+		"MODMenuNormal_12": {
+			"text": "Censorship level 3"
+		},
+		"MODMenuNormal_13": {
+			"text": "Censorship level 4"
+		},
+		"MODMenuNormal_14": {
+			"text": "Censorship level 5 - Equivalent to Console"
+		},
+		"MODMenuNormal_15": {
+			"text": "Lip Sync Off"
+		},
+		"MODMenuNormal_16": {
+			"text": "Disables Lip Sync for Console Sprites"
+		},
+		"MODMenuNormal_17": {
+			"text": "Lip Sync On"
+		},
+		"MODMenuNormal_18": {
+			"text": "Enables Lip Sync for Console Sprites"
+		},
+		"MODMenuNormal_19": {
+			"text": "Lip Sync Off (Inactive)"
+		},
+		"MODMenuNormal_20": {
+			"text": "Disables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"
+		},
+		"MODMenuNormal_21": {
+			"text": "Lip Sync On (Inactive)"
+		},
+		"MODMenuNormal_22": {
+			"text": "Enables Lip Sync for Console Sprites\n\nNOTE: Lip Sync only works with Console sprites - please select 'Console' preset or sprites"
+		},
+		"MODMenuNormal_23": {
+			"text": "Opening Movies (Hotkey: Shift-F12)"
+		},
+		"MODMenuNormal_24": {
+			"text": "Disabled"
+		},
+		"MODMenuNormal_25": {
+			"text": "Disables all opening videos"
+		},
+		"MODMenuNormal_26": {
+			"text": "Enabled"
+		},
+		"MODMenuNormal_27": {
+			"text": "Enables opening videos\n\nNOTE: Once the opening video plays the first time, will automatically switch to 'Launch + In-Game'\n\nWe have setup openings this way to avoid spoilers."
+		},
+		"MODMenuNormal_28": {
+			"text": "Launch + In-Game"
+		},
+		"MODMenuNormal_29": {
+			"text": "WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches"
+		},
+		"MODMenuNormal_30": {
+			"text": "Show/Hide CGs"
+		},
+		"MODMenuNormal_31": {
+			"text": "Show CGs"
+		},
+		"MODMenuNormal_32": {
+			"text": "Shows CGs (You probably want this enabled for Console ADV/NVL mode)"
+		},
+		"MODMenuNormal_33": {
+			"text": "Hide CGs"
+		},
+		"MODMenuNormal_34": {
+			"text": "Disables all CGs (mainly for use with the Original/Ryukishi preset)"
+		},
+		"MODMenuNormal_35": {
+			"text": "Background Style"
+		},
+		"MODMenuNormal_36": {
+			"text": "Console BGs"
+		},
+		"MODMenuNormal_37": {
+			"text": "Use Console backgrounds"
+		},
+		"MODMenuNormal_38": {
+			"text": "Original BGs"
+		},
+		"MODMenuNormal_39": {
+			"text": "Use Original/Ryukishi backgrounds."
+		},
+		"MODMenuNormal_40": {
+			"text": "Background Stretching"
+		},
+		"MODMenuNormal_41": {
+			"text": "BG Stretching Off"
+		},
+		"MODMenuNormal_42": {
+			"text": "Makes backgrounds as big as possible without any stretching (Keep Aspect Ratio)"
+		},
+		"MODMenuNormal_43": {
+			"text": "BG Stretching On"
+		},
+		"MODMenuNormal_44": {
+			"text": "Stretches backgrounds to fit the screen (Ignore Aspect Ratio)\n\nMainly for use with the Original BGs, which are in 4:3 aspect ratio."
+		},
+		"MODMenuNormal_45": {
+			"text": "Sprite Style"
+		},
+		"MODMenuNormal_46": {
+			"text": "Text Window Appearance"
+		},
+		"MODMenuNormal_47": {
+			"text": "ADV Mode"
+		},
+		"MODMenuNormal_48": {
+			"text": "This option:\n- Makes text show at the bottom of the screen in a textbox\n- Shows the name of the current character on the textbox\n"
+		},
+		"MODMenuNormal_49": {
+			"text": "NVL Mode"
+		},
+		"MODMenuNormal_50": {
+			"text": "This option:\n- Makes text show across the whole screen\n"
+		},
+		"MODMenuNormal_51": {
+			"text": "Original"
+		},
+		"MODMenuNormal_52": {
+			"text": "This option:\n- Darkens the whole screen to emulate the original game\n- Makes text show only in a 4:3 section of the screen (narrower than NVL mode)\n"
+		},
+		"MODMenuNormal_53": {
+			"text": "Force Computed Lipsync"
+		},
+		"MODMenuNormal_54": {
+			"text": "As Fallback"
+		},
+		"MODMenuNormal_55": {
+			"text": "Only use computed lipsync if there is no baked 'spectrum' file for a given .ogg file"
+		},
+		"MODMenuNormal_56": {
+			"text": "Computed Always"
+		},
+		"MODMenuNormal_57": {
+			"text": "Always use computed lipsync for all voices. Any 'spectrum' files will be ignored."
+		},
+		"MODMenuNormal_58": {
+			"text": "Gameplay"
+		},
+		"MODMenuNormal_59": {
+			"text": "Voice Matching and Opening Videos"
+		},
+		"MODMenuNormal_60": {
+			"text": "Graphics"
+		},
+		"MODMenuNormal_61": {
+			"text": "Sprites, Backgrounds, CGs, Resolution"
+		},
+		"MODMenuNormal_62": {
+			"text": "Audio"
+		},
+		"MODMenuNormal_63": {
+			"text": "BGM and SE options"
+		},
+		"MODMenuNormal_64": {
+			"text": "Troubleshooting"
+		},
+		"MODMenuNormal_65": {
+			"text": "Tools to help you if something goes wrong"
+		},
+		"MODMenuNormal_66": {
+			"text": "Original/Ryukishi Experimental 4:3 Aspect Ratio"
+		},
+		"MODMenuNormal_67": {
+			"text": "16:9 (default)"
+		},
+		"MODMenuNormal_68": {
+			"text": "The game's aspect ratio will be 16:9.\n\nWhen playing in OG mode, the left and right of the screen will be padded to 4:3 with black bars."
+		},
+		"MODMenuNormal_69": {
+			"text": "The game's aspect ratio will be 4:3, however this may cause some issues when playing our mod.\nOnly use this option if your monitor is 4:3 aspect ratio, like an old CRT monitor.\n\nPlease note the following:\n\n - You should enable the Original/Ryukishi preset before enabling this option. Using other settings should all work, but are not well tested.\n\n - 16:9 images will be squished to fit in 4:3 so they don't get cut off. This includes text images, and PS3 CG images if enabled.\n\n - You may see graphical artifacts just after this is enabled - they should fix after the next character transition or text clear\n\n"
+		},
+		"MODMenuNormal_70": {
+			"text": "Graphics Presets (Hotkey: F1)"
+		},
+		"MODMenuNormal_71": {
+			"text": "Console"
+		},
+		"MODMenuNormal_72": {
+			"text": "This preset:\n- Makes text show at the bottom of the screen in a textbox\n- Shows the name of the current character on the textbox\n- Uses the console sprites (with lipsync) and console backgrounds\n- Displays in 16:9 widescreen\n\nNote that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"
+		},
+		"MODMenuNormal_73": {
+			"text": "MangaGamer"
+		},
+		"MODMenuNormal_74": {
+			"text": "This preset:\n- Makes text show across the whole screen\n- Uses the Mangagamer remake sprites and Console backgrounds\n- Displays in 16:9 widescreen\n\nNote that sprites and backgrounds can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"
+		},
+		"MODMenuNormal_75": {
+			"text": "Original/Ryukishi"
+		},
+		"MODMenuNormal_76": {
+			"text": "This preset makes the game behave similarly to the unmodded game:\n- Displays backgrounds in 4:3 'standard' aspect\n- CGs are disabled (Can be re-enabled, see 'Show/Hide CGs')\n- Switches to original sprites and backgrounds\n\nNote that sprites, backgrounds, and CG hiding can be overridden by setting the 'Choose Art Set' & 'Override Art Set Backgrounds' options under 'Advanced Options', if available"
+		},
+		"MODMenuNormal_77": {
+			"text": "Custom"
+		},
+		"MODMenuNormal_78": {
+			"text": "Your own custom preset, using the options below.\n\nThis custom preset will be saved, even when you switch to the other presets."
+		},
+		"MODMenuNormal_79": {
+			"text": "Advanced Options"
+		},
+		"MODMenuNormal_80": {
+			"text": "WARNING: You have ADV mode enabled, but you are in a forced-NVL section, so the game will display in NVL mode temporarily!"
+		},
+		"MODMenuNormal_81": {
+			"text": "Resolution"
+		},
+		"MODMenuNormal_82": {
+			"text": "Advanced Options"
+		},
+		"MODMenuNormal_83": {
+			"text": "Experimental Gameplay Tools"
+		},
+		"MODMenuNormal_84": {
+			"text": "Game Clear Forced!"
+		},
+		"MODMenuNormal_85": {
+			"text": "All Progress Reset!"
+		},
+		"MODMenuNormal_86": {
+			"text": "Please reload menu/game!"
+		},
+		"MODMenuNormal_87": {
+			"text": "Reset All Progress"
+		},
+		"MODMenuNormal_88": {
+			"text": "Force Game Clear"
+		},
+		"MODMenuNormal_89": {
+			"text": "Click"
+		},
+		"MODMenuNormal_90": {
+			"text": "more times"
+		},
+		"MODMenuNormal_91": {
+			"text": "WARNING: This option will toggle your game clear status:\n - If you haven't finished the game, it will unlock everything.\n - If you have already finished the game, it will reset all your progress!\n\nThis toggles the EXTRAS menu, including all TIPS, and all chapter jump chapters.\n\nYou may need to reload the current menu or restart the game before you can see the changes.\n\nSaves shouldn't be affected."
+		},
+		"MODMenuNormal_92": {
+			"text": "No"
+		},
+		"MODMenuNormal_93": {
+			"text": "Yes"
+		},
+		"MODMenuNormal_94": {
+			"text": "Game Cleared?: "
+		},
+		"MODMenuNormal_95": {
+			"text": "Highest Chapter: "
+		},
+		"MODMenuNormal_96": {
+			"text": "Developer Tools"
+		},
+		"MODMenuNormal_97": {
+			"text": "Developer Debug Menu"
+		},
+		"MODMenuNormal_98": {
+			"text": "Toggle debug menu (Shift-F9)"
+		},
+		"MODMenuNormal_99": {
+			"text": "Toggle the debug menu"
+		},
+		"MODMenuNormal_100": {
+			"text": "Toggle flag menu (Shift-F10)"
+		},
+		"MODMenuNormal_101": {
+			"text": "Toggle the flag menu. Toggle Multiple times for more options.\n\nNote: 3rd and 4th panels are only shown if GMOD_DEBUG_MODE is true."
+		},
+		"MODMenuNormal_102": {
+			"text": "Show Developer Tools: Only click if asked by developers"
+		},
+		"MODMenuNormal_103": {
+			"text": "Show the Developer Tools.\n\nOnly click this button if you're asked to by the developers."
+		},
+		"MODMenuNormal_104": {
+			"text": "Flag Unlocks"
+		},
+		"MODMenuNormal_105": {
+			"text": "Toggle GFlag_GameClear is "
+		},
+		"MODMenuNormal_106": {
+			"text": "Toggle the 'GFlag_GameClear' flag which is normally activated when you complete the game. Unlocks things like the All-cast review."
+		},
+		"MODMenuNormal_107": {
+			"text": "Toggle GHighestChapter 0 <-> 999 | Is "
+		},
+		"MODMenuNormal_108": {
+			"text": "Toggle the 'GHighestChapter' flag which indicates the highest chapter you have completed.\n\nWhen >= 1, unlocks the extras menu.\nAlso unlocks other things like which chapters are shown on the chapter jump menu, etc."
+		},
+		"MODMenuNormal_109": {
+			"text": "Restart Pending"
+		},
+		"MODMenuNormal_110": {
+			"text": "Restore Settings"
+		},
+		"MODMenuNormal_111": {
+			"text": "ADV defaults"
+		},
+		"MODMenuNormal_112": {
+			"text": "This restores flags to the defaults for NVL mode\nNOTE: Requires you to relaunch the game 2 times to come into effect"
+		},
+		"MODMenuNormal_113": {
+			"text": "NVL defaults"
+		},
+		"MODMenuNormal_114": {
+			"text": "This restores flags to the defaults for NVL mode\nNOTE: Requires you to relaunch the game 2 times to come into effect"
+		},
+		"MODMenuNormal_115": {
+			"text": "Vanilla Defaults"
+		},
+		"MODMenuNormal_116": {
+			"text": "This restores flags to the same settings as the unmodded game.\nNOTE: Requires a relaunch to come into effect. After this, uninstall the mod."
+		},
+		"MODMenuNormal_117": {
+			"text": "Cancel Pending Restore"
+		},
+		"MODMenuNormal_118": {
+			"text": "Click this to stop restoring defaults on next game launch"
+		},
+		"MODMenuNormal_119": {
+			"text": "Computed Lipsync Options"
+		},
+		"MODMenuNormal_120": {
+			"text": "LipSync Thresh 1: "
+		},
+		"MODMenuNormal_121": {
+			"text": "Above this threshold, expression 1 will be used.\n\nBelow or equal to this threshold, expression 0 will be used.\n\nOnly saved until the game restarts"
+		},
+		"MODMenuNormal_122": {
+			"text": "LipSync Thresh 2: "
+		},
+		"MODMenuNormal_123": {
+			"text": "Above this thireshold, expression 2 will be used\n\nOnly saved until the game restarts"
+		},
+		"MODMenuNormal_124": {
+			"text": "Set"
+		},
+		"MODMenuNormal_125": {
+			"text": "Tries to set the given lipsync thresholds\n\n"
+		},
+		"MODMenuNormal_126": {
+			"text": "Invalid thresholds - each threshold should be a value between 0 and 1"
+		},
+		"MODMenuNormal_127": {
+			"text": "Mod Options Menu"
+		},
+		"MODMenuNormal_128": {
+			"text": "\n\nSets the script censorship level\n- This setting exists because the voices are taken from the censored, Console versions of the game, so no voices exist for the PC uncensored dialogue.\n- We recommend the default level (2), the most balanced option. Using this option, only copyright changes, innuendos, and a few words will be changed.\n  - 5: Use voiced lines from PS3 script as much as possible (censored at parts)\n  - 2: Default - most balanced option\n  - 0: Original PC Script with voices where it fits (fully uncensored), but uncensored scenes may be missing voices"
+		},
+		"MODMenuNormal_129": {
+			"text": "Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF, Alt-Enter : FullScreen\nSpace : Hide Text\nL : Swap Language\n\n[MOD Hotkeys]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level (Not Used)\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Mod Menu\nM : Increase Voice Volume\nN : Decrease Voice Volume\nP : Cycle through art styles\n2 : Cycle through BGM/SE\n7 : Enable/Disable Lip-Sync\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MINN"
+		},
+		"MODMenuResolution_0": {
+			"comment": "The below entries are for Resolution part of the F10 mod menu, in the file MOD.Scripts.UI/MODMenuResolution.cs",
+			"text": "Set a custom fullscreen resolution\n\nUse this option only if the fullscreen resolution is detected incorrectly (such as on some Linux systems)\nYou can manually type in a resolution to use below.\n\nClick 'Clear Override' to let the game automatically determine the fullscreen resolution"
+		},
+		"MODMenuResolution_1": {
+			"text": "Windowed Resolution Settings"
+		},
+		"MODMenuResolution_2": {
+			"text": "480p"
+		},
+		"MODMenuResolution_3": {
+			"text": "Set resolution to 853 x 480"
+		},
+		"MODMenuResolution_4": {
+			"text": "720p"
+		},
+		"MODMenuResolution_5": {
+			"text": "Set resolution to 1280 x 720"
+		},
+		"MODMenuResolution_6": {
+			"text": "1080p"
+		},
+		"MODMenuResolution_7": {
+			"text": "Set resolution to 1920 x 1080"
+		},
+		"MODMenuResolution_8": {
+			"text": "1440p"
+		},
+		"MODMenuResolution_9": {
+			"text": "Set resolution to 2560 x 1440"
+		},
+		"MODMenuResolution_10": {
+			"text": "Set"
+		},
+		"MODMenuResolution_11": {
+			"text": "Sets a custom resolution - mainly for windowed mode.\n\nHeight set automatically to maintain 16:9 aspect ratio."
+		},
+		"MODMenuResolution_12": {
+			"text": "Height too small - must be at least 480 pixels"
+		},
+		"MODMenuResolution_13": {
+			"text": "Height too big - must be less than 15360 pixels"
+		},
+		"MODMenuResolution_14": {
+			"text": "Click here to go Windowed to change these settings"
+		},
+		"MODMenuResolution_15": {
+			"text": "Toggle Fullscreen"
+		},
+		"MODMenuResolution_16": {
+			"text": "Go Fullscreen"
+		},
+		"MODMenuResolution_17": {
+			"text": "Toggle Fullscreen"
+		},
+		"MODMenuResolution_18": {
+			"text": "Off"
+		},
+		"MODMenuResolution_19": {
+			"text": "Fullscreen Resolution Override (Detected: "
+		},
+		"MODMenuResolution_20": {
+			"text": " Override: "
+		},
+		"MODMenuResolution_21": {
+			"text": "Width:"
+		},
+		"MODMenuResolution_22": {
+			"text": "Height:"
+		},
+		"MODMenuResolution_23": {
+			"text": "Click repeatedly to override resolution"
+		},
+		"MODMenuResolution_24": {
+			"text": "Override Fullscreen Resolution"
+		},
+		"MODMenuResolution_25": {
+			"text": "Invalid Height"
+		},
+		"MODMenuResolution_26": {
+			"text": "Invalid Width"
+		},
+		"MODMenuResolution_27": {
+			"text": "Clear Override"
+		},
+		"MODMenuResolution_28": {
+			"text": "Height too small - must be at least 480 pixels"
+		},
+		"MODMenuResolution_29": {
+			"text": "Height too big - must be less than 15360 pixels"
+		},
+		"MODMenuAudioOptions_0": {
+			"comment": "The below entries are for the audio options section of the F10 mod menu, in the file MOD.Scripts.UI/MODMenuAudioOptions.cs",
+			"text": "Audio Presets (Hotkey: 2)"
+		},
+		"MODMenuAudioOptions_1": {
+			"text": "Override SE"
+		},
+		"MODMenuAudioOptions_2": {
+			"text": "Invalid BGM cascade"
+		},
+		"MODMenuAudioOptions_3": {
+			"text": "Invalid SE cascade"
+		},
+		"MODMenuAudioOptions_4": {
+			"text": " (NOT INSTALLED)"
+		},
+		"MODMenuAudioOptions_5": {
+			"text": "\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\nYou're missing the BGM or SE folder in the StreamingAssets folder:"
+		},
+		"MODMenuAudioOptions_6": {
+			"text": "Force enable the following sound effects (ignore preset SE): "
+		},
+		"MODMenuAudioOptions_7": {
+			"text": "The patch supports different Background Music (BGM) and Sound Effects(SE). Please click the button below for more information."
+		},
+		"MODMenuAudioOptions_8": {
+			"text": "Open BGM/SE FAQ: 07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/"
+		},
+		"MODMenuAudioOptions_9": {
+			"text": "Click here to open the  Background Music (BGM) and Sound Effects (SE) FAQ in your browser.\n\nThe BGM/SE FAQ contains information on the settings below."
+		},
+		"MODMenuAudioOptions_10": {
+			"text": "https://07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/"
+		},
+		"MODMenuAudioOptions_11": {
+			"text": "To continue, please choose a BGM/SE option below (hover button for info).\nYou can change this option later via the mod menu."
+		},
+		"MODMenuAudioOptions_12": {
+			"text": "Option Not Installed!"
+		},
+		"MODMenuAudioSetup_0": {
+			"comment": "The below entries are for the audio setup optiosn which appear the first time you launch the game, in the file MOD.Scripts.UI/MODMenuAudioSetup.cs",
+			"text": "Click here when you're finished."
+		},
+		"MODMenuAudioSetup_1": {
+			"text": "First-Time Setup Menu"
+		},
+		"MODMenuAudioSetup_2": {
+			"text": "Please choose the options on the left before continuing. You can hover over a button to view its description."
+		},
+		"MODMenuSupport_0": {
+			"comment": "The below entries are for the support section of the F10 mod menu, in the file MOD.Scripts.UI/MODMenuSupport.cs",
+			"text": "Please hover over a button for more information"
+		},
+		"MODMenuSupport_1": {
+			"text": "Save Files and Log Files"
+		},
+		"MODMenuSupport_2": {
+			"text": "Show output_log.txt / Player.log"
+		},
+		"MODMenuSupport_3": {
+			"text": "This button shows the location of the 'ouput_log.txt' or 'Player.log' files\n\n- This file is called 'output_log.txt' on Windows and 'Player.log' on MacOS/Linux\n- This file records errors that occur during gameplay, and during game startup\n- This file helps when the game fails start, for example\n  - a corrupted save file\n  - the wrong UI (sharedassets0.assets) file\n- Note that each time the game starts up, the current log file is replaced"
+		},
+		"MODMenuSupport_4": {
+			"text": "Show Saves"
+		},
+		"MODMenuSupport_5": {
+			"text": "Click to open the save folder, which includes saves, quicksaves, and global save data\n\nClearing your save files can fix some issues with game startup, and resets all mod flags.\n\n- WARNING: Steam cloud will restore your saves if you manually delete them! Therefore, remember to disable steam cloud, otherwise your saves will magically reappear!\n- The 'global.dat' file stores your global unlock process and mod flags\n- The 'qsaveX.dat' and 'saveXXX.dat' files contain individual save files. Note that these becoming corrupted can break your game\n- It's recommended to take a backup of all your saves before you modify them"
+		},
+		"MODMenuSupport_6": {
+			"text": "Quick Access to Game Folders"
+		},
+		"MODMenuSupport_7": {
+			"text": "Show .assets Folder"
+		},
+		"MODMenuSupport_8": {
+			"text": "Click to open the game's main data folder, which contains the .assets files.\n\nFonts, certain textures, and other game data is kept in the sharedassets0.assets file."
+		},
+		"MODMenuSupport_9": {
+			"text": "Show StreamingAssets Folder"
+		},
+		"MODMenuSupport_10": {
+			"text": "Click to open the StreamingAssets folder, which contains most of the game assets.\n\n- Most Images/Textures, including Sprites, Backgrounds, Text Images, and Filter effects\n- Voices, Background Music, and Sound Effects\n- Game Scripts and Compiled Game Scripts\n- Movies\n- Other Misc Game Data"
+		},
+		"MODMenuSupport_11": {
+			"text": "Show DLL Folder"
+		},
+		"MODMenuSupport_12": {
+			"text": "Click to open the 'Managed' folder, which contains our modded 'Assembly-CSharp.dll'"
+		},
+		"MODMenuSupport_13": {
+			"text": "Managed"
+		},
+		"MODMenuSupport_14": {
+			"text": "Show Compiled Scripts"
+		},
+		"MODMenuSupport_15": {
+			"text": "Sometimes out-of-date scripts can cause the game to fail to start up (stuck on black screen).\n\nYou can manually clear the *.mg files (compiled scripts) in this folder to force the game to regenerate them the next time the game starts.\n\nPlease be aware that the game will freeze for a couple minutes on a white screen, while scripts are being compiled."
+		},
+		"MODMenuSupport_16": {
+			"text": "Support Pages"
+		},
+		"MODMenuSupport_17": {
+			"text": "Open Support Page: 07th-mod.com/wiki/Higurashi/support"
+		},
+		"MODMenuSupport_18": {
+			"text": "If you have problems with the game, the information on this site may help.\n\nThere are also instructions on reporting bugs, as well as a link to our Discord server to contact us directly"
+		},
+		"MODMenuSupport_19": {
+			"text": "https://07th-mod.com/wiki/Higurashi/support/"
+		}
+	}
+}

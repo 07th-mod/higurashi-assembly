@@ -49,7 +49,7 @@ namespace Assets.Scripts.UI.ChapterJump
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID == -1 && GameSystem.Instance.GameState == GameState.ChapterJumpScreen)
+			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ChapterJumpScreen)
 			{
 				StateChapterJump stateChapterJump = GameSystem.Instance.GetStateObject() as StateChapterJump;
 				if (stateChapterJump != null)
