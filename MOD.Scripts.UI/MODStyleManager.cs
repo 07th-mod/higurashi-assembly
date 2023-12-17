@@ -29,6 +29,7 @@ namespace MOD.Scripts.UI
 			public GUIStyle upperLeftHeadingLabel;
 			public GUIStyle bigToastLabelStyle;     // Styles used for Toasts (text popups)
 			public GUIStyle smallToastLabelStyle;
+			public GUIStyle textField;
 		}
 
 		// Styles used for the Mod menu
@@ -228,6 +229,14 @@ namespace MOD.Scripts.UI
 				alignment = TextAnchor.MiddleRight,
 			};
 
+			// Textfield style
+			GUIStyle textFieldStyle = new GUIStyle(GUI.skin.textField)
+			{
+				fontSize = Mathf.RoundToInt(guiScale * baseFontSize),
+				margin = margin,
+				padding = padding,
+			};
+
 			// Heading text style
 			GUIStyle headingLabelStyle = new GUIStyle(labelStyle)
 			{
@@ -285,6 +294,7 @@ namespace MOD.Scripts.UI
 				toolTipShrinkage = toolTipShrinkage,
 				bigToastLabelStyle = bigToastLabelStyle,
 				smallToastLabelStyle = smallToastLabelStyle,
+				textField = textFieldStyle,
 			};
 		}
 	}

@@ -62,6 +62,15 @@ namespace MOD.Scripts.UI
 				return false;
 			}
 		}
+		public static string TextField(string text, params GUILayoutOption[] options)
+		{
+			return GUILayout.TextField(text, MODStyleManager.OnGUIInstance.Group.textField, options);
+		}
+
+		public static string TextField(string text, int maxLength, params GUILayoutOption[] options)
+		{
+			return GUILayout.TextField(text, maxLength, MODStyleManager.OnGUIInstance.Group.textField, options);
+		}
 
 		public static int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
 		public static void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);
