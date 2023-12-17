@@ -36,10 +36,10 @@ namespace MOD.Scripts.UI
 			{
 				// This scrolls the toast notification off the window when it's nearly finished
 				float toastYPosition = Math.Min(50f, 200f * toastNotificationTimer.timeLeft - 50f);
-				float toastWidth = 700f;
+				float toastWidth = styleManager.Group.toastWidth;
 				float toastXPosition = (Screen.width - toastWidth) / 2.0f;
-				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, 700f, 200f));
-				GUILayout.Box(toastText, toastText.Length > 30 ? styleManager.smallToastLabelStyle : styleManager.bigToastLabelStyle);
+				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, toastWidth, Screen.height));
+				GUILayout.TextArea(toastText, styleManager.Group.bigToastLabelStyle);
 				GUILayout.EndArea();
 			}
 		}
