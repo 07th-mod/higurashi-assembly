@@ -59,9 +59,19 @@ namespace MOD.Scripts.UI
 
 			Instance.toastText = toastText;
 			Instance.toastNotificationTimer.Start(toastDuration);
-			if (maybeSound is GUISound sound)
+
+			// Try to play sound effect, if requested
+			try
 			{
-				GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(sound));
+				if (maybeSound is GUISound sound)
+				{
+					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(sound));
+				}
+			}
+			catch (Exception e)
+			{
+				// If an exception occurs here, it probably means the gamesystem is not setup yet
+				// Since this only affects whether the sound is played, just ignore any errors that happen here.
 			}
 		}
 
