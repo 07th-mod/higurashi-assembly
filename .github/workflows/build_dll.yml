@@ -1,0 +1,21 @@
+# NOTE: Releases are not created in this repository!
+# DLL builds are compiled/published as part of the releases for each game - please see each game's individual repository.
+name: Build DLL
+
+# Run this workflow on every push or pull request
+on:
+  push:
+  pull_request:
+
+jobs:
+  build_dll:
+    name: Build DLL
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      # Note: This uses the mono bundled with Ubuntu to build the project
+      - name: Compile project
+        run: msbuild /p:Configuration=Release

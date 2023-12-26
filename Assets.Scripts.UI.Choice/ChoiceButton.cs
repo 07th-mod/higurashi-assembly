@@ -53,7 +53,7 @@ namespace Assets.Scripts.UI.Choice
 
 		private void OnClick()
 		{
-			if (GameSystem.Instance.GameState == GameState.ChoiceScreen && !(fadeInTime > 0f) && isEnabled && UICamera.currentTouchID == -1)
+			if (GameSystem.Instance.GameState == GameState.ChoiceScreen && !(fadeInTime > 0f) && isEnabled && UICamera.currentTouchID >= -1)
 			{
 				if (clickCallback != null)
 				{

@@ -46,7 +46,7 @@ namespace Assets.Scripts.UI.Tips
 
 		private void OnClick()
 		{
-			if (UICamera.currentTouchID == -1 && tip != null && manager.isActive && GameSystem.Instance.GameState == GameState.TipsScreen)
+			if (UICamera.currentTouchID >= -1 && tip != null && manager.isActive && GameSystem.Instance.GameState == GameState.TipsScreen)
 			{
 				(GameSystem.Instance.GetStateObject() as StateViewTips)?.OpenTips(tip.Script);
 			}

@@ -559,14 +559,18 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			toaster.OnGUIFragment();
-
 			if (this.modMenu == null)
 			{
+				// If mod menu not available, just draw any toast notifications and exit
+				toaster.OnGUIFragment();
 				return;
 			}
 
 			modMenu.OnGUIFragment();
+
+			// If the mod menu is available, draw the toast notifications last,
+			// so they appear ontop of the mod menu
+			toaster.OnGUIFragment();
 
 			// Helper Functions for processing flags
 			string boolDesc(string flag, string name)
