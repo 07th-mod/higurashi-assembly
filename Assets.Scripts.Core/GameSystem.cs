@@ -12,7 +12,7 @@ using Assets.Scripts.UI.CGGallery;
 using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
-using MOD.Scripts.Core;
+using MOD.Scripts.Core.Localization;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
@@ -246,7 +246,8 @@ namespace Assets.Scripts.Core
 		private void Initialize()
 		{
 			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
-			MODLocalization.LoadFromJSON();
+			MainUIController.InitializeToaster();
+			Loc.LoadFromJSON();
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
@@ -345,7 +346,7 @@ namespace Assets.Scripts.Core
 		public void PostLoading()
 		{
 			LoadingBox.SetActive(value: false);
-			MainUIController.InitializeModMenuAndToaster(this);
+			MainUIController.InitializeModMenu(this);
 		}
 
 		public void SetDefaultAspect(float defaultAspect)
@@ -532,8 +533,17 @@ namespace Assets.Scripts.Core
 		{
 			if (ChoiceController != null)
 			{
-				ChoiceController.Destroy();
-				ChoiceController = null;
+				if (GameSystem.Instance.GameState == GameState.ChoiceScreen)
+				{
+					// If you're currently on the choice screen, then cleanly leave the choices state and delete the choice controller
+					LeaveChoices();
+				}
+				else
+				{
+					// If you're on another screen layered ontop of the choice screen (eg the load screen), just delete the choice controller and hope for the best.
+					ChoiceController.Destroy();
+					ChoiceController = null;
+				}
 			}
 		}
 
@@ -1113,7 +1123,7 @@ namespace Assets.Scripts.Core
 			}
 		}
 
-		public Resolution GetFullscreenResolution()
+		public Resolution GetFullscreenResolution(bool useOverride = true, bool doLogging = true)
 		{
 			Resolution resolution = new Resolution();
 			string source = "";
@@ -1173,17 +1183,24 @@ namespace Assets.Scripts.Core
 				PlayerPrefs.SetInt("fullscreen_height_override", 0);
 			}
 
-			if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
+			if(useOverride)
 			{
-				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
-				source += " + Width Override";
+				if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
+				{
+					resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+					source += " + Width Override";
+				}
+				if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
+				{
+					resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+					source += " + Height Override";
+				}
 			}
-			if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
+
+			if(doLogging)
 			{
-				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
-				source += " + Height Override";
+				Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			}
-			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			return resolution;
 		}
 

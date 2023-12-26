@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MOD.Scripts.Core.Localization;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace MOD.Scripts.UI
 
 			GUILayout.Space(20);
 
-			if (GetGlobal("GAudioSet") != 0 && Button(new GUIContent("Click here when you're finished.")))
+			if (GetGlobal("GAudioSet") != 0 && Button(new GUIContent(Loc.MODMenuAudioSetup_0))) //Click here when you're finished.
 			{
 				modMenu.SetSubMenu(ModSubMenu.Normal);
 				modMenu.ForceHide();
@@ -36,7 +37,7 @@ namespace MOD.Scripts.UI
 		}
 
 		public bool UserCanClose() => false;
-		public string Heading() => "First-Time Setup Menu";
-		public string DefaultTooltip() => "Please choose the options on the left before continuing. You can hover over a button to view its description.";
+		public string Heading() => Loc.MODMenuAudioSetup_1; //First-Time Setup Menu
+		public string DefaultTooltip() => Loc.MODMenuAudioSetup_2; //Please choose the options on the left before continuing. You can hover over a button to view its description.
 	}
 }
