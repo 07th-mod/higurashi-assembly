@@ -4,6 +4,7 @@ using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core.Localization;
 using System.IO;
 using UnityEngine;
 
@@ -68,7 +69,7 @@ namespace Assets.Scripts.UI
 							Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
 							Debug.Log(promptController);
 							Debug.Log(d);
-							promptController.SetScreenshotDetails(image, d.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d.Text, d.TextJp);
+							promptController.SetScreenshotDetails(image, d.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d.Text, d.TextJp);
 						}
 					});
 					GameSystem.Instance.ExecuteActions();

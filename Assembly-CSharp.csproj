@@ -233,6 +233,7 @@
     <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
     <Compile Include="MOD.Scripts.Core.TextWindow\MODTextController.cs" />
     <Compile Include="MOD.Scripts.Core\MODLocalization.cs" />
+    <Compile Include="MOD.Scripts.Core\MODLocalizationData.cs" />
     <Compile Include="MOD.Scripts.Core\MODLogger.cs" />
     <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
     <Compile Include="MOD.Scripts.Core\MODUtility.cs" />

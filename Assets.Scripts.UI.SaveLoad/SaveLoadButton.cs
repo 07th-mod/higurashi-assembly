@@ -5,6 +5,7 @@ using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
 using System.Collections.Generic;
+using MOD.Scripts.Core.Localization;
 using System.IO;
 using UnityEngine;
 
@@ -83,7 +84,7 @@ namespace Assets.Scripts.UI.SaveLoad
 				{
 					string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d5.Path);
 					Texture2D image3 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension3 + ".png");
-					promptController3.SetScreenshotDetails(image3, d5.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d5.Text, d5.TextJp);
+					promptController3.SetScreenshotDetails(image3, d5.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d5.Text, d5.TextJp);
 				}
 			});
 			gameSystem.ExecuteActions();
@@ -107,7 +108,7 @@ namespace Assets.Scripts.UI.SaveLoad
 				{
 					string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d4.Path);
 					Texture2D image2 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension2 + ".png");
-					promptController2.SetScreenshotDetails(image2, d4.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d4.Text, d4.TextJp);
+					promptController2.SetScreenshotDetails(image2, d4.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d4.Text, d4.TextJp);
 				}
 			});
 			goto IL_02e0;
@@ -133,7 +134,7 @@ namespace Assets.Scripts.UI.SaveLoad
 				{
 					string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d3.Path);
 					Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
-					promptController.SetScreenshotDetails(image, d3.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d3.Text, d3.TextJp);
+					promptController.SetScreenshotDetails(image, d3.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d3.Text, d3.TextJp);
 				}
 			});
 			gameSystem.ExecuteActions();

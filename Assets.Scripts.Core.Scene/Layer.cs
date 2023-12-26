@@ -735,7 +735,18 @@ namespace Assets.Scripts.Core.Scene
 		{
 			if (PrimaryName == string.Empty)
 			{
-				HideLayer();
+				// PrimaryName is set to string.Empty when Layer's texture is released -
+				// therefore there is no texture to reload, so do nothing here.
+				//
+				// Note: Previously there was a HideLayer() call here, which caused problems
+				// with backgrounds if ReloadTexture() was called just after the game had started
+				// running, and DrawSceneWithMask() had not yet been called. It would cause
+				// backgrounds to display for one frame(?), then turn black.
+				//
+				// I think may be a special layer is activated on startup, but has no texture set,
+				// triggering this if statement.
+				//
+				// See https://github.com/07th-mod/higurashi-assembly/issues/104 for details
 			}
 			else
 			{
