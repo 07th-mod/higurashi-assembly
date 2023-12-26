@@ -77,6 +77,7 @@ namespace Assets.Scripts.UI.Menu
 					gameSystem.PopStateStack();
 					GameSystem.Instance.PushStateObject(new StateDialogPrompt(PromptType.DialogExit, delegate
 					{
+						gameSystem.CloseChoiceIfExists();
 						gameSystem.CanExit = true;
 						Application.Quit();
 					}, delegate

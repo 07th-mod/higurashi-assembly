@@ -2,6 +2,7 @@ using Assets.Scripts.Core;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core.Localization;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -90,7 +91,7 @@ namespace Assets.Scripts.UI.SaveLoad
 							DateTime now = DateTime.Now;
 							string fullText = GameSystem.Instance.TextController.GetFullText(1);
 							string fullText2 = GameSystem.Instance.TextController.GetFullText(0);
-							p.SetScreenshotDetails(tex, now.ToString("ddd MMM dd, yyyy h:mm tt"), fullText, fullText2);
+							p.SetScreenshotDetails(tex, now.ToString(Loc.dateTimeFormat, Loc.cultureInfo), fullText, fullText2);
 						});
 					}
 				});
