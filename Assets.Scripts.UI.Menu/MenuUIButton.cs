@@ -27,7 +27,7 @@ namespace Assets.Scripts.UI.Menu
 			{
 				return;
 			}
-			if (gameSystem.GameState == GameState.RightClickMenu && !(time > 0f) && UICamera.currentTouchID == -1 && isEnabled)
+			if (gameSystem.GameState == GameState.RightClickMenu && !(time > 0f) && UICamera.currentTouchID >= -1 && isEnabled)
 			{
 				switch (base.name)
 				{
@@ -51,6 +51,7 @@ namespace Assets.Scripts.UI.Menu
 					gameSystem.PopStateStack();
 					GameSystem.Instance.PushStateObject(new StateDialogPrompt(PromptType.DialogTitle, delegate
 					{
+						gameSystem.CloseChoiceIfExists();
 						gameSystem.ClearActions();
 						gameSystem.ClearAllWaits();
 						gameSystem.TextController.ClearText();
@@ -74,6 +75,7 @@ namespace Assets.Scripts.UI.Menu
 					gameSystem.PopStateStack();
 					GameSystem.Instance.PushStateObject(new StateDialogPrompt(PromptType.DialogExit, delegate
 					{
+						gameSystem.CloseChoiceIfExists();
 						gameSystem.CanExit = true;
 						Application.Quit();
 					}, delegate

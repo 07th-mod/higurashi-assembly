@@ -18,7 +18,7 @@ namespace Assets.Scripts.UI.CGGallery
 			{
 				gameSystem = GameSystem.Instance;
 			}
-			if (gameSystem.GameState == GameState.CGGallery && !(time > 0f) && UICamera.currentTouchID == -1)
+			if (gameSystem.GameState == GameState.CGGallery && !(time > 0f) && UICamera.currentTouchID >= -1)
 			{
 				gameSystem.PopStateStack();
 				BurikoMemory.Instance.SetFlag("LOCALWORK_NO_RESULT", cgslot);

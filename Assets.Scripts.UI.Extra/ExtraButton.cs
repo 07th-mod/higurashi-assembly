@@ -28,7 +28,7 @@ namespace Assets.Scripts.UI.Extra
 
 		private void OnClick()
 		{
-			if (isActive && UICamera.currentTouchID == -1 && GameSystem.Instance.GameState == GameState.ExtraScreen)
+			if (isActive && UICamera.currentTouchID >= -1 && GameSystem.Instance.GameState == GameState.ExtraScreen)
 			{
 				StateExtraScreen stateExtraScreen = GameSystem.Instance.GetStateObject() as StateExtraScreen;
 				if (stateExtraScreen != null)

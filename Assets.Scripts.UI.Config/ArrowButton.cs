@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI.Config
 
 		private void OnClick()
 		{
-			if (UICamera.currentTouchID == -1)
+			if (UICamera.currentTouchID >= -1)
 			{
 				Slider.Changestep(StepChange);
 			}

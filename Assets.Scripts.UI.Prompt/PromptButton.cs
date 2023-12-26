@@ -22,7 +22,7 @@ namespace Assets.Scripts.UI.Prompt
 
 		private void OnClick()
 		{
-			if (isEnabled && GameSystem.Instance.GameState == GameState.DialogPrompt && !(time > 0f) && UICamera.currentTouchID == -1)
+			if (isEnabled && GameSystem.Instance.GameState == GameState.DialogPrompt && !(time > 0f) && UICamera.currentTouchID >= -1)
 			{
 				switch (base.name)
 				{
