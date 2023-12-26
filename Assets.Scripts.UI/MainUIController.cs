@@ -475,10 +475,14 @@ namespace Assets.Scripts.UI
 			ui.bgLayer.DrawLayer(windowFilterTextureName, 0, 0, 0, null, null, gameSystem.MessageWindowOpacity, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 
-		// This must be called after BurikoScriptSystem has been initialized
-		public void InitializeModMenuAndToaster(GameSystem gameSystem)
+		public void InitializeToaster()
 		{
 			this.toaster = new MODToaster();
+		}
+
+		// This must be called after BurikoScriptSystem has been initialized
+		public void InitializeModMenu(GameSystem gameSystem)
+		{
 			this.modMenu = new MODMenu(gameSystem);
 
 			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
@@ -508,12 +512,23 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			if(this.modMenu == null || this.toaster == null)
+			if(this.toaster == null)
 			{
 				return;
 			}
 
+			if (this.modMenu == null)
+			{
+				// If mod menu not available, just draw any toast notifications and exit
+				toaster.OnGUIFragment();
+				return;
+			}
+
 			modMenu.OnGUIFragment();
+			toaster.OnGUIFragment();
+
+			// If the mod menu is available, draw the toast notifications last,
+			// so they appear ontop of the mod menu
 			toaster.OnGUIFragment();
 
 			// Helper Functions for processing flags
