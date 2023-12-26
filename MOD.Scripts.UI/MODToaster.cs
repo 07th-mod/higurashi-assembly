@@ -36,10 +36,10 @@ namespace MOD.Scripts.UI
 			{
 				// This scrolls the toast notification off the window when it's nearly finished
 				float toastYPosition = Math.Min(50f, 200f * toastNotificationTimer.timeLeft - 50f);
-				float toastWidth = 700f;
+				float toastWidth = styleManager.Group.toastWidth;
 				float toastXPosition = (Screen.width - toastWidth) / 2.0f;
-				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, 700f, 200f));
-				GUILayout.Box(toastText, toastText.Length > 30 ? styleManager.smallToastLabelStyle : styleManager.bigToastLabelStyle);
+				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, toastWidth, Screen.height));
+				GUILayout.TextArea(toastText, styleManager.Group.bigToastLabelStyle);
 				GUILayout.EndArea();
 			}
 		}
@@ -59,9 +59,19 @@ namespace MOD.Scripts.UI
 
 			Instance.toastText = toastText;
 			Instance.toastNotificationTimer.Start(toastDuration);
-			if (maybeSound is GUISound sound)
+
+			// Try to play sound effect, if requested
+			try
 			{
-				GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(sound));
+				if (maybeSound is GUISound sound)
+				{
+					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(sound));
+				}
+			}
+			catch (Exception e)
+			{
+				// If an exception occurs here, it probably means the gamesystem is not setup yet
+				// Since this only affects whether the sound is played, just ignore any errors that happen here.
 			}
 		}
 
