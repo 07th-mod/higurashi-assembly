@@ -159,7 +159,7 @@ namespace MOD.Scripts.Core.Scene
             }
 
             //Now pre-load the textures for the character that is about to be drawn
-            TextureGroup _ = LoadOrUseCache(character);
+            LoadOrUseCache(character, out TextureGroup _);
         }
 
         /// <summary>
@@ -183,38 +183,58 @@ namespace MOD.Scripts.Core.Scene
         /// <param name="character">The number of the character whose textures you want to load.
         /// This is the same character number used in the game scripts.</param>
         /// <returns></returns>
-        public static TextureGroup LoadOrUseCache(int character)
+        public static bool LoadOrUseCache(int character, out TextureGroup textureGroup)
         {
             DebugLog($"Texture Cache count: {cache.Keys.Count}");
             string textureName = MODSystem.instance.modSceneController.GetBaseTextureName(character);
 
-            if (cache.TryGetValue(textureName, out TextureGroup cachedTextures))
+            // If the textureName is null, we won't know what texture to load, so just give up
+            if (textureName == null)
             {
-                DebugLog($"LoadOrUseCache() - Cache hit on [{textureName}]");
-
-                // This branch happens if the texture group exists in the cache, but one or more of the textures
-                // have been Destroy()ed (set to null).
-                //
-                // I've managed to hit this branch once? before when skippping and clicking at the same time,
-                // otherwise it doesn't seem to happen
-                if (cachedTextures.NeedsClean())
-                {
-                    Assets.Scripts.Core.Logger.LogError($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
-
-                    // Clean up the texture, then reload it from disk
-                    cachedTextures.DestroyTextures();
-                    cache.Remove(textureName);
-                    return LoadWithoutCache(textureName, character);
-                }
-
-                // Since we just used this texture, reset its age to 0
-                cachedTextures.age = 0;
-
-                return cachedTextures;
+                MODLogger.Log($"WARNING: textureName = null for character {character}", true);
+                textureGroup = null;
+                return false;
             }
-            else
+
+            try
             {
-                return LoadWithoutCache(textureName, character);
+                if (cache.TryGetValue(textureName, out TextureGroup cachedTextures))
+                {
+                    DebugLog($"LoadOrUseCache() - Cache hit on [{textureName}]");
+
+                    // This branch happens if the texture group exists in the cache, but one or more of the textures
+                    // have been Destroy()ed (set to null).
+                    //
+                    // I've managed to hit this branch once? before when skippping and clicking at the same time,
+                    // otherwise it doesn't seem to happen
+                    if (cachedTextures.NeedsClean())
+                    {
+                        Assets.Scripts.Core.Logger.LogError($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
+
+                        // Clean up the texture, then reload it from disk
+                        cachedTextures.DestroyTextures();
+                        cache.Remove(textureName);
+                        textureGroup = LoadWithoutCache(textureName, character);
+                        return true;
+                    }
+
+                    // Since we just used this texture, reset its age to 0
+                    cachedTextures.age = 0;
+
+                    textureGroup = cachedTextures;
+                    return true;
+                }
+                else
+                {
+                    textureGroup = LoadWithoutCache(textureName, character);
+                    return true;
+                }
+            }
+            catch(Exception)
+            {
+                MODLogger.Log($"WARNING: LoadOrUseCache failed! character: {character}", true);
+                textureGroup = null;
+                return false;
             }
         }
 

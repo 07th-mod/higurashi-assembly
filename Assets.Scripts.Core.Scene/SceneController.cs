@@ -1227,7 +1227,10 @@ namespace Assets.Scripts.Core.Scene
 		{
 			ulong coroutineId = MODSystem.instance.modSceneController.MODLipSyncInvalidateAndGenerateId(character);
 
-			MODLipsyncCache.TextureGroup group = MODLipsyncCache.LoadOrUseCache(character);
+			if(!MODLipsyncCache.LoadOrUseCache(character, out MODLipsyncCache.TextureGroup group))
+			{
+				yield break;
+			}
 
 			Texture2D exp4 = group.baseTexture_0;
 			Texture2D exp3 = group.halfOpen_1;
