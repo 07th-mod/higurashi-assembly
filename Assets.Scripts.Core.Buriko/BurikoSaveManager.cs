@@ -74,10 +74,6 @@ namespace Assets.Scripts.Core.Buriko
 								throw new FileLoadException("Save file does not appear to be valid! Invalid header.");
 							}
 							int num = binaryReader.ReadInt32();
-							if (num != 1)
-							{
-								throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
-							}
 							saveEntry2.Time = DateTime.FromBinary(binaryReader.ReadInt64());
 							string textJp = binaryReader.ReadString();
 							string text = saveEntry2.Text = binaryReader.ReadString();
