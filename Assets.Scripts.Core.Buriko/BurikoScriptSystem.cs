@@ -33,6 +33,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public bool FlowWasReached { get; private set; }
 
+		public static int SaveVersion = 1;
+
 		public static BurikoScriptSystem Instance
 		{
 			get;
@@ -237,7 +239,7 @@ namespace Assets.Scripts.Core.Buriko
 					using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
 					{
 						binaryWriter.Write("MGSV".ToCharArray(0, 4));
-						binaryWriter.Write(1);
+						binaryWriter.Write(2);
 						binaryWriter.Write(DateTime.Now.ToBinary());
 						if (text == string.Empty)
 						{
@@ -358,8 +360,9 @@ namespace Assets.Scripts.Core.Buriko
 						int num = binaryReader.ReadInt32();
 						if (num != 1)
 						{
-							throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
+							SaveVersion = num;
 						}
+						Debug.Log("Loading save from version: " + num);
 						binaryReader.ReadInt64();
 						string text = binaryReader.ReadString();
 						string text2 = binaryReader.ReadString();
