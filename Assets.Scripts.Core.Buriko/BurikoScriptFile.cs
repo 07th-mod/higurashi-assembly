@@ -3420,22 +3420,32 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				num2 = num3;
 			}
-			GameSystem.Instance.RegisterAction(delegate
-			{
-				MODSystem.instance.modSceneController.MODLipSyncStoreValue(num3, character, textureName, x, y, z, type, num2);
-			});
 			if (gameSystem.IsSkipping)
 			{
 				wait = 0f;
 			}
-			MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
-			// For explanation of the MODLipsyncCacheUpdate callback, see the matching call in OperationMODDrawCharacterWithFiltering()
-			gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
+
 			if (flag)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+
+			void Action()
+			{
+				GameSystem.Instance.RegisterAction(delegate
+				{
+					MODSystem.instance.modSceneController.MODLipSyncStoreValue(num3, character, textureName, x, y, z, type, num2);
+				});
+				MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
+				// For explanation of the MODLipsyncCacheUpdate callback, see the matching call in OperationMODDrawCharacterWithFiltering()
+				gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
+			}
 		}
 
 		public BurikoVariable OperationMODDrawCharacterWithFiltering()
@@ -3472,29 +3482,39 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				priority = layer;
 			}
-			gameSystem.RegisterAction(delegate
-			{
-				MODSystem.instance.modSceneController.MODLipSyncStoreValue(layer, character, textureName, x, y, z, 0, priority);
-			});
 			if (gameSystem.IsSkipping)
 			{
 				wait = 0f;
 			}
-			MODSystem.instance.modTextureController.StoreLayerTexture(layer, text);
-			// I had an issue where MODLipsyncCacheUpdate() was unable to access the sprite's base texture.
-			//
-			// This is due to chained use of RegisterAction() in DrawBustshotWithFiltering(),
-			// causing the sprite texture to be updated at some unknown time in the future.
-			//
-			// To fix this, I pass in a lambda/callback which will
-			// be executed after the layer has been updated with the new texture
-			// so the cache can grab the sprite's base texture
-			gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
+
 			if (flag)
 			{
+				Action();
 				gameSystem.ExecuteActions();
 			}
+			else
+			{
+				gameSystem.RegisterAction(Action);
+			}
 			return BurikoVariable.Null;
+
+			void Action()
+			{
+				gameSystem.RegisterAction(delegate
+				{
+					MODSystem.instance.modSceneController.MODLipSyncStoreValue(layer, character, textureName, x, y, z, 0, priority);
+				});
+				MODSystem.instance.modTextureController.StoreLayerTexture(layer, text);
+				// I had an issue where MODLipsyncCacheUpdate() was unable to access the sprite's base texture.
+				//
+				// This is due to chained use of RegisterAction() in DrawBustshotWithFiltering(),
+				// causing the sprite texture to be updated at some unknown time in the future.
+				//
+				// To fix this, I pass in a lambda/callback which will
+				// be executed after the layer has been updated with the new texture
+				// so the cache can grab the sprite's base texture
+				gameSystem.SceneController.DrawBustshotWithFiltering(layer, textureName2, mask, x, y, z, originx, 0, 0, 0, oldx, oldy, oldz, move, priority, 0, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
+			}
 		}
 
 		public BurikoVariable OperationMODPlayVoiceLS()
