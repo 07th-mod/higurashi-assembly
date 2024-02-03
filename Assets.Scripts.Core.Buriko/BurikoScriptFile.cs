@@ -2710,10 +2710,19 @@ namespace Assets.Scripts.Core.Buriko
 			string path = ReadVariable().StringValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
-			gameSystem.SceneController.CreateVideoPlayer(path, new Vector2Int(x, y));
-			gameSystem.IsSkipping = false;
-			gameSystem.IsAuto = false;
-			return BurikoVariable.Null;
+
+			if(!File.Exists(AssetManager.Instance.GetVideoClipPath(path)))
+			{
+				MODToaster.Show($"Video Playback Failed: [{path}] not found!", toastDuration: 7);
+				return BurikoVariable.Null;
+			}
+			else
+			{
+				gameSystem.SceneController.CreateVideoPlayer(path, new Vector2Int(x, y));
+				gameSystem.IsSkipping = false;
+				gameSystem.IsAuto = false;
+				return BurikoVariable.Null;
+			}
 		}
 
 		private BurikoVariable OperationOmakeScreenSection()
@@ -3541,6 +3550,7 @@ namespace Assets.Scripts.Core.Buriko
 		public BurikoVariable OperationMODPlayMovie()
 		{
 			SetOperationType("MODPlayMovie");
+			MODToaster.Show("WARNING: MODPlayMovie() is depreciated for Hou Plus - PlayVideo() should instead!");
 			string moviename = ReadVariable().StringValue();
 			GameSystem.Instance.PushStateObject(new StateMovie(moviename));
 			gameSystem.ExecuteActions();
