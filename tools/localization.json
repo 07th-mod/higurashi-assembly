@@ -11,7 +11,8 @@
 		"ExampleEntry": {
 			"text": "This text will displayed by default.",
 			"textJP": "This text will be displayed when the language is changed to Japanese in-game.",
-			"comment": "You can store comments here. Additionally, if any field is left empty and there is no hard-coded fallback, it will display as #NOT SET#"
+			"comment": "You can store comments here. Additionally, if any field is left empty and there is no hard-coded fallback, it will display as #NOT SET#",
+			"info": "Please place the 'localization.json' file in the HigurashiEp0X_Data folder (eg for Ch.1, place it at 'HigurashiEp01_Data/localization.json')"
 		},
 		"MODMenu_0": {
 			"comment": "The below entries are for the F10 mod menu, in the file MOD.Scripts.UI/MODMenu.cs. NOTE: some of these are the debug menu strings, wich the user will never use or see.",
