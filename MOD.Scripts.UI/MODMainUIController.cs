@@ -277,6 +277,8 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetNameFormatJp(aDVModeNameFormat);
 			GameSystem.Instance.TextController.SetLineSpacingJp(aDVModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(aDVModeFontSize);
+
+			GameSystem.Instance.TextController.UpdateTextArea();
 		}
 
 		public void NVLModeSettingStore()
@@ -314,6 +316,8 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetNameFormatJp(nVLModeNameFormat);
 			GameSystem.Instance.TextController.SetLineSpacingJp(nVLModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(nVLModeFontSize);
+
+			GameSystem.Instance.TextController.UpdateTextArea();
 		}
 
 		public void NVLADVModeSettingStore()
@@ -350,6 +354,8 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetNameFormatJp(nVLADVModeNameFormat);
 			GameSystem.Instance.TextController.SetLineSpacingJp(nVLADVModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(nVLADVModeFontSize);
+
+			GameSystem.Instance.TextController.UpdateTextArea();
 		}
 
 		public void RyukishiModeSettingStore()
@@ -380,6 +386,8 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetNameFormatJp(ryukishiModeNameFormat);
 			GameSystem.Instance.TextController.SetLineSpacingJp(ryukishiModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(ryukishiModeFontSize);
+
+			GameSystem.Instance.TextController.UpdateTextArea();
 		}
 
 		public void DebugFontChangerSettingStore()
@@ -410,6 +418,8 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.TextController.SetNameFormatJp(aDVModeNameFormat);
 			GameSystem.Instance.TextController.SetLineSpacingJp(aDVModeLineSpacing);
 			GameSystem.Instance.TextController.SetJpFontSize(aDVModeFontSize);
+
+			GameSystem.Instance.TextController.UpdateTextArea();
 		}
 	}
 }
