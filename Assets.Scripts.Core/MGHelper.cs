@@ -294,7 +294,7 @@ namespace Assets.Scripts.Core
 			{
 				return br.ReadString();
 			}
-			return null;
+			return defaultValue;
 		}
 
 		public static void WriteColor(BinaryWriter br, Color c)
