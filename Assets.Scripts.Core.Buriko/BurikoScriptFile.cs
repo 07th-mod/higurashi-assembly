@@ -2515,9 +2515,7 @@ namespace Assets.Scripts.Core.Buriko
 			int num2 = ReadVariable().IntValue();
 			int num3 = ReadVariable().IntValue();
 			int num4 = ReadVariable().IntValue();
-			gameSystem.TextController.WindowMargins = new Vector4(num, num2, num3, num4);
-			gameSystem.TextController.WindowMarginsJp = new Vector4(num, num2, num3, num4);
-			gameSystem.TextController.RefreshMargins();
+			gameSystem.MainUIController.SetWindowMargins(num, num2, num3, num4);
 			return BurikoVariable.Null;
 		}
 

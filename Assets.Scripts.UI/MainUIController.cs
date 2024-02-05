@@ -302,7 +302,10 @@ namespace Assets.Scripts.UI
 
 		public void SetWindowMargins(int left, int top, int right, int bottom)
 		{
-			TextWindow.margin = new Vector4(left, top, right, bottom);
+			Vector4 newMargin = new Vector4(left, top, right, bottom);
+			gameSystem.TextController.WindowMargins = newMargin;
+			gameSystem.TextController.WindowMarginsJp = newMargin;
+			gameSystem.TextController.RefreshMargins();
 		}
 
 		public TMP_FontAsset GetEnglishFont()
