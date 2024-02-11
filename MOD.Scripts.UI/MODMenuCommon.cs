@@ -72,9 +72,9 @@ namespace MOD.Scripts.UI
 			return GUILayout.TextField(text, maxLength, MODStyleManager.OnGUIInstance.Group.textField, options);
 		}
 
-		public static string TextField(string text, int maxLength, out bool hasChanged, params GUILayoutOption[] options)
+		public static string TextField(string text, out bool hasChanged, params GUILayoutOption[] options)
 		{
-			string newValue = GUILayout.TextField(text, maxLength, MODStyleManager.OnGUIInstance.Group.textField, options);
+			string newValue = GUILayout.TextField(text, MODStyleManager.OnGUIInstance.Group.textField, options);
 
 			hasChanged = text != newValue;
 			return newValue;

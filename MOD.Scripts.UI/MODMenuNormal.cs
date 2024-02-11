@@ -47,6 +47,7 @@ namespace MOD.Scripts.UI
 		private static int gameClearClickCount = 3;
 
 		string TextField_FontOutlineWidth;
+		string TextField_NormalFontWeight;
 
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
@@ -168,6 +169,7 @@ namespace MOD.Scripts.UI
 			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
 			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
 			TextField_FontOutlineWidth = GameSystem.Instance.OutlineWidth.ToString();
+			TextField_NormalFontWeight = GameSystem.Instance.MainUIController.GetNormalFontWeight().ToString();
 
 			gameClearClickCount = 3;
 		}
@@ -475,18 +477,22 @@ namespace MOD.Scripts.UI
 			GUILayout.BeginHorizontal();
 			{
 				Label(new GUIContent("Outline", "Font Outline Width"));
-				TextField_FontOutlineWidth = TextField(TextField_FontOutlineWidth, 5, out bool hasChanged);
-				if (hasChanged)
+				TextField_FontOutlineWidth = TextField(TextField_FontOutlineWidth, out bool outlineHasChanged);
+
+				Label(new GUIContent("Normal Weight", "Normal Font Weight"));
+				TextField_NormalFontWeight = TextField(TextField_NormalFontWeight, out bool fontWeightHasChanged);
+
+				if (outlineHasChanged || fontWeightHasChanged)
 				{
 					try
 					{
 						GameSystem.Instance.MainUIController.SetFontOutlineWidth(float.Parse(TextField_FontOutlineWidth));
+						GameSystem.Instance.MainUIController.SetNormalFontWeight(float.Parse(TextField_NormalFontWeight));
 					}
 					catch (Exception e)
 					{
 						MODToaster.Show("Failed to set font settings:" + e.ToString());
 					}
-					MODToaster.Show("Font Updated");
 				}
 			}
 			GUILayout.EndHorizontal();
