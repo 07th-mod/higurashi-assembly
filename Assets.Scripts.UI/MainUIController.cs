@@ -822,5 +822,15 @@ namespace Assets.Scripts.UI
 			GUI.Label(rect, text, GUI.skin.textArea);
 		}
 
+		/// <summary>
+		/// Sets the font outline width, and updates the current textwindow outline width
+		/// Hopefully if you toggle language (which toggles the font on chapters 1-9), the outline width is retained.
+		/// </summary>
+		/// <param name="outlineWidth">The outline width as a float typically between (0, 1)</param>
+		public void SetFontOutlineWidth(float outlineWidth)
+		{
+			gameSystem.OutlineWidth = outlineWidth;
+			TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+		}
 	}
 }

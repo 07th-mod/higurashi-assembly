@@ -2666,8 +2666,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("MODSetMainFontOutlineWidth");
 			int width = ReadVariable().IntValue();
-			GameSystem.Instance.OutlineWidth = width / 100f;
-			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			GameSystem.Instance.MainUIController.SetFontOutlineWidth(width/100f);
 			return BurikoVariable.Null;
 		}
 

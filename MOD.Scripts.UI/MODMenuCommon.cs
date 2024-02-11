@@ -72,6 +72,14 @@ namespace MOD.Scripts.UI
 			return GUILayout.TextField(text, maxLength, MODStyleManager.OnGUIInstance.Group.textField, options);
 		}
 
+		public static string TextField(string text, int maxLength, out bool hasChanged, params GUILayoutOption[] options)
+		{
+			string newValue = GUILayout.TextField(text, maxLength, MODStyleManager.OnGUIInstance.Group.textField, options);
+
+			hasChanged = text != newValue;
+			return newValue;
+		}
+
 		public static int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
 		public static void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);
 	}

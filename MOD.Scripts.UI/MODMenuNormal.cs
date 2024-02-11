@@ -46,6 +46,8 @@ namespace MOD.Scripts.UI
 
 		private static int gameClearClickCount = 3;
 
+		string TextField_FontOutlineWidth;
+
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
@@ -165,6 +167,7 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.SceneController.MODGetExpressionThresholds(out float threshold1, out float threshold2);
 			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
 			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
+			TextField_FontOutlineWidth = GameSystem.Instance.OutlineWidth.ToString();
 
 			gameClearClickCount = 3;
 		}
@@ -372,6 +375,8 @@ namespace MOD.Scripts.UI
 				GUILayout.EndHorizontal();
 
 				OnGUIComputedLipsync();
+
+				OnGUIFontDebug();
 			}
 			else
 			{
@@ -461,6 +466,30 @@ namespace MOD.Scripts.UI
 			{
 				GameSystem.Instance.SceneController.MODSetForceComputedLipsync(newForceComputedLipsync);
 			}
+		}
+
+		private void OnGUIFontDebug()
+		{
+			Label("Font Debugging");
+
+			GUILayout.BeginHorizontal();
+			{
+				Label(new GUIContent("Outline", "Font Outline Width"));
+				TextField_FontOutlineWidth = TextField(TextField_FontOutlineWidth, 5, out bool hasChanged);
+				if (hasChanged)
+				{
+					try
+					{
+						GameSystem.Instance.MainUIController.SetFontOutlineWidth(float.Parse(TextField_FontOutlineWidth));
+					}
+					catch (Exception e)
+					{
+						MODToaster.Show("Failed to set font settings:" + e.ToString());
+					}
+					MODToaster.Show("Font Updated");
+				}
+			}
+			GUILayout.EndHorizontal();
 		}
 
 		public bool UserCanClose() => true;
