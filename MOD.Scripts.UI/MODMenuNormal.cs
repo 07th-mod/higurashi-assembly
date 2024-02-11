@@ -372,6 +372,12 @@ namespace MOD.Scripts.UI
 				GUILayout.EndHorizontal();
 
 				OnGUIComputedLipsync();
+
+				Label("Font Debugging");
+				if (Button(new GUIContent("Font Debug is on the Draggable Debug Menu", "The font debug settings are on the draggable debug menu, to avoid it blocking the screen while you see the fonts change.")))
+				{
+					modMenu.ToggleDebugMenu();
+				}
 			}
 			else
 			{
