@@ -863,7 +863,6 @@ namespace Assets.Scripts.UI
 			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightNormal, weight);
 
 			FontWeight = weight;
-			TextWindow.ForceMeshUpdate();
 		}
 	}
 }
