@@ -478,7 +478,6 @@
     <Compile Include="SpringPanel.cs" />
     <Compile Include="SpringPosition.cs" />
     <Compile Include="SpriteOptionButton.cs" />
-    <Compile Include="SteamManager.cs" />
     <Compile Include="Strong.cs" />
     <Compile Include="System.Runtime.Serialization\DataContractAttribute.cs" />
     <Compile Include="System.Runtime.Serialization\DataMemberAttribute.cs" />
