@@ -3445,10 +3445,7 @@ namespace Assets.Scripts.Core.Buriko
 
 			void Action()
 			{
-				GameSystem.Instance.RegisterAction(delegate
-				{
-					MODSystem.instance.modSceneController.MODLipSyncStoreValue(num3, character, textureName, x, y, z, type, num2);
-				});
+				MODSystem.instance.modSceneController.MODLipSyncStoreValue(num3, character, textureName, x, y, z, type, num2);
 				MODSystem.instance.modTextureController.StoreLayerTexture(num3, text);
 				// For explanation of the MODLipsyncCacheUpdate callback, see the matching call in OperationMODDrawCharacterWithFiltering()
 				gameSystem.SceneController.DrawBustshot(num3, textureName2, x, y, z, oldx, oldy, oldz, move, num2, type, wait, flag, afterLayerUpdated: (Texture2D _) => MODLipsyncCache.MODLipsyncCacheUpdate(character));
@@ -3507,10 +3504,7 @@ namespace Assets.Scripts.Core.Buriko
 
 			void Action()
 			{
-				gameSystem.RegisterAction(delegate
-				{
-					MODSystem.instance.modSceneController.MODLipSyncStoreValue(layer, character, textureName, x, y, z, 0, priority);
-				});
+				MODSystem.instance.modSceneController.MODLipSyncStoreValue(layer, character, textureName, x, y, z, 0, priority);
 				MODSystem.instance.modTextureController.StoreLayerTexture(layer, text);
 				// I had an issue where MODLipsyncCacheUpdate() was unable to access the sprite's base texture.
 				//
