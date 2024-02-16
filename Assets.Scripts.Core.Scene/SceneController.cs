@@ -1089,40 +1089,6 @@ namespace Assets.Scripts.Core.Scene
 		{
 		}
 
-		private IEnumerator MODBakedLipSync(string path, int character, ulong coroutineId, Texture2D exp2, Texture2D exp3, Texture2D exp4)
-		{
-			StreamReader streamReader = new StreamReader(path);
-			string text = streamReader.ReadLine();
-			string[] exparray = text.Split(',');
-			streamReader.Close();
-			for (int k = 0; k < exparray.Length; k++)
-			{
-				if (!MODSystem.instance.modSceneController.MODLipSyncAnimationStillActive(character, coroutineId) || !MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
-				{
-					break;
-				}
-				if (exparray[k] == string.Empty)
-				{
-					exparray[k] = "0";
-				}
-				if (k > 1 && !exparray[k].Equals(exparray[k - 1]))
-				{
-					switch (exparray[k])
-					{
-						case "2":
-							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp2, coroutineId);
-							break;
-						case "1":
-							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp3, coroutineId);
-							break;
-						case "0":
-							MODSystem.instance.modSceneController.MODLipSyncProcess(character, exp4, coroutineId);
-							break;
-					}
-				}
-				yield return (object)new WaitForSeconds(0.0666f);
-			}
-		}
 
 		private IEnumerator MODComputedLipSync(int character, int audiolayer, AudioClip audioClip, ulong coroutineId, Texture2D exp2, Texture2D exp3, Texture2D exp4)
 		{
@@ -1236,23 +1202,7 @@ namespace Assets.Scripts.Core.Scene
 			Texture2D exp3 = group.halfOpen_1;
 			Texture2D exp2 = group.fullOpen_2;
 
-			if (forceComputedLipsync)
-			{
-				yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
-			}
-			else // If the spectrum file doesn't exist, use the "computed lipsync" method
-			{
-				string str = audiofile.Replace(".ogg", ".txt");
-				string path = Path.Combine(Application.streamingAssetsPath, "spectrum/" + str);
-				if (File.Exists(path))
-				{
-					yield return MODBakedLipSync(path, character, coroutineId, exp2, exp3, exp4);
-				}
-				else
-				{
-					yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
-				}
-			}
+			yield return MODComputedLipSync(character, audiolayer, audioClip, coroutineId, exp2, exp3, exp4);
 
 			// Most of the time we want to reset the sprite back to the 'default' pose when lipsync finishes (even if the
 			// lipsync option is already 'disabled') to prevent having a character with their mouth stuck open.
