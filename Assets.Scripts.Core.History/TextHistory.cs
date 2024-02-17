@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using System.Linq;
 using Assets.Scripts.Core.Audio;
+using System.Text;
 
 namespace Assets.Scripts.Core.History
 {
@@ -54,54 +55,63 @@ namespace Assets.Scripts.Core.History
 
 		private string FormatName(string name)
 		{
-			if (name == "")
+			if(string.IsNullOrWhiteSpace(name))
 			{
-				return name;
+				return "";
 			}
 			else
 			{
-				var explicitlyWhite = uncoloredNameRegex.Replace(name, (match) => "</color><color=#ffffff>" + match.Groups[1].Value + "</color><color");
-				string nameWithNewLines = "<line-height=+6>" + string.Format(GameSystem.Instance.TextController.GetNameFormat(), explicitlyWhite) + "</line-height>";
+				// Format the name according to the NameHistoryFormat defined in init.txt. For Hou+ we use "{0}\n"
+				string formattedName = string.Format(GameSystem.Instance.TextController.NameHistoryFormat, name);
 
-				// In Rei the newline only works at the end (after all the tags).
-				// This ensures there is exactly one newline, and that it occurs at the end of every name.
-				// I'm pretty sure this is not the correct way to fix this, but this should work for now.
-				return nameWithNewLines.Replace("\n", "") + "\n";
+				// Sometimes, there is a name like "Keiichi & Rena", where Keiichi is one color, '&' is white, and 'Rena' is another color.
+				// When you mouseover the line to play it, the "&" will turn blue, when it should stay white. To workaround this, the following makes any uncolored text
+				// explicitly white so it stays white during hover.
+				string explicitlyWhite = uncoloredNameRegex.Replace(formattedName, (match) => "</color><color=#ffffff>" + match.Groups[1].Value + "</color><color");
+				return explicitlyWhite;
 			}
 		}
 
 		public void RegisterLine(string english, string japanese, string nameen, string namejp)
 		{
 			lastEN = english ?? "<Null english line>";
+
+			// Remove any size tags as this will mess up the history window formatting
 			english = sizeTagRegex.Replace(english, "");
 			japanese = sizeTagRegex.Replace(japanese, "");
+
+			//Push history immediately if english line starts with newline?
+			//I guess this makes sure you don't end up with one huge paragraph which plays voices sequentially
 			if (english.StartsWith("\n"))
 			{
 				english = english.Replace("\n", "");
 				japanese = japanese.Replace("\n", "");
+
 				PushHistory();
 				if (english == string.Empty && japanese == string.Empty)
 				{
 					return;
 				}
 			}
+
+			// If there is an existing History Line, continue to collect text into that history line, but don't add it to the backlog yet
 			if (last != null)
 			{
 				last.TextEnglish += english;
 				last.TextJapanese += japanese;
-				return;
 			}
-			string english2 = english;
-			string japanese2 = japanese;
-			if (!string.IsNullOrWhiteSpace(nameen))
+			else
 			{
-				english2 = string.Format(GameSystem.Instance.TextController.NameHistoryFormat, nameen) + english;
+				// If reached this point, then last == null, eg we are starting a new History Line in the backlog
+				// We need to add the name at the start of the backlog, which is done below, then create a new HistoryLine
+				string english2 = FormatName(nameen) + english;
+				string japanese2 = FormatName(namejp) + japanese;
+				last = new HistoryLine(english2, japanese2);
 			}
-			if (!string.IsNullOrEmpty(namejp))
-			{
-				japanese2 = string.Format(GameSystem.Instance.TextController.NameHistoryFormat, namejp) + japanese;
-			}
-			last = new HistoryLine(english2, japanese2);
+
+			// If any voices were recorded, append them to the History Line
+			// This records a list of voices, instead of a single voice, in case there were multiple voices
+			// since the last time RegisterLine() was called, or multiple voices played at same time (?).
 			if (lastVoice.Count > 0)
 			{
 				last.AddVoiceFile(lastVoice);
