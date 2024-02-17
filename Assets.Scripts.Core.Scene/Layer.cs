@@ -104,6 +104,8 @@ namespace Assets.Scripts.Core.Scene
 		private bool cachedRyukishiClamp;
 		private int cachedFinalXOffset;
 
+		private string lastTexturePath;
+
 		public int? LayerID
 		{
 			get => layerID;
@@ -792,9 +794,16 @@ namespace Assets.Scripts.Core.Scene
 		// TODO: test behavior when texture missing and exception raised?
 		private void SetPrimaryTexture(string texName, out string texturePath)
 		{
-			if (!(PrimaryName == texName))
+			if(PrimaryName == texName)
 			{
-				Texture2D x = AssetManager.Instance.LoadTexture(texName, out texturePath);
+				// Don't set primary texture if it already is set to a texture of the same name
+				// This falsely causes nothing to be drawn if you set a texture, change filter mode, then set the same texture, but leave this behavior for now.
+				texturePath = lastTexturePath;
+			}
+			else
+			{
+				Texture2D x = MODSceneController.LoadTextureWithFilters(layerID, texName, out texturePath);
+				lastTexturePath = texturePath;
 				if (x == null)
 				{
 					throw new Exception("Failed to load texture: " + texName);
@@ -808,8 +817,6 @@ namespace Assets.Scripts.Core.Scene
 				material.SetTexture("_Primary", primary);
 				meshRenderer.enabled = true;
 			}
-
-			texturePath = null;
 		}
 
 		private void SetSecondaryTexture(string texName)
