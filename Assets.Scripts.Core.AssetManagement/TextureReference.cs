@@ -1,4 +1,5 @@
 using UnityEngine;
+using static MOD.Scripts.Core.Scene.MODSceneController;
 
 namespace Assets.Scripts.Core.AssetManagement
 {
@@ -12,5 +13,10 @@ namespace Assets.Scripts.Core.AssetManagement
 		// When retrieving a texture via a cached TextureReference, the path is not evaluated, so we need to
 		// also cache the texture path.
 		public string MODTexturePath;
+
+		/// <summary>
+		/// NOTE: This field is null if no filter has been applied yet
+		/// </summary>
+		public Filter? AppliedFilter;
 	}
 }

@@ -64,6 +64,20 @@ namespace MOD.Scripts.Core.Scene
 				a = arr[9];
 			}
 
+			public bool Equals(Filter other)
+			{
+				return this.rr == other.rr &&
+				this.rg == other.rg &&
+				this.rb == other.rb &&
+				this.gr == other.gr &&
+				this.gg == other.gg &&
+				this.gb == other.gb &&
+				this.br == other.br &&
+				this.bg == other.bg &&
+				this.bb == other.bb &&
+				this.a == other.a;
+			}
+
 			public bool MixesColors => rg != 0 || rb != 0 || gr != 0 || gb != 0 || br != 0 || bg != 0;
 			public bool ChangesColors => MixesColors || rr != 256 || gg != 256 || bb != 256;
 			public bool ChangesAlpha => a != 256;
@@ -191,24 +205,29 @@ namespace MOD.Scripts.Core.Scene
 			return layerFilters.TryGetValue(layer, out value);
 		}
 
-		public static void ApplyFilters(int layer, Texture2D texture)
+		public static void ApplyFilters(Filter filter, Texture2D source, Texture2D dest)
 		{
 			// This avoids a crash when "GetPixels32 called on a degenerate image (dimensions 0x0)"
 			// "UnityException: Texture '' is not configured correctly to allow GetPixels"
-			if (texture.width == 0 || texture.height == 0)
+			if (source.width == 0 || source.height == 0 || dest.width == 0 || dest.height == 0)
 			{
 				Debug.LogError("WARNING: ApplyFilters() called on texture with zero width and zero height. No filters will be applied.");
 				return;
 			}
 
-			if (!TryGetLayerFilter(layer, out Filter value)) { return; }
+			if (source.width != dest.width || source.height != dest.height)
+			{
+				Debug.LogError("WARNING: ApplyFilters() called on textures whose dimensions don't match. No filters will be applied.");
+				return;
+			}
+
 			var watch = System.Diagnostics.Stopwatch.StartNew();
-			var pixels = texture.GetPixels32();
-			value.ApplyTo(pixels);
-			texture.SetPixels32(pixels);
-			texture.Apply();
+			var pixels = source.GetPixels32();
+			filter.ApplyTo(pixels);
+			dest.SetPixels32(pixels);
+			dest.Apply();
 			watch.Stop();
-			MODUtility.FlagMonitorOnlyLog("Applied filter to " + texture.name + " in " + watch.ElapsedMilliseconds + "ms");
+			MODUtility.FlagMonitorOnlyLog("Applied filter to " + dest.name + " in " + watch.ElapsedMilliseconds + "ms");
 		}
 
 		public static Texture2D LoadTextureWithFilters(int? layer, string textureName)
@@ -216,13 +235,58 @@ namespace MOD.Scripts.Core.Scene
 			return LoadTextureWithFilters(layer, textureName, out _);
 		}
 
-		public static Texture2D LoadTextureWithFilters(int? layer, string textureName, out string texturePath)
+		public static Texture2D LoadTextureWithFilters(int? maybeLayer, string textureName, out string texturePath)
 		{
 			var watch = System.Diagnostics.Stopwatch.StartNew();
 			Texture2D texture = GameSystem.Instance.AssetManager.LoadTexture(textureName, out texturePath);
 			watch.Stop();
-			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms");
-			if (layer is int actualLayer) { ApplyFilters(actualLayer, texture); }
+			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms (texture load only)");
+
+			if(!maybeLayer.HasValue)
+			{
+				MODUtility.FlagMonitorOnlyLog($">>> Not applying filter to {textureName} as provided layer is null");
+				return texture;
+			}
+			int layer = maybeLayer.Value;
+
+			// If there is no filter to be applied, then just return the texture
+			if (!TryGetLayerFilter(layer, out Filter filter))
+			{
+				MODUtility.FlagMonitorOnlyLog($">>> Not applying filter to {texture.name} as TryGetLayerFilter says no filter to apply");
+				return texture;
+			}
+
+			// This should always succeed, but if it doesn't for some reason, just return the texture and don't apply filter.
+			if (!GameSystem.Instance.AssetManager.TryGetTextureReference(textureName, out TextureReference textureReference))
+			{
+				Debug.Log($"WARNING: LoadTextureWithFilters() - TryGetTextureReference could not get texture reference for texture '{textureName}'");
+				return texture;
+			}
+
+			// Check if filter was previously applied before applying filter
+			if (textureReference.AppliedFilter == null)
+			{
+				// No filter applied yet. Just apply the filter
+				MODUtility.FlagMonitorOnlyLog($">>> Applying filter to texture {textureName}");
+				ApplyFilters(filter, source: texture, dest: texture);
+				textureReference.AppliedFilter = filter;
+			}
+			else if (filter.Equals(textureReference.AppliedFilter))
+			{
+				// The filter has already been applied, so don't apply texture again.
+				MODUtility.FlagMonitorOnlyLog($">>> Not re-applying filter to texture {textureName} as it already has same filter applied");
+			}
+			else
+			{
+				// A different filter has previously been applied.
+				// In this case, need to reload the texture from scratch to reset it, before applying the filter.
+				MODUtility.FlagMonitorOnlyLog($">>> Reloading texture data for {textureName} before applying filter");
+				Texture2D unmodifiedTexture = GameSystem.Instance.AssetManager.LoadTexture(textureName, out texturePath, useCache: false);
+				ApplyFilters(filter, source: unmodifiedTexture, dest: texture);
+				textureReference.AppliedFilter = filter;
+				Texture2D.Destroy(unmodifiedTexture);
+			}
+
 			return texture;
 		}
 

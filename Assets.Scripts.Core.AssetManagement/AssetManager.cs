@@ -470,9 +470,14 @@ namespace Assets.Scripts.Core.AssetManagement
 			return LoadTexture(textureName, out _, refCount);
 		}
 
-		public Texture2D LoadTexture(string textureName, out string texturePath, int refCount = 1)
+		public bool TryGetTextureReference(string textureName, out TextureReference textureReference)
 		{
-			if (textureReferences.TryGetValue(textureName, out TextureReference value))
+			return textureReferences.TryGetValue(textureName, out textureReference);
+		}
+
+		public Texture2D LoadTexture(string textureName, out string texturePath, int refCount = 1, bool useCache = true)
+		{
+			if (useCache && textureReferences.TryGetValue(textureName, out TextureReference value))
 			{
 				if (refCount > 0)
 				{
@@ -535,12 +540,15 @@ namespace Assets.Scripts.Core.AssetManagement
 				windowTexture = texture2D;
 				windowTexturePath = path;
 			}
-			textureReferences.Add(key, new TextureReference
+			if(useCache)
 			{
-				Count = refCount,
-				Texture = texture2D,
-				MODTexturePath = path,
-			});
+				textureReferences.Add(key, new TextureReference
+				{
+					Count = refCount,
+					Texture = texture2D,
+					MODTexturePath = path,
+				});
+			}
 			texturePath = path;
 			return texture2D;
 		}
