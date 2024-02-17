@@ -589,6 +589,12 @@ namespace Assets.Scripts.Core.AssetManagement
 			}
 		}
 
+		public void InvalidateTextureCache()
+		{
+			textureReferences = new Dictionary<string, TextureReference>();
+			Resources.UnloadUnusedAssets();
+		}
+
 		public void DebugOutputTextureReferenceStatus()
 		{
 			StringBuilder stringBuilder = new StringBuilder();

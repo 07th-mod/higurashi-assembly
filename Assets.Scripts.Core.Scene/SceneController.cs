@@ -967,8 +967,11 @@ namespace Assets.Scripts.Core.Scene
 			StartCoroutine(GetScreenshotCoroutine(onFinishAction));
 		}
 
+		// This function is only used by the mod!
 		public void ReloadAllImages()
 		{
+			AssetManager.Instance.InvalidateTextureCache();
+
 			Layer[] componentsInChildren = Panel1.GetComponentsInChildren<Layer>();
 			foreach (Layer layer in componentsInChildren)
 			{

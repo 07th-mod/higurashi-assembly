@@ -242,7 +242,18 @@ namespace MOD.Scripts.Core.Scene
 			watch.Stop();
 			MODUtility.FlagMonitorOnlyLog("Loaded " + textureName + " in " + watch.ElapsedMilliseconds + "ms (texture load only)");
 
-			if(!maybeLayer.HasValue)
+			if (texture == null)
+			{
+				texturePath = null;
+				return null;
+			}
+
+			if (texture.name == null)
+			{
+				MODLogger.Log($"WARNING: texture name is null when loading texture {textureName}", true);
+			}
+
+			if (!maybeLayer.HasValue)
 			{
 				MODUtility.FlagMonitorOnlyLog($">>> Not applying filter to {textureName} as provided layer is null");
 				return texture;

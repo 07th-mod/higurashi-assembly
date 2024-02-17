@@ -4,6 +4,8 @@ using MOD.Scripts.Core.Scene;
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using MOD.Scripts.UI;
+using MOD.Scripts.Core;
 
 namespace Assets.Scripts.Core.Scene
 {
@@ -803,11 +805,17 @@ namespace Assets.Scripts.Core.Scene
 			else
 			{
 				Texture2D x = MODSceneController.LoadTextureWithFilters(layerID, texName, out texturePath);
-				lastTexturePath = texturePath;
+
+				// Check if texture is OK. If texture couldn't be loaded, return without doing anything
 				if (x == null)
 				{
-					throw new Exception("Failed to load texture: " + texName);
+					string errorString = $"Failed to load texture: {texName}";
+					MODLogger.Log(errorString, true);
+					MODToaster.Show(errorString, toastDuration: 10);
+					return;
 				}
+
+				lastTexturePath = texturePath;
 				if (primary != null)
 				{
 					AssetManager.Instance.ReleaseTexture(PrimaryName, primary);
@@ -872,8 +880,21 @@ namespace Assets.Scripts.Core.Scene
 			targetAngle = 0f;
 		}
 
+		// This function is only used by the mod!
 		public void ReloadTexture()
 		{
+			if(primary == null)
+			{
+				Debug.Log($"WARNING: Attempted to reload texture on layer {LayerID} but primary was null!");
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(PrimaryName))
+			{
+				Debug.Log($"WARNING: Attempted to reload texture on layer {LayerID} but PrimaryName was null or whitespace!");
+				return;
+			}
+
 			if (PrimaryName == string.Empty)
 			{
 				// PrimaryName is set to string.Empty when Layer's texture is released -
