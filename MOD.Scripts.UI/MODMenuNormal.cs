@@ -46,9 +46,6 @@ namespace MOD.Scripts.UI
 
 		private static int gameClearClickCount = 3;
 
-		string TextField_FontOutlineWidth;
-		string TextField_NormalFontWeight;
-
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
@@ -168,8 +165,6 @@ namespace MOD.Scripts.UI
 			GameSystem.Instance.SceneController.MODGetExpressionThresholds(out float threshold1, out float threshold2);
 			TextField_ComputedLipSyncThreshold1 = threshold1.ToString();
 			TextField_ComputedLipSyncThreshold2 = threshold2.ToString();
-			TextField_FontOutlineWidth = GameSystem.Instance.OutlineWidth.ToString();
-			TextField_NormalFontWeight = GameSystem.Instance.MainUIController.GetNormalFontWeight().ToString();
 
 			gameClearClickCount = 3;
 		}
@@ -378,7 +373,11 @@ namespace MOD.Scripts.UI
 
 				OnGUIComputedLipsync();
 
-				OnGUIFontDebug();
+				Label("Font Debugging");
+				if (Button(new GUIContent("Font Debug is on the Draggable Debug Menu", "The font debug settings are on the draggable debug menu, to avoid it blocking the screen while you see the fonts change.")))
+				{
+					modMenu.ToggleDebugMenu();
+				}
 			}
 			else
 			{
@@ -468,34 +467,6 @@ namespace MOD.Scripts.UI
 			{
 				GameSystem.Instance.SceneController.MODSetForceComputedLipsync(newForceComputedLipsync);
 			}
-		}
-
-		private void OnGUIFontDebug()
-		{
-			Label("Font Debugging");
-
-			GUILayout.BeginHorizontal();
-			{
-				Label(new GUIContent("Outline", "Font Outline Width"));
-				TextField_FontOutlineWidth = TextField(TextField_FontOutlineWidth, out bool outlineHasChanged);
-
-				Label(new GUIContent("Normal Weight", "Normal Font Weight"));
-				TextField_NormalFontWeight = TextField(TextField_NormalFontWeight, out bool fontWeightHasChanged);
-
-				if (outlineHasChanged || fontWeightHasChanged)
-				{
-					try
-					{
-						GameSystem.Instance.MainUIController.SetFontOutlineWidth(float.Parse(TextField_FontOutlineWidth));
-						GameSystem.Instance.MainUIController.SetNormalFontWeight(float.Parse(TextField_NormalFontWeight));
-					}
-					catch (Exception e)
-					{
-						MODToaster.Show("Failed to set font settings:" + e.ToString());
-					}
-				}
-			}
-			GUILayout.EndHorizontal();
 		}
 
 		public bool UserCanClose() => true;

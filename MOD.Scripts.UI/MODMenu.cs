@@ -30,6 +30,7 @@ namespace MOD.Scripts.UI
 		private readonly GameSystem gameSystem;
 		public bool visible;
 		public bool debug;
+		private bool lastDebug;
 		private bool lastMenuVisibleStatus;
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
@@ -43,6 +44,8 @@ namespace MOD.Scripts.UI
 		private MODMenuAudioOptions audioOptionsMenu;
 		private MODMenuAudioSetup audioSetupMenu;
 		private MODMenuModuleInterface currentMenu; // The menu that is currently visible
+
+		private MODMenuFontConfig fontMenuFragment;
 
 		string lastToolTip = String.Empty;
 
@@ -67,6 +70,7 @@ namespace MOD.Scripts.UI
 			this.audioOptionsMenu = new MODMenuAudioOptions(this);
 			this.normalMenu = new MODMenuNormal(this, this.audioOptionsMenu);
 			this.audioSetupMenu = new MODMenuAudioSetup(this, this.audioOptionsMenu);
+			this.fontMenuFragment = new MODMenuFontConfig();
 			this.currentMenu = this.normalMenu;
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
@@ -92,6 +96,12 @@ namespace MOD.Scripts.UI
 			}
 		}
 
+		private void OnBeforeDebugMenuVisible()
+		{
+			fontMenuFragment.OnBeforeMenuVisible();
+		}
+
+		// This is a separate, smaller draggable mod menu, mainly for developer use.
 		private void OnGUIDebugWindow(int windowID)
 		{
 			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
@@ -100,6 +110,7 @@ namespace MOD.Scripts.UI
 			bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
 			bool seFlagOK = MODAudioSet.Instance.GetSECascade(GetGlobal("GAltSE"), out PathCascadeList SECascade);
 
+			// ============================= Begin Sroll View =============================
 			if (!visible)
 			{
 				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width / 3), GUILayout.Height(Screen.height*9/10));
@@ -124,14 +135,16 @@ namespace MOD.Scripts.UI
 
 			GUILayout.Label(Core.Scene.MODLipsyncCache.DebugInfo());
 
-			if (debug)
+			// Button to reset GAudio Set
+			if(Button(new GUIContent(Loc.MODMenu_2, Loc.MODMenu_3))) //Reset GAudioSet | Set GAudioSet to 0, to force the game to do audio setup on next startup
 			{
-				if(Button(new GUIContent(Loc.MODMenu_2, Loc.MODMenu_3))) //Reset GAudioSet | Set GAudioSet to 0, to force the game to do audio setup on next startup
-				{
-					SetGlobal("GAudioSet", 0);
-				}
+				SetGlobal("GAudioSet", 0);
 			}
 
+			// Font Adjustment Debug Menu
+			fontMenuFragment.OnGUIFontDebug();
+
+			// Button to close the debug menu
 			if (Button(new GUIContent(Loc.MODMenu_4, Loc.MODMenu_5))) //Close | Close the debug menu
 			{
 				ToggleDebugMenu();
@@ -141,6 +154,7 @@ namespace MOD.Scripts.UI
 			{
 				GUILayout.EndScrollView();
 			}
+			// ============================= End Scroll View =============================
 
 			GUI.DragWindow(new Rect(0, 0, 10000, 10000));
 		}
@@ -223,10 +237,15 @@ namespace MOD.Scripts.UI
 			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 			buttonClickSound = GUISound.Click;
 
+			if (debug && !lastDebug)
+			{
+				OnBeforeDebugMenuVisible();
+			}
 			if (debug && AssetManager.Instance != null)
 			{
 				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, Loc.MODMenu_6, styleManager.modMenuAreaStyleLight); //Developer Debug Window (click to drag)
 			}
+			lastDebug = debug;
 
 			GUI.depth = 0;
 
