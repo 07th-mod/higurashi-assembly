@@ -10,12 +10,14 @@ namespace MOD.Scripts.UI
 	{
 		string TextField_FontOutlineWidth;
 		string TextField_NormalFontWeight;
+		string TextField_BoldFontWeight;
 		string TextField_FontSize;
 		string TextField_ConfigMenuFontSize;
 
 		public void OnBeforeMenuVisible() {
 			TextField_FontOutlineWidth = GameSystem.Instance.OutlineWidth.ToString();
 			TextField_NormalFontWeight = GameSystem.Instance.MainUIController.GetNormalFontWeight().ToString();
+			TextField_BoldFontWeight = GameSystem.Instance.MainUIController.GetBoldFontWeight().ToString();
 			TextField_FontSize = GameSystem.Instance.MainUIController.TextWindow.fontSize.ToString();
 			TextField_ConfigMenuFontSize = GameSystem.Instance.ConfigMenuFontSize.ToString();
 		}
@@ -30,7 +32,8 @@ namespace MOD.Scripts.UI
 			Label(new GUIContent("Normal Weight", "Main Text Window Normal Font Weight"));
 			TextField_NormalFontWeight = TextField(TextField_NormalFontWeight, true, out bool fontWeightHasChanged);
 
-			// TODO: Bold Weight?
+			Label(new GUIContent("Bold Weight", "Main Text Window Bold Font Weight"));
+			TextField_BoldFontWeight = TextField(TextField_BoldFontWeight, true, out bool fontBoldWeightHasChanged);
 
 			GUILayout.EndHorizontal();
 
@@ -55,6 +58,7 @@ namespace MOD.Scripts.UI
 
 			if (outlineHasChanged ||
 				fontWeightHasChanged ||
+				fontBoldWeightHasChanged ||
 				fontSizeHasChanged ||
 				configFontSizeHasChanged)
 			{
@@ -63,6 +67,7 @@ namespace MOD.Scripts.UI
 					// Update main text window font
 					GameSystem.Instance.MainUIController.SetFontOutlineWidth(float.Parse(TextField_FontOutlineWidth));
 					GameSystem.Instance.MainUIController.SetNormalFontWeight(float.Parse(TextField_NormalFontWeight));
+					GameSystem.Instance.MainUIController.SetBoldFontWeight(float.Parse(TextField_BoldFontWeight));
 					GameSystem.Instance.MainUIController.SetFontSize(int.Parse(TextField_FontSize));
 
 					// Update config menu font

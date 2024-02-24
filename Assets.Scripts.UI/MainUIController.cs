@@ -57,6 +57,7 @@ namespace Assets.Scripts.UI
 		private MODToaster toaster;
 
 		private float? FontWeight;
+		private float? BoldWeight;
 
 		public void UpdateGuiPosition(int x, int y)
 		{
@@ -847,6 +848,16 @@ namespace Assets.Scripts.UI
 			return FontWeight.Value;
 		}
 
+		public float GetBoldFontWeight()
+		{
+			if (!BoldWeight.HasValue)
+			{
+				BoldWeight = TextWindow.fontSharedMaterial.GetFloat(TMPro.ShaderUtilities.ID_WeightBold);
+			}
+
+			return BoldWeight.Value;
+		}
+
 		/// <summary>
 		/// Some chapters TextWindow don't let you set the font weight. For those chapters, the "_WeightNormal"
 		/// parameter on the material is set directly.
@@ -863,6 +874,13 @@ namespace Assets.Scripts.UI
 			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightNormal, weight);
 
 			FontWeight = weight;
+		}
+
+		public void SetBoldFontWeight(float weight)
+		{
+			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightBold, weight);
+
+			BoldWeight = weight;
 		}
 	}
 }

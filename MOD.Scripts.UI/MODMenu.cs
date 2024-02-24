@@ -115,11 +115,11 @@ namespace MOD.Scripts.UI
 			{
 				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width / 3), GUILayout.Height(Screen.height*9/10));
 			}
-			GUILayout.Label(Loc.MODMenu_0, styleManager.Group.upperLeftHeadingLabel); //[Audio Tracking] - indicates what would play on each BGM flow
-			GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
+			HeadingLabel(Loc.MODMenu_0); //[Audio Tracking] - indicates what would play on each BGM flow
+			Label($"{MODAudioTracking.Instance}");
 
-			GUILayout.Label(Loc.MODMenu_1, styleManager.Group.upperLeftHeadingLabel); //[Audio Flags and last played audio]
-			GUILayout.Label($"Audio Set: {GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n\n" +
+			HeadingLabel(Loc.MODMenu_1); //[Audio Flags and last played audio]
+			Label($"Audio Set: {GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n\n" +
 				$"AltBGM: {GetGlobal("GAltBGM")}\n" +
 				$"AltBGMFlow: {GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(GetGlobal("GAltBGMflow"))})\n" +
 				$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
@@ -133,7 +133,7 @@ namespace MOD.Scripts.UI
 				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
 				$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
 
-			GUILayout.Label(Core.Scene.MODLipsyncCache.DebugInfo());
+			Label(Core.Scene.MODLipsyncCache.DebugInfo());
 
 			// Button to reset GAudio Set
 			if(Button(new GUIContent(Loc.MODMenu_2, Loc.MODMenu_3))) //Reset GAudioSet | Set GAudioSet to 0, to force the game to do audio setup on next startup
@@ -155,6 +155,11 @@ namespace MOD.Scripts.UI
 				GUILayout.EndScrollView();
 			}
 			// ============================= End Scroll View =============================
+
+			if(GameSystem.Instance.MODIgnoreInputs())
+			{
+				Label("NOTE: Game Paused while Mouse On Debug Menu!");
+			}
 
 			GUI.DragWindow(new Rect(0, 0, 10000, 10000));
 		}
@@ -244,6 +249,9 @@ namespace MOD.Scripts.UI
 			if (debug && AssetManager.Instance != null)
 			{
 				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, Loc.MODMenu_6, styleManager.modMenuAreaStyleLight); //Developer Debug Window (click to drag)
+
+				// Prevent mouse clicks being registered by the game when using debug menu
+				gameSystem.SetMODIgnoreInputs(debugWindowRect.Contains(Input.mousePosition));
 			}
 			lastDebug = debug;
 
