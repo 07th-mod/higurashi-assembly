@@ -2826,6 +2826,20 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "NormalFontWeight":
+					if(int.TryParse(callParameters, out int normalFontWeightPercent))
+					{
+						GameSystem.Instance.MainUIController.SetNormalFontWeight(normalFontWeightPercent / 100.0f);
+					}
+					break;
+
+				case "BoldFontWeight":
+					if (int.TryParse(callParameters, out int boldFontWeightPercent))
+					{
+						GameSystem.Instance.MainUIController.SetBoldFontWeight(boldFontWeightPercent / 100.0f);
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;

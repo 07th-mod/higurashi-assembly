@@ -33,10 +33,10 @@ namespace MOD.Scripts.UI
 			// --------- Font Weight Adjustment ---------
 			GUILayout.BeginHorizontal();
 
-			Label(new GUIContent("Normal Weight (%)", "Main Text Window Normal Font Weight"));
+			Label(new GUIContent("Normal Weight (% change)", "Main Text Window Normal Font Weight"));
 			TextField_NormalFontWeight = TextField(TextField_NormalFontWeight, true, out bool fontWeightHasChanged);
 
-			Label(new GUIContent("Bold Weight (%)", "Main Text Window Bold Font Weight"));
+			Label(new GUIContent("Bold Weight (% change)", "Main Text Window Bold Font Weight"));
 			TextField_BoldFontWeight = TextField(TextField_BoldFontWeight, true, out bool fontBoldWeightHasChanged);
 
 			GUILayout.EndHorizontal();
@@ -61,7 +61,7 @@ namespace MOD.Scripts.UI
 			GUILayout.EndHorizontal();
 
 			// --------- Textbox showing example code ---------
-			TextArea(TextArea_GeneratedScriptFragment, Screen.height / 16);
+			TextArea(TextArea_GeneratedScriptFragment, Screen.height / 8);
 
 			if (outlineHasChanged ||
 				fontWeightHasChanged ||
@@ -94,10 +94,11 @@ namespace MOD.Scripts.UI
 
 		private void UpdateGeneratedScriptFragment()
 		{
-			// TODO: fix x100 scaling issue
-			TextArea_GeneratedScriptFragment = $"//Set font size manually (need to set per each option)\n" +
-				$"ModSetConfigFontSize({TextField_ConfigMenuFontSize})\n" +
-				$"ModSetMainFontOutlineWidth({TextField_FontOutlineWidth})\n";
+			TextArea_GeneratedScriptFragment = $"//Font Size: [{TextField_FontSize}] - Please update init.txt accordingly\n" +
+				$"ModSetConfigFontSize({TextField_ConfigMenuFontSize});\n" +
+				$"ModSetMainFontOutlineWidth({TextField_FontOutlineWidth});\n" +
+				$"ModGenericCall(\"NormalFontWeight\", \"{TextField_NormalFontWeight}\");\n" +
+				$"ModGenericCall(\"BoldFontWeight\", \"{TextField_BoldFontWeight}\");\n";
 		}
 
 		public int asPercent(float fontOption) => Mathf.RoundToInt(fontOption * 100);
