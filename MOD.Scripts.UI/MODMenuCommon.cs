@@ -86,6 +86,14 @@ namespace MOD.Scripts.UI
 			return newValue;
 		}
 
+		public static string TextArea(string text, int maxHeight)
+		{
+			return GUILayout.TextArea(text, MODStyleManager.OnGUIInstance.Group.textField, new GUILayoutOption[] {
+				GUILayout.ExpandHeight(true),
+				GUILayout.MaxHeight(maxHeight)
+			});
+		}
+
 		public static int GetGlobal(string flagName) => BurikoMemory.Instance.GetGlobalFlag(flagName).IntValue();
 		public static void SetGlobal(string flagName, int flagValue) => BurikoMemory.Instance.SetGlobalFlag(flagName, flagValue);
 	}
