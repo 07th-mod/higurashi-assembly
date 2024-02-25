@@ -4,11 +4,58 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static MOD.Scripts.Core.Scene.MODLipsyncCache;
 
 namespace MOD.Scripts.Core.Scene
 {
     class MODLipsyncCache
     {
+        struct LastDrawInformation
+        {
+            public readonly int layer;
+            public readonly string baseTextureName;
+
+            public LastDrawInformation(int layer, string baseTextureName)
+            {
+                this.layer = layer;
+                this.baseTextureName = baseTextureName;
+            }
+        }
+
+        class LastDrawInformationManager
+        {
+            private static bool[] infoValid = new bool[MODSceneController.MAX_CHARACTERS];
+            private static LastDrawInformation[] lastDrawInformation = new LastDrawInformation[MODSceneController.MAX_CHARACTERS];
+
+            public static bool GetLastDrawInformation(int character, out LastDrawInformation drawInformation)
+            {
+                if (character < lastDrawInformation.Length && infoValid[character])
+                {
+                    drawInformation = lastDrawInformation[character];
+                    return true;
+                }
+
+                drawInformation = new LastDrawInformation();
+                return false;
+            }
+
+            public static void SetLastDrawInformation(int character, int layer, string baseTextureName)
+            {
+                // Ignore any 'null' texture and print error message
+                if(baseTextureName == null)
+                {
+                    MODLogger.Log($"WARNING: LastDrawInformationManager.SetLastDrawInformation called with baseTextureName = null (character: {character} layer: {layer})", true);
+                    return;
+                }
+
+                if (character < lastDrawInformation.Length)
+                {
+                    lastDrawInformation[character] = new LastDrawInformation(layer, baseTextureName);
+                    infoValid[character] = true;
+                }
+            }
+        }
+
         public class TextureGroup
         {
             // Note: the textures in this class can become null at any time, if
@@ -92,8 +139,11 @@ namespace MOD.Scripts.Core.Scene
         private static int maxTextureAge = 2;
         private static string debugLastEvent;
 
-        public static void MODLipsyncCacheUpdate(Texture2D baseTexture, int character)
+        public static void MODLipsyncCacheUpdate(Texture2D baseTexture, int character, int layer, string baseTextureName)
         {
+            // This must always run even if lipsync is disabled, so that the lastDrawInformation is present if enabled later
+            LastDrawInformationManager.SetLastDrawInformation(character, layer, baseTextureName);
+
             // If lipsync not enabled, do not do any caching
             if (!MODSystem.instance.modSceneController.MODLipSyncIsEnabled())
             {
@@ -140,7 +190,7 @@ namespace MOD.Scripts.Core.Scene
             }
 
             //Now pre-load the textures for the character that is about to be drawn
-            TextureGroup _ = LoadOrUseCache(baseTexture, character);
+            bool _ = LoadOrUseCache(baseTexture, character, out TextureGroup _);
         }
 
         /// <summary>
@@ -164,58 +214,83 @@ namespace MOD.Scripts.Core.Scene
         /// <param name="character">The number of the character whose textures you want to load.
         /// This is the same character number used in the game scripts.</param>
         /// <returns></returns>
-        public static TextureGroup LoadOrUseCache(Texture2D maybeBaseTexture, int character)
+        public static bool LoadOrUseCache(Texture2D maybeBaseTexture, int character, out TextureGroup textureGroup)
         {
-            DebugLog($"Texture Cache count: {cache.Keys.Count}");
-            string textureName = MODSystem.instance.modSceneController.GetBaseTextureName(character);
-
-            if (cache.TryGetValue(textureName, out TextureGroup cachedTextures))
+            try
             {
-                DebugLog($"LoadOrUseCache() - Cache hit on [{textureName}]");
+                DebugLog($"Texture Cache count: {cache.Keys.Count}");
 
-                // This branch happens if the texture group exists in the cache, but one or more of the textures
-                // have been Destroy()ed (set to null).
-                //
-                // I've managed to hit this branch once? before when skippping and clicking at the same time,
-                // otherwise it doesn't seem to happen
-                if (cachedTextures.NeedsClean())
+                if(!LastDrawInformationManager.GetLastDrawInformation(character, out LastDrawInformation info))
                 {
-                    Assets.Scripts.Core.Logger.LogError($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
-
-                    // Clean up the texture, then reload it from disk
-                    cachedTextures.DestroyTextures();
-                    cache.Remove(textureName);
-                    return LoadWithoutCache(textureName, maybeBaseTexture, character);
+                    textureGroup = null;
+                    return false;
                 }
 
-                // Since we just used this texture, reset its age to 0
-                cachedTextures.age = 0;
+                // If the baseTextureName is null, we won't know what texture to load, so just give up
+                if(info.baseTextureName == null)
+                {
+                    textureGroup = null;
+                    return false;
+                }
 
-                return cachedTextures;
+                if (cache.TryGetValue(info.baseTextureName, out TextureGroup cachedTextures))
+                {
+                    DebugLog($"LoadOrUseCache() - Cache hit on [{info.baseTextureName}]");
+
+                    // This branch happens if the texture group exists in the cache, but one or more of the textures
+                    // have been Destroy()ed (set to null).
+                    //
+                    // I've managed to hit this branch once? before when skippping and clicking at the same time,
+                    // otherwise it doesn't seem to happen
+                    if (cachedTextures.NeedsClean())
+                    {
+                        Assets.Scripts.Core.Logger.LogError($"WARNING on LoadOrUseCache() - retrieved texture but it was Destroy()ed");
+
+                        // Clean up the texture, then reload it from disk
+                        cachedTextures.DestroyTextures();
+                        cache.Remove(info.baseTextureName);
+
+                        textureGroup = LoadWithoutCache(info, maybeBaseTexture);
+                        return true;
+                    }
+
+                    // Since we just used this texture, reset its age to 0
+                    cachedTextures.age = 0;
+
+                    textureGroup = cachedTextures;
+                    return true;
+                }
+                else
+                {
+                    textureGroup = LoadWithoutCache(info, maybeBaseTexture);
+                    return true;
+                }
             }
-            else
+            catch (Exception e)
             {
-                return LoadWithoutCache(textureName, maybeBaseTexture, character);
+                Debug.Log($"Lipsync LoadOrUseCache() ERROR: {e}");
+                textureGroup = null;
+                return false;
             }
         }
-        private static TextureGroup LoadWithoutCache(string textureName, Texture2D maybeBaseTexture, int character)
+        private static TextureGroup LoadWithoutCache(LastDrawInformation info, Texture2D maybeBaseTexture)
         {
             Texture2D baseTexture = maybeBaseTexture;
 
             if (baseTexture == null)
             {
                 DebugLog($"LoadOrUseCache() - loading base texture from scratch ");
-                baseTexture = MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "0");
+                baseTexture = MODSceneController.LoadTextureWithFilters(info.layer, info.baseTextureName + "0");
             }
 
-            DebugLog($"LoadOrUseCache() - updating cache with char: {character}");
+            DebugLog($"LoadOrUseCache() - updating cache with texture: {info.baseTextureName} on layer {info.layer}");
             TextureGroup textureGroup = new TextureGroup(
                 baseTexture,
-                MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "1"),
-                MODSystem.instance.modSceneController.MODLipSyncPrepare(character, "2")
+                MODSceneController.LoadTextureWithFilters(info.layer, info.baseTextureName + "1"),
+                MODSceneController.LoadTextureWithFilters(info.layer, info.baseTextureName + "2")
             );
 
-            cache.Add(textureName, textureGroup);
+            cache.Add(info.baseTextureName, textureGroup);
             return textureGroup;
         }
 
@@ -232,9 +307,9 @@ namespace MOD.Scripts.Core.Scene
             sb.AppendLine($"LIPSYNC CACHE [Num Entries: {cache.Count()} Max Age: {maxTextureAge}]");
             sb.AppendLine(debugLastEvent);
 
-            foreach ((string key, TextureGroup value) in cache)
+            foreach (KeyValuePair<string, TextureGroup> kvp in cache)
             {
-                sb.AppendLine($"---- {key} ----\n{value}\n");
+                sb.AppendLine($"---- {kvp.Key} ----\n{kvp.Value}\n");
             }
 
             return sb.ToString();

@@ -10,7 +10,7 @@ namespace MOD.Scripts.Core.Scene
 {
 	public class MODSceneController
 	{
-		private const int MAX_CHARACTERS = 100;
+		public static int MAX_CHARACTERS = 100;
 		public static int MODLipSync_Character_Audio;
 
 		public struct Filter

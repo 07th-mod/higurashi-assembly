@@ -75,10 +75,16 @@ namespace Assets.Scripts.Core.Buriko
 							{
 								throw new FileLoadException("Save file does not appear to be valid! Invalid header.");
 							}
-							if (binaryReader.ReadInt32() != 1)
-							{
-								throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
-							}
+							int num = binaryReader.ReadInt32();
+							// Note: On 01-01-2024, Ch.8 removed the save version check, so that saves with a version other than 1
+							// could be loaded. Currently, there are only two versions 1 (initial version) and 2 (priority included in save file)
+							//
+							// Please note that this means older versions of the DLL won't be able to load new saves, so you won't be able to
+							// downgrade DLL version and keep your save after this.
+							// if (num != 1)
+							// {
+							// 	throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
+							// }
 							saveEntry.Time = DateTime.FromBinary(binaryReader.ReadInt64());
 							string textJp = binaryReader.ReadString();
 							string text = saveEntry.Text = binaryReader.ReadString();
