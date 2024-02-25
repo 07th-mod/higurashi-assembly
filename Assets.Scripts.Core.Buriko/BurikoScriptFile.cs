@@ -2843,7 +2843,7 @@ namespace Assets.Scripts.Core.Buriko
 				case "FaceDilate":
 					if (int.TryParse(callParameters, out int faceDilate))
 					{
-						GameSystem.Instance.MainUIController.SetBoldFontWeight(faceDilate / 100.0f);
+						GameSystem.Instance.MainUIController.SetFaceDilation(faceDilate / 100.0f);
 					}
 					break;
 
