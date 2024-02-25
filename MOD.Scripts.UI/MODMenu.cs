@@ -242,6 +242,12 @@ namespace MOD.Scripts.UI
 			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 			buttonClickSound = GUISound.Click;
 
+			// If no menus are visible, allow mod inputs
+			if(!visible && !debug)
+			{
+				gameSystem.SetMODIgnoreInputs(false);
+			}
+
 			if (debug && !lastDebug)
 			{
 				OnBeforeDebugMenuVisible();
