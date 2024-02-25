@@ -2840,6 +2840,13 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "FaceDilate":
+					if (int.TryParse(callParameters, out int faceDilate))
+					{
+						GameSystem.Instance.MainUIController.SetBoldFontWeight(faceDilate / 100.0f);
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;

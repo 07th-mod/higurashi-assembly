@@ -58,6 +58,7 @@ namespace Assets.Scripts.UI
 
 		private float? FontWeight;
 		private float? BoldWeight;
+		private float? FaceDilate;
 
 		public void UpdateGuiPosition(int x, int y)
 		{
@@ -881,6 +882,23 @@ namespace Assets.Scripts.UI
 			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightBold, weight);
 
 			BoldWeight = weight;
+		}
+
+		public void SetFaceDilation(float faceDilate)
+		{
+			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_FaceDilate, faceDilate);
+
+			FaceDilate = faceDilate;
+		}
+
+		public float GetFaceDilation()
+		{
+			if (!FaceDilate.HasValue)
+			{
+				FaceDilate = TextWindow.fontSharedMaterial.GetFloat(TMPro.ShaderUtilities.ID_FaceDilate);
+			}
+
+			return FaceDilate.Value;
 		}
 	}
 }
