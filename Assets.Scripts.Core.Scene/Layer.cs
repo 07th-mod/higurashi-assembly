@@ -679,6 +679,7 @@ namespace Assets.Scripts.Core.Scene
 		public void FadeTo(float alpha, float time)
 		{
 			iTween.Stop(base.gameObject);
+			startRange = targetRange;
 			targetRange = alpha;
 			targetAlpha = alpha;
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "FinishFade"));
