@@ -19,11 +19,11 @@ namespace MOD.Scripts.UI
 
 		public void OnBeforeMenuVisible() {
 			TextField_FontOutlineWidth = asPercent(GameSystem.Instance.OutlineWidth).ToString();
-			TextField_NormalFontWeight = asPercent(GameSystem.Instance.MainUIController.GetNormalFontWeight()).ToString();
-			TextField_BoldFontWeight = asPercent(GameSystem.Instance.MainUIController.GetBoldFontWeight()).ToString();
+			TextField_NormalFontWeight = asPercent(MODFontAdjuster.GetNormalFontWeight()).ToString();
+			TextField_BoldFontWeight = asPercent(MODFontAdjuster.GetBoldFontWeight()).ToString();
 			TextField_FontSize = GameSystem.Instance.MainUIController.TextWindow.fontSize.ToString();
 			TextField_ConfigMenuFontSize = GameSystem.Instance.ConfigMenuFontSize.ToString();
-			TextField_FaceDilation = asPercent(GameSystem.Instance.MainUIController.GetFaceDilation()).ToString();
+			TextField_FaceDilation = asPercent(MODFontAdjuster.GetFaceDilation()).ToString();
 
 			UpdateGeneratedScriptFragment();
 		}
@@ -80,11 +80,11 @@ namespace MOD.Scripts.UI
 				try
 				{
 					// Update main text window font
-					GameSystem.Instance.MainUIController.SetFontOutlineWidth(fromPercent(TextField_FontOutlineWidth));
-					GameSystem.Instance.MainUIController.SetNormalFontWeight(fromPercent(TextField_NormalFontWeight));
-					GameSystem.Instance.MainUIController.SetBoldFontWeight(fromPercent(TextField_BoldFontWeight));
+					MODFontAdjuster.SetFontOutlineWidth(fromPercent(TextField_FontOutlineWidth));
+					MODFontAdjuster.SetNormalFontWeight(fromPercent(TextField_NormalFontWeight));
+					MODFontAdjuster.SetBoldFontWeight(fromPercent(TextField_BoldFontWeight));
 					GameSystem.Instance.MainUIController.SetFontSize(int.Parse(TextField_FontSize)); // SetFontSize already takes an percentage as int
-					GameSystem.Instance.MainUIController.SetFaceDilation(fromPercent(TextField_FaceDilation));
+					MODFontAdjuster.SetFaceDilation(fromPercent(TextField_FaceDilation));
 
 					// Update config menu font
 					GameSystem.Instance.ConfigMenuFontSize = int.Parse(TextField_ConfigMenuFontSize);
