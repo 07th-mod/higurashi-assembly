@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using MOD.Scripts.UI;
 using System.Collections;
 using UnityEngine;
 
@@ -68,7 +69,7 @@ namespace Assets.Scripts.UI.Config
 			{
 				foreach (TextRefresher text in Panel.GetComponentsInChildren<TextRefresher>())
 				{
-					text.SetFontWeight(GameSystem.Instance.MainUIController.GetNormalFontWeight());
+					text.SetFontWeight(MODFontAdjuster.GetNormalFontWeight());
 					text.SetFontSize(GameSystem.Instance.ConfigMenuFontSize);
 					text.SetFontOutlineWidth(GameSystem.Instance.OutlineWidth);
 				}

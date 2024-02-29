@@ -321,15 +321,53 @@ namespace MOD.Scripts.UI
 				{
 					if (gameClearClickCount == 1)
 					{
+						// Some flags might not be available on all chapters, but try to set them anyway
 						if (gameClear)
 						{
-							SetGlobal("GFlag_GameClear", 0);
-							SetGlobal("GHighestChapter", 0);
+							TrySetGlobal("GFlag_GameClear", 0);
+							TrySetGlobal("GHighestChapter", 0);
+
+							// Rei
+							TrySetGlobal("GOmakeUnlock", 0);
+							TrySetGlobal("GCastReview", 0);
+							TrySetGlobal("GSaikoroshi", 0);
+							TrySetGlobal("GHirukowashi", 0);
+							TrySetGlobal("GBatsukoishi", 0);
+
+							// Hou+
+							TrySetGlobal("TEIEND", 1);
+							TrySetGlobal("HIGUEND", 1);
+							TrySetGlobal("MEHEND", 1);
+							// Hou+: Get an achievement once you've read all 9 staff rooms
+							for (int i = 1; i <= 9; i++)
+							{
+								TrySetGlobal($"ReadStaffRoom{i}", 0);
+							}
 						}
 						else
 						{
-							SetGlobal("GFlag_GameClear", 1);
-							SetGlobal("GHighestChapter", 999);
+							TrySetGlobal("GFlag_GameClear", 1);
+							TrySetGlobal("GHighestChapter", 999);
+
+							// Rei
+							TrySetGlobal("GOmakeUnlock", 1);
+							TrySetGlobal("GCastReview", 1);
+							TrySetGlobal("GSaikoroshi", 1);
+							TrySetGlobal("GHirukowashi", 1);
+							TrySetGlobal("GBatsukoishi", 1);
+
+							// Hou+
+							TrySetGlobal("TEIEND", 1);
+							TrySetGlobal("HIGUEND", 1);
+							TrySetGlobal("MEHEND", 1);
+							// Hou+: Get an achievement once you've read all 9 staff rooms
+							for (int i = 1; i <= 9; i++)
+							{
+								TrySetGlobal($"ReadStaffRoom{i}", 1);
+							}
+
+
+
 						}
 					}
 
