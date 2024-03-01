@@ -311,7 +311,7 @@ namespace MOD.Scripts.UI
 				else
 				{
 					string clearStateIndicator = gameClear ? Loc.MODMenuNormal_87 : Loc.MODMenuNormal_88; //Reset All Progress | Force Game Clear
-					gameClearButtonText = clearStateIndicator + "(" + Loc.MODMenuNormal_89 + $"{gameClearClickCount}" + Loc.MODMenuNormal_90 + ")"; //Click | more times
+					gameClearButtonText = clearStateIndicator + " (" + Loc.MODMenuNormal_89 + $" {gameClearClickCount} " + Loc.MODMenuNormal_90 + ")"; //Click | more times
 				}
 
 				string gameClearButtonDescription =
