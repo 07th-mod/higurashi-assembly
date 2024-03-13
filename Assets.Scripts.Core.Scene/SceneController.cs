@@ -119,6 +119,44 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
+		public bool PriorityInUseByOtherLayer(Layer layerToCheck, out int layerUsingPriority, out int layerToCheckNumber)
+		{
+			layerToCheckNumber = -1;
+			layerUsingPriority = -1;
+
+			for (int id = 0; id < layers.Length; id++)
+			{
+				if (layers[id] == null)
+				{
+					continue;
+				}
+
+				if (LayerPool.IsInPool(layers[id].gameObject))
+				{
+					continue;
+				}
+
+				if (!layers[id].IsInUse)
+				{
+					continue;
+				}
+
+				// Don't check layer against itself
+				if (layers[id].gameObject == layerToCheck.gameObject)
+				{
+					layerToCheckNumber = id;
+					continue;
+				}
+
+				if (layers[id].Priority == layerToCheck.Priority)
+				{
+					layerUsingPriority = id;
+				}
+			}
+
+			return layerUsingPriority != -1;
+		}
+
 		public int GetActiveLayerMask()
 		{
 			if (activeScene == 0)

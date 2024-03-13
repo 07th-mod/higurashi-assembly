@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.AssetManagement;
+using MOD.Scripts.Core;
 using MOD.Scripts.Core.Scene;
 using System.Collections;
 using System.IO;
@@ -651,6 +652,22 @@ namespace Assets.Scripts.Core.Scene
 			Vector3 localPosition2 = base.transform.localPosition;
 			targetPosition = new Vector3(x, localPosition2.y, (float)Priority * -0.1f);
 			base.transform.localPosition = targetPosition;
+
+			try
+			{
+				if (GameSystem.Instance.SceneController.PriorityInUseByOtherLayer(this, out int layerUsingPriority, out int thisLayerNumber))
+				{
+					// In-engine "Priority" is 1 higher than the priority you specify in the game script.
+					MODLogger.Log(
+						$"WARNING: Attempted to use [Layer {thisLayerNumber}] with priority {Priority - 1}, " +
+						$"but [Layer {layerUsingPriority}] is already using priority {Priority - 1}. " +
+						$"This layer may not be drawn correctly/graphical artifacts may occur.", true);
+				}
+			}
+			catch (System.Exception e)
+			{
+				MODLogger.Log($"Error while checking Layer Priority: {e}", true);
+			}
 		}
 
 		public void FadeInLayer(float time)
