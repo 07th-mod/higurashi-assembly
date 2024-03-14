@@ -657,11 +657,17 @@ namespace Assets.Scripts.Core.Scene
 			{
 				if (GameSystem.Instance.SceneController.PriorityInUseByOtherLayer(this, out int layerUsingPriority, out int thisLayerNumber))
 				{
+					float originalZ = base.transform.localPosition.z;
+
+					// This should work for all possible layers (technically would work for layers between 0-999)
+					base.transform.localPosition -= new Vector3(0, 0, thisLayerNumber * .0001f);
+
 					// In-engine "Priority" is 1 higher than the priority you specify in the game script.
 					MODLogger.Log(
 						$"WARNING: Attempted to use [Layer {thisLayerNumber}] with priority {Priority - 1}, " +
-						$"but [Layer {layerUsingPriority}] is already using priority {Priority - 1}. " +
-						$"This layer may not be drawn correctly/graphical artifacts may occur.", true);
+						$"but [Layer {layerUsingPriority}] is already using priority {Priority - 1}.\n" +
+						$"Z-position has been adjusted from {originalZ} to {base.transform.localPosition.z} to try to fix it.\n" +
+						$"NOTE: This layer may not be drawn correctly/graphical artifacts may occur.", true);
 				}
 			}
 			catch (System.Exception e)
