@@ -65,6 +65,7 @@ namespace Assets.Scripts.UI.Config
 			GameSystem.Instance.SceneController.HideFace(0.3f);
 			GameSystem.Instance.ExecuteActions();
 			RefreshFontSettings();
+			yield break;
 		}
 
 		public void RefreshFontSettings()
@@ -78,7 +79,6 @@ namespace Assets.Scripts.UI.Config
 					text.SetFontOutlineWidth(GameSystem.Instance.OutlineWidth);
 				}
 			}
-			yield break;
 		}
 
 		public void Open(int screen, bool msgWindow)
