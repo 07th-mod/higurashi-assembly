@@ -778,5 +778,6 @@ namespace Assets.Scripts.UI
 			GUI.Label(rect, text, GUI.skin.textArea);
 		}
 
+
 	}
 }
