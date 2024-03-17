@@ -99,8 +99,12 @@ Use the `-to` command to process just part of the video for testing. For example
 
 ### Building on Windows
 
-* These projects (`Assembly-CSharp.csproj`) have been built successfully with Visual Studio Community 2017 v15.7.5 and msbuild v15.7.180.61344, though in theory any compiler supporting C# 7.1 should suffice.
+* These projects (`Assembly-CSharp.csproj`) have been built successfully with:
+    - Visual Studio Community 2017 v15.7.5 and msbuild v15.7.180.61344, though in theory any compiler supporting C# 7.1 should suffice.
+    - Microsoft Visual Studio Community 2022 (64-bit) v17.7.5
 * To build with Visual Studio, load the sln file and use build command.
+
+Let us know if you have issues building the project.
 
 ### Building on Linux
 
@@ -142,3 +146,13 @@ The DLL will be located in the `HigurashiEp[EPISODE_NUMBER]_Data\Managed\Assembl
 | matsuri-mod  |[Ch.8 Matsuribayashi](https://github.com/07th-mod/matsuribayashi)        |                                                 |
 | rei-mod      |[Ch.9 Rei](https://github.com/07th-mod/higurashi-rei)                    | Uses new Unity 2019.4.X                         |
 | console-arcs |[Console Arcs](https://github.com/07th-mod/higurashi-console-arcs )      | Based on Ch.4 Himatsubishi DLL                  |
+
+## Visual Studio issues
+
+### ProjectGUID Changes when reloading project, then building
+
+If you change branches, Visual Studio will ask you to 'reload the project'. If you then build the project, the `<ProjectGuid>` might change (in `Assembly-CSharp.csproj`).
+
+This only happens when reloading the project - if you close the project, change branch, then open it again, it won't change the GUID.
+
+You can keep using the 'reload the project' feature, just don't commit the updated GUID (however, if you modify the GUID  accidentally, it has no effect)

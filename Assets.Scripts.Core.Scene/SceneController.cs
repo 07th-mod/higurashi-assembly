@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.AssetManagement;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Scene;
@@ -153,20 +154,37 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ControlMotionOfSprite(int layer, MtnCtrlElement[] motions, int style)
 		{
-			Layer layer2 = GetLayer(layer);
-			layer2.ControlLayerMotion(motions);
+			Layer ifInUse = GetIfInUse(layer);
+			if (ifInUse == null)
+			{
+				Debug.LogWarning("Attempting to call ControlMotionOfSprite on layer " + layer + " but it is not active in the scene.");
+			}
+			else
+			{
+				ifInUse.ControlLayerMotion(motions);
+			}
 		}
 
 		public void MoveSprite(int layer, int x, int y, int z, int angle, int easetype, float alpha, float wait, bool isblocking)
 		{
-			Layer layer2 = GetLayer(layer);
-			layer2.MoveLayer(x, y, z, alpha, easetype, wait, isblocking, adjustAlpha: true);
-			layer2.SetAngle((float)angle, wait);
+			Layer ifInUse = GetIfInUse(layer);
+			if (ifInUse == null)
+			{
+				Debug.LogWarning("Attempting to call MoveSprite on layer " + layer + " but it is not active in the scene.");
+				return;
+			}
+			ifInUse.MoveLayer(x, y, z, alpha, easetype, wait, isblocking, adjustAlpha: true);
+			ifInUse.SetAngle(angle, wait);
 		}
 
 		public void MoveSpriteEx(int layer, string filename, Vector3[] points, float alpha, float time, bool isblocking)
 		{
-			Layer i = GetLayer(layer);
+			Layer i = GetIfInUse(layer);
+			if (i == null)
+			{
+				Debug.LogWarning("Attempting to call MoveSpriteEx on layer " + layer + " but it is not active in the scene.");
+				return;
+			}
 			if (filename != string.Empty)
 			{
 				i.CrossfadeLayer(filename, time, isblocking);
@@ -191,10 +209,17 @@ namespace Assets.Scripts.Core.Scene
 			gameSystem.RegisterAction(delegate
 			{
 				Layer layer2 = GetLayer(layer);
+				int iterationCount = 0;
 				while (layer2.FadingOut)
 				{
 					layer2.HideLayer();
 					layer2 = GetLayer(layer);
+					iterationCount++;
+					if (iterationCount > 20)
+					{
+						Debug.LogWarning("We're trying to hide bustshot " + layer + " for DrawBustshot but for some reason it's stuck in a fading out state.");
+						break;
+					}
 				}
 				if (!move)
 				{
@@ -777,6 +802,10 @@ namespace Assets.Scripts.Core.Scene
 			Vector2? vector = binaryReader.ReadOptionalVector2();
 			Vector2? vector2 = binaryReader.ReadOptionalVector2();
 			int num3 = binaryReader.ReadInt32();
+			if (BurikoScriptSystem.SaveVersion > 1)
+			{
+				binaryReader.ReadInt32();
+			}
 			DrawScene(backgroundfilename, 0.3f);
 			if (binaryReader.ReadBoolean())
 			{
@@ -784,6 +813,7 @@ namespace Assets.Scripts.Core.Scene
 				MGHelper.ReadVector3(binaryReader);
 				string texture = binaryReader.ReadString();
 				binaryReader.ReadSingle();
+				binaryReader.ReadInt32();
 				binaryReader.ReadInt32();
 				binaryReader.ReadInt32();
 				DrawFace(texture, 0f, isblocking: false);
@@ -804,13 +834,18 @@ namespace Assets.Scripts.Core.Scene
 					Vector2? origin = binaryReader.ReadOptionalVector2();
 					Vector2? forceSize = binaryReader.ReadOptionalVector2();
 					int type = binaryReader.ReadInt32();
+					int priority = i;
+					if (BurikoScriptSystem.SaveVersion > 1)
+					{
+						priority = binaryReader.ReadInt32();
+					}
 					if (i != 50)
 					{
 						bool isBustshot = num4 != 0;
 						Layer layer = GetLayer(i);
-						UpdateLayerMask(layer, i);
+						UpdateLayerMask(layer, priority);
 						layer.DrawLayer(textureName, (int)position.x, (int)position.y, 0, origin, forceSize, alpha, isBustshot, type, 0f, isBlocking: false);
-						layer.SetPriority(i);
+						layer.SetPriority(priority);
 						layer.RestoreScaleAndPosition(scale, position);
 					}
 				}

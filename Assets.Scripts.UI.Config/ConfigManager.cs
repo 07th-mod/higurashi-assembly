@@ -1,5 +1,6 @@
 using Assets.Scripts.Core;
 using System;
+using MOD.Scripts.UI;
 using System.Collections;
 using UnityEngine;
 
@@ -63,11 +64,18 @@ namespace Assets.Scripts.UI.Config
 			GameSystem.Instance.MainUIController.FadeOut(0.3f, false);
 			GameSystem.Instance.SceneController.HideFace(0.3f);
 			GameSystem.Instance.ExecuteActions();
-			if (GameSystem.Instance.ConfigMenuFontSize > 0)
+			RefreshFontSettings();
+		}
+
+		public void RefreshFontSettings()
+		{
+			if (GameSystem.Instance.ConfigMenuFontSize > 0 && panel != null)
 			{
 				foreach (TextRefresher text in Panel.GetComponentsInChildren<TextRefresher>())
 				{
+					text.SetFontWeight(MODFontAdjuster.GetNormalFontWeight());
 					text.SetFontSize(GameSystem.Instance.ConfigMenuFontSize);
+					text.SetFontOutlineWidth(GameSystem.Instance.OutlineWidth);
 				}
 			}
 			yield break;
