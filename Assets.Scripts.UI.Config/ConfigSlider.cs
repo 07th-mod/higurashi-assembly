@@ -72,19 +72,12 @@ namespace Assets.Scripts.UI.Config
 					BurikoMemory.Instance.SetGlobalFlag("GWindowOpacity", num);
 					break;
 				case "1-AutoSpeed": // Voice Volume
-					GameSystem.Instance.AudioController.VoiceVolume = laststep;
-					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 					BurikoMemory.Instance.SetGlobalFlag("GVoiceVolume", num);
 					break;
 				case "2-AutoPageSpeed": // BGM Volume
-					GameSystem.Instance.AudioController.BGMVolume = laststep;
-					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 					BurikoMemory.Instance.SetGlobalFlag("GBGMVolume", num);
 					break;
 				case "3-WindowOpacity": // SE Volume
-					GameSystem.Instance.AudioController.SoundVolume = laststep;
-					GameSystem.Instance.AudioController.SystemVolume = laststep;
-					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 					BurikoMemory.Instance.SetGlobalFlag("GSEVolume", num);
 					break;
 				case "4-BGMVolume": // Text / Auto text Speed
