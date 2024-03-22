@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.AssetManagement;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Scene;
@@ -231,20 +232,38 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ControlMotionOfSprite(int layer, MtnCtrlElement[] motions, int style)
 		{
-			GetLayer(layer).ControlLayerMotion(motions);
+			Layer ifInUse = GetIfInUse(layer);
+			if (ifInUse == null)
+			{
+				Debug.LogWarning("Attempting to call ControlMotionOfSprite on layer " + layer + " but it is not active in the scene.");
+			}
+			else
+			{
+				ifInUse.ControlLayerMotion(motions);
+			}
 		}
 
 		public void MoveSprite(int layer, int x, int y, int z, int angle, int easetype, float alpha, float wait, bool isblocking)
 		{
-			Layer layer2 = GetLayer(layer);
-			layer2.MoveLayer(x, y, z, alpha, easetype, wait, isblocking, adjustAlpha: true);
-			layer2.SetAngle(angle, wait);
+			Layer ifInUse = GetIfInUse(layer);
+			if (ifInUse == null)
+			{
+				Debug.LogWarning("Attempting to call MoveSprite on layer " + layer + " but it is not active in the scene.");
+				return;
+			}
+			ifInUse.MoveLayer(x, y, z, alpha, easetype, wait, isblocking, adjustAlpha: true);
+			ifInUse.SetAngle(angle, wait);
 		}
 
 		public void MoveSpriteEx(int layer, string filename, Vector3[] points, float alpha, float time, bool isblocking)
 		{
-			Layer i = GetLayer(layer);
-			if (filename != "")
+			Layer i = GetIfInUse(layer);
+			if (i == null)
+			{
+				Debug.LogWarning("Attempting to call MoveSpriteEx on layer " + layer + " but it is not active in the scene.");
+				return;
+			}
+			if (filename != string.Empty)
 			{
 				i.CrossfadeLayer(filename, time, isblocking);
 			}
@@ -265,10 +284,17 @@ namespace Assets.Scripts.Core.Scene
 				return;
 			}
 			Layer layer2 = GetLayer(layer);
+			int iterationCount = 0;
 			while (layer2.FadingOut)
 			{
 				layer2.HideLayer();
 				layer2 = GetLayer(layer);
+				iterationCount++;
+				if (iterationCount > 20)
+				{
+					Debug.LogWarning("We're trying to hide bustshot " + layer + " for DrawBustshot but for some reason it's stuck in a fading out state.");
+					break;
+				}
 			}
 			if (!move)
 			{

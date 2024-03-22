@@ -311,7 +311,7 @@ namespace MOD.Scripts.UI
 				else
 				{
 					string clearStateIndicator = gameClear ? Loc.MODMenuNormal_87 : Loc.MODMenuNormal_88; //Reset All Progress | Force Game Clear
-					gameClearButtonText = clearStateIndicator + "(" + Loc.MODMenuNormal_89 + $"{gameClearClickCount}" + Loc.MODMenuNormal_90 + ")"; //Click | more times
+					gameClearButtonText = clearStateIndicator + " (" + Loc.MODMenuNormal_89 + $" {gameClearClickCount} " + Loc.MODMenuNormal_90 + ")"; //Click | more times
 				}
 
 				string gameClearButtonDescription =
@@ -321,15 +321,53 @@ namespace MOD.Scripts.UI
 				{
 					if (gameClearClickCount == 1)
 					{
+						// Some flags might not be available on all chapters, but try to set them anyway
 						if (gameClear)
 						{
-							SetGlobal("GFlag_GameClear", 0);
-							SetGlobal("GHighestChapter", 0);
+							TrySetGlobal("GFlag_GameClear", 0);
+							TrySetGlobal("GHighestChapter", 0);
+
+							// Rei
+							TrySetGlobal("GOmakeUnlock", 0);
+							TrySetGlobal("GCastReview", 0);
+							TrySetGlobal("GSaikoroshi", 0);
+							TrySetGlobal("GHirukowashi", 0);
+							TrySetGlobal("GBatsukoishi", 0);
+
+							// Hou+
+							TrySetGlobal("TEIEND", 1);
+							TrySetGlobal("HIGUEND", 1);
+							TrySetGlobal("MEHEND", 1);
+							// Hou+: Get an achievement once you've read all 9 staff rooms
+							for (int i = 1; i <= 9; i++)
+							{
+								TrySetGlobal($"ReadStaffRoom{i}", 0);
+							}
 						}
 						else
 						{
-							SetGlobal("GFlag_GameClear", 1);
-							SetGlobal("GHighestChapter", 999);
+							TrySetGlobal("GFlag_GameClear", 1);
+							TrySetGlobal("GHighestChapter", 999);
+
+							// Rei
+							TrySetGlobal("GOmakeUnlock", 1);
+							TrySetGlobal("GCastReview", 1);
+							TrySetGlobal("GSaikoroshi", 1);
+							TrySetGlobal("GHirukowashi", 1);
+							TrySetGlobal("GBatsukoishi", 1);
+
+							// Hou+
+							TrySetGlobal("TEIEND", 1);
+							TrySetGlobal("HIGUEND", 1);
+							TrySetGlobal("MEHEND", 1);
+							// Hou+: Get an achievement once you've read all 9 staff rooms
+							for (int i = 1; i <= 9; i++)
+							{
+								TrySetGlobal($"ReadStaffRoom{i}", 1);
+							}
+
+
+
 						}
 					}
 
@@ -372,6 +410,12 @@ namespace MOD.Scripts.UI
 				GUILayout.EndHorizontal();
 
 				OnGUIComputedLipsync();
+
+				Label("Font Debugging");
+				if (Button(new GUIContent("Font Debug is on the Draggable Debug Menu", "The font debug settings are on the draggable debug menu, to avoid it blocking the screen while you see the fonts change.")))
+				{
+					modMenu.ToggleDebugMenu();
+				}
 			}
 			else
 			{
