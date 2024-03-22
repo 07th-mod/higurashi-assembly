@@ -81,7 +81,12 @@ namespace Assets.Scripts.Core.State
 				gameSystem.SwitchToHistoryScreen();
 				return false;
 			}
-			if (Input.GetMouseButtonDown(0) || Input.GetAxis("Mouse ScrollWheel") < 0f || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.PageDown) || Input.GetKeyDown(KeyCode.KeypadEnter))
+			// Vanilla game blocks you from advancing text unless your mouse cursor mouse cursor is over the main screen
+			// (it is not touching any UI), even if you're using the keyboard to advance text.
+			// Below ensures if you advance text via keyboard, this check is ignored.
+			bool mouseAdvanceRequested = Input.GetMouseButtonDown(0) || Input.GetAxis("Mouse ScrollWheel") < 0f;
+			bool keyboardAdvanceRequested = Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.PageDown) || Input.GetKeyDown(KeyCode.KeypadEnter);
+			if (mouseAdvanceRequested || keyboardAdvanceRequested)
 			{
 				if (gameSystem.IsSkipping)
 				{
@@ -96,7 +101,7 @@ namespace Assets.Scripts.Core.State
 					}
 					return false;
 				}
-				if (UICamera.hoveredObject == gameSystem.SceneController.SceneCameras || UICamera.hoveredObject == null)
+				if (keyboardAdvanceRequested || UICamera.hoveredObject == gameSystem.SceneController.SceneCameras || UICamera.hoveredObject == null)
 				{
 					gameSystem.ClearWait();
 				}
