@@ -235,6 +235,21 @@ namespace MOD.Scripts.Core.Scene
 			return LoadTextureWithFilters(layer, textureName, out _);
 		}
 
+		public static void ApplyFiltersFromScratch(string textureName, Texture2D texture, TextureReference textureReference, Filter? maybeFilter)
+		{
+			Texture2D unmodifiedTexture = GameSystem.Instance.AssetManager.LoadTexture(textureName, out _, useCache: false);
+			if(maybeFilter is Filter filter)
+			{
+				ApplyFilters(filter, source: unmodifiedTexture, dest: texture);
+			}
+			else
+			{
+				Graphics.CopyTexture(unmodifiedTexture, texture);
+			}
+			Texture2D.Destroy(unmodifiedTexture);
+			textureReference.AppliedFilter = maybeFilter;
+		}
+
 		public static Texture2D LoadTextureWithFilters(int? maybeLayer, string textureName, out string texturePath)
 		{
 			var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -260,17 +275,30 @@ namespace MOD.Scripts.Core.Scene
 			}
 			int layer = maybeLayer.Value;
 
-			// If there is no filter to be applied, then just return the texture
-			if (!TryGetLayerFilter(layer, out Filter filter))
-			{
-				MODUtility.FlagMonitorOnlyLog($">>> Not applying filter to {texture.name} as TryGetLayerFilter says no filter to apply");
-				return texture;
-			}
+			// Get the filter currently on that layer (if it has one)
+			bool layerHasFilter = TryGetLayerFilter(layer, out Filter filter);
 
 			// This should always succeed, but if it doesn't for some reason, just return the texture and don't apply filter.
 			if (!GameSystem.Instance.AssetManager.TryGetTextureReference(textureName, out TextureReference textureReference))
 			{
 				Debug.Log($"WARNING: LoadTextureWithFilters() - TryGetTextureReference could not get texture reference for texture '{textureName}'");
+				return texture;
+			}
+
+			// Firstly, handle the case where the layer shouldn't have any filter
+			if(!layerHasFilter)
+			{
+				MODUtility.FlagMonitorOnlyLog($">>> TryGetLayerFilter() says {texture.name} should have no filter");
+
+				// Remove filter from texture if it already has one
+				if (textureReference.AppliedFilter != null)
+				{
+					MODUtility.FlagMonitorOnlyLog($">>> Removing filter from {textureName} as it shouldn't have any at this time");
+
+					// Directly overwriting the pixel data avoids messing with the texture cache
+					ApplyFiltersFromScratch(textureName, texture, textureReference, maybeFilter: null);
+				}
+
 				return texture;
 			}
 
@@ -292,10 +320,7 @@ namespace MOD.Scripts.Core.Scene
 				// A different filter has previously been applied.
 				// In this case, need to reload the texture from scratch to reset it, before applying the filter.
 				MODUtility.FlagMonitorOnlyLog($">>> Reloading texture data for {textureName} before applying filter");
-				Texture2D unmodifiedTexture = GameSystem.Instance.AssetManager.LoadTexture(textureName, out texturePath, useCache: false);
-				ApplyFilters(filter, source: unmodifiedTexture, dest: texture);
-				textureReference.AppliedFilter = filter;
-				Texture2D.Destroy(unmodifiedTexture);
+				ApplyFiltersFromScratch(textureName, texture, textureReference, filter);
 			}
 
 			return texture;
