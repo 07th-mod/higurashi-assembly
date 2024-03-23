@@ -12,6 +12,13 @@ namespace MOD.Scripts.UI
 		private static void SetFontMaterialSetting(int settingID, float value)
 		{
 			GameSystem.Instance.MainUIController.TextWindow.fontSharedMaterial.SetFloat(settingID, value);
+
+			// Note: sometimes only updating the material value is not enough, and causes letters to be cut-off
+			// UpdateMeshPadding(); seems to fix this
+			// I also call UpdateVertexData() and ForceMeshUpdate() but I'm not sure if it is necessary
+			GameSystem.Instance.MainUIController.TextWindow.ForceMeshUpdate();
+			GameSystem.Instance.MainUIController.TextWindow.UpdateMeshPadding();
+			GameSystem.Instance.MainUIController.TextWindow.UpdateVertexData();
 		}
 
 		private static float GetFontMaterialSetting(int settingID)
@@ -30,6 +37,7 @@ namespace MOD.Scripts.UI
 		{
 			GameSystem.Instance.OutlineWidth = outlineWidth;
 			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			SetFontMaterialSetting(TMPro.ShaderUtilities.ID_OutlineWidth, outlineWidth);
 		}
 
 		public static float GetNormalFontWeight() => GetFontMaterialSetting(TMPro.ShaderUtilities.ID_WeightNormal);
