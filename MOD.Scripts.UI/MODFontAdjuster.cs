@@ -18,6 +18,8 @@ namespace MOD.Scripts.UI
 			// I also call UpdateVertexData() and ForceMeshUpdate() but I'm not sure if it is necessary
 			GameSystem.Instance.MainUIController.TextWindow.ForceMeshUpdate();
 			GameSystem.Instance.MainUIController.TextWindow.UpdateMeshPadding();
+
+			// The following can only be called on newer versions of TextMeshPro
 			GameSystem.Instance.MainUIController.TextWindow.UpdateVertexData();
 		}
 
