@@ -162,6 +162,16 @@ namespace MOD.Scripts.Core.Scene
             LoadOrUseCache(character, out TextureGroup _);
         }
 
+        public static void InvalidateLipsyncCache()
+        {
+            List<string> texturesToRemove = cache.Keys.ToList();
+            foreach (string textureKey in texturesToRemove)
+            {
+                cache[textureKey].DestroyTextures();
+                cache.Remove(textureKey);
+            }
+        }
+
         /// <summary>
         /// Loads the mouth textures, attempting to load from the given layer OR cache if possible
         ///
