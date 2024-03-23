@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.Scene
@@ -13,6 +14,8 @@ namespace MOD.Scripts.Core.Scene
     // the game engine's caching.
     class MODLipsyncCache
     {
+        static Regex regexEndsWithSpriteVariant = new Regex("_\\d$");
+
         public class TextureGroup
         {
             // Note: the textures in this class can become null at any time, if
@@ -162,15 +165,56 @@ namespace MOD.Scripts.Core.Scene
             LoadOrUseCache(character, out TextureGroup _);
         }
 
-        public static void InvalidateLipsyncCache()
+        public static void InvalidateLipsyncCache() => InvalidateLipsyncCache(null);
+        public static void InvalidateLipsyncCache(string? textureToInvalidate)
         {
             List<string> texturesToRemove = cache.Keys.ToList();
             foreach (string textureKey in texturesToRemove)
             {
-                cache[textureKey].DestroyTextures();
-                cache.Remove(textureKey);
+                if(textureToInvalidate == null || textureKey == textureToInvalidate)
+                {
+                    cache[textureKey].DestroyTextures();
+                    cache.Remove(textureKey);
+                }
             }
         }
+
+        // The lipsync cache's key is from modSceneController.GetBaseTextureName(), which includes the underscore
+        private static bool GetSpriteBaseNameWithUnderscore(string fullName, out string baseName)
+        {
+            if (fullName.Length == 0 || !regexEndsWithSpriteVariant.IsMatch(fullName))
+            {
+                baseName = null;
+                return false;
+            }
+
+            baseName = fullName.Substring(0, fullName.Length - 1);
+            return true;
+        }
+
+        public static void InvalidateTexture(string spriteTextureName)
+        {
+            try
+            {
+                if (!GetSpriteBaseNameWithUnderscore(spriteTextureName, out string baseName))
+                {
+                    DebugLog($"InvalidateTexture() - {spriteTextureName} does not look like a full sprite name. Giving up.");
+                    return;
+                }
+
+                if (cache.TryGetValue(baseName, out TextureGroup cachedTextures))
+                {
+                    DebugLog($"InvalidateTexture() - Invalidating texture group {baseName} ({spriteTextureName})");
+
+                    InvalidateLipsyncCache(baseName);
+                }
+            }
+            catch (Exception)
+            {
+                MODLogger.Log($"WARNING: InvalidateTexture() failed! texture: {spriteTextureName}", true);
+            }
+        }
+
 
         /// <summary>
         /// Loads the mouth textures, attempting to load from the given layer OR cache if possible

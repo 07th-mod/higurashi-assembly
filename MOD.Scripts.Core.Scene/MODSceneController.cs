@@ -248,6 +248,7 @@ namespace MOD.Scripts.Core.Scene
 			}
 			Texture2D.Destroy(unmodifiedTexture);
 			textureReference.AppliedFilter = maybeFilter;
+			MODLipsyncCache.InvalidateTexture(textureName);
 		}
 
 		public static Texture2D LoadTextureWithFilters(int? maybeLayer, string textureName, out string texturePath)
