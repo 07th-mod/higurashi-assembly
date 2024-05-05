@@ -12,6 +12,27 @@ using UnityEngine;
 namespace Assets.Scripts.Core.AssetManagement
 {
 
+	public class ScriptCompileStatus
+	{
+		// Note: (numPass + numFail) might not always equal numTotal if compilation was aborted
+		// or some other error occured causing a script to never even be looked at
+		public readonly int numPass;
+        public readonly int numFail;
+        public readonly int numTotal;
+
+        public ScriptCompileStatus(int numPass, int numFail, int numTotal)
+        {
+            this.numPass = numPass;
+            this.numFail = numFail;
+            this.numTotal = numTotal;
+        }
+
+		public bool AllCompiledOK()
+		{
+			return (numPass == numTotal) && (numFail == 0);
+		}
+    }
+
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find an asset
 	/// </summary>
@@ -234,7 +255,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		// The arguments AbortLoading, MaxLoading, and CurrentLoading are only used for meakashi onwards
 		// MaxLoading, and CurrentLoading are are used to display the Script Compilation Progress Text
 		// I'm not sure if AbortLoading is ever used
-		private void CompileFolder(string srcDir, string destDir)
+		private ScriptCompileStatus CompileFolder(string srcDir, string destDir)
 		{
 			MODCompileRequiredDetector detector = new MODCompileRequiredDetector(destDir);
 			detector.Load();
@@ -290,7 +311,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				}
 				if (AbortLoading)
 				{
-					return;
+					return new ScriptCompileStatus(numCompileOK, numCompileFail, txtToCompileList.Count);
 				}
 			}
 
@@ -310,6 +331,8 @@ namespace Assets.Scripts.Core.AssetManagement
 					File.Delete(path);
 				}
 			}
+
+			return new ScriptCompileStatus(numCompileOK, numCompileFail, txtToCompileList.Count);
 		}
 
 		public void CompileIfNeeded()
@@ -321,7 +344,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			string[] files = Directory.GetFiles(path, "*.txt");
 			string[] files2 = Directory.GetFiles(text, "*.txt");
 			Debug.Log("Checking update scripts for updates...");
-			CompileFolder(text, destDir);
+			ScriptCompileStatus status = CompileFolder(text, destDir);
 			string[] files3 = Directory.GetFiles(Path.Combine(assetPath, "CompiledScripts"));
 			string[] files4 = Directory.GetFiles(Path.Combine(assetPath, "CompiledUpdateScripts"));
 			string[] array = files3;
@@ -360,7 +383,10 @@ namespace Assets.Scripts.Core.AssetManagement
 				GameSystem.Instance.CanExit = true;
 				try
 				{
-					System.IO.File.WriteAllText("higu_script_compile_status.txt", "Compile OK");
+					// Also consider compilation a failure if no scripts were compiled
+					string statusString = (status.AllCompiledOK() && status.numPass != 0) ? "Compile OK" : "FAIL";
+					statusString += $" | {status.numPass}/{status.numTotal} compiled and {status.numFail} failed";
+					System.IO.File.WriteAllText("higu_script_compile_status.txt", statusString);
 				}
 				catch
 				{
