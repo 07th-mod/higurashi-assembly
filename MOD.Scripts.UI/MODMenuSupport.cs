@@ -1,4 +1,5 @@
 ﻿using MOD.Scripts.Core.Localization;
+using Assets.Scripts.Core.AssetManagement;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -88,6 +89,42 @@ namespace MOD.Scripts.UI
 			{
 				Application.OpenURL(Loc.MODMenuSupport_19); //https://07th-mod.com/wiki/Higurashi/support/
 			}
+		}
+
+		/// <summary>
+		/// NOTE: You must call this from within a OnGUI() call
+		///
+		/// This function draws a mod menu in case scripts failed to compile
+		///
+		/// Please do null checks/try catch for gamesystem etc. if used in this function as it may be called
+		/// during an error condition where gamesystem and other core system parts are not initialized yet
+		/// </summary>
+		public static bool ScriptsFailedToCompile(ScriptCompileStatus compileStatus)
+		{
+			// TODO: use localization
+			emergencyMenuScrollPosition = GUILayout.BeginScrollView(emergencyMenuScrollPosition);
+
+			GUILayout.Label(Loc.MODMenuSupportCompileFailed_20); // "ERROR: One or more scripts failed to compile, so the game won't work correctly!");
+			GUILayout.Label(Loc.MODMenuSupportCompileFailed_21); // "Please try restarting. If that does not work, send your output_log.txt/Player.log (see below) to 07th-mod for analysis.");
+			GUILayout.Label(Loc.MODMenuSupportCompileFailed_22); // "The following scripts failed compilation:");
+			foreach (string filename in compileStatus.scriptsWhichFailedCompile)
+			{
+				GUILayout.Label($" - {filename}");
+			}
+
+			ShowSupportButtons(content => GUILayout.Button(content));
+
+			MODMenuCommon.Label(Loc.MODMenuSupportCompileFailed_23); // "Continue playing anyway (NOT RECOMMENDED)"
+			GUILayout.Label(Loc.MODMenuSupportCompileFailed_24);
+			bool shouldQuit = GUILayout.Button(new GUIContent(Loc.MODMenuSupportCompileFailed_23, Loc.MODMenuSupportCompileFailed_24)); // "Continue playing anyway (NOT RECOMMENDED)"
+
+			GUILayout.Space(20);
+
+			GUILayout.Label(GUI.tooltip == "" ? Loc.MODMenuSupport_0 : GUI.tooltip, GUI.skin.textArea, GUILayout.MinHeight(210)); //Please hover over a button for more information
+
+			GUILayout.EndScrollView();
+
+			return shouldQuit;
 		}
 	}
 }
