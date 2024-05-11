@@ -56,9 +56,7 @@ namespace Assets.Scripts.UI
 		public MODMenu modMenu;
 		private MODToaster toaster;
 
-		private float? FontWeight;
-		private float? BoldWeight;
-		private float? FaceDilate;
+		private bool userSkippedFailedCompileMenu;
 
 		public void UpdateGuiPosition(int x, int y)
 		{
@@ -490,9 +488,9 @@ namespace Assets.Scripts.UI
 			this.modMenu = new MODMenu(gameSystem);
 
 			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
-			int numFail = GameSystem.Instance.AssetManager.numCompileFail;
-			int numOK = GameSystem.Instance.AssetManager.numCompileOK;
-			int total = numOK + numFail;
+			int numFail = GameSystem.Instance.AssetManager.compileStatus.numFail;
+			int numOK = GameSystem.Instance.AssetManager.compileStatus.numPass;
+			int total = GameSystem.Instance.AssetManager.compileStatus.numTotal;
 			if (numFail > 0)
 			{
 				MODToaster.Show($"FAILED compiling {numFail}/{total} scripts");
@@ -516,7 +514,27 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			if(this.toaster == null)
+			if(!userSkippedFailedCompileMenu)
+			{
+				if (GameSystem.Instance.AssetManager != null &&
+					GameSystem.Instance.AssetManager.compileStatus.compileFinished &&
+					GameSystem.Instance.AssetManager.compileStatus.numFail > 0)
+				{
+					bool shouldQuitMenu = MODMenuSupport.ScriptsFailedToCompile(GameSystem.Instance.AssetManager.compileStatus);
+					if (shouldQuitMenu)
+					{
+						gameSystem.SetMODIgnoreInputs(false);
+						userSkippedFailedCompileMenu = true;
+					}
+					else
+					{
+						gameSystem.SetMODIgnoreInputs(true);
+						return;
+					}
+				}
+			}
+
+			if (this.toaster == null)
 			{
 				return;
 			}
@@ -785,79 +803,6 @@ namespace Assets.Scripts.UI
 			GUI.Label(rect, text, GUI.skin.textArea);
 		}
 
-		/// <summary>
-		/// Sets the font outline width, and updates the current textwindow outline width
-		/// Hopefully if you toggle language (which toggles the font on chapters 1-9), the outline width is retained.
-		/// You will likely need to increase the font weight if you increase the outline width, as the outline 'eats'
-		/// into the characters, rather than expanding outwards.
-		/// </summary>
-		/// <param name="outlineWidth">The outline width as a float typically between (0, 1)</param>
-		public void SetFontOutlineWidth(float outlineWidth)
-		{
-			gameSystem.OutlineWidth = outlineWidth;
-			TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
-		}
 
-		public float GetNormalFontWeight()
-		{
-			if (!FontWeight.HasValue)
-			{
-				FontWeight = TextWindow.fontSharedMaterial.GetFloat(TMPro.ShaderUtilities.ID_WeightNormal);
-			}
-
-			return FontWeight.Value;
-		}
-
-		public float GetBoldFontWeight()
-		{
-			if (!BoldWeight.HasValue)
-			{
-				BoldWeight = TextWindow.fontSharedMaterial.GetFloat(TMPro.ShaderUtilities.ID_WeightBold);
-			}
-
-			return BoldWeight.Value;
-		}
-
-		/// <summary>
-		/// Some chapters TextWindow don't let you set the font weight. For those chapters, the "_WeightNormal"
-		/// parameter on the material is set directly.
-		/// </summary>
-		/// <param name="weight">The font weight, between -1 and 1 (more or less).
-		/// Negative numbers reduce the weight, positive numbers increase it. </param>
-		public void SetNormalFontWeight(float weight)
-		{
-			// Modifying fontSharedMaterial works, I guess doing so modifies all instances,
-			// while fontMaterial only modifies a single instance?
-			// See the docs:
-			// - http://digitalnativestudios.com/textmeshpro/docs/ScriptReference/TextMeshPro.html
-			// - http://digitalnativestudios.com/textmeshpro/docs/ScriptReference/TextMeshPro-fontSharedMaterial.html
-			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightNormal, weight);
-
-			FontWeight = weight;
-		}
-
-		public void SetBoldFontWeight(float weight)
-		{
-			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightBold, weight);
-
-			BoldWeight = weight;
-		}
-
-		public void SetFaceDilation(float faceDilate)
-		{
-			TextWindow.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_FaceDilate, faceDilate);
-
-			FaceDilate = faceDilate;
-		}
-
-		public float GetFaceDilation()
-		{
-			if (!FaceDilate.HasValue)
-			{
-				FaceDilate = TextWindow.fontSharedMaterial.GetFloat(TMPro.ShaderUtilities.ID_FaceDilate);
-			}
-
-			return FaceDilate.Value;
-		}
 	}
 }

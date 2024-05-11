@@ -3032,7 +3032,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("MODSetMainFontOutlineWidth");
 			int width = ReadVariable().IntValue();
-			GameSystem.Instance.MainUIController.SetFontOutlineWidth(width/100f);
+			MODFontAdjuster.SetFontOutlineWidth(width/100f);
 			return BurikoVariable.Null;
 		}
 
@@ -3195,21 +3195,21 @@ namespace Assets.Scripts.Core.Buriko
 				case "NormalFontWeight":
 					if(int.TryParse(callParameters, out int normalFontWeightPercent))
 					{
-						GameSystem.Instance.MainUIController.SetNormalFontWeight(normalFontWeightPercent / 100.0f);
+						MODFontAdjuster.SetNormalFontWeight(normalFontWeightPercent / 100.0f);
 					}
 					break;
 
 				case "BoldFontWeight":
 					if (int.TryParse(callParameters, out int boldFontWeightPercent))
 					{
-						GameSystem.Instance.MainUIController.SetBoldFontWeight(boldFontWeightPercent / 100.0f);
+						MODFontAdjuster.SetBoldFontWeight(boldFontWeightPercent / 100.0f);
 					}
 					break;
 
 				case "FaceDilate":
 					if (int.TryParse(callParameters, out int faceDilate))
 					{
-						GameSystem.Instance.MainUIController.SetFaceDilation(faceDilate / 100.0f);
+						MODFontAdjuster.SetFaceDilation(faceDilate / 100.0f);
 					}
 					break;
 

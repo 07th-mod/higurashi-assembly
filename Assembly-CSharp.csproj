@@ -277,6 +277,7 @@
     <Compile Include="MOD.Scripts.UI.ChapterJump\MODChapterJumpController.cs" />
     <Compile Include="MOD.Scripts.UI.Tips\MODTipsController.cs" />
     <Compile Include="MOD.Scripts.UI\MODCustomFlagPreset.cs" />
+    <Compile Include="MOD.Scripts.UI\MODFontAdjuster.cs" />
     <Compile Include="MOD.Scripts.UI\MODKeyboardShortcuts.cs" />
     <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
     <Compile Include="MOD.Scripts.UI\MODMenu.cs" />
