@@ -56,6 +56,8 @@ namespace Assets.Scripts.UI
 		public MODMenu modMenu;
 		private MODToaster toaster;
 
+		private bool userSkippedFailedCompileMenu;
+
 		public void UpdateGuiPosition(int x, int y)
 		{
 			unscaledPosition = new Vector3((float)x, (float)y, 0f);
@@ -527,9 +529,9 @@ namespace Assets.Scripts.UI
 			this.modMenu = new MODMenu(gameSystem);
 
 			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
-			int numFail = GameSystem.Instance.AssetManager.numCompileFail;
-			int numOK = GameSystem.Instance.AssetManager.numCompileOK;
-			int total = numOK + numFail;
+			int numFail = GameSystem.Instance.AssetManager.compileStatus.numFail;
+			int numOK = GameSystem.Instance.AssetManager.compileStatus.numPass;
+			int total = GameSystem.Instance.AssetManager.compileStatus.numTotal;
 			if (numFail > 0)
 			{
 				MODToaster.Show($"FAILED compiling {numFail}/{total} scripts");
@@ -553,7 +555,27 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			if(this.toaster == null)
+			if(!userSkippedFailedCompileMenu)
+			{
+				if (GameSystem.Instance.AssetManager != null &&
+					GameSystem.Instance.AssetManager.compileStatus.compileFinished &&
+					GameSystem.Instance.AssetManager.compileStatus.numFail > 0)
+				{
+					bool shouldQuitMenu = MODMenuSupport.ScriptsFailedToCompile(GameSystem.Instance.AssetManager.compileStatus);
+					if (shouldQuitMenu)
+					{
+						gameSystem.SetMODIgnoreInputs(false);
+						userSkippedFailedCompileMenu = true;
+					}
+					else
+					{
+						gameSystem.SetMODIgnoreInputs(true);
+						return;
+					}
+				}
+			}
+
+			if (this.toaster == null)
 			{
 				return;
 			}
