@@ -234,8 +234,11 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuSupport_18 => Get("MODMenuSupport_18", "If you have problems with the game, the information on this site may help.\n\nThere are also instructions on reporting bugs, as well as a link to our Discord server to contact us directly");
 		public static string MODMenuSupport_19 => Get("MODMenuSupport_19", "https://07th-mod.com/wiki/Higurashi/support/");
 
-
-
-
+		// Emergency menu displayed when one or more scripts fail to compile
+		public static string MODMenuSupportCompileFailed_20 => Get("MODMenuSupportCompileFailed_20", "ERROR: One or more scripts failed to compile, so the game won't work correctly!");
+		public static string MODMenuSupportCompileFailed_21 => Get("MODMenuSupportCompileFailed_21", "Please try restarting. If that does not work, send your output_log.txt/Player.log (see below) to 07th-mod for analysis.");
+		public static string MODMenuSupportCompileFailed_22 => Get("MODMenuSupportCompileFailed_22", "The following scripts failed compilation:");
+		public static string MODMenuSupportCompileFailed_23 => Get("MODMenuSupportCompileFailed_23", "Continue playing anyway (NOT RECOMMENDED)");
+		public static string MODMenuSupportCompileFailed_24 => Get("MODMenuSupportCompileFailed_24", "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly.");
 	}
 }

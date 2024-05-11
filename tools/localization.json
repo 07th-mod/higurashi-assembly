@@ -659,6 +659,22 @@
 		},
 		"MODMenuSupport_19": {
 			"text": "https://07th-mod.com/wiki/Higurashi/support/"
+		},
+		"MODMenuSupportCompileFailed_20": {
+			"text": "ERROR: One or more scripts failed to compile, so the game won't work correctly!",
+			"comment": "MODMenuSupportCompileFailed* are for the emergency menu when one or more scripts fail to compile"
+		},
+		"MODMenuSupportCompileFailed_21": {
+			"text": "Please try restarting. If that does not work, send your output_log.txt/Player.log (see below) to 07th-mod for analysis."
+		},
+		"MODMenuSupportCompileFailed_22": {
+			"text": "The following scripts failed compilation:"
+		},
+		"MODMenuSupportCompileFailed_23": {
+			"text": "Continue playing anyway (NOT RECOMMENDED)"
+		},
+		"MODMenuSupportCompileFailed_24": {
+			"text": "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly."
 		}
 	}
 }

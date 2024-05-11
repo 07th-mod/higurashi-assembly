@@ -12,6 +12,29 @@ using UnityEngine;
 namespace Assets.Scripts.Core.AssetManagement
 {
 
+	public class ScriptCompileStatus
+	{
+		// Note: (numPass + numFail) might not always equal numTotal if compilation was aborted
+		// or some other error occured causing a script to never even be looked at
+		public int numPass;
+		public int numFail;
+		public int numTotal;
+		public List<string> scriptsWhichFailedCompile = new List<string>();
+		public bool compileFinished;
+
+		public ScriptCompileStatus()
+		{
+			this.numPass = 0;
+			this.numFail = 0;
+			this.numTotal = 0;
+		}
+
+		public bool AllCompiledOK()
+		{
+			return (numPass == numTotal) && (numFail == 0);
+		}
+	}
+
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find an asset
 	/// </summary>
@@ -79,8 +102,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
-		public int numCompileOK { get; private set; }
-		public int numCompileFail { get; private set; }
+		public ScriptCompileStatus compileStatus = new ScriptCompileStatus();
 
 		/// <summary>
 		/// Get the artset at the given index
@@ -236,6 +258,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		// I'm not sure if AbortLoading is ever used
 		private void CompileFolder(string srcDir, string destDir)
 		{
+			compileStatus = new ScriptCompileStatus();
 			MODCompileRequiredDetector detector = new MODCompileRequiredDetector(destDir);
 			detector.Load();
 
@@ -269,6 +292,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				mgToCompileList.Add(mgPath);
 			}
 
+			compileStatus.numTotal = txtToCompileList.Count;
 			MaxLoading = txtToCompileList.Count;
 			for (int j = 0; j < txtToCompileList.Count; j++)
 			{
@@ -280,13 +304,14 @@ namespace Assets.Scripts.Core.AssetManagement
 				try
 				{
 					new BGItoMG(text4, outname);
-					numCompileOK++;
+					compileStatus.numPass++;
 					detector.MarkScriptCompiled(fileNameWithoutExtension2);
 				}
 				catch (Exception arg)
 				{
 					Debug.LogError($"Failed to compile script {fileNameWithoutExtension2}!\r\n{arg}");
-					numCompileFail++;
+					compileStatus.scriptsWhichFailedCompile.Add(text4);
+					compileStatus.numFail++;
 				}
 				if (AbortLoading)
 				{
@@ -295,7 +320,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			}
 
 			// Only update .txt compile status if at least one file compiled
-			if (numCompileOK > 0)
+			if (compileStatus.numPass > 0)
 			{
 				detector.Save();
 			}
@@ -310,6 +335,8 @@ namespace Assets.Scripts.Core.AssetManagement
 					File.Delete(path);
 				}
 			}
+
+			return;
 		}
 
 		public void CompileIfNeeded()
@@ -322,6 +349,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			string[] files2 = Directory.GetFiles(text, "*.txt");
 			Debug.Log("Checking update scripts for updates...");
 			CompileFolder(text, destDir);
+			compileStatus.compileFinished = true;
 			string[] files3 = Directory.GetFiles(Path.Combine(assetPath, "CompiledScripts"));
 			string[] files4 = Directory.GetFiles(Path.Combine(assetPath, "CompiledUpdateScripts"));
 			string[] array = files3;
@@ -360,7 +388,10 @@ namespace Assets.Scripts.Core.AssetManagement
 				GameSystem.Instance.CanExit = true;
 				try
 				{
-					System.IO.File.WriteAllText("higu_script_compile_status.txt", "Compile OK");
+					// Also consider compilation a failure if no scripts were compiled
+					string statusString = (compileStatus.AllCompiledOK() && compileStatus.numPass != 0) ? "Compile OK" : "FAIL";
+					statusString += $" | {compileStatus.numPass}/{compileStatus.numTotal} compiled and {compileStatus.numFail} failed";
+					System.IO.File.WriteAllText("higu_script_compile_status.txt", statusString);
 				}
 				catch
 				{
