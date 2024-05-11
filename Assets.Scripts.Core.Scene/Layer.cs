@@ -62,9 +62,17 @@ namespace Assets.Scripts.Core.Scene
 
 		public bool FadingOut;
 
-		private float startRange;
+		private float startRange
+		{
+			get;
+			set;
+		}
 
-		private float targetRange;
+		private float targetRange
+		{
+			get;
+			set;
+		}
 
 		public Vector3 targetPosition = new Vector3(0f, 0f, 0f);
 
@@ -656,6 +664,7 @@ namespace Assets.Scripts.Core.Scene
 			iTween.Stop(base.gameObject);
 			startRange = targetRange;
 			targetRange = alpha;
+			targetAlpha = alpha;
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "FinishFade"));
 		}
 
@@ -772,6 +781,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ReleaseTextures()
 		{
+			FadingOut = false;
 			if (!(primary == null))
 			{
 				ReleaseSecondaryTexture();
@@ -787,7 +797,6 @@ namespace Assets.Scripts.Core.Scene
 				Object.Destroy(mesh);
 				mesh = null;
 				meshFilter.mesh = null;
-				FadingOut = false;
 				shaderType = 0;
 				targetAngle = 0f;
 			}
@@ -881,6 +890,7 @@ namespace Assets.Scripts.Core.Scene
 			br.Write(targetAlpha);
 			br.Write((int)alignment);
 			br.Write(shaderType);
+			br.Write(Priority);
 		}
 
 		private void Awake()

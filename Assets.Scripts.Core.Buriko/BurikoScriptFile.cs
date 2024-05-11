@@ -2696,8 +2696,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("MODSetMainFontOutlineWidth");
 			int width = ReadVariable().IntValue();
-			GameSystem.Instance.OutlineWidth = width / 100f;
-			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			MODFontAdjuster.SetFontOutlineWidth(width/100f);
 			return BurikoVariable.Null;
 		}
 
@@ -2854,6 +2853,27 @@ namespace Assets.Scripts.Core.Buriko
 					else
 					{
 						Debug.LogError("MODGenericCall Error: invalid format for LipSyncCacheSettings, should be '2' for example");
+					}
+					break;
+
+				case "NormalFontWeight":
+					if(int.TryParse(callParameters, out int normalFontWeightPercent))
+					{
+						MODFontAdjuster.SetNormalFontWeight(normalFontWeightPercent / 100.0f);
+					}
+					break;
+
+				case "BoldFontWeight":
+					if (int.TryParse(callParameters, out int boldFontWeightPercent))
+					{
+						MODFontAdjuster.SetBoldFontWeight(boldFontWeightPercent / 100.0f);
+					}
+					break;
+
+				case "FaceDilate":
+					if (int.TryParse(callParameters, out int faceDilate))
+					{
+						MODFontAdjuster.SetFaceDilation(faceDilate / 100.0f);
 					}
 					break;
 
