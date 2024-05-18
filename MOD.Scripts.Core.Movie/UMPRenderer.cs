@@ -1,5 +1,4 @@
 using Assets.Scripts.Core;
-using RenderHeads.Media.AVProVideo;
 using Steamworks;
 using System.IO;
 using UMP;
@@ -10,8 +9,8 @@ namespace MOD.Scripts.Core.Movie
 	public class MediaListener : IMediaListener
 	{
 		UMPRenderer renderer;
-		MediaPlayerStandalone standalone;
-		public MediaListener(UMPRenderer renderer, MediaPlayerStandalone standalone)
+		MediaPlayer standalone;
+		public MediaListener(UMPRenderer renderer, MediaPlayer standalone)
 		{
 			this.standalone = standalone;
 			this.renderer = renderer;
@@ -52,14 +51,14 @@ namespace MOD.Scripts.Core.Movie
 
 			Debug.Log($"Detected {numSubtitleTracks} subtitle tracks");
 
-			int i = 0;
-			for(; i < numSubtitleTracks; i++)
+			for(int i = 0; i < numSubtitleTracks; i++)
 			{
 				MediaTrackInfo info = standalone.SpuTracks[i];
+				standalone.SpuTrack = info;
 				Debug.Log($"MediaTrackInfo {i}: {info}");
 			}
 
-			Debug.Log($"Using MediaTrackInfo {i}: {standalone.SpuTrack}");
+			Debug.Log($"Using MediaTrackInfo: {standalone.SpuTrack}");
 		}
 
 		public void OnPlayerStopped()
@@ -72,10 +71,6 @@ namespace MOD.Scripts.Core.Movie
 		//public MeshRenderer Renderer;
 
 		//public bool isStarted;
-
-		// TODO:
-		// Add auto quit when video finishes via event/callback?
-
 
 		//public void OnAvProVideoEvent(MediaPlayer mp, MediaPlayerEvent.EventType et, ErrorCode errorCode)
 		//{
@@ -103,7 +98,7 @@ namespace MOD.Scripts.Core.Movie
 		//	}
 		//}
 
-		MediaPlayerStandalone standalone;
+		MediaPlayer standalone;
 		//UniversalMediaPlayer ump_player;
 
 		//float dummyTime = 0;
@@ -170,7 +165,7 @@ namespace MOD.Scripts.Core.Movie
 					$@"--sub-file={subtitlePath}"
 				} );
 
-				standalone = new MediaPlayerStandalone(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
+				standalone = new MediaPlayer(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
 
 
 				standalone.SetSubtitleFile(new System.Uri(subtitlePath));
