@@ -2,7 +2,9 @@ using Assets.Scripts.Core;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core.Movie;
 using MOD.Scripts.UI;
+using System.Collections.Generic;
 using System.IO;
+using UMP;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.State
@@ -47,15 +49,47 @@ namespace MOD.Scripts.Core.State
 			gameObject = new GameObject();
 			SetupBackgroundLayerForVideo();
 
-			if(windowsPlaybackMode)
+			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt}");
+
+			// Add the UMP component. According to the UMP PDF you normally do this in editor
+			UniversalMediaPlayer ump_player = gameObject.AddComponent<UniversalMediaPlayer>();
+
+			try
 			{
-				MovieEntity = gameObject.AddComponent<AVProMovieRenderer>();
+				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(new string[0]);
+				MediaPlayerStandalone standalone = new MediaPlayerStandalone(ump_player, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
+
+
+				// Specify path of file to play with UMP
+				//ump_player.Path = movieInfo.PathWithExt;
+				standalone.DataSource = movieInfo.PathWithExt;
+
+
+				// Tell UMP to render to the background layer
+				/// From the UMP code: "Get/Set simple array that consist with Unity 'GameObject' that have 'Mesh Renderer' (with some material) or 'Raw Image' component"
+				//ump_player.RenderingObjects = new GameObject[] { movieInfo.Layer.gameObject };
+
+				//
+				//ump_player.Play();
+				standalone.Play();
+
+				//if (windowsPlaybackMode)
+				//{
+				//	MovieEntity = gameObject.AddComponent<AVProMovieRenderer>();
+				//}
+				//else
+				//{
+				//	MovieEntity = gameObject.AddComponent<TextureMovieRenderer>();
+				//}
+				//MovieEntity.Init(movieInfo);
 			}
-			else
+			catch(System.Exception ex)
 			{
-				MovieEntity = gameObject.AddComponent<TextureMovieRenderer>();
+				Debug.Log($"Exception: {ex}");
+				return;
 			}
-			MovieEntity.Init(movieInfo);
+
+
 		}
 
 		public void OnRestoreState()

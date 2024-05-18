@@ -91,7 +91,9 @@ namespace UMP
 			{
 				if (_instance == null)
 				{
-					_instance = Resources.Load<UMPSettings>("UMPSettings");
+					// TODO: Hacky workaround for now, fix later
+					_instance = new UMPSettings();
+					//_instance = Resources.Load<UMPSettings>("UMPSettings");
 					if (_instance == null)
 					{
 						Debug.LogError(string.Format("[UMPSetting] Could not find settings file '{0}' in UMP 'Resources' folder. Try to correctly import UMP asset to your project or create the new settings file by click with right mouse on UMP 'Resources' folder and choose: 'Create'->'UMP'->'UMPSettings'.", "UMPSettings"));
