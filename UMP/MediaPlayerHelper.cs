@@ -1,3 +1,5 @@
+using Assets.Scripts.Core.Scene;
+using MOD.Scripts.Core.Movie;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -41,21 +43,27 @@ namespace UMP
 				{
 					continue;
 				}
-				RawImage component = gameObject.GetComponent<RawImage>();
-				if (component != null)
-				{
-					component.texture = texture;
-					continue;
-				}
-				MeshRenderer component2 = gameObject.GetComponent<MeshRenderer>();
-				if (component2 != null && component2.material != null)
-				{
-					component2.material.mainTexture = texture;
-				}
-				else
-				{
-					Debug.LogError(gameObject.name + ": don't have 'RawImage' or 'MeshRenderer' component - ignored");
-				}
+				// Hacky workaround
+
+				Layer layer = gameObject.GetComponent<Layer>();
+				layer.MODMaterial.SetTexture("_Primary", texture);
+				Debug.Log($"Set layer {layer.name} to {texture.name}");
+
+				//RawImage component = gameObject.GetComponent<RawImage>();
+				//if (component != null)
+				//{
+				//	component.texture = texture;
+				//	continue;
+				//}
+				//MeshRenderer component2 = gameObject.GetComponent<MeshRenderer>();
+				//if (component2 != null && component2.material != null)
+				//{
+				//	component2.material.mainTexture = texture;
+				//}
+				//else
+				//{
+				//	Debug.LogError(gameObject.name + ": don't have 'RawImage' or 'MeshRenderer' component - ignored");
+				//}
 			}
 		}
 

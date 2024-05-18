@@ -232,6 +232,7 @@
     <Compile Include="MOD.Scripts.Core.Movie\MODApplyToMaterial.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\MovieInfo.cs" />
     <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\UMPRenderer.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODLipsyncCache.cs" />
     <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
