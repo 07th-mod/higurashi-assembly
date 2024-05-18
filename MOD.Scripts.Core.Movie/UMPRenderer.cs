@@ -162,13 +162,19 @@ namespace MOD.Scripts.Core.Movie
 			try
 			{
 				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(new string[] {
-					$@"--sub-file={subtitlePath}"
-				} );
+					//$@"--sub-file={subtitlePath}", // autodetect should find sub file so this should be unnnecessray
+					//$@"--sub-track=1",
+				})
+				{
+					//LogDetail = LogLevels.Debug,
+					// MUST disable hardware decoding for subtitles to render!
+					HardwareDecoding = PlayerOptionsStandalone.States.Disable,
+				};
 
 				standalone = new MediaPlayer(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
 
-
-				standalone.SetSubtitleFile(new System.Uri(subtitlePath));
+				// autodetect should find sub file so this should be unnnecessray
+				//standalone.SetSubtitleFile(new System.Uri(subtitlePath));
 
 				// Embedded Subtitles only valid after video prepared
 				//ump_player.AddPreparedEvent(OnPlayerPrepared);
