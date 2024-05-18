@@ -1,15 +1,81 @@
 using Assets.Scripts.Core;
 using RenderHeads.Media.AVProVideo;
+using Steamworks;
+using System.IO;
 using UMP;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.Movie
-{
+{	
+	public class MediaListener : IMediaListener
+	{
+		UMPRenderer renderer;
+		MediaPlayerStandalone standalone;
+		public MediaListener(UMPRenderer renderer, MediaPlayerStandalone standalone)
+		{
+			this.standalone = standalone;
+			this.renderer = renderer;
+		}
+
+		public void OnPlayerBuffering(float percentage)
+		{
+		}
+
+		public void OnPlayerEncounteredError()
+		{
+		}
+
+		public void OnPlayerEndReached()
+		{
+			this.renderer.Quit();
+		}
+
+		public void OnPlayerImageReady(Texture2D videoTexture)
+		{
+		}
+
+		public void OnPlayerOpening()
+		{
+		}
+
+		public void OnPlayerPaused()
+		{
+		}
+
+		public void OnPlayerPlaying()
+		{
+		}
+
+		public void OnPlayerPrepared(int videoWidth, int videoHeight)
+		{
+			int numSubtitleTracks = standalone.SpuTracks.Length;
+
+			Debug.Log($"Detected {numSubtitleTracks} subtitle tracks");
+
+			int i = 0;
+			for(; i < numSubtitleTracks; i++)
+			{
+				MediaTrackInfo info = standalone.SpuTracks[i];
+				Debug.Log($"MediaTrackInfo {i}: {info}");
+			}
+
+			Debug.Log($"Using MediaTrackInfo {i}: {standalone.SpuTrack}");
+		}
+
+		public void OnPlayerStopped()
+		{
+		}
+	}
+
 	public class UMPRenderer : MonoBehaviour, IMovieRenderer
 	{
 		//public MeshRenderer Renderer;
 
 		//public bool isStarted;
+
+		// TODO:
+		// Add auto quit when video finishes via event/callback?
+
 
 		//public void OnAvProVideoEvent(MediaPlayer mp, MediaPlayerEvent.EventType et, ErrorCode errorCode)
 		//{
@@ -37,35 +103,81 @@ namespace MOD.Scripts.Core.Movie
 		//	}
 		//}
 
+		MediaPlayerStandalone standalone;
+		//UniversalMediaPlayer ump_player;
+
+		//float dummyTime = 0;
+		//private void Update()
+		//{
+
+		//	dummyTime += Time.deltaTime;
+
+
+		//	Debug.Log($"Update Running... {dummyTime}");
+		//	if (standalone != null)
+		//	{
+		//		if(dummyTime > 2.0f)
+		//		{
+		//			Debug.Log("Stopping video");
+		//			standalone.Stop();
+		//		}
+		//	}
+		//}
+
+		// Stop video playback immediately when user tries to quit game
+		// Need to prevent game freezing on quit
+		void OnApplicationQuit()
+		{
+			Quit();
+		}
+
+		// Called externally when user clicks to skip video,
+		// or from callback when video finishes, see MediaListener above.
 		public void Quit()
 		{
-			Debug.Log($"Quitting");
+			Debug.Log($"Quitting UMP Playback...");
 
-			//MediaPlayer component = GetComponent<MediaPlayer>();
-			//if (component != null)
+			if(standalone != null)
+			{
+				// Stop and release the video player
+				standalone.Stop();
+				//standalone.Release();
+			}
+
+			//if(ump_player != null)
 			//{
-			//	component.CloseVideo();
+			//	ump_player.Stop();
+			//	//ump_player.Release();
+			//	//Object.Destroy(ump_player);
 			//}
-			//if (Renderer != null)
-			//{
-			//	Renderer.enabled = false;
-			//}
-			//base.enabled = false;
+
+			base.enabled = false;
 		}
 
 		public void Init(MovieInfo movieInfo)
 		{
+			string subtitlePath = Path.ChangeExtension(movieInfo.PathWithExt, ".ass");
 
-			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt}");
+			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt} with subtitle {subtitlePath}");
+
 
 			// Add the UMP component. According to the UMP PDF you normally do this in editor
-			UniversalMediaPlayer ump_player = gameObject.AddComponent<UniversalMediaPlayer>();
+			//UniversalMediaPlayer ump_player = gameObject.AddComponent<UniversalMediaPlayer>();
 
 			try
 			{
-				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(new string[0]);
-				MediaPlayerStandalone standalone = new MediaPlayerStandalone(ump_player, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
+				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(new string[] {
+					$@"--sub-file={subtitlePath}"
+				} );
 
+				standalone = new MediaPlayerStandalone(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
+
+
+				standalone.SetSubtitleFile(new System.Uri(subtitlePath));
+
+				// Embedded Subtitles only valid after video prepared
+				//ump_player.AddPreparedEvent(OnPlayerPrepared);
+				standalone.AddMediaListener(new MediaListener(this, standalone));
 
 				// Specify path of file to play with UMP
 				//ump_player.Path = movieInfo.PathWithExt;
