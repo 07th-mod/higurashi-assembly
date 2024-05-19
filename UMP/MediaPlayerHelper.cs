@@ -37,17 +37,25 @@ namespace UMP
 			{
 				return;
 			}
+
 			foreach (GameObject gameObject in renderingObjects)
 			{
 				if (gameObject == null)
 				{
 					continue;
 				}
-				// Hacky workaround
 
+				// TODO: Hacky workaround, assumed passed in object is Layer
 				Layer layer = gameObject.GetComponent<Layer>();
-				layer.MODMaterial.SetTexture("_Primary", texture);
-				Debug.Log($"Set layer {layer.name} to {texture.name}");
+				if (texture == null || layer== null || layer.MODMaterial == null)
+				{
+					Debug.Log("WARNING: MediaPlayerHelper.ApplyTextureToRenderingObjects() - texture, layer, or modmaterial was null");
+				}
+				else
+				{
+					layer.MODMaterial.SetTexture("_Primary", texture);
+					Debug.Log($"MediaPlayerHelper.ApplyTextureToRenderingObjects(): Set layer [{layer?.name}] to [{texture?.name}]/[{texture}]");
+				}
 
 				//RawImage component = gameObject.GetComponent<RawImage>();
 				//if (component != null)
