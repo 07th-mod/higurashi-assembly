@@ -90,9 +90,12 @@ namespace MOD.Scripts.Core.Movie
 
 			if(mediaPlayer != null)
 			{
-				// Stop and release the video player
+				// Stop the media player
 				mediaPlayer.Stop();
-				//mediaPlayer.Release();
+
+				// TODO: Release causes the game to lag (while it unloads the VLC libs etc.?)
+				// Could just keep mediaPlayer in memory as each time a video is played, this will introduce lag.
+				// mediaPlayer.Release();
 			}
 
 			base.enabled = false;
