@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using MOD.Scripts.UI;
 using System.IO;
 using System.Text;
 using UMP;
@@ -26,12 +27,7 @@ namespace MOD.Scripts.Core.Movie
 
 		public void OnPlayerEndReached()
 		{
-			this.renderer.Quit();
-
-			// TODO: while this is how auto-exit is done on the other renderers,
-			// there could actually be a case where state is exited twice here
-			// (once by video ending and once by user clicking on same frame)
-			GameSystem.Instance.PopStateStack();
+			renderer.LeaveAndQuit();
 		}
 
 		public void OnPlayerImageReady(Texture2D videoTexture)
@@ -102,9 +98,18 @@ namespace MOD.Scripts.Core.Movie
 			base.enabled = false;
 		}
 
+		public void LeaveAndQuit()
+		{
+			Quit();
+
+			// TODO: while this is how auto-exit is done on the other renderers,
+			// there could actually be a case where state is exited twice here
+			// (once by video ending and once by user clicking on same frame)
+			GameSystem.Instance.PopStateStack();
+		}
+
 		public void Init(MovieInfo movieInfo)
 		{
-
 			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt}");
 
 			try
@@ -152,6 +157,8 @@ namespace MOD.Scripts.Core.Movie
 			catch (System.Exception ex)
 			{
 				Debug.Log($"Exception: {ex}");
+				MODToaster.Show($"Playback of movie {movieInfo.PathWithExt} failed", toastDuration: 8);
+				LeaveAndQuit();
 				return;
 			}
 		}
