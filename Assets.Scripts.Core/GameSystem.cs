@@ -13,6 +13,7 @@ using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core.Localization;
+using MOD.Scripts.Core.Movie;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
@@ -291,6 +292,8 @@ namespace Assets.Scripts.Core
 			{
 				KeyHook = new KeyHook();
 			}
+
+			UMPRenderer.InitMediaPlayerGameObject(this);
 		}
 
 		public void SetResolution(int width, int height, bool fullscreen)

@@ -70,7 +70,7 @@ namespace MOD.Scripts.Core.Movie
 
 	public class UMPRenderer : MonoBehaviour, IMovieRenderer
 	{
-		MediaPlayer mediaPlayer;
+		static MediaPlayer mediaPlayer;
 
 		// Stop video playback immediately when user tries to quit game
 		// Need to prevent game freezing on quit
@@ -91,7 +91,8 @@ namespace MOD.Scripts.Core.Movie
 				mediaPlayer.Stop();
 
 				// TODO: Release causes the game to lag (while it unloads the VLC libs etc.?)
-				// Could just keep mediaPlayer in memory as each time a video is played, this will introduce lag.
+				// Could just keep mediaPlayer in memory as each time a video is played, this will introduce lag
+				// Or perhaps Unity will unload automatically?
 				// mediaPlayer.Release();
 			}
 
@@ -104,12 +105,17 @@ namespace MOD.Scripts.Core.Movie
 			GameSystem.Instance.PopStateStack();
 		}
 
-		public void Init(MovieInfo movieInfo)
+		public static void InitMediaPlayerGameObject(MonoBehaviour gameSystemMono)
 		{
-			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt}");
+			if (mediaPlayer != null)
+			{
+				return;
+			}
 
 			try
 			{
+				Debug.Log("Initializing Universal Media Player game object...");
+
 				// Pass in any raw vlc arguments here. See https://wiki.videolan.org/VLC_command-line_help/
 				// Please note the VLC library used in this player may be very old, and some arguments may not work.
 				string[] rawVLCArguments = new string[] {
@@ -134,7 +140,30 @@ namespace MOD.Scripts.Core.Movie
 					//ClockJitter = 5000;
 				};
 
-				mediaPlayer = new MediaPlayer(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
+				mediaPlayer = new MediaPlayer(gameSystemMono, new GameObject[]{}, player_options);
+			}
+			catch (System.Exception ex)
+			{
+				Debug.Log($"Exception: {ex}");
+				MODToaster.Show($"Failed to init Universal Media Player", toastDuration: 8);
+				return;
+			}
+		}
+
+		public void Init(MovieInfo movieInfo)
+		{
+			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt}");
+
+			try
+			{
+				if (mediaPlayer == null)
+				{
+					InitMediaPlayerGameObject(GameSystem.Instance);
+				}
+
+				// This sets up the video playback on the background layer by setting Layer's "_Primary" texture
+				// See MediaPlayerHelper.ApplyTextureToRenderingObjects() for details
+				mediaPlayer.VideoOutputObjects = new GameObject[] { movieInfo.Layer.gameObject };
 
 				// Optional - don't use subtitle autodetect and manually specify subtitle path
 				// Autodetect should find sub file so this should be unnnecessray
