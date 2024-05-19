@@ -27,6 +27,11 @@ namespace MOD.Scripts.Core.Movie
 		public void OnPlayerEndReached()
 		{
 			this.renderer.Quit();
+
+			// TODO: while this is how auto-exit is done on the other renderers,
+			// there could actually be a case where state is exited twice here
+			// (once by video ending and once by user clicking on same frame)
+			GameSystem.Instance.PopStateStack();
 		}
 
 		public void OnPlayerImageReady(Texture2D videoTexture)
