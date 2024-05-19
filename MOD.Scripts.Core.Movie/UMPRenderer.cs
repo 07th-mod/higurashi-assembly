@@ -73,7 +73,7 @@ namespace MOD.Scripts.Core.Movie
 
 	public class UMPRenderer : MonoBehaviour, IMovieRenderer
 	{
-		MediaPlayer standalone;
+		MediaPlayer mediaPlayer;
 
 		// Stop video playback immediately when user tries to quit game
 		// Need to prevent game freezing on quit
@@ -88,11 +88,11 @@ namespace MOD.Scripts.Core.Movie
 		{
 			Debug.Log($"Quitting UMP Playback...");
 
-			if(standalone != null)
+			if(mediaPlayer != null)
 			{
 				// Stop and release the video player
-				standalone.Stop();
-				//standalone.Release();
+				mediaPlayer.Stop();
+				//mediaPlayer.Release();
 			}
 
 			base.enabled = false;
@@ -117,19 +117,19 @@ namespace MOD.Scripts.Core.Movie
 					HardwareDecoding = PlayerOptionsStandalone.States.Disable,
 				};
 
-				standalone = new MediaPlayer(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
+				mediaPlayer = new MediaPlayer(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
 
 				// autodetect should find sub file so this should be unnnecessray
 				//standalone.SetSubtitleFile(new System.Uri(subtitlePath));
 
 				// Embedded Subtitles only valid after video prepared
-				standalone.AddMediaListener(new MediaListener(this, standalone));
+				mediaPlayer.AddMediaListener(new MediaListener(this, mediaPlayer));
 
 				// Specify path of file to play with UMP
-				standalone.DataSource = movieInfo.PathWithExt;
+				mediaPlayer.DataSource = movieInfo.PathWithExt;
 
 				// Begin video playback
-				standalone.Play();
+				mediaPlayer.Play();
 			}
 			catch (System.Exception ex)
 			{
