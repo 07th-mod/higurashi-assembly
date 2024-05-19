@@ -105,6 +105,34 @@ namespace MOD.Scripts.Core.Movie
 			GameSystem.Instance.PopStateStack();
 		}
 
+		// For now, you can't set options at runtime
+		private static PlayerOptionsStandalone GetUMPPlayerOptions()
+		{
+			// Pass in any raw vlc arguments here. See https://wiki.videolan.org/VLC_command-line_help/
+			// Please note the VLC library used in this player may be very old, and some arguments may not work.
+			string[] rawVLCArguments = new string[] {
+					//$@"--sub-file=example.srt", // autodetect should find sub file so this should be unnnecessray
+					//$@"--sub-track=1",
+				};
+
+			return new PlayerOptionsStandalone(rawVLCArguments)
+			{
+				// MUST disable hardware decoding for subtitles to render!
+				HardwareDecoding = PlayerOptionsStandalone.States.Disable,
+
+				// Other possible options listed here:
+				//LogDetail = LogLevels.Disable;
+				//FlipVertically = true;
+				//FileCaching = 300;
+				//LiveCaching = 300;
+				//DiskCaching = 300;
+				//NetworkCaching = 300;
+				//CrAverage = 40;
+				//ClockSynchro = States.Default;
+				//ClockJitter = 5000;
+			};
+		}
+
 		public static void InitMediaPlayerGameObject(MonoBehaviour gameSystemMono)
 		{
 			if (mediaPlayer != null)
@@ -115,32 +143,7 @@ namespace MOD.Scripts.Core.Movie
 			try
 			{
 				Debug.Log("Initializing Universal Media Player game object...");
-
-				// Pass in any raw vlc arguments here. See https://wiki.videolan.org/VLC_command-line_help/
-				// Please note the VLC library used in this player may be very old, and some arguments may not work.
-				string[] rawVLCArguments = new string[] {
-					//$@"--sub-file=example.srt", // autodetect should find sub file so this should be unnnecessray
-					//$@"--sub-track=1",
-				};
-
-				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(rawVLCArguments)
-				{
-					// MUST disable hardware decoding for subtitles to render!
-					HardwareDecoding = PlayerOptionsStandalone.States.Disable,
-
-					// Other possible options listed here:
-					//LogDetail = LogLevels.Disable;
-					//FlipVertically = true;
-					//FileCaching = 300;
-					//LiveCaching = 300;
-					//DiskCaching = 300;
-					//NetworkCaching = 300;
-					//CrAverage = 40;
-					//ClockSynchro = States.Default;
-					//ClockJitter = 5000;
-				};
-
-				mediaPlayer = new MediaPlayer(gameSystemMono, new GameObject[]{}, player_options);
+				mediaPlayer = new MediaPlayer(gameSystemMono, new GameObject[]{}, GetUMPPlayerOptions());
 			}
 			catch (System.Exception ex)
 			{
