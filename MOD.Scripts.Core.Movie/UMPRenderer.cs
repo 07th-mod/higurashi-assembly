@@ -1,5 +1,4 @@
 using Assets.Scripts.Core;
-using Steamworks;
 using System.IO;
 using System.Text;
 using UMP;
@@ -105,27 +104,41 @@ namespace MOD.Scripts.Core.Movie
 
 		public void Init(MovieInfo movieInfo)
 		{
-			// Optional - don't use subtitle autodetect and manually specify subtitle path
-			//string subtitlePath = Path.ChangeExtension(movieInfo.PathWithExt, ".ass");
 
 			Debug.Log($"Playing movie using UMP at path {movieInfo.PathWithExt}");
 
 			try
 			{
-				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(new string[] {
-					//$@"--sub-file={subtitlePath}", // autodetect should find sub file so this should be unnnecessray
+				// Pass in any raw vlc arguments here. See https://wiki.videolan.org/VLC_command-line_help/
+				// Please note the VLC library used in this player may be very old, and some arguments may not work.
+				string[] rawVLCArguments = new string[] {
+					//$@"--sub-file=example.srt", // autodetect should find sub file so this should be unnnecessray
 					//$@"--sub-track=1",
-				})
+				};
+
+				PlayerOptionsStandalone player_options = new PlayerOptionsStandalone(rawVLCArguments)
 				{
-					//LogDetail = LogLevels.Debug,
 					// MUST disable hardware decoding for subtitles to render!
 					HardwareDecoding = PlayerOptionsStandalone.States.Disable,
+
+					// Other possible options listed here:
+					//LogDetail = LogLevels.Disable;
+					//FlipVertically = true;
+					//FileCaching = 300;
+					//LiveCaching = 300;
+					//DiskCaching = 300;
+					//NetworkCaching = 300;
+					//CrAverage = 40;
+					//ClockSynchro = States.Default;
+					//ClockJitter = 5000;
 				};
 
 				mediaPlayer = new MediaPlayer(this, new GameObject[] { movieInfo.Layer.gameObject }, player_options);
 
-				// autodetect should find sub file so this should be unnnecessray
-				//standalone.SetSubtitleFile(new System.Uri(subtitlePath));
+				// Optional - don't use subtitle autodetect and manually specify subtitle path
+				// Autodetect should find sub file so this should be unnnecessray
+				// string subtitlePath = Path.ChangeExtension(movieInfo.PathWithExt, ".ass");
+				// standalone.SetSubtitleFile(new System.Uri(subtitlePath));
 
 				// Embedded Subtitles only valid after video prepared
 				mediaPlayer.AddMediaListener(new MediaListener(this, mediaPlayer));
