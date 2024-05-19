@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core.Movie;
 using MOD.Scripts.UI;
@@ -46,6 +47,9 @@ namespace MOD.Scripts.Core.State
 			}
 
 			movieInfo = new MovieInfo(moviename, windowsPlaybackMode ? windowsMovieExtension : linuxMovieExtension);
+			movieInfo.subtitleTrack = BurikoMemory.Instance.GetGlobalFlag("GOpeningSubtitleTrack").IntValue();
+			movieInfo.audioTrack = BurikoMemory.Instance.GetGlobalFlag("GOpeningAudioTrack").IntValue();
+
 			gameObject = new GameObject();
 			SetupBackgroundLayerForVideo();
 

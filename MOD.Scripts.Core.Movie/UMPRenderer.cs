@@ -11,10 +11,14 @@ namespace MOD.Scripts.Core.Movie
 	{
 		UMPRenderer renderer;
 		MediaPlayer mediaPlayer;
-		public MediaListener(UMPRenderer renderer, MediaPlayer standalone)
+		int subtitleTrack;
+		int audioTrack;
+		public MediaListener(UMPRenderer renderer, MediaPlayer standalone, int subtitleTrack, int audioTrack)
 		{
 			this.mediaPlayer = standalone;
 			this.renderer = renderer;
+			this.subtitleTrack = subtitleTrack;
+			this.audioTrack = audioTrack;
 		}
 
 		public void OnPlayerBuffering(float percentage)
@@ -46,21 +50,76 @@ namespace MOD.Scripts.Core.Movie
 		{
 		}
 
-		public void OnPlayerPrepared(int videoWidth, int videoHeight)
+		private void PrintMediaInfo(MediaTrackInfo[] tracks, string trackTypeDescription)
 		{
-			int numSubtitleTracks = mediaPlayer.SpuTracks.Length;
-
+			int numTracks = tracks.Length;
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendLine($">> Detected {numSubtitleTracks} subtitle tracks: ");
+			sb.AppendLine($">> Detected {numTracks} {trackTypeDescription} tracks: ");
 
-			for (int i = 0; i < numSubtitleTracks; i++)
+			for (int i = 0; i < numTracks; i++)
 			{
-				MediaTrackInfo info = mediaPlayer.SpuTracks[i];
-				sb.AppendLine($" - Subtitle [{i}]: {info}");
+				MediaTrackInfo info = tracks[i];
+				sb.AppendLine($" - {trackTypeDescription} [{i}]: {info}");
 			}
 
-			sb.AppendLine($">> Will Use Subtitle: {mediaPlayer.SpuTrack}");
+			sb.AppendLine($">> {trackTypeDescription} track currently set to: {mediaPlayer.SpuTrack}");
+			Debug.Log(sb);
+		}
+
+		// UMP:
+		// Track 0 = Disable
+		// Track 1 = First track
+
+		// Our mod:
+		// -1 = Disabled
+		// 0 = Default Track
+		// 1 = First Track
+		private bool GetUMPTrack(int modTrackNumber, MediaTrackInfo[] possibleTracks, string description, out MediaTrackInfo trackToSet)
+		{
+			// In the mod, 0 means 'use default value', so don't change the track at all
+			if(modTrackNumber == 0)
+			{
+				trackToSet = null;
+				return false;
+			}
+
+			int umpTrackNumber = modTrackNumber;
+
+			// In the mod, -1 means 'disable', which means we need to set the value to 0
+			if (modTrackNumber == 0)
+			{
+				umpTrackNumber = 0;
+			}
+
+			// Other track value are the same, but make sure it is in bounds before trying to set it
+			if(possibleTracks.Length > umpTrackNumber)
+			{
+				trackToSet = possibleTracks[umpTrackNumber];
+				return true;
+			}
+
+			Debug.Log($"Warning: {description} track index {umpTrackNumber} is out of range (There are only {possibleTracks.Length} tracks). Will use default track.");
+			trackToSet = null;
+			return false;
+		}
+
+		public void OnPlayerPrepared(int videoWidth, int videoHeight)
+		{
+			// Set subtitle track
+			if(GetUMPTrack(subtitleTrack, mediaPlayer.SpuTracks, "Subtitle", out MediaTrackInfo subtitleToSet))
+			{
+				mediaPlayer.SpuTrack = subtitleToSet;
+			}
+
+			// Set audio track
+			if(GetUMPTrack(audioTrack, mediaPlayer.AudioTracks, "Audio", out MediaTrackInfo audioToSet))
+			{
+				mediaPlayer.AudioTrack = audioToSet;
+			}
+
+			PrintMediaInfo(mediaPlayer.SpuTracks, "Subtitle");
+			PrintMediaInfo(mediaPlayer.AudioTracks, "Audio");
 		}
 
 		public void OnPlayerStopped()
@@ -174,7 +233,7 @@ namespace MOD.Scripts.Core.Movie
 				// standalone.SetSubtitleFile(new System.Uri(subtitlePath));
 
 				// Embedded Subtitles only valid after video prepared
-				mediaPlayer.AddMediaListener(new MediaListener(this, mediaPlayer));
+				mediaPlayer.AddMediaListener(new MediaListener(this, mediaPlayer, movieInfo.subtitleTrack, movieInfo.audioTrack));
 
 				// Specify path of file to play with UMP
 				mediaPlayer.DataSource = movieInfo.PathWithExt;
