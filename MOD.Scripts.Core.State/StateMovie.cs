@@ -1,8 +1,11 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core.Movie;
 using MOD.Scripts.UI;
+using System.Collections.Generic;
 using System.IO;
+using UMP;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.State
@@ -44,17 +47,23 @@ namespace MOD.Scripts.Core.State
 			}
 
 			movieInfo = new MovieInfo(moviename, windowsPlaybackMode ? windowsMovieExtension : linuxMovieExtension);
+			movieInfo.subtitleTrack = BurikoMemory.Instance.GetGlobalFlag("GOpeningSubtitleTrack").IntValue();
+			movieInfo.audioTrack = BurikoMemory.Instance.GetGlobalFlag("GOpeningAudioTrack").IntValue();
+
 			gameObject = new GameObject();
 			SetupBackgroundLayerForVideo();
 
-			if(windowsPlaybackMode)
-			{
-				MovieEntity = gameObject.AddComponent<AVProMovieRenderer>();
-			}
-			else
-			{
-				MovieEntity = gameObject.AddComponent<TextureMovieRenderer>();
-			}
+			//if (windowsPlaybackMode)
+			//{
+			//	MovieEntity = gameObject.AddComponent<AVProMovieRenderer>();
+			//}
+			//else
+			//{
+			//	MovieEntity = gameObject.AddComponent<TextureMovieRenderer>();
+			//}
+
+			MovieEntity = gameObject.AddComponent<UMPRenderer>();
+
 			MovieEntity.Init(movieInfo);
 		}
 

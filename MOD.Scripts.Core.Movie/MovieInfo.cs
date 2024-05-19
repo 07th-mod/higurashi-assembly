@@ -32,5 +32,8 @@ namespace MOD.Scripts.Core.Movie
 			Name = name;
 			Ext = ext;
 		}
+
+		public int subtitleTrack = 0;
+		public int audioTrack = 0;
 	}
 }
