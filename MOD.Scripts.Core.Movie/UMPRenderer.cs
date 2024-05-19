@@ -9,10 +9,10 @@ namespace MOD.Scripts.Core.Movie
 	public class MediaListener : IMediaListener
 	{
 		UMPRenderer renderer;
-		MediaPlayer standalone;
+		MediaPlayer mediaPlayer;
 		public MediaListener(UMPRenderer renderer, MediaPlayer standalone)
 		{
-			this.standalone = standalone;
+			this.mediaPlayer = standalone;
 			this.renderer = renderer;
 		}
 
@@ -52,18 +52,18 @@ namespace MOD.Scripts.Core.Movie
 
 		public void OnPlayerPrepared(int videoWidth, int videoHeight)
 		{
-			int numSubtitleTracks = standalone.SpuTracks.Length;
+			int numSubtitleTracks = mediaPlayer.SpuTracks.Length;
 
 			Debug.Log($"Detected {numSubtitleTracks} subtitle tracks");
 
 			for(int i = 0; i < numSubtitleTracks; i++)
 			{
-				MediaTrackInfo info = standalone.SpuTracks[i];
-				standalone.SpuTrack = info;
+				MediaTrackInfo info = mediaPlayer.SpuTracks[i];
+				mediaPlayer.SpuTrack = info;
 				Debug.Log($"MediaTrackInfo {i}: {info}");
 			}
 
-			Debug.Log($"Using MediaTrackInfo: {standalone.SpuTrack}");
+			Debug.Log($"Using MediaTrackInfo: {mediaPlayer.SpuTrack}");
 		}
 
 		public void OnPlayerStopped()
