@@ -101,10 +101,6 @@ namespace MOD.Scripts.Core.Movie
 		public void LeaveAndQuit()
 		{
 			Quit();
-
-			// TODO: while this is how auto-exit is done on the other renderers,
-			// there could actually be a case where state is exited twice here
-			// (once by video ending and once by user clicking on same frame)
 			GameSystem.Instance.PopStateStack();
 		}
 
@@ -150,6 +146,9 @@ namespace MOD.Scripts.Core.Movie
 
 				// Specify path of file to play with UMP
 				mediaPlayer.DataSource = movieInfo.PathWithExt;
+
+				// Skip video forward for testing purposes - time in milliseconds
+				// mediaPlayer.Time = 135 * 1000;
 
 				// Begin video playback
 				mediaPlayer.Play();
