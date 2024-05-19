@@ -1,6 +1,7 @@
 using Assets.Scripts.Core;
 using Steamworks;
 using System.IO;
+using System.Text;
 using UMP;
 using UnityEngine;
 
@@ -54,16 +55,17 @@ namespace MOD.Scripts.Core.Movie
 		{
 			int numSubtitleTracks = mediaPlayer.SpuTracks.Length;
 
-			Debug.Log($"Detected {numSubtitleTracks} subtitle tracks");
+			StringBuilder sb = new StringBuilder();
 
-			for(int i = 0; i < numSubtitleTracks; i++)
+			sb.AppendLine($">> Detected {numSubtitleTracks} subtitle tracks: ");
+
+			for (int i = 0; i < numSubtitleTracks; i++)
 			{
 				MediaTrackInfo info = mediaPlayer.SpuTracks[i];
-				mediaPlayer.SpuTrack = info;
-				Debug.Log($"MediaTrackInfo {i}: {info}");
+				sb.AppendLine($" - Subtitle [{i}]: {info}");
 			}
 
-			Debug.Log($"Using MediaTrackInfo: {mediaPlayer.SpuTrack}");
+			sb.AppendLine($">> Will Use Subtitle: {mediaPlayer.SpuTrack}");
 		}
 
 		public void OnPlayerStopped()
