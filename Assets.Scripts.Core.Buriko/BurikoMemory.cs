@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.AssetManagement;
+using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
 using MOD.Scripts.Core.Audio;
@@ -244,7 +245,7 @@ namespace Assets.Scripts.Core.Buriko
 				throw new Exception("Unable to set flag with the name " + flagname + ", flag not found.");
 			}
 			SetGlobalFlag(key, val);
-			MODSyncState();
+			MODSyncState(flagname);
 		}
 
 		public void SetHighestChapterFlag(int arcNumber, int number)
@@ -509,6 +510,7 @@ namespace Assets.Scripts.Core.Buriko
 			string path = Path.Combine(MGHelper.GetSavePath(), "global.dat");
 			if (!File.Exists(path))
 			{
+				// This branch is only executed the first time the game is run (or if you manually delete your global.dat)
 				SetGlobalFlag("GUsePrompts", 1);
 			}
 			else
@@ -574,21 +576,18 @@ namespace Assets.Scripts.Core.Buriko
 					GameSystem.Instance.SkipUnreadMessages = GetGlobalFlag("GSkipUnread").BoolValue();
 					GameSystem.Instance.ClickDuringAuto = GetGlobalFlag("GClickDuringAuto").BoolValue();
 					GameSystem.Instance.RightClickMenu = GetGlobalFlag("GRightClickMenu").BoolValue();
-					GameSystem.Instance.AudioController.VoiceVolume = (float)GetGlobalFlag("GVoiceVolume").IntValue() / 100f;
-					GameSystem.Instance.AudioController.BGMVolume = (float)GetGlobalFlag("GBGMVolume").IntValue() / 100f;
-					GameSystem.Instance.AudioController.SoundVolume = (float)GetGlobalFlag("GSEVolume").IntValue() / 100f;
-					GameSystem.Instance.AudioController.SystemVolume = (float)GetGlobalFlag("GSEVolume").IntValue() / 100f;
 					GameSystem.Instance.StopVoiceOnClick = GetGlobalFlag("GCutVoiceOnClick").BoolValue();
 					GameSystem.Instance.UseSystemSounds = GetGlobalFlag("GUseSystemSound").BoolValue();
 					GameSystem.Instance.UseEnglishText = GetGlobalFlag("GLanguage").BoolValue();
 					AssetManager.Instance.CurrentArtsetIndex = GetGlobalFlag("GArtStyle").IntValue();
-					GameSystem.Instance.AudioController.RefreshLayerVolumes();
 				}
 				catch (Exception message)
 				{
 					Debug.LogWarning(message);
 				}
 			}
+
+			AudioController.Instance.RefreshLayerVolumes();
 		}
 
 		public void SaveGlobals()
@@ -618,10 +617,17 @@ namespace Assets.Scripts.Core.Buriko
 		/// <summary>
 		/// Syncs internal state with global flags.  We could technically add all the stuff in LoadGlobals() if we wanted to - just seemed like a lot of overhead.
 		/// </summary>
-		public void MODSyncState()
+		public void MODSyncState(string flagname)
 		{
 			// Sync Art Style.  This is really set up to support only init.txt initialization
 			AssetManager.Instance.CurrentArtsetIndex = GetGlobalFlag("GArtStyle").IntValue();
+
+			// Sync Audio Volumes. Currently our init.txt sets the global volume flags, which
+			// which doesn't automatically apply the audio volumes, so the below is needed.
+			if(AudioController.GlobalFlagAffectsAudio(flagname))
+			{
+				AudioController.Instance.RefreshLayerVolumes();
+			}
 		}
 	}
 }
