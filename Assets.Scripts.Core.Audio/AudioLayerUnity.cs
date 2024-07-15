@@ -1,5 +1,6 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
+using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -13,6 +14,8 @@ namespace Assets.Scripts.Core.Audio
 		private AudioSource audioSource;
 
 		private AudioClip audioClip;
+
+		private MODPreLoopAudio preLoopAudio = new MODPreLoopAudio();
 
 		private AudioFinishCallback finishCallback;
 
@@ -102,6 +105,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				Destroy(audioClip);
 			}
+			preLoopAudio.StopAudio();
 			loadedName = string.Empty;
 			audioClip = null;
 			iTween.Stop(base.gameObject);
@@ -118,7 +122,7 @@ namespace Assets.Scripts.Core.Audio
 			{
 				return false;
 			}
-			return audioSource.isPlaying;
+			return preLoopAudio.IsPlaying() || audioSource.isPlaying;
 		}
 
 		public float GetRemainingPlayTime()
@@ -127,10 +131,10 @@ namespace Assets.Scripts.Core.Audio
 			{
 				return -1f;
 			}
-			return audioSource.clip.length - audioSource.time;
+			return preLoopAudio.GetRemainingPlayTime() + audioSource.clip.length - audioSource.time;
 		}
 
-		public int GetPlayTimeSamples() => audioSource.timeSamples;
+		public int GetPlayTimeSamples() => preLoopAudio.GetPlayTimeSamples() + audioSource.timeSamples;
 
 		private IEnumerator WaitForLoad(string filename, AudioType type, Action<string, AudioType, AudioClip> onAudioDataLoaded = null)
 		{
@@ -138,6 +142,12 @@ namespace Assets.Scripts.Core.Audio
 			string path = AssetManager.Instance.GetAudioFilePath(filename, type);
 			WWW audioLoader = new WWW("file://" + path);
 			yield return audioLoader;
+
+			if(isLoop)
+			{
+				yield return StartCoroutine(preLoopAudio.LoadAudioClips(filename, type));
+			}
+
 			loadedName = filename;
 			audioClip = audioLoader.audioClip;
 
@@ -199,7 +209,12 @@ namespace Assets.Scripts.Core.Audio
 			audioSource.loop = isLoop;
 			audioSource.priority = audioController.GetPriorityByType(audioType);
 			volume = audioController.GetVolumeByType(audioType) * subVolume;
-			audioSource.Play();
+
+			LoopPlaybackInformation info = preLoopAudio.OnFinishLoad(base.gameObject, audioSource.priority);
+
+			audioSource.volume = volume;
+			audioSource.time = info.loopFirstStartTime;
+			audioSource.PlayDelayed(info.loopStartDelay);
 			isReady = true;
 			if (onFinishLoad != null)
 			{
@@ -233,7 +248,8 @@ namespace Assets.Scripts.Core.Audio
 				}
 				volume = audioController.GetVolumeByType(audioType);
 				audioSource.volume = volume * subVolume;
-				if (!audioSource.isPlaying && !isLoop && !isLoading && isReady && isLoaded)
+				preLoopAudio.Update(audioSource.volume);
+				if (!preLoopAudio.IsPlaying() && !audioSource.isPlaying && !isLoop && !isLoading && isReady && isLoaded)
 				{
 					OnAudioEnd();
 				}
