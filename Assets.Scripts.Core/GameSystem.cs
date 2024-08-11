@@ -1202,7 +1202,7 @@ namespace Assets.Scripts.Core
 			// As a result the below "best resolution" code has been disabled for Ep9 and Ep10 (and future chapters too) and the LateUpdate() resolution is used instead.
 			//
 			// See: https://github.com/07th-mod/hou-plus/issues/13
-			const bool doBestResolutionScanning = true;
+			const bool doBestResolutionScanning = false;
 			if (doBestResolutionScanning && Screen.resolutions.Length > 0)
 			{
 				int index = 0;
