@@ -907,6 +907,8 @@ namespace Assets.Scripts.Core
 				}
 				Debug.Log($"LateUpdate Fullscreen Resolution: [{fullscreenResolution.width}, {fullscreenResolution.height}] Source: [{source}]");
 			}
+
+			MOD.Scripts.Core.MODResolutionMonitor.Update();
 		}
 
 		private bool CheckInitialization()
@@ -1068,6 +1070,15 @@ namespace Assets.Scripts.Core
 			{
 				return japanese;
 			}
+		}
+
+		public bool MODWindowedResolutionValid(int width, int height)
+		{
+			Resolution fullScreenResolution = GetFullscreenResolution();
+			return width > 320 &&
+				height > 240 &&
+				width <= fullScreenResolution.width &&
+				height <= fullScreenResolution.height;
 		}
 
 		public Resolution GetFullscreenResolution(bool useOverride = true, bool doLogging = true)
