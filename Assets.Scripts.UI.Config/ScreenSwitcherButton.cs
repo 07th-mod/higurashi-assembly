@@ -47,9 +47,9 @@ namespace Assets.Scripts.UI.Config
 
 		private bool ShouldBeDown()
 		{
-			if (IsFullscreen)
+			if (GameSystem.Instance.IsFullscreen)
 			{
-				return GameSystem.Instance.IsFullscreen;
+				return IsFullscreen;
 			}
 			return Screen.height == Height();
 		}
