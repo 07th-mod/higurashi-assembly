@@ -72,6 +72,7 @@ namespace MOD.Scripts.UI
 			DebugMode,
 			RestoreSettings,
 			ToggleAudioSet,
+			ToggleFullscreen,
 		}
 
 		private static Action? GetUserAction()
@@ -167,6 +168,10 @@ namespace MOD.Scripts.UI
 			else if (Input.GetKeyDown(KeyCode.N))
 			{
 				return Action.VoiceVolumeDown;
+			}
+			else if(Input.GetKeyDown(KeyCode.F))
+			{
+				return Action.ToggleFullscreen;
 			}
 
 			return null;
@@ -317,6 +322,24 @@ namespace MOD.Scripts.UI
 					{
 						MODAudioSet.Instance.Toggle();
 						MODToaster.Show(MODAudioSet.Instance.GetCurrentAudioSetDisplayName(includeAudioSetFlag: true));
+					}
+					break;
+
+				case Action.ToggleFullscreen:
+					if (GameSystem.Instance.IsFullscreen)
+					{
+						int num14 = PlayerPrefs.GetInt("width");
+						int num15 = PlayerPrefs.GetInt("height");
+						if (num14 == 0 || num15 == 0)
+						{
+							num14 = 640;
+							num15 = 480;
+						}
+						GameSystem.Instance.DeFullscreen(width: num14, height: num15);
+					}
+					else
+					{
+						GameSystem.Instance.GoFullscreen();
 					}
 					break;
 
