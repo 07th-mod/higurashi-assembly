@@ -77,6 +77,19 @@ namespace MOD.Scripts.UI
 
 		private static Action? GetUserAction()
 		{
+			// On Windows, a Windows specific key hook is setup in KeyHook.cs such that ALT+ENTER toggles fullscreen
+			// However on Linux and Mac this doesn't work, so use the below Unity keyboard shortcut to toggle fullscreen with ALT+ENTER
+			if (Application.platform != RuntimePlatform.WindowsPlayer)
+			{
+				if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+				{
+					if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+					{
+						return Action.ToggleFullscreen;
+					}
+				}
+			}
+
 			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
