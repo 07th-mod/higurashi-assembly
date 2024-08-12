@@ -186,26 +186,6 @@ namespace Assets.Scripts.Core.State
 				gameSystem.IsSkipping = !gameSystem.IsSkipping;
 			}
 
-			// Fullscreen
-			if (Input.GetKeyDown(KeyCode.F))
-			{
-				if (GameSystem.Instance.IsFullscreen)
-				{
-					int num14 = PlayerPrefs.GetInt("width");
-					int num15 = PlayerPrefs.GetInt("height");
-					if (num14 == 0 || num15 == 0)
-					{
-						num14 = 640;
-						num15 = 480;
-					}
-					GameSystem.Instance.DeFullscreen(width: num14, height: num15);
-				}
-				else
-				{
-					GameSystem.Instance.GoFullscreen();
-				}
-			}
-
 			// Toggle Language
 			if (Input.GetKeyDown(KeyCode.L))
 			{

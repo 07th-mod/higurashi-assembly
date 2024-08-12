@@ -72,10 +72,24 @@ namespace MOD.Scripts.UI
 			DebugMode,
 			RestoreSettings,
 			ToggleAudioSet,
+			ToggleFullscreen,
 		}
 
 		private static Action? GetUserAction()
 		{
+			// On Windows, a Windows specific key hook is setup in KeyHook.cs such that ALT+ENTER toggles fullscreen
+			// However on Linux and Mac this doesn't work, so use the below Unity keyboard shortcut to toggle fullscreen with ALT+ENTER
+			if (Application.platform != RuntimePlatform.WindowsPlayer)
+			{
+				if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+				{
+					if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+					{
+						return Action.ToggleFullscreen;
+					}
+				}
+			}
+
 			// These take priority over the non-shift key buttons
 			if (Input.GetKey(KeyCode.LeftShift))
 			{
@@ -167,6 +181,10 @@ namespace MOD.Scripts.UI
 			else if (Input.GetKeyDown(KeyCode.N))
 			{
 				return Action.VoiceVolumeDown;
+			}
+			else if(Input.GetKeyDown(KeyCode.F))
+			{
+				return Action.ToggleFullscreen;
 			}
 
 			return null;
@@ -320,6 +338,24 @@ namespace MOD.Scripts.UI
 					}
 					break;
 
+				case Action.ToggleFullscreen:
+					if (GameSystem.Instance.IsFullscreen)
+					{
+						int num14 = PlayerPrefs.GetInt("width");
+						int num15 = PlayerPrefs.GetInt("height");
+						if (num14 == 0 || num15 == 0)
+						{
+							num14 = 640;
+							num15 = 480;
+						}
+						GameSystem.Instance.DeFullscreen(width: num14, height: num15);
+					}
+					else
+					{
+						GameSystem.Instance.GoFullscreen();
+					}
+					break;
+
 				default:
 					Assets.Scripts.Core.Logger.Log($"Warning: Unknown mod action {action} was requested to be executed");
 					break;
@@ -334,20 +370,29 @@ namespace MOD.Scripts.UI
 		{
 			if (GetUserAction() is Action action)
 			{
-				if (action == Action.ModMenu)
+				switch(action)
 				{
-					GameSystem.Instance.MainUIController.modMenu.UserToggleVisibility();
-				}
-				else
-				{
-					if (!ModInputHandlingAllowed())
-					{
-						MODToaster.Show($"Please let animation finish first and/or close the menu");
-					}
-					else
-					{
+					case Action.ModMenu:
+						GameSystem.Instance.MainUIController.modMenu.UserToggleVisibility();
+						break;
+
+					// These actions can execute at any time
+					case Action.ToggleFullscreen:
 						ModHandleUserAction(action);
-					}
+						break;
+
+					// These actions can only run at reasonable times (eg. when not in a menu)
+					// to prevent UI and graphical bugs
+					default:
+						if (!ModInputHandlingAllowed())
+						{
+							MODToaster.Show($"Please let animation finish first and/or close the menu");
+						}
+						else
+						{
+							ModHandleUserAction(action);
+						}
+						break;
 				}
 			}
 
