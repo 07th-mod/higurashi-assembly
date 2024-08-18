@@ -637,11 +637,6 @@ namespace Assets.Scripts.Core.AssetManagement
 			Debug.Log(stringBuilder.ToString());
 		}
 
-		public string GetVideoClipPath(string fileName)
-		{
-			return Path.Combine(assetPath, fileName);
-		}
-
 		public Cubemap LoadCubemap(string path)
 		{
 			Texture2D texture2D = LoadTexture(path);

@@ -27,8 +27,10 @@ namespace MOD.Scripts.Core.Movie
 
 		private VideoPlayer videoPlayer;
 
-		public bool GetFullVideoPath(string pathNoExtension, out string pathWithExtension)
+		public static bool GetFullVideoPath(string pathNoExtension, out string pathWithExtension, out string debugErrorMessage)
 		{
+			debugErrorMessage = "No Error";
+
 			string[] extensionList = WindowsExtensionsList;
 			if (Application.platform != RuntimePlatform.WindowsPlayer)
 			{
@@ -46,7 +48,8 @@ namespace MOD.Scripts.Core.Movie
 				}
 			}
 
-			Debug.Log($"ModPlayMovie Error: No video file with extension [{string.Join("|", extensionList)}] found at [{pathNoExtension}]");
+			debugErrorMessage = $"Error: No video with extension [{string.Join("|", extensionList)}] found at [{pathNoExtension}(.EXT))]";
+			Debug.Log(debugErrorMessage);
 
 			pathWithExtension = null;
 			return false;
@@ -71,7 +74,7 @@ namespace MOD.Scripts.Core.Movie
 			{
 				case PlayState.Idle:
 					{
-						if(GetFullVideoPath(movieInfo.PathNoExtension, out string pathWithExtension))
+						if(GetFullVideoPath(movieInfo.PathNoExtension, out string pathWithExtension, out _))
 						{
 							videoPlayer = gameObject.AddComponent<VideoPlayer>();
 							videoPlayer.errorReceived += VideoPlayerErrorEventHandler;

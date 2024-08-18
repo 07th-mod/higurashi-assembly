@@ -11,15 +11,16 @@ namespace Assets.Scripts.Core.Scene
 
 		private bool isActive;
 
+		// The input "videoPath" will be used with no modification. Be careful of
+		// path capitalization differences which can occur on Mac/Linux.
 		public static GameVideoPlayer CreateVideoPlayer(GameObject parent, string videoPath, Vector2Int size)
 		{
-			string videoClipPath = AssetManager.Instance.GetVideoClipPath(videoPath);
 			GameObject gameObject = new GameObject("VideoPlayer");
 			gameObject.transform.SetParent(parent.transform);
 			gameObject.transform.localScale = Vector3.one;
 			gameObject.transform.localPosition = new Vector3(0f, 0f, -5f);
 			GameVideoPlayer gameVideoPlayer = gameObject.AddComponent<GameVideoPlayer>();
-			gameVideoPlayer.Initialize(videoClipPath, size);
+			gameVideoPlayer.Initialize(videoPath, size);
 			return gameVideoPlayer;
 		}
 

@@ -7,6 +7,7 @@ using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
+using MOD.Scripts.Core.Movie;
 using MOD.Scripts.Core.Scene;
 using MOD.Scripts.Core.State;
 using MOD.Scripts.UI;
@@ -2705,18 +2706,23 @@ namespace Assets.Scripts.Core.Buriko
 		private BurikoVariable OperationPlayVideo()
 		{
 			SetOperationType("PlayVideo");
-			string path = ReadVariable().StringValue();
+			// If the file is at "Video/mv07.mp4" (Win) or "Video/mv07.webm" (Mac/Linux)
+			// then this should be set to "mv07" (Make sure the string/filename is all lower case so it works properly on Mac/Linux)
+			string videoNameNoExt = ReadVariable().StringValue();
 			int x = ReadVariable().IntValue();
 			int y = ReadVariable().IntValue();
 
-			if(!File.Exists(AssetManager.Instance.GetVideoClipPath(path)))
+			// This will store the path without the extension like "Video/mv07"
+			string videoPathNoExt = Path.Combine(Application.streamingAssetsPath, "Video", videoNameNoExt);
+
+			if (!VideoPlayerMovieRenderer.GetFullVideoPath(videoPathNoExt, out string videoPath, out string debugErrorMessage))
 			{
-				MODToaster.Show($"Video Playback Failed: [{path}] not found!", toastDuration: 7);
+				MODToaster.Show(debugErrorMessage, toastDuration: 7);
 				return BurikoVariable.Null;
 			}
 			else
 			{
-				gameSystem.SceneController.CreateVideoPlayer(path, new Vector2Int(x, y));
+				gameSystem.SceneController.CreateVideoPlayer(videoPath, new Vector2Int(x, y));
 				gameSystem.IsSkipping = false;
 				gameSystem.IsAuto = false;
 				return BurikoVariable.Null;

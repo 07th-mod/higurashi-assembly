@@ -723,9 +723,11 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		public void CreateVideoPlayer(string path, Vector2Int size)
+		// The input "videoPath" will be used with no modification. Be careful of
+		// path capitalization differences which can occur on Mac/Linux.
+		public void CreateVideoPlayer(string videoPath, Vector2Int size)
 		{
-			GameVideoPlayer.CreateVideoPlayer(PanelUpper, path, size).gameObject.layer = LayerMask.NameToLayer("RenderBoth");
+			GameVideoPlayer.CreateVideoPlayer(PanelUpper, videoPath, size).gameObject.layer = LayerMask.NameToLayer("RenderBoth");
 		}
 
 		public void ShakeScene(float speed, int level, int attenuation, int vector, int loopcount, bool isblocking)
