@@ -5,6 +5,7 @@ using UnityEngine;
 using Assets.Scripts.Core;
 using MOD.Scripts.UI;
 using System.Globalization;
+using Assets.Scripts.UI.TitleScreen;
 
 namespace MOD.Scripts.Core.Localization
 {
@@ -182,6 +183,17 @@ namespace MOD.Scripts.Core.Localization
 					if (timeFormatEntry.TextHasValue())
 					{
 						Loc.dateTimeFormat = timeFormatEntry.text;
+					}
+				}
+
+				if (Loc.GetEntry("HouPlusWideMenuButtons", out LocalizationEntry houWideMenuButtons))
+				{
+					if (houWideMenuButtons.TextHasValue())
+					{
+						if(MODUtility.TryParseInvariantCulture(houWideMenuButtons.text, out float opacity))
+						{
+							TitleScreenButton.UseHoverSpriteOnlyForTranslators(opacity > 0, opacity);
+						}
 					}
 				}
 			}

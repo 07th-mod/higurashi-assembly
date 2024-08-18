@@ -25,6 +25,9 @@ namespace Assets.Scripts.UI.TitleScreen
 
 		private string pressedSprite;
 
+		private static bool useHoverSpriteOnlyForTranslator = false;
+		private static float hoverOpacityForTranslators = 0.5f;
+
 		private void OnClick()
 		{
 			GameSystem gameSystem = GameSystem.Instance;
@@ -101,6 +104,17 @@ namespace Assets.Scripts.UI.TitleScreen
 		{
 			button = GetComponent<UIButton>();
 			hoverSprite = button.hoverSprite;
+
+			if (useHoverSpriteOnlyForTranslator)
+			{
+				pressedSprite = hoverSprite;
+				button.hoverSprite = hoverSprite;
+				button.pressedSprite = hoverSprite;
+				button.disabledSprite = hoverSprite;
+				GetComponent<UISprite>().spriteName = hoverSprite;
+				button.hover.a = hoverOpacityForTranslators;
+			}
+
 			pressedSprite = button.pressedSprite;
 			button.hoverSprite = button.normalSprite;
 			button.pressedSprite = button.normalSprite;
@@ -124,6 +138,21 @@ namespace Assets.Scripts.UI.TitleScreen
 					GetComponent<UISprite>().spriteName = button.hoverSprite;
 				}
 			}
+		}
+
+		// MUST BE CALLED BEFORE BUTTONS APPEAR. Has no effect if buttons already on screen.
+		//
+		// On hou+, in the UI file, there are two images for the menu buttons.
+		// One is very wide (button hovered), and one only is as long as the english text
+		// (button not hovered). Translators may be unable to fit the text in the short
+		// button, so I've added a mode which only uses the long button, and uses the engine
+		// to give a fade effect when you hover the button.
+		//
+		// Then translators can use the wide button to fit in more text.
+		public static void UseHoverSpriteOnlyForTranslators(bool useHoverSprite, float hoverOpacity)
+		{
+			useHoverSpriteOnlyForTranslator = useHoverSprite;
+			hoverOpacityForTranslators = hoverOpacity;
 		}
 	}
 }
