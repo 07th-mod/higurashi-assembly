@@ -4,9 +4,7 @@
     <ProjectGuid>{0BA774AA-B2B4-468C-B002-CAA0652C466E}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
     <LangVersion>7.1</LangVersion>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -26,7 +24,13 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
-  <ItemGroup>
+
+  <!-- These options are used when building the DLL for use in the mod-->
+  <PropertyGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
+    <OutputType>Library</OutputType>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
     <Reference Include="UnityEngine">
       <HintPath>DLLs\UnityEngine.dll</HintPath>
     </Reference>
@@ -51,8 +55,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>DLLs\UnityEngine.UI.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="ActiveAnimation.cs" />
     <Compile Include="AnimatedAlpha.cs" />
     <Compile Include="AnimatedColor.cs" />
@@ -71,7 +73,6 @@
     <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
     <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
-    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
     <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
     <Compile Include="MOD.Scripts.Core.Audio\MODAudioSet.cs" />
     <Compile Include="MOD.Scripts.Core.Audio\MODAudioTracking.cs" />
@@ -193,6 +194,7 @@
     <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
     <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
     <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
+    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
     <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
     <Compile Include="BGICompiler.Compiler\OpType.cs" />
     <Compile Include="BMFont.cs" />
@@ -616,6 +618,52 @@
     <Compile Include="UIWidgetContainer.cs" />
     <Compile Include="UIWrapContent.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <!-- End normal DLL items-->
+
+  <!--
+  These options are when building a standalone "Script Compiler" executable,
+  which is used to compile the game scripts on Github Actions.
+
+  NOTE: Visual Studio doesn't properly reload settings when you switch configurations,
+  so you will need to reload the project when you are changing between "Release" and "ScriptCompiler"
+  -->
+  <PropertyGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+    <OutputType>Exe</OutputType>
+    <AssemblyName>HigurashiScriptCompiler</AssemblyName>
+    <DefineConstants>STANDALONE_SCRIPT_COMPILER</DefineConstants>
+    <!-- Output and optimization options -->
+    <OutputPath>bin\ScriptCompiler\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+    <Reference Include="System">
+      <HintPath>DLLs\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>DLLs\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Compile Include="AntlrTest\bgitestLexer.cs" />
+    <Compile Include="AntlrTest\bgitestParser.cs" />
+    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoOperations.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoTextModes.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoValueType.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
+    <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
+    <Compile Include="BGICompiler.Compiler\NoUnityScriptCompiler.cs" />
+    <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
+    <Compile Include="BGICompiler.Compiler\OpType.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <!-- End standalone script compiler items -->
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

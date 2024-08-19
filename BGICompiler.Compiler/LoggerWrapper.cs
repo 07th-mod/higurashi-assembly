@@ -1,13 +1,10 @@
-// Comment out to use Console.WriteLine(...)
-// #define USE_CONSOLE_LOGGING
-
 using System;
 
 namespace BGICompiler.Compiler.Logger
 {
 	class Debug
 	{
-#if USE_CONSOLE_LOGGING
+#if STANDALONE_SCRIPT_COMPILER
 		public static void Log(object message)
 		{
 			print($"INFO", message);
