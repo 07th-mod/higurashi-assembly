@@ -83,7 +83,7 @@ namespace MOD.Scripts.UI
 			{
 				if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
 				{
-					if (Input.GetKeyDown(KeyCode.KeypadEnter))
+					if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
 					{
 						return Action.ToggleFullscreen;
 					}
@@ -370,20 +370,29 @@ namespace MOD.Scripts.UI
 		{
 			if (GetUserAction() is Action action)
 			{
-				if (action == Action.ModMenu)
+				switch(action)
 				{
-					GameSystem.Instance.MainUIController.modMenu.UserToggleVisibility();
-				}
-				else
-				{
-					if (!ModInputHandlingAllowed())
-					{
-						MODToaster.Show($"Please let animation finish first and/or close the menu");
-					}
-					else
-					{
+					case Action.ModMenu:
+						GameSystem.Instance.MainUIController.modMenu.UserToggleVisibility();
+						break;
+
+					// These actions can execute at any time
+					case Action.ToggleFullscreen:
 						ModHandleUserAction(action);
-					}
+						break;
+
+					// These actions can only run at reasonable times (eg. when not in a menu)
+					// to prevent UI and graphical bugs
+					default:
+						if (!ModInputHandlingAllowed())
+						{
+							MODToaster.Show($"Please let animation finish first and/or close the menu");
+						}
+						else
+						{
+							ModHandleUserAction(action);
+						}
+						break;
 				}
 			}
 

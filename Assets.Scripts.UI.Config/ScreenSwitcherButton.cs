@@ -35,6 +35,7 @@ namespace Assets.Scripts.UI.Config
 			if (IsFullscreen)
 			{
 				GameSystem.Instance.GoFullscreen();
+				return;
 			}
 
 			// Check the button's Width is valid. I've seen error messages where the above Height() switch statement states that Width is 0.

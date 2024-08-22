@@ -55,7 +55,7 @@ namespace MOD.Scripts.Core
 					}
 					else
 					{
-						MODToaster.Show($"Failed to set Windowed Resolution properly [currently is {Screen.width}x{Screen.height}] - reverting to fullscreen");
+						MODToaster.Show($"Failed to set Windowed Resolution properly [detected {Screen.width}x{Screen.height}] - reverting to fullscreen");
 						GameSystem.Instance.GoFullscreen();
 					}
 					lastChangeInfo = null;
