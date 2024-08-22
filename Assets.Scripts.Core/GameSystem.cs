@@ -897,14 +897,18 @@ namespace Assets.Scripts.Core
 			if (screenModeSet == -1)
 			{
 				screenModeSet = 0;
+				string source = "Screen.currentResolution";
 				fullscreenResolution = Screen.currentResolution;
 				if (PlayerPrefs.HasKey("fullscreen_width") && PlayerPrefs.HasKey("fullscreen_height") && Screen.fullScreen)
 				{
+					source = "PlayerPrefs[fullscreen_width] and [fullscreen_height]";
 					fullscreenResolution.width = PlayerPrefs.GetInt("fullscreen_width");
 					fullscreenResolution.height = PlayerPrefs.GetInt("fullscreen_height");
 				}
-				Debug.Log("Fullscreen Resolution: " + fullscreenResolution.width + ", " + fullscreenResolution.height);
+				Debug.Log($"LateUpdate Fullscreen Resolution: [{fullscreenResolution.width}, {fullscreenResolution.height}] Source: [{source}]");
 			}
+
+			MOD.Scripts.Core.MODResolutionMonitor.Update();
 		}
 
 		private bool CheckInitialization()
@@ -1068,6 +1072,15 @@ namespace Assets.Scripts.Core
 			}
 		}
 
+		public bool MODWindowedResolutionValid(int width, int height)
+		{
+			Resolution fullScreenResolution = GetFullscreenResolution();
+			return width > 320 &&
+				height > 240 &&
+				width <= fullScreenResolution.width &&
+				height <= fullScreenResolution.height;
+		}
+
 		public Resolution GetFullscreenResolution(bool useOverride = true, bool doLogging = true)
 		{
 			Resolution resolution = new Resolution();
@@ -1102,7 +1115,14 @@ namespace Assets.Scripts.Core
 			// If it's bigger than that, then switch over
 			// Note that this (from what I can tell) gives you the biggest resolution of any of your monitors,
 			// not just the one the game is running under, so it could *also* be wrong, which is why we check both methods
-			if (Screen.resolutions.Length > 0)
+			//
+			// NOTE: On the Higurashi Rei (Ep9) and Hou+ (Ep10) versions of Unity (2019.4.36), Screen.resolutions doesn't work correctly.
+			// The unmodded game for Ep9 and Ep10 works correctly on my laptop, implying the 'stock' fullscreen resolution is correct.
+			// As a result the below "best resolution" code has been disabled for Ep9 and Ep10 (and future chapters too) and the LateUpdate() resolution is used instead.
+			//
+			// See: https://github.com/07th-mod/hou-plus/issues/13
+			const bool doBestResolutionScanning = true;
+			if (doBestResolutionScanning && Screen.resolutions.Length > 0)
 			{
 				int index = 0;
 				Resolution best = Screen.resolutions[0];
