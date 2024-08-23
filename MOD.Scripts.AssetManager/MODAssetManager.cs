@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using UnityEngine;
+using BGICompiler.Compiler.Logger;
 
 class MODCompileRequiredDetector
 {
@@ -122,7 +122,7 @@ class MODCompileRequiredDetector
 		successfullyCompiledScriptNameList.Add(scriptNameNoExtension);
 	}
 
-	public bool SaveScriptInfoAndCheckScriptNeedsCompile(string txtPath, string mgPath)
+	public bool SaveScriptInfoAndCheckScriptNeedsCompile(string txtPath, string mgPath, bool saveOnly=false)
 	{
 		// These variables are only used for printing to logs
 		string textDescription = Path.GetFileName(txtPath);
@@ -131,6 +131,11 @@ class MODCompileRequiredDetector
 		ScriptInfo txt = ScriptInfo.TryGetOrNull(txtPath);
 		ScriptInfo mg = File.Exists(mgPath) ? ScriptInfo.TryGetOrNull(mgPath) : null;
 		newTxtInfoDictionary[txt.name] = txt;
+
+		if(saveOnly)
+		{
+			return true;
+		}
 
 		// If the mg file doensn't exist or can't be accessed, do re-compile
 		if (mg == null)
