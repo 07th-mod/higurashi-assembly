@@ -20,7 +20,8 @@ namespace MOD.Scripts.Core
 
 		private static readonly MODTextureController fixedMODTextureControllerInstance = new MODTextureController();
 
-		public static MODSystem instance => new MODSystem();
+		private static MODSystem _instance;
+		public static MODSystem instance => _instance ?? (_instance = new MODSystem());
 
 		public readonly MODConfig modConfig = fixedMODConfigInstance;
 
