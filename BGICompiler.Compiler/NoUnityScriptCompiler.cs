@@ -24,6 +24,10 @@ namespace BGICompiler.Compiler
 
 		private static bool CompileFolder(string srcDir, string destDir)
 		{
+			// This is needed to generate the txtInfoDictionary.json telling the game when
+			// scripts need to be re-compiled
+			MODCompileRequiredDetector detector = new MODCompileRequiredDetector(destDir);
+
 			string[] txtPaths = Directory.GetFiles(srcDir, "*.txt");
 			int numTotal = txtPaths.Length;
 
@@ -41,6 +45,8 @@ namespace BGICompiler.Compiler
 					Debug.Log($"Compiling [{progress}/{numTotal}] {txtPath} -> {mgPath}...");
 					new BGItoMG(txtPath, mgPath);
 					numPass++;
+					detector.SaveScriptInfoAndCheckScriptNeedsCompile(txtPath, mgPath, saveOnly: true);
+					detector.MarkScriptCompiled(txtPathNoExt);
 				}
 				catch (Exception e)
 				{
@@ -48,6 +54,8 @@ namespace BGICompiler.Compiler
 					numFail++;
 				}
 			}
+
+			detector.Save();
 
 			return SaveCompileStatus(numTotal, numPass, numFail);
 		}
