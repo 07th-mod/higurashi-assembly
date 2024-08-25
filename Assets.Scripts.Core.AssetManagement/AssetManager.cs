@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
+using MOD.ImageMapping;
 using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
@@ -42,11 +43,19 @@ namespace Assets.Scripts.Core.AssetManagement
 		public readonly string nameEN;
 		public readonly string nameJP;
 		public readonly string[] paths;
+		private Dictionary<string, MODImageMapping> pathToImageMapping;
+
 		public PathCascadeList(string nameEN, string nameJP, string[] paths)
 		{
 			this.nameEN = nameEN;
 			this.nameJP = nameJP;
 			this.paths = paths;
+
+			pathToImageMapping = new Dictionary<string, MODImageMapping>();
+			foreach (string path in paths)
+			{
+				LoadMappingFromJSON(path);
+			}
 		}
 
 		public bool PrimaryFolder(out string primaryFolder)
@@ -69,6 +78,29 @@ namespace Assets.Scripts.Core.AssetManagement
 			}
 
 			return Directory.Exists(Path.Combine(rootPath, primaryFolder));
+		}
+
+		public bool GetImageMapping(string artSetPath, out MODImageMapping mapping)
+		{
+			return pathToImageMapping.TryGetValue(artSetPath, out mapping);
+		}
+
+		private void LoadMappingFromJSON(string path)
+		{
+			string mappingPath = "";
+			try
+			{
+				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(path, "mapping.json", out mappingPath))
+				{
+					pathToImageMapping[path] = MODImageMapping.GetVoiceBasedMapping(mappingPath);
+					// TODO: remove this once checked its working
+					Debug.Log($"Successfully loaded mapping for {path} from {mappingPath} JSON file");
+				}
+			}
+			catch(Exception e)
+			{
+				Debug.Log($"Failed to load mapping for {path} from {mappingPath} JSON file:\n{e}");
+			}
 		}
 	}
 
