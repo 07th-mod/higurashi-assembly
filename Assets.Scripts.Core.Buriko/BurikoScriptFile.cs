@@ -2604,9 +2604,13 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("ModPlayVoiceLS");
 			int channel = ReadVariable().IntValue();
 			int character = ReadVariable().IntValue();
-			string filename = ReadVariable().StringValue() + ".ogg";
+			string filenameNoExt = ReadVariable().StringValue();
 			float volume = (float)ReadVariable().IntValue() / 128f;
 			bool flag = ReadVariable().BoolValue();
+
+			AssetManager.Instance.SetLastVoiceFromMODPlayVoiceLS(filenameNoExt);
+
+			string filename = filenameNoExt + ".ogg";
 			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			if ((MODSystem.instance.modSceneController.MODLipSyncIsEnabled() && !gameSystem.IsSkipping) & flag)
 			{

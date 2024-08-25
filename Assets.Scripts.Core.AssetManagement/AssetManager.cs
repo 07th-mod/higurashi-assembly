@@ -102,6 +102,8 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
+		private string lastVoiceFromMODPlayVoiceLSNoExt = null;
+
 		public ScriptCompileStatus compileStatus = new ScriptCompileStatus();
 
 		/// <summary>
@@ -217,6 +219,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			}
 
 			return false;
+		}
+
+		public void SetLastVoiceFromMODPlayVoiceLS(string voicePathWithoutExtension)
+		{
+			lastVoiceFromMODPlayVoiceLSNoExt = voicePathWithoutExtension;
 		}
 
 		/// <summary>
