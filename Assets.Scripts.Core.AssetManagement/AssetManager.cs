@@ -36,29 +36,80 @@ namespace Assets.Scripts.Core.AssetManagement
 		}
 	}
 
+	public class CascadePath
+	{
+		// The 'normal' path
+		// For example, if the path cascade is "OGBackgrounds:OGSprites:CG"
+		// Then there will be 3 CascadePath objects, with 'path' set to "OGBackgrounds", "OGSprites", and "CG" respectively
+		public readonly string folderPath;
+
+		// Path containing the "mapping.json" and mapped images. Will be the same as the normal path with the suffix "Mapping"
+		public readonly string mappingFolderPath;
+
+		// Contains data from the "mapping.json" if it exists, otherwise set to null.
+		// Used to determine which mod image corresponds to which image in the mapping folder
+		private MODImageMapping mapping;
+
+		public CascadePath(string folderPath)
+		{
+			this.folderPath = folderPath;
+			this.mappingFolderPath = $"{folderPath}Mapping";
+			if(LoadMappingFromJSON(mappingFolderPath, out MODImageMapping mapping))
+			{
+				this.mapping = mapping;
+			}
+		}
+
+		public bool GetImageMapping(out MODImageMapping retMapping)
+		{
+			if(mapping == null)
+			{
+				retMapping = mapping;
+				return true;
+			}
+
+			retMapping = null;
+			return false;
+		}
+
+		private static bool LoadMappingFromJSON(string mappingFolderPath, out MODImageMapping mapping)
+		{
+			string mappingPath = "";
+			try
+			{
+				Debug.Log($"Checking for mapping.json inside {mappingFolderPath} folder...");
+
+				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(mappingFolderPath, "mapping.json", out mappingPath))
+				{
+					mapping = MODImageMapping.GetVoiceBasedMapping(mappingPath);
+					// TODO: remove this once checked its working
+					Debug.Log($"Successfully loaded mapping from {mappingPath} JSON file");
+					return true;
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.Log($"Failed to load mapping from {mappingPath} JSON file:\n{e}");
+			}
+
+			mapping = null;
+			return false;
+		}
+	}
+
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find an asset
 	/// </summary>
 	public class PathCascadeList {
-		const string mappingFolderSuffix = "Mapping";
 		public readonly string nameEN;
 		public readonly string nameJP;
-		public readonly string[] paths;
-
-		// TODO: 'upgrade' paths variable rather than this dict and getter functions
-		private Dictionary<string, MODImageMapping> pathToImageMapping;
+		public readonly CascadePath[] paths;
 
 		public PathCascadeList(string nameEN, string nameJP, string[] paths)
 		{
 			this.nameEN = nameEN;
 			this.nameJP = nameJP;
-			this.paths = paths;
-
-			pathToImageMapping = new Dictionary<string, MODImageMapping>();
-			foreach (string path in paths)
-			{
-				LoadMappingFromJSON(path);
-			}
+			this.paths = paths.Select(p => new CascadePath(p)).ToArray();
 		}
 
 		public bool PrimaryFolder(out string primaryFolder)
@@ -69,7 +120,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				return false;
 			}
 
-			primaryFolder = paths[0];
+			primaryFolder = paths[0].folderPath;
 			return true;
 		}
 
@@ -83,32 +134,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			return Directory.Exists(Path.Combine(rootPath, primaryFolder));
 		}
 
-		public bool GetImageMapping(string artSetPath, out MODImageMapping mapping)
-		{
-			return pathToImageMapping.TryGetValue(artSetPath, out mapping);
-		}
-
-		public static string GetMappingFolder(string cascadeFolderPath) => $"pathCascadeFolder{mappingFolderSuffix}";
-
-		private void LoadMappingFromJSON(string cascadeFolderPath)
-		{
-			string mappingPath = "";
-			try
-			{
-				Debug.Log($"Checking for mapping.json inside {GetMappingFolder(cascadeFolderPath)} folder...");
-
-				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(GetMappingFolder(cascadeFolderPath), "mapping.json", out mappingPath))
-				{
-					pathToImageMapping[cascadeFolderPath] = MODImageMapping.GetVoiceBasedMapping(mappingPath);
-					// TODO: remove this once checked its working
-					Debug.Log($"Successfully loaded mapping for {cascadeFolderPath} from {mappingPath} JSON file");
-				}
-			}
-			catch(Exception e)
-			{
-				Debug.Log($"Failed to load mapping for {cascadeFolderPath} from {mappingPath} JSON file:\n{e}");
-			}
-		}
+		public IEnumerable<string> GetPlainPaths() => paths.Select(p => p.folderPath);
 	}
 
 	public class AssetManager {
@@ -283,10 +309,10 @@ namespace Assets.Scripts.Core.AssetManagement
 				}
 			}
 
-			foreach (var artSetPath in artset.paths)
+			foreach (CascadePath cascadePath in artset.paths)
 			{
 				// If console backgrounds are enabled, don't check OGBackgrounds
-				if (backgroundSetIndex == 0 && artSetPath == "OGBackgrounds")
+				if (backgroundSetIndex == 0 && cascadePath.folderPath == "OGBackgrounds")
 				{
 					continue;
 				}
@@ -296,20 +322,20 @@ namespace Assets.Scripts.Core.AssetManagement
 
 				// Check if the artset has an ImageMapping, if so, map the input asset
 				// before looking for the file on disk
-				string subFolder = artSetPath;
+				string subFolder = cascadePath.folderPath;
 				string relativePath = name;
 				string currentScript = BurikoScriptSystem.Instance.GetCurrentScript().Filename;
 				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
 
 				// TODO: remove debug print
-				Debug.Log($"Looking up {artSetPath} - {currentScript} - {lastPlayedVoice ?? "[null]"} - {name}");
-				if (artset.GetImageMapping(artSetPath, out MODImageMapping mapping))
+				Debug.Log($"Looking up {cascadePath.folderPath} - {currentScript} - {lastPlayedVoice ?? "[null]"} - {name}");
+				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
 					if(mapping.GetOGImage(currentScript, lastPlayedVoice, name, out string ogImagePath, out string debugInfo))
 					{
 						// TODO: remove debug print
 						Debug.Log($"Successfully got mapping {relativePath}->{ogImagePath} from mapping - Source: {debugInfo}");
-						subFolder = PathCascadeList.GetMappingFolder(artSetPath);
+						subFolder = cascadePath.mappingFolderPath;
 						relativePath = ogImagePath;
 					}
 				}
@@ -621,7 +647,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 			// Use the first file that exists. If none exist, return the last one.
 			string relativePath = "INVALID ASSET PATH";
-			foreach (string assetSubFolder in cascade.paths)
+			foreach (string assetSubFolder in cascade.GetPlainPaths())
 			{
 				relativePath = Path.Combine(assetSubFolder, filename);
 				if (File.Exists(Path.Combine(assetPath, relativePath)))

@@ -2743,7 +2743,7 @@ namespace Assets.Scripts.Core.Buriko
 			PathCascadeList cascadeList = ReadPathCascadeFromArgs();
 
 			MODAudioSet.Instance.AddBGMSet(cascadeList);
-			foreach (string path in cascadeList.paths)
+			foreach (string path in cascadeList.GetPlainPaths())
 			{
 				MODBGMInfo.LoadFromJSON(path);
 			}

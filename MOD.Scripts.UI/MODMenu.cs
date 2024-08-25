@@ -123,11 +123,11 @@ namespace MOD.Scripts.UI
 				$"AltBGM: {GetGlobal("GAltBGM")}\n" +
 				$"AltBGMFlow: {GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(GetGlobal("GAltBGMflow"))})\n" +
 				$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
-				$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n\n" +
+				$"BGM Cascade: [{string.Join(":", BGMCascade.GetPlainPaths().ToArray())}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n\n" +
 				$"AltSE:  {GetGlobal("GAltSE")}\n" +
 				$"AltSEFlow: {GetGlobal("GAltSEflow")}\n" +
 				$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
-				$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
+				$"SE Cascade: [{string.Join(":", SECascade.GetPlainPaths().ToArray())}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
 				$"Voice: {GetGlobal("GAltVoice")}\n" +
 				$"Priority: {GetGlobal("GAltVoicePriority")}\n\n" +
 				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
