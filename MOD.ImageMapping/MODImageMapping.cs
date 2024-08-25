@@ -125,7 +125,7 @@ namespace MOD.ImageMapping
 			return new MODImageMapping(DeserializeFromJSONFile<ImageMappingFromJSON>(path));
 		}
 
-		public bool GetOGImage(string scriptFileName, string lastPlayedVoice, string modImagePath, out string ogImagePath, out string debug_info)
+		public bool GetOGImage(string scriptFileName, string lastPlayedVoice, string modImagePath, out string ogImagePath, out string debugInfo)
 		{
 			// Since JSON doesn't support 'null' keys, lastPlayedVoice to the empty string ("") before continuing
 			if(lastPlayedVoice == null)
@@ -136,25 +136,25 @@ namespace MOD.ImageMapping
 			// 1) Try to get from voice database
 			if (voiceDatabase.GetVoiceMapping(scriptFileName, lastPlayedVoice, modImagePath, out ogImagePath))
 			{
-				debug_info = "Source: Voice Mapping";
+				debugInfo = "Source: Voice Mapping";
 				return true;
 			}
 
 			// 2) Try script fallback
 			if (scriptFallback.GetModToOGMapping(scriptFileName, modImagePath, out ogImagePath))
 			{
-				debug_info = "Source: Script Fallback";
+				debugInfo = "Source: Script Fallback";
 				return true;
 			}
 
 			// 3) Try global fallback
 			if(globalFallback.GetOGImage(modImagePath,out ogImagePath))
 			{
-				debug_info = "Source: Global Fallback";
+				debugInfo = "Source: Global Fallback";
 				return true;
 			}
 
-			debug_info = "No match found";
+			debugInfo = "No match found";
 			ogImagePath = null;
 			return false;
 		}
