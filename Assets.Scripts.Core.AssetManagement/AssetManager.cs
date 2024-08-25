@@ -198,7 +198,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// <param name="relativePath">File path relative to subFolder</param>
 		/// <param name="filePath">Output filepath - only valid if function returns true</param>
 		/// <returns></returns>
-		private bool CheckStreamingAssetsPathExistsInner(string subFolder, string relativePath, out string filePath)
+		public bool CheckStreamingAssetsPathExistsInner(string subFolder, string relativePath, out string filePath)
 		{
 			filePath = Path.Combine(Path.Combine(assetPath, subFolder), relativePath);
 			if (File.Exists(filePath))
@@ -284,7 +284,28 @@ namespace Assets.Scripts.Core.AssetManagement
 					continue;
 				}
 
-				if (CheckStreamingAssetsPathExists(artSetPath, name, out string filePath))
+				// TODO: need to make sure "lastVoice" is correctly set, even after loading a save
+				// e.g. need to save the last played voice to the save file!
+
+				// Check if the artset has an ImageMapping, if so, map the input asset
+				// before looking for the file on disk
+				string relativePath = name;
+				string currentScript = BurikoScriptSystem.Instance.GetCurrentScript().Filename;
+				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
+
+				// TODO: remove debug print
+				Debug.Log($"Looking up {artSetPath} - {currentScript} - {lastPlayedVoice ?? "[null]"} - {name}");
+				if (artset.GetImageMapping(artSetPath, out MODImageMapping mapping))
+				{
+					if(mapping.GetOGImage(currentScript, lastPlayedVoice, name, out string ogImagePath, out string debugInfo))
+					{
+						// TODO: remove debug print
+						Debug.Log($"Successfully got mapping {relativePath}->{ogImagePath} from mapping - Source: {debugInfo}");
+						relativePath = ogImagePath;
+					}
+				}
+
+				if (CheckStreamingAssetsPathExists(artSetPath, relativePath, out string filePath))
 				{
 					subFolderUsed = artSetPath;
 					return filePath;
