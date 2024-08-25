@@ -64,12 +64,12 @@ namespace Assets.Scripts.Core.AssetManagement
 		{
 			if(mapping == null)
 			{
-				retMapping = mapping;
-				return true;
+				retMapping = null;
+				return false;
 			}
 
-			retMapping = null;
-			return false;
+			retMapping = mapping;
+			return true;
 		}
 
 		private static bool LoadMappingFromJSON(string mappingFolderPath, out MODImageMapping mapping)
