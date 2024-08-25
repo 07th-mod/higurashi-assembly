@@ -324,14 +324,14 @@ namespace Assets.Scripts.Core.AssetManagement
 				// before looking for the file on disk
 				string subFolder = cascadePath.folderPath;
 				string relativePath = name;
-				string currentScript = BurikoScriptSystem.Instance.GetCurrentScript().Filename;
+				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
 				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
 
 				// TODO: remove debug print
-				Debug.Log($"Looking up {cascadePath.folderPath} - {currentScript} - {lastPlayedVoice ?? "[null]"} - {name}");
+				Debug.Log($"Looking up {cascadePath.folderPath} - {scriptNameNoExt} - {lastPlayedVoice ?? "[null]"} - {name}");
 				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
-					if(mapping.GetOGImage(currentScript, lastPlayedVoice, name, out string ogImagePath, out string debugInfo))
+					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, name, out string ogImagePath, out string debugInfo))
 					{
 						// TODO: remove debug print
 						Debug.Log($"Successfully got mapping {relativePath}->{ogImagePath} from mapping - Source: {debugInfo}");
