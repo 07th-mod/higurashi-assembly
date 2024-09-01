@@ -240,5 +240,10 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuSupportCompileFailed_22 => Get("MODMenuSupportCompileFailed_22", "The following scripts failed compilation:");
 		public static string MODMenuSupportCompileFailed_23 => Get("MODMenuSupportCompileFailed_23", "Continue playing anyway (NOT RECOMMENDED)");
 		public static string MODMenuSupportCompileFailed_24 => Get("MODMenuSupportCompileFailed_24", "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly.");
+
+		public static string MusicBoxRepeat => Get("MusicBoxRepeat", "Repeat");
+		public static string MusicBoxShuffle => Get("MusicBoxShuffle", "Shuffle");
+		public static string MusicBoxPlayAll => Get("MusicBoxPlayAll", "Play All");
+		public static string MusicBoxTitle => Get("MusicBoxTitle", "[Title]");
 	}
 }

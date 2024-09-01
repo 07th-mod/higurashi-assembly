@@ -79,6 +79,35 @@ namespace MOD.Scripts.Core.Localization
 				text: "No new tips available",
 				textJP: "入手ＴＩＰＳはありません"
 			);
+
+			// Hou+ Music Box Text
+			addFallbackEntry(
+				name: "MusicBoxRepeat",
+				comment: "Music box button (hou+)",
+				text: "Repeat",
+				textJP: "1曲リピート"
+			);
+
+			addFallbackEntry(
+				name: "MusicBoxShuffle",
+				comment: "Music box button (hou+)",
+				text: "Shuffle",
+				textJP: "気まぐれ演奏"
+			);
+
+			addFallbackEntry(
+				name: "MusicBoxPlayAll",
+				comment: "Music box button (hou+)",
+				text: "Play All",
+				textJP: "全曲演奏"
+			);
+
+			addFallbackEntry(
+				name: "MusicBoxTitle",
+				comment: "Music box button (hou+)",
+				text: "[Title]",
+				textJP: "【Title】"
+			);
 		}
 
 		private static void addFallbackEntry(string name, string comment, string text, string textJP)
@@ -147,6 +176,12 @@ namespace MOD.Scripts.Core.Localization
 		{
 			initializeAttempted = true;
 			string localizationPath = Path.Combine(MODSystem.BaseDirectory, "localization.json");
+
+			// For Hou+, also support loading from "HigurashiEp10_Data\StreamingAssets\Data" (most of the .json are in that folder)
+			if (!File.Exists(localizationPath))
+			{
+				localizationPath = Path.Combine(Application.streamingAssetsPath, "Data", "localization.json");
+			}
 
 			if (!File.Exists(localizationPath))
 			{

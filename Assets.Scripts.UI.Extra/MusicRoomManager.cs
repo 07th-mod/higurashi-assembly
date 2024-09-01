@@ -3,6 +3,7 @@ using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Scripts.Core.Localization;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -174,15 +175,15 @@ namespace Assets.Scripts.UI.Extra
 		{
 			if (playMode == PlayMode.Repeat)
 			{
-				ModeButtonText.text = (isEnglish ? "Repeat" : "1曲リピ\u30fcト");
+				ModeButtonText.text = Loc.MusicBoxRepeat;
 			}
 			if (playMode == PlayMode.Shuffle)
 			{
-				ModeButtonText.text = (isEnglish ? "Shuffle" : "気まぐれ演奏");
+				ModeButtonText.text = Loc.MusicBoxShuffle;
 			}
 			if (playMode == PlayMode.Continuous)
 			{
-				ModeButtonText.text = (isEnglish ? "Play All" : "全曲演奏");
+				ModeButtonText.text = Loc.MusicBoxRepeat;
 			}
 		}
 
@@ -303,7 +304,7 @@ namespace Assets.Scripts.UI.Extra
 				return;
 			}
 			ClearTrackInfo();
-			TitleHeading.text = (isEnglish ? "[Title]" : "【Title】");
+			TitleHeading.text = Loc.MusicBoxTitle;
 			if (musicRoomEntry.Details1Heading != null)
 			{
 				Heading1Title.text = (isEnglish ? ("[" + musicRoomEntry.Details1Heading.En + "]") : ("【" + musicRoomEntry.Details1Heading.Jp + "】"));
