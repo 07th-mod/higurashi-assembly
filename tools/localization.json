@@ -679,6 +679,26 @@
 		},
 		"MODMenuSupportCompileFailed_24": {
 			"text": "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly."
+		},
+		"MusicBoxRepeat": {
+			"text": "Repeat",
+			"textJP": "1曲リピート",
+			"comment": "Music box button (hou+)"
+		},
+		"MusicBoxShuffle": {
+			"text": "Shuffle",
+			"textJP": "気まぐれ演奏",
+			"comment": "Music box button (hou+)"
+		},
+		"MusicBoxPlayAll": {
+			"text": "PlayAll",
+			"textJP": "全曲演奏",
+			"comment": "Music box button (hou+)"
+		},
+		"MusicBoxTitle": {
+			"text": "[Title]",
+			"textJP": "【Title】",
+			"comment": "Music box button (hou+)"
 		}
 	}
 }
