@@ -30,7 +30,10 @@ namespace MOD.Scripts.Core.Movie
 		public bool GetFullVideoPath(string pathNoExtension, out string pathWithExtension)
 		{
 			string[] extensionList = WindowsExtensionsList;
-			if (Application.platform != RuntimePlatform.WindowsPlayer)
+			// For now, assume Proton/Wine does not support .mp4 playback. See:
+			// - https://github.com/07th-mod/hou-plus/issues/12
+			// - https://github.com/07th-mod/higurashi-assembly/commit/67746c80b14b795a0a9cdd8caa06d651519e28bc
+			if (Application.platform != RuntimePlatform.WindowsPlayer || MODSystem.instance.IsWine)
 			{
 				extensionList = MacLinuxExtensionsList;
 			}
