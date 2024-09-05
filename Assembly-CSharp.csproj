@@ -4,9 +4,7 @@
     <ProjectGuid>{0BA774AA-B2B4-468C-B002-CAA0652C466E}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
     <LangVersion>7.3</LangVersion>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -27,19 +25,30 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
+  <!-- These files are always included, regardless of configuration -->
   <ItemGroup>
+    <Reference Include="System.Xml">
+      <HintPath>DLLs\System.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="netstandard">
       <HintPath>DLLs\netstandard.dll</HintPath>
     </Reference>
     <Reference Include="System.Collections.Generic">
       <HintPath>DLLs\mscorlib.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>DLLs\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <!-- End always included files -->
+
+  <!-- These options are used when building the DLL for use in the mod-->
+  <PropertyGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
+    <OutputType>Library</OutputType>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
     <Reference Include="System">
       <HintPath>DLLs\System.dll</HintPath>
     </Reference>
@@ -88,14 +97,9 @@
     <Reference Include="Unity.TextMeshPro">
       <HintPath>DLLs\Unity.TextMeshPro.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>DLLs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UnityWebRequestWWWModule">
       <HintPath>DLLs\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="ActiveAnimation.cs" />
     <Compile Include="AnimatedAlpha.cs" />
     <Compile Include="AnimatedColor.cs" />
@@ -241,6 +245,7 @@
     <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
     <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
     <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
+    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
     <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
     <Compile Include="BGICompiler.Compiler\OpType.cs" />
     <Compile Include="BMFont.cs" />
@@ -285,6 +290,7 @@
     <Compile Include="MOD.Scripts.Core\MODLocalization.cs" />
     <Compile Include="MOD.Scripts.Core\MODLocalizationData.cs" />
     <Compile Include="MOD.Scripts.Core\MODLogger.cs" />
+    <Compile Include="MOD.Scripts.Core\MODResolutionMonitor.cs" />
     <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
     <Compile Include="MOD.Scripts.Core\MODUtility.cs" />
     <Compile Include="MOD.Scripts.UI.ChapterJump\MODChapterJumpController.cs" />
@@ -440,6 +446,53 @@
     <Compile Include="UIWidgetContainer.cs" />
     <Compile Include="UIWrapContent.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <!-- End normal DLL items-->
+
+  <!--
+  These options are when building a standalone "Script Compiler" executable,
+  which is used to compile the game scripts on Github Actions.
+
+  NOTE: Visual Studio doesn't properly reload settings when you switch configurations,
+  so you will need to reload the project when you are changing between "Release" and "ScriptCompiler"
+  -->
+  <PropertyGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+    <OutputType>Exe</OutputType>
+    <AssemblyName>HigurashiScriptCompiler</AssemblyName>
+    <DefineConstants>STANDALONE_SCRIPT_COMPILER</DefineConstants>
+    <!-- Output and optimization options -->
+    <OutputPath>bin\ScriptCompiler\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+    <Reference Include="System">
+      <HintPath>DLLs\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>DLLs\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Compile Include="AntlrTest\bgitestLexer.cs" />
+    <Compile Include="AntlrTest\bgitestParser.cs" />
+    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoOperations.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoTextModes.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoValueType.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
+    <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
+    <Compile Include="BGICompiler.Compiler\NoUnityScriptCompiler.cs" />
+    <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
+    <Compile Include="BGICompiler.Compiler\OpType.cs" />
+    <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <!-- End standalone script compiler items -->
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

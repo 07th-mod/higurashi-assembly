@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
+using BGICompiler.Compiler.Logger;
 
 namespace BGICompiler.Compiler
 {
