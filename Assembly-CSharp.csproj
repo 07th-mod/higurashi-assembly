@@ -4,9 +4,7 @@
     <ProjectGuid>{0BA774AA-B2B4-468C-B002-CAA0652C466E}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
     <LangVersion>7.1</LangVersion>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -26,245 +24,15 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
+
+  <!-- These files are always included, regardless of configuration -->
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>DLLs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>DLLs\System.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>DLLs\System.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml">
       <HintPath>DLLs\System.Xml.dll</HintPath>
     </Reference>
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="NVorbis">
-      <HintPath>DLLs\NVorbis.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>DLLs\UnityEngine.UI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ActiveAnimation.cs" />
-    <Compile Include="AnimatedAlpha.cs" />
-    <Compile Include="AnimatedColor.cs" />
-    <Compile Include="AnimatedWidget.cs" />
-    <Compile Include="AnimationOrTween\Direction.cs" />
-    <Compile Include="AnimationOrTween\DisableCondition.cs" />
-    <Compile Include="AnimationOrTween\EnableCondition.cs" />
-    <Compile Include="AnimationOrTween\Trigger.cs" />
-    <Compile Include="AntlrTest\bgitestLexer.cs" />
-    <Compile Include="AntlrTest\bgitestParser.cs" />
-    <Compile Include="Assets.Scripts.Core.AssetManagement\AssetManager.cs" />
-    <Compile Include="Assets.Scripts.Core.AssetManagement\PacArchive.cs" />
-    <Compile Include="Assets.Scripts.Core.AssetManagement\PacEntity.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioController.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioFinishCallback.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
-    <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
-    <Compile Include="MOD.Scripts.Core.Audio\MODAudioSet.cs" />
-    <Compile Include="MOD.Scripts.Core.Audio\MODAudioTracking.cs" />
-    <Compile Include="Assets.Scripts.Core.Audio\OnFinishLoad.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoObjectConverter.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoReference.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.Util\IBurikoObject.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoInt.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoMtnCtrlElement.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoString.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoVector.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMemory.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMemoryEntry.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoOperations.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoSaveManager.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoScriptFile.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoScriptSystem.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoStackEntry.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoTextModes.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoValueType.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\BurikoVariable.cs" />
-    <Compile Include="Assets.Scripts.Core.Buriko\SaveEntry.cs" />
-    <Compile Include="Assets.Scripts.Core.History\HistoryButton.cs" />
-    <Compile Include="Assets.Scripts.Core.History\HistoryLine.cs" />
-    <Compile Include="Assets.Scripts.Core.History\HistoryTextButton.cs" />
-    <Compile Include="Assets.Scripts.Core.History\HistoryWindow.cs" />
-    <Compile Include="Assets.Scripts.Core.History\TextHistory.cs" />
-    <Compile Include="Assets.Scripts.Core.Interfaces\IScriptInterpreter.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\BlackBars.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\FilmEffector.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\Layer.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\LayerOld.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\LayerPool.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\MtnCtrlElement.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\Scene.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\SceneController.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\SceneControllerOld.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\SceneOld.cs" />
-    <Compile Include="Assets.Scripts.Core.Scene\Shaker.cs" />
-    <Compile Include="Assets.Scripts.Core.State\IGameState.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateChapterJump.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateChapterPreview.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateChapterScreen.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateDialogPrompt.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateExtraScreen.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateHistory.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateNormal.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateSaveLoad.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateTitle.cs" />
-    <Compile Include="Assets.Scripts.Core.State\StateViewTips.cs" />
-    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievement.cs" />
-    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievements.cs" />
-    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievement_t.cs" />
-    <Compile Include="Assets.Scripts.Core.SteamWorks\SteamController.cs" />
-    <Compile Include="Assets.Scripts.Core.SteamWorks\SteamManager.cs" />
-    <Compile Include="Assets.Scripts.Core.TextWindow\FaceController.cs" />
-    <Compile Include="Assets.Scripts.Core.TextWindow\TextCharacter.cs" />
-    <Compile Include="Assets.Scripts.Core.TextWindow\TextController.cs" />
-    <Compile Include="Assets.Scripts.Core\GameState.cs" />
-    <Compile Include="Assets.Scripts.Core\GameSystem.cs" />
-    <Compile Include="Assets.Scripts.Core\KeyHook.cs" />
-    <Compile Include="Assets.Scripts.Core\LayerAlignment.cs" />
-    <Compile Include="Assets.Scripts.Core\Logger.cs" />
-    <Compile Include="Assets.Scripts.Core\LoggingLevel.cs" />
-    <Compile Include="Assets.Scripts.Core\LogOnMainThread.cs" />
-    <Compile Include="Assets.Scripts.Core\MGHelper.cs" />
-    <Compile Include="Assets.Scripts.Core\OnFinishWait.cs" />
-    <Compile Include="Assets.Scripts.Core\PreparedAction.cs" />
-    <Compile Include="Assets.Scripts.Core\StateEntry.cs" />
-    <Compile Include="Assets.Scripts.Core\Wait.cs" />
-    <Compile Include="Assets.Scripts.Core\WaitTypes.cs" />
-    <Compile Include="Assets.Scripts.UI.CGGallery\GalleryButton.cs" />
-    <Compile Include="Assets.Scripts.UI.CGGallery\GalleryManager.cs" />
-    <Compile Include="Assets.Scripts.UI.ChapterJump\ChapterJumpButton.cs" />
-    <Compile Include="Assets.Scripts.UI.ChapterJump\ChapterJumpManager.cs" />
-    <Compile Include="Assets.Scripts.UI.ChapterPreview\ChapterPreviewButton.cs" />
-    <Compile Include="Assets.Scripts.UI.ChapterPreview\ChapterPreviewManager.cs" />
-    <Compile Include="Assets.Scripts.UI.ChapterScreen\ChapterButton.cs" />
-    <Compile Include="Assets.Scripts.UI.ChapterScreen\ChapterScreen.cs" />
-    <Compile Include="Assets.Scripts.UI.Choice\ChoiceButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Choice\ChoiceController.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ArrowButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ButtonRefresher.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ConfigButtonType.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ConfigManager.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ConfigSlider.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ImageRefresher.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\ScreenSwitcherButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\SwitchButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Config\SwitchButtonObj.cs" />
-    <Compile Include="Assets.Scripts.UI.Extra\ExtraButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Extra\ExtraManager.cs" />
-    <Compile Include="Assets.Scripts.UI.Menu\MenuUIButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Prompt\DialogCallback.cs" />
-    <Compile Include="Assets.Scripts.UI.Prompt\PromptButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Prompt\PromptController.cs" />
-    <Compile Include="Assets.Scripts.UI.Prompt\PromptType.cs" />
-    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadButton.cs" />
-    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadEntry.cs" />
-    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadManager.cs" />
-    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadPage.cs" />
-    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadQSave.cs" />
-    <Compile Include="Assets.Scripts.UI.Tips\TipsButton.cs" />
-    <Compile Include="Assets.Scripts.UI.Tips\TipsData.cs" />
-    <Compile Include="Assets.Scripts.UI.Tips\TipsDataEntry.cs" />
-    <Compile Include="Assets.Scripts.UI.Tips\TipsDataGroup.cs" />
-    <Compile Include="Assets.Scripts.UI.Tips\TipsEntry.cs" />
-    <Compile Include="Assets.Scripts.UI.Tips\TipsManager.cs" />
-    <Compile Include="Assets.Scripts.UI.TitleScreen\TitleScreen.cs" />
-    <Compile Include="Assets.Scripts.UI.TitleScreen\TitleScreenButton.cs" />
-    <Compile Include="Assets.Scripts.UI\MainUIController.cs" />
-    <Compile Include="Assets.Scripts.UI\MainWindowSlideBox.cs" />
-    <Compile Include="Assets.Scripts.UI\SlideBoxButton.cs" />
-    <Compile Include="Assets.Scripts.UI\SlideButtonType.cs" />
-    <Compile Include="Back.cs" />
-    <Compile Include="BetterList.cs" />
-    <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
-    <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
-    <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
-    <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
-    <Compile Include="BGICompiler.Compiler\OpType.cs" />
-    <Compile Include="BMFont.cs" />
-    <Compile Include="BMGlyph.cs" />
-    <Compile Include="BMSymbol.cs" />
-    <Compile Include="Bounce.cs" />
-    <Compile Include="ByteReader.cs" />
-    <Compile Include="Circ.cs" />
-    <Compile Include="CLZF2.cs" />
-    <Compile Include="ConfigButton.cs" />
-    <Compile Include="Cubic.cs" />
-    <Compile Include="DestroySelf.cs" />
-    <Compile Include="Ease.cs" />
-    <Compile Include="EaseDelegate.cs" />
-    <Compile Include="Elastic.cs" />
-    <Compile Include="EnableCameraDepthInForward.cs" />
-    <Compile Include="EventDelegate.cs" />
-    <Compile Include="Expo.cs" />
-    <Compile Include="iTween.cs" />
-    <Compile Include="LanguageSelection.cs" />
-    <Compile Include="LeanTween.cs" />
-    <Compile Include="LeanTweenType.cs" />
-    <Compile Include="Linear.cs" />
-    <Compile Include="Localization.cs" />
-    <Compile Include="LTBezier.cs" />
-    <Compile Include="LTBezierPath.cs" />
-    <Compile Include="LTDescr.cs" />
-    <Compile Include="LTEvent.cs" />
-    <Compile Include="LTGUI.cs" />
-    <Compile Include="LTRect.cs" />
-    <Compile Include="LTSpline.cs" />
-    <Compile Include="MenuUIController.cs" />
-    <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />
-    <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
-    <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
-    <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
-    <Compile Include="MOD.Scripts.Core.Movie\IMovieRenderer.cs" />
-    <Compile Include="MOD.Scripts.Core.Movie\MODApplyToMaterial.cs" />
-    <Compile Include="MOD.Scripts.Core.Movie\MovieInfo.cs" />
-    <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
-    <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
-    <Compile Include="MOD.Scripts.Core.Scene\MODLipsyncCache.cs" />
-    <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
-    <Compile Include="MOD.Scripts.Core.State\MODStateDisableInput.cs" />
-    <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
-    <Compile Include="MOD.Scripts.Core.TextWindow\MODTextController.cs" />
-    <Compile Include="MOD.Scripts.Core\MODLocalization.cs" />
-    <Compile Include="MOD.Scripts.Core\MODLocalizationData.cs" />
-    <Compile Include="MOD.Scripts.Core\MODLogger.cs" />
-    <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
-    <Compile Include="MOD.Scripts.Core\MODUtility.cs" />
-    <Compile Include="MOD.Scripts.UI.ChapterJump\MODChapterJumpController.cs" />
-    <Compile Include="MOD.Scripts.UI.Tips\MODTipsController.cs" />
-    <Compile Include="MOD.Scripts.UI\MODCustomFlagPreset.cs" />
-    <Compile Include="MOD.Scripts.UI\MODFontAdjuster.cs" />
-    <Compile Include="MOD.Scripts.UI\MODKeyboardShortcuts.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenu.cs" />
-    <Compile Include="MOD.Scripts.UI\MODActions.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuAudioOptions.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuAudioSetup.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuFontConfig.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuSupport.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuModuleInterface.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuNormal.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuResolution.cs" />
-    <Compile Include="MOD.Scripts.UI\MODMenuCommon.cs" />
-    <Compile Include="MOD.Scripts.UI\MODRadio.cs" />
-    <Compile Include="MOD.Scripts.UI\MODSimpleTimer.cs" />
-    <Compile Include="MOD.Scripts.UI\MODSound.cs" />
-    <Compile Include="MOD.Scripts.UI\MODStyleManager.cs" />
-    <Compile Include="MOD.Scripts.UI\MODTabControl.cs" />
-    <Compile Include="MOD.Scripts.UI\MODToaster.cs" />
+    <Compile Include="System.Runtime.Serialization\DataContractAttribute.cs" />
+    <Compile Include="System.Runtime.Serialization\DataMemberAttribute.cs" />
+    <Compile Include="System.Runtime.Serialization\EnumMemberAttribute.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonArray.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryType.cs" />
     <Compile Include="Newtonsoft.Json.Bson\BsonBinaryWriter.cs" />
@@ -439,6 +207,250 @@
     <Compile Include="Newtonsoft.Json\Required.cs" />
     <Compile Include="Newtonsoft.Json\TypeNameHandling.cs" />
     <Compile Include="Newtonsoft.Json\WriteState.cs" />
+  </ItemGroup>
+  <!-- End always included files -->
+
+  <!-- These options are used when building the DLL for use in the mod-->
+  <PropertyGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
+    <OutputType>Library</OutputType>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
+    <Reference Include="UnityEngine">
+      <HintPath>DLLs\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>DLLs\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>DLLs\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis">
+      <HintPath>DLLs\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>DLLs\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Compile Include="ActiveAnimation.cs" />
+    <Compile Include="AnimatedAlpha.cs" />
+    <Compile Include="AnimatedColor.cs" />
+    <Compile Include="AnimatedWidget.cs" />
+    <Compile Include="AnimationOrTween\Direction.cs" />
+    <Compile Include="AnimationOrTween\DisableCondition.cs" />
+    <Compile Include="AnimationOrTween\EnableCondition.cs" />
+    <Compile Include="AnimationOrTween\Trigger.cs" />
+    <Compile Include="AntlrTest\bgitestLexer.cs" />
+    <Compile Include="AntlrTest\bgitestParser.cs" />
+    <Compile Include="Assets.Scripts.Core.AssetManagement\AssetManager.cs" />
+    <Compile Include="Assets.Scripts.Core.AssetManagement\PacArchive.cs" />
+    <Compile Include="Assets.Scripts.Core.AssetManagement\PacEntity.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioController.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioFinishCallback.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioInfo.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioLayerUnity.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\AudioType.cs" />
+    <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
+    <Compile Include="MOD.Scripts.Core.Audio\MODAudioSet.cs" />
+    <Compile Include="MOD.Scripts.Core.Audio\MODAudioTracking.cs" />
+    <Compile Include="Assets.Scripts.Core.Audio\OnFinishLoad.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoObjectConverter.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.Util\BurikoReference.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.Util\IBurikoObject.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoInt.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoMtnCtrlElement.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoString.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko.VarTypes\BurikoVector.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMemory.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMemoryEntry.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoOperations.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoSaveManager.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoScriptFile.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoScriptSystem.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoStackEntry.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoTextModes.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoValueType.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoVariable.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\SaveEntry.cs" />
+    <Compile Include="Assets.Scripts.Core.History\HistoryButton.cs" />
+    <Compile Include="Assets.Scripts.Core.History\HistoryLine.cs" />
+    <Compile Include="Assets.Scripts.Core.History\HistoryTextButton.cs" />
+    <Compile Include="Assets.Scripts.Core.History\HistoryWindow.cs" />
+    <Compile Include="Assets.Scripts.Core.History\TextHistory.cs" />
+    <Compile Include="Assets.Scripts.Core.Interfaces\IScriptInterpreter.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\BlackBars.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\FilmEffector.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\Layer.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\LayerOld.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\LayerPool.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\MtnCtrlElement.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\Scene.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\SceneController.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\SceneControllerOld.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\SceneOld.cs" />
+    <Compile Include="Assets.Scripts.Core.Scene\Shaker.cs" />
+    <Compile Include="Assets.Scripts.Core.State\IGameState.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateChapterJump.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateChapterPreview.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateChapterScreen.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateDialogPrompt.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateExtraScreen.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateHistory.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateNormal.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateSaveLoad.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateTitle.cs" />
+    <Compile Include="Assets.Scripts.Core.State\StateViewTips.cs" />
+    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievement.cs" />
+    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievements.cs" />
+    <Compile Include="Assets.Scripts.Core.SteamWorks\Achievement_t.cs" />
+    <Compile Include="Assets.Scripts.Core.SteamWorks\SteamController.cs" />
+    <Compile Include="Assets.Scripts.Core.SteamWorks\SteamManager.cs" />
+    <Compile Include="Assets.Scripts.Core.TextWindow\FaceController.cs" />
+    <Compile Include="Assets.Scripts.Core.TextWindow\TextCharacter.cs" />
+    <Compile Include="Assets.Scripts.Core.TextWindow\TextController.cs" />
+    <Compile Include="Assets.Scripts.Core\GameState.cs" />
+    <Compile Include="Assets.Scripts.Core\GameSystem.cs" />
+    <Compile Include="Assets.Scripts.Core\KeyHook.cs" />
+    <Compile Include="Assets.Scripts.Core\LayerAlignment.cs" />
+    <Compile Include="Assets.Scripts.Core\Logger.cs" />
+    <Compile Include="Assets.Scripts.Core\LoggingLevel.cs" />
+    <Compile Include="Assets.Scripts.Core\LogOnMainThread.cs" />
+    <Compile Include="Assets.Scripts.Core\MGHelper.cs" />
+    <Compile Include="Assets.Scripts.Core\OnFinishWait.cs" />
+    <Compile Include="Assets.Scripts.Core\PreparedAction.cs" />
+    <Compile Include="Assets.Scripts.Core\StateEntry.cs" />
+    <Compile Include="Assets.Scripts.Core\Wait.cs" />
+    <Compile Include="Assets.Scripts.Core\WaitTypes.cs" />
+    <Compile Include="Assets.Scripts.UI.CGGallery\GalleryButton.cs" />
+    <Compile Include="Assets.Scripts.UI.CGGallery\GalleryManager.cs" />
+    <Compile Include="Assets.Scripts.UI.ChapterJump\ChapterJumpButton.cs" />
+    <Compile Include="Assets.Scripts.UI.ChapterJump\ChapterJumpManager.cs" />
+    <Compile Include="Assets.Scripts.UI.ChapterPreview\ChapterPreviewButton.cs" />
+    <Compile Include="Assets.Scripts.UI.ChapterPreview\ChapterPreviewManager.cs" />
+    <Compile Include="Assets.Scripts.UI.ChapterScreen\ChapterButton.cs" />
+    <Compile Include="Assets.Scripts.UI.ChapterScreen\ChapterScreen.cs" />
+    <Compile Include="Assets.Scripts.UI.Choice\ChoiceButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Choice\ChoiceController.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ArrowButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ButtonRefresher.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ConfigButtonType.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ConfigManager.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ConfigSlider.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ImageRefresher.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\ScreenSwitcherButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\SwitchButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Config\SwitchButtonObj.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\ExtraButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Extra\ExtraManager.cs" />
+    <Compile Include="Assets.Scripts.UI.Menu\MenuUIButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Prompt\DialogCallback.cs" />
+    <Compile Include="Assets.Scripts.UI.Prompt\PromptButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Prompt\PromptController.cs" />
+    <Compile Include="Assets.Scripts.UI.Prompt\PromptType.cs" />
+    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadButton.cs" />
+    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadEntry.cs" />
+    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadManager.cs" />
+    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadPage.cs" />
+    <Compile Include="Assets.Scripts.UI.SaveLoad\SaveLoadQSave.cs" />
+    <Compile Include="Assets.Scripts.UI.Tips\TipsButton.cs" />
+    <Compile Include="Assets.Scripts.UI.Tips\TipsData.cs" />
+    <Compile Include="Assets.Scripts.UI.Tips\TipsDataEntry.cs" />
+    <Compile Include="Assets.Scripts.UI.Tips\TipsDataGroup.cs" />
+    <Compile Include="Assets.Scripts.UI.Tips\TipsEntry.cs" />
+    <Compile Include="Assets.Scripts.UI.Tips\TipsManager.cs" />
+    <Compile Include="Assets.Scripts.UI.TitleScreen\TitleScreen.cs" />
+    <Compile Include="Assets.Scripts.UI.TitleScreen\TitleScreenButton.cs" />
+    <Compile Include="Assets.Scripts.UI\MainUIController.cs" />
+    <Compile Include="Assets.Scripts.UI\MainWindowSlideBox.cs" />
+    <Compile Include="Assets.Scripts.UI\SlideBoxButton.cs" />
+    <Compile Include="Assets.Scripts.UI\SlideButtonType.cs" />
+    <Compile Include="Back.cs" />
+    <Compile Include="BetterList.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
+    <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
+    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
+    <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
+    <Compile Include="BGICompiler.Compiler\OpType.cs" />
+    <Compile Include="BMFont.cs" />
+    <Compile Include="BMGlyph.cs" />
+    <Compile Include="BMSymbol.cs" />
+    <Compile Include="Bounce.cs" />
+    <Compile Include="ByteReader.cs" />
+    <Compile Include="Circ.cs" />
+    <Compile Include="CLZF2.cs" />
+    <Compile Include="ConfigButton.cs" />
+    <Compile Include="Cubic.cs" />
+    <Compile Include="DestroySelf.cs" />
+    <Compile Include="Ease.cs" />
+    <Compile Include="EaseDelegate.cs" />
+    <Compile Include="Elastic.cs" />
+    <Compile Include="EnableCameraDepthInForward.cs" />
+    <Compile Include="EventDelegate.cs" />
+    <Compile Include="Expo.cs" />
+    <Compile Include="iTween.cs" />
+    <Compile Include="LanguageSelection.cs" />
+    <Compile Include="LeanTween.cs" />
+    <Compile Include="LeanTweenType.cs" />
+    <Compile Include="Linear.cs" />
+    <Compile Include="Localization.cs" />
+    <Compile Include="LTBezier.cs" />
+    <Compile Include="LTBezierPath.cs" />
+    <Compile Include="LTDescr.cs" />
+    <Compile Include="LTEvent.cs" />
+    <Compile Include="LTGUI.cs" />
+    <Compile Include="LTRect.cs" />
+    <Compile Include="LTSpline.cs" />
+    <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />
+    <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
+    <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\AVProMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\IMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\MODApplyToMaterial.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\MovieInfo.cs" />
+    <Compile Include="MOD.Scripts.Core.Movie\TextureMovieRenderer.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODSceneController.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODLipsyncCache.cs" />
+    <Compile Include="MOD.Scripts.Core.Scene\MODTextureController.cs" />
+    <Compile Include="MOD.Scripts.Core.State\MODStateDisableInput.cs" />
+    <Compile Include="MOD.Scripts.Core.State\StateMovie.cs" />
+    <Compile Include="MOD.Scripts.Core.TextWindow\MODTextController.cs" />
+    <Compile Include="MOD.Scripts.Core\MODLocalization.cs" />
+    <Compile Include="MOD.Scripts.Core\MODLocalizationData.cs" />
+    <Compile Include="MOD.Scripts.Core\MODLogger.cs" />
+    <Compile Include="MOD.Scripts.Core\MODResolutionMonitor.cs" />
+    <Compile Include="MOD.Scripts.Core\MODSystem.cs" />
+    <Compile Include="MOD.Scripts.Core\MODUtility.cs" />
+    <Compile Include="MOD.Scripts.UI.ChapterJump\MODChapterJumpController.cs" />
+    <Compile Include="MOD.Scripts.UI.Tips\MODTipsController.cs" />
+    <Compile Include="MOD.Scripts.UI\MODCustomFlagPreset.cs" />
+    <Compile Include="MOD.Scripts.UI\MODFontAdjuster.cs" />
+    <Compile Include="MOD.Scripts.UI\MODKeyboardShortcuts.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMainUIController.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenu.cs" />
+    <Compile Include="MOD.Scripts.UI\MODActions.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuAudioOptions.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuAudioSetup.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuFontConfig.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuSupport.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuModuleInterface.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuNormal.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuResolution.cs" />
+    <Compile Include="MOD.Scripts.UI\MODMenuCommon.cs" />
+    <Compile Include="MOD.Scripts.UI\MODRadio.cs" />
+    <Compile Include="MOD.Scripts.UI\MODSimpleTimer.cs" />
+    <Compile Include="MOD.Scripts.UI\MODSound.cs" />
+    <Compile Include="MOD.Scripts.UI\MODStyleManager.cs" />
+    <Compile Include="MOD.Scripts.UI\MODTabControl.cs" />
+    <Compile Include="MOD.Scripts.UI\MODToaster.cs" />
     <Compile Include="NGUIDebug.cs" />
     <Compile Include="NGUIMath.cs" />
     <Compile Include="NGUIText.cs" />
@@ -482,9 +494,6 @@
     <Compile Include="SpriteOptionButton.cs" />
     <Compile Include="SteamManager.cs" />
     <Compile Include="Strong.cs" />
-    <Compile Include="System.Runtime.Serialization\DataContractAttribute.cs" />
-    <Compile Include="System.Runtime.Serialization\DataMemberAttribute.cs" />
-    <Compile Include="System.Runtime.Serialization\EnumMemberAttribute.cs" />
     <Compile Include="TextRefresher.cs" />
     <Compile Include="TMPro\Compute_DistanceTransform_EventTypes.cs" />
     <Compile Include="TMPro\Compute_DT_EventArgs.cs" />
@@ -623,6 +632,53 @@
     <Compile Include="UIWidgetContainer.cs" />
     <Compile Include="UIWrapContent.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <!-- End normal DLL items-->
+
+  <!--
+  These options are when building a standalone "Script Compiler" executable,
+  which is used to compile the game scripts on Github Actions.
+
+  NOTE: Visual Studio doesn't properly reload settings when you switch configurations,
+  so you will need to reload the project when you are changing between "Release" and "ScriptCompiler"
+  -->
+  <PropertyGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+    <OutputType>Exe</OutputType>
+    <AssemblyName>HigurashiScriptCompiler</AssemblyName>
+    <DefineConstants>STANDALONE_SCRIPT_COMPILER</DefineConstants>
+    <!-- Output and optimization options -->
+    <OutputPath>bin\ScriptCompiler\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+    <Reference Include="System">
+      <HintPath>DLLs\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>DLLs\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Compile Include="AntlrTest\bgitestLexer.cs" />
+    <Compile Include="AntlrTest\bgitestParser.cs" />
+    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoOperations.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoTextModes.cs" />
+    <Compile Include="Assets.Scripts.Core.Buriko\BurikoValueType.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIParameters.cs" />
+    <Compile Include="BGICompiler.Compiler\BGItoMG.cs" />
+    <Compile Include="BGICompiler.Compiler\BGIValue.cs" />
+    <Compile Include="BGICompiler.Compiler\NoUnityScriptCompiler.cs" />
+    <Compile Include="BGICompiler.Compiler\OperationHandler.cs" />
+    <Compile Include="BGICompiler.Compiler\OpType.cs" />
+    <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <!-- End standalone script compiler items -->
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
