@@ -8,6 +8,10 @@
 			"text": "ddd MMM dd, yyyy h:mm tt",
 			"comment": "The 'text' field sets the displayed date time format for save files, for example 'ddd MMM dd, yyyy h:mm tt'. See https://github.com/07th-mod/higurashi-assembly/issues/109 for more details."
 		},
+		"HouPlusWideMenuButtons": {
+			"text": "-1.0",
+			"comment": "To enable, set to the opacity you want for the title menu button when it is hovered, eg '0.5'. For Hou+ the main menu contains one is very wide (button hovered), and one only is as long as the english text (button not hovered). Translators may be unable to fit the text in the short UI file, so I've added a mode which only uses the long button, and uses the engine to give a fade effect when you hover the button. Setting a negative value uses the normal menu."
+		},
 		"ExampleEntry": {
 			"text": "This text will displayed by default.",
 			"textJP": "This text will be displayed when the language is changed to Japanese in-game.",
@@ -675,6 +679,26 @@
 		},
 		"MODMenuSupportCompileFailed_24": {
 			"text": "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly."
+		},
+		"MusicBoxRepeat": {
+			"text": "Repeat",
+			"textJP": "1曲リピート",
+			"comment": "Music box button (hou+)"
+		},
+		"MusicBoxShuffle": {
+			"text": "Shuffle",
+			"textJP": "気まぐれ演奏",
+			"comment": "Music box button (hou+)"
+		},
+		"MusicBoxPlayAll": {
+			"text": "PlayAll",
+			"textJP": "全曲演奏",
+			"comment": "Music box button (hou+)"
+		},
+		"MusicBoxTitle": {
+			"text": "[Title]",
+			"textJP": "【Title】",
+			"comment": "Music box button (hou+)"
 		}
 	}
 }
