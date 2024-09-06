@@ -14,6 +14,8 @@ namespace MOD.Scripts.Core.MODJSONWrapper
 {
 	internal class MODJSONWrapper
 	{
+
+#if USE_SYSTEM_TEXT_JSON
 		static JsonSerializerOptions options = new JsonSerializerOptions
 		{
 			// Include plain fields (otherwise only Properties (with {get; set;} are included)
@@ -21,6 +23,7 @@ namespace MOD.Scripts.Core.MODJSONWrapper
 			// Ensure special characters like "&" are output as-is and not encoded as "\u0026"
 			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 		};
+#endif
 
 		static public void Serialize(string outputPath, object objectToSerialize)
 		{
