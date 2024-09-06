@@ -1,6 +1,6 @@
 #define USE_DATE
 
-using Newtonsoft.Json;
+using MOD.Scripts.Core.MODJSONWrapper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,7 +55,6 @@ class MODCompileRequiredDetector
 	readonly Dictionary<string, ScriptInfo> oldTxtInfoDictionary;
 	readonly Dictionary<string, ScriptInfo> newTxtInfoDictionary;
 	readonly List<string> successfullyCompiledScriptNameList;
-	readonly JsonSerializer jsonSerializer;
 	readonly string txtInfoDictionaryPath;
 
 	public MODCompileRequiredDetector(string destDir)
@@ -63,7 +62,6 @@ class MODCompileRequiredDetector
 		oldTxtInfoDictionary = new Dictionary<string, ScriptInfo>();
 		newTxtInfoDictionary = new Dictionary<string, ScriptInfo>();
 		successfullyCompiledScriptNameList = new List<string>();
-		jsonSerializer = new JsonSerializer();
 		txtInfoDictionaryPath = Path.Combine(destDir, "txtInfoDictionary.json");
 	}
 
@@ -73,16 +71,11 @@ class MODCompileRequiredDetector
 		{
 			if (File.Exists(txtInfoDictionaryPath))
 			{
-				using (StreamReader sw = new StreamReader(txtInfoDictionaryPath))
-				using (JsonReader reader = new JsonTextReader(sw))
+				List<ScriptInfo> scriptInfoList = MODJSONWrapper.Deserialize<List<ScriptInfo>>(txtInfoDictionaryPath);
+				foreach (ScriptInfo info in scriptInfoList)
 				{
-					List<ScriptInfo> scriptInfoList = jsonSerializer.Deserialize<List<ScriptInfo>>(reader);
-					foreach (ScriptInfo info in scriptInfoList)
-					{
-						oldTxtInfoDictionary[info.name] = info;
-					}
+					oldTxtInfoDictionary[info.name] = info;
 				}
-
 			}
 		}
 		catch (Exception e)
@@ -108,11 +101,7 @@ class MODCompileRequiredDetector
 		}
 
 		// save scriptInfoDictionary to file as at least one .txt file has changed and succesfully been compiled
-		using (StreamWriter sw = new StreamWriter(txtInfoDictionaryPath))
-		using (JsonTextWriter writer = new JsonTextWriter(sw))
-		{
-			jsonSerializer.Serialize(writer, txtInfoToSave);
-		}
+		MODJSONWrapper.Serialize(txtInfoDictionaryPath, txtInfoToSave);
 	}
 
 	// Save to memory that a .txt file has been compiled or has already been compiled in the past
