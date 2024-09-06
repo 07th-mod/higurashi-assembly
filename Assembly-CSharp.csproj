@@ -30,6 +30,7 @@
     <Reference Include="System.Xml">
       <HintPath>DLLs\System.Xml.dll</HintPath>
     </Reference>
+    <Compile Include="MOD.Scripts.Core\MODJSONWrapper.cs" />
     <Compile Include="System.Runtime.Serialization\DataContractAttribute.cs" />
     <Compile Include="System.Runtime.Serialization\DataMemberAttribute.cs" />
     <Compile Include="System.Runtime.Serialization\EnumMemberAttribute.cs" />
