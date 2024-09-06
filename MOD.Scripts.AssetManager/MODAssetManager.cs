@@ -1,22 +1,22 @@
 #define USE_DATE
 
-using MOD.Scripts.Core.MODJSONWrapper;
+using MOD.Scripts.Core.MODXMLWrapper;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using BGICompiler.Compiler.Logger;
 
-class MODCompileRequiredDetector
+public class MODCompileRequiredDetector
 {
-	private class ScriptInfo
+	public class ScriptInfo
 	{
-		public string name;
+		public string name { get; set; }
 		#if USE_DATE
-		public DateTime lastWriteTime;
+		public DateTime lastWriteTime { get; set; }
 		#endif
-		public long length;
-		public string md5String;
+		public long length { get; set; }
+		public string md5String { get; set; }
 
 		public static ScriptInfo TryGetOrNull(string path)
 		{
@@ -62,7 +62,7 @@ class MODCompileRequiredDetector
 		oldTxtInfoDictionary = new Dictionary<string, ScriptInfo>();
 		newTxtInfoDictionary = new Dictionary<string, ScriptInfo>();
 		successfullyCompiledScriptNameList = new List<string>();
-		txtInfoDictionaryPath = Path.Combine(destDir, "txtInfoDictionary.json");
+		txtInfoDictionaryPath = Path.Combine(destDir, "txtInfoDictionary.xml");
 	}
 
 	public void Load()
@@ -71,7 +71,7 @@ class MODCompileRequiredDetector
 		{
 			if (File.Exists(txtInfoDictionaryPath))
 			{
-				List<ScriptInfo> scriptInfoList = MODJSONWrapper.Deserialize<List<ScriptInfo>>(txtInfoDictionaryPath);
+				List<ScriptInfo> scriptInfoList = MODXMLWrapper.Deserialize<List<ScriptInfo>>(txtInfoDictionaryPath);
 				foreach (ScriptInfo info in scriptInfoList)
 				{
 					oldTxtInfoDictionary[info.name] = info;
@@ -101,7 +101,7 @@ class MODCompileRequiredDetector
 		}
 
 		// save scriptInfoDictionary to file as at least one .txt file has changed and succesfully been compiled
-		MODJSONWrapper.Serialize(txtInfoDictionaryPath, txtInfoToSave);
+		MODXMLWrapper.Serialize(txtInfoDictionaryPath, txtInfoToSave);
 	}
 
 	// Save to memory that a .txt file has been compiled or has already been compiled in the past

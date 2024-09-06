@@ -37,7 +37,7 @@
     <Reference Include="System.Collections.Generic">
       <HintPath>DLLs\mscorlib.dll</HintPath>
     </Reference>
-    <Compile Include="MOD.Scripts.Core\MODJSONWrapper.cs" />
+    <Compile Include="MOD.Scripts.Core\MODXMLWrapper.cs" />
   </ItemGroup>
   <!-- End always included files -->
 
@@ -459,7 +459,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
     <OutputType>Exe</OutputType>
     <AssemblyName>HigurashiScriptCompiler</AssemblyName>
-    <DefineConstants>STANDALONE_SCRIPT_COMPILER;USE_SYSTEM_TEXT_JSON</DefineConstants>
+    <DefineConstants>STANDALONE_SCRIPT_COMPILER</DefineConstants>
     <!-- Output and optimization options -->
     <OutputPath>bin\ScriptCompiler\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
@@ -475,15 +475,6 @@
     </Reference>
     <Reference Include="Antlr3.Runtime">
       <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Text.Json">
-      <HintPath>System.Text.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Text.Encodings.Web">
-      <HintPath>System.Text.Encodings.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Memory">
-      <HintPath>System.Memory.dll</HintPath>
     </Reference>
     <Compile Include="AntlrTest\bgitestLexer.cs" />
     <Compile Include="AntlrTest\bgitestParser.cs" />
