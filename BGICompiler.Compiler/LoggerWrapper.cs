@@ -27,7 +27,7 @@ namespace BGICompiler.Compiler.Logger
 
 		private static void print(string level, object message)
 		{
-			Console.WriteLine($"[{level}] {message}", message);
+			Console.WriteLine($"[{level}] {message}");
 		}
 #else
 		public static void Log(object message)

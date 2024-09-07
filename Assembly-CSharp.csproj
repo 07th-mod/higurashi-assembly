@@ -42,9 +42,6 @@
     <Reference Include="Antlr3.Runtime">
       <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>DLLs\System.Xml.dll</HintPath>
-    </Reference>
     <Compile Include="MOD.Scripts.Core\MODXMLWrapper.cs" />
     <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
     <Compile Include="AntlrTest\bgitestLexer.cs" />
@@ -487,7 +484,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
-  <!-- Insert DLL or .cs files specific to standalone script compiler here -->
+    <Reference Include="System.Xml"/>
   </ItemGroup>
   <!-- End standalone script compiler items -->
 
