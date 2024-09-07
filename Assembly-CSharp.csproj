@@ -68,6 +68,9 @@
     <AssemblyName>Assembly-CSharp</AssemblyName>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' != 'ScriptCompiler'">
+    <Reference Include="System.Xml">
+      <HintPath>DLLs\System.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>DLLs\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
