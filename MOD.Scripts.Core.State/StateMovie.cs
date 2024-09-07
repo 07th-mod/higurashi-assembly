@@ -9,9 +9,6 @@ namespace MOD.Scripts.Core.State
 {
 	public class StateMovie : IGameState
 	{
-		const string windowsMovieExtension = ".mp4";
-		const string linuxMovieExtension = ".ogv";
-
 		private bool isLeaving;
 
 		private IMovieRenderer MovieEntity;
@@ -22,32 +19,32 @@ namespace MOD.Scripts.Core.State
 
 		public StateMovie(string moviename)
 		{
-			// Windows and Wine/Proton will both show up as WindowsPlayer
-			bool isWindowsOrWine = Application.platform == RuntimePlatform.WindowsPlayer;
+			// TODO: retest if new Proton supports AVProMovieRenderer and also check native video playback on Ch9 & 10
+			// Only use AVProMovieRenderer on "Real" Windows
+			// - It is entirely unsupported on Linux Desktop
+			// - It says it has some support on MacOS, but only macOS 10.13 and above, 64bit only, Metal only. For now we assume it is not supported.
+			// - It doesn't work on Wine/Proton
+			// - See https://www.renderheads.com/content/docs/AVProVideo/articles/requirements.html, but note that we use an extremely old version of AVProVideo
+			bool windowsPlaybackMode = Application.platform == RuntimePlatform.WindowsPlayer && !MODSystem.instance.IsWine;
 
-			// Only play the .mp4 file with AVProVideo on Windows-like Platforms, if the file exists
-			// On Wine, it is expected that only the Linux .ogv video file is installed, as playing using AVProVideo/.mp4 files on Wine is not supported
-			bool windowsPlaybackMode = isWindowsOrWine && File.Exists(MovieInfo.GetPathFromNameWithExt(moviename, windowsMovieExtension));
+			// Determine the playback extension, either ".mp4" (Windows) or ".ogv" (Linux, Mac, Wine)
+			string movieExtension = windowsPlaybackMode ? ".mp4" : ".ogv";
 
-			// The below just shows a message if no video file found to play (it does not affect playback behavior)
-			if (!windowsPlaybackMode && !File.Exists(MovieInfo.GetPathFromNameWithExt(moviename, linuxMovieExtension)))
+			// Show error message if movie is missing
+			if(!File.Exists(MovieInfo.GetPathFromNameWithExt(moviename, movieExtension)))
 			{
-				string movieFiles = $"{moviename}{linuxMovieExtension}";
-				if(isWindowsOrWine)
-				{
-					movieFiles = $"{moviename}{windowsMovieExtension} or " + movieFiles;
-				}
-
-				string errorMessage = $"ERROR: Movie file {movieFiles} not found";
+				string errorMessage = $"ERROR: Movie file {moviename}{movieExtension} not found";
 				Debug.Log(errorMessage);
 				MODToaster.Show(errorMessage, toastDuration:10);
 			}
 
-			movieInfo = new MovieInfo(moviename, windowsPlaybackMode ? windowsMovieExtension : linuxMovieExtension);
+			// Attempt to play the movie, even if it wasn't found
+			Debug.Log($"[StateMovie] Begin Movie Playback using {(windowsPlaybackMode ? "AVProMovieRenderer" : "Unity TextureMovieRenderer")} of file {moviename}{movieExtension} OS: {SystemInfo.operatingSystem} Wine: {MODSystem.instance.IsWine}");
+			movieInfo = new MovieInfo(moviename, movieExtension);
 			gameObject = new GameObject();
 			SetupBackgroundLayerForVideo();
 
-			if(windowsPlaybackMode)
+			if (windowsPlaybackMode)
 			{
 				MovieEntity = gameObject.AddComponent<AVProMovieRenderer>();
 			}

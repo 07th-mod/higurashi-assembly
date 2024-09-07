@@ -8,7 +8,12 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
+
+#if STANDALONE_SCRIPT_COMPILER
+using BGICompiler.Compiler.Logger;
+#else
 using UnityEngine;
+#endif
 
 namespace Newtonsoft.Json.Serialization
 {
@@ -183,6 +188,10 @@ namespace Newtonsoft.Json.Serialization
 			}
 			if (SerializeStack.IndexOf(value) != -1)
 			{
+#if STANDALONE_SCRIPT_COMPILER
+				Debug.LogWarning("CheckForCircularReference() is not fully implemented in NewtonSoft.Json");
+				return false;
+#else
 				switch ((value is Vector2 || value is Vector3 || value is Vector4 || value is Color || value is Color32) ? ReferenceLoopHandling.Ignore : referenceLoopHandling.GetValueOrDefault(base.Serializer.ReferenceLoopHandling))
 				{
 				case ReferenceLoopHandling.Error:
@@ -194,6 +203,7 @@ namespace Newtonsoft.Json.Serialization
 				default:
 					throw new InvalidOperationException("Unexpected ReferenceLoopHandling value: '{0}'".FormatWith(CultureInfo.InvariantCulture, base.Serializer.ReferenceLoopHandling));
 				}
+#endif
 			}
 			return true;
 		}
