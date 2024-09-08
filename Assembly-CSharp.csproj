@@ -652,8 +652,17 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler'">
+
+  <!-- On Windows, I get a strong name validation error when trying to use the DLL that's meant to be used with Unity, so instead use the system's XML -->
+  <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler' And '$(OS)' == 'Windows_NT'">
     <Reference Include="System.Xml"/>
+  </ItemGroup>
+
+  <!-- On Mono, I get an error because what I want to use is not supported on this platform. However Unix/Mono doesn't check strong name validation, so we can use the normal XML dll -->
+  <ItemGroup Condition="'$(Configuration)' == 'ScriptCompiler' And '$(OS)' != 'Windows_NT'">
+    <Reference Include="System.Xml">
+      <HintPath>DLLs\System.Xml.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <!-- End standalone script compiler items -->
 
