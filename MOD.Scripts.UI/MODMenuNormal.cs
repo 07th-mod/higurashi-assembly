@@ -92,10 +92,10 @@ namespace MOD.Scripts.UI
 				new GUIContent(Loc.MODMenuNormal_28, Loc.MODMenuNormal_29), //Launch + In-Game | WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches
 			});
 
-			radioHideCG = new MODRadio(Loc.MODMenuNormal_30, new GUIContent[] //Show/Hide CGs
+			radioHideCG = new MODRadio(Loc.MODMenuNormal_30, new GUIContent[] //Console CGs
 			{
-				new GUIContent(Loc.MODMenuNormal_31, Loc.MODMenuNormal_32), //Show CGs | Shows CGs (You probably want this enabled for Console ADV/NVL mode)
-				new GUIContent(Loc.MODMenuNormal_33, Loc.MODMenuNormal_34), //Hide CGs | Disables all CGs (mainly for use with the Original/Ryukishi preset)
+				new GUIContent(Loc.MODMenuNormal_31, Loc.MODMenuNormal_32), //Show Console CGs | Shows Console CGs (You want this enabled for Console ADV/NVL mode)\n\nDoes not impact Mangagamer or OG CGs.
+				new GUIContent(Loc.MODMenuNormal_33, Loc.MODMenuNormal_34), //Hide Console CGs | Disables Console CGs (for use with the Original/Ryukishi preset)\n\nDoes not impact Mangagamer or OG CGs.
 			});
 
 			radioBackgrounds = new MODRadio(Loc.MODMenuNormal_35, new GUIContent[]{ //Background Style

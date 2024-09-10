@@ -163,19 +163,19 @@
 			"text": "WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches"
 		},
 		"MODMenuNormal_30": {
-			"text": "Show/Hide CGs"
+			"text": "Console CGs"
 		},
 		"MODMenuNormal_31": {
-			"text": "Show CGs"
+			"text": "Show Console CGs"
 		},
 		"MODMenuNormal_32": {
-			"text": "Shows CGs (You probably want this enabled for Console ADV/NVL mode)"
+			"text": "Shows Console CGs (You want this enabled for Console ADV/NVL mode)\n\nDoes not impact Mangagamer or OG CGs."
 		},
 		"MODMenuNormal_33": {
-			"text": "Hide CGs"
+			"text": "Hide Console CGs"
 		},
 		"MODMenuNormal_34": {
-			"text": "Disables all CGs (mainly for use with the Original/Ryukishi preset)"
+			"text": "Disables Console CGs (for use with the Original/Ryukishi preset)\n\nDoes not impact Mangagamer or OG CGs."
 		},
 		"MODMenuNormal_35": {
 			"text": "Background Style"
