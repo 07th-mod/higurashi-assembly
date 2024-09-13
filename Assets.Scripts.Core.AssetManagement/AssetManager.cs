@@ -223,7 +223,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// Gets the path to an asset with the given name in the given artset, or null if none are found
 		/// </summary>
 		/// <returns>A path to an on-disk asset or null</returns>
-		public string PathToAssetWithName(string name, PathCascadeList artset)
+		private string PathToAssetWithName(string name, PathCascadeList artset, out string subFolderUsed)
 		{
 			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
 
@@ -232,6 +232,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			{
 				if(CheckStreamingAssetsPathExists("OGBackgrounds", name, out string filePath))
 				{
+					subFolderUsed = "OGBackgrounds";
 					return filePath;
 				}
 			}
@@ -246,10 +247,12 @@ namespace Assets.Scripts.Core.AssetManagement
 
 				if (CheckStreamingAssetsPathExists(artSetPath, name, out string filePath))
 				{
+					subFolderUsed = artSetPath;
 					return filePath;
 				}
 			}
 
+			subFolderUsed = null;
 			return null;
 		}
 
@@ -487,6 +490,32 @@ namespace Assets.Scripts.Core.AssetManagement
 			return LoadTexture(textureName, out _);
 		}
 
+		public string PathToAssetFromTextureNameNoExt(string textureNameNoExt) => PathToAssetFromTextureNameNoExt(textureNameNoExt, out _);
+
+		/// <summary>
+		/// Given the name of a texture (like "white" or "sprite/re2a_okoru_a1_0"), returns the path to the texture like
+		/// "D:/games/steam/steamapps/common/Higurashi When They Cry Hou - Ch.6 Tsumihoroboshi/HigurashiEp06_Data/StreamingAssets\CG\white.png")
+		/// The current language and current artset will determine which file extension/which subfolder the image will be taken from.
+		/// </summary>
+		public string PathToAssetFromTextureNameNoExt(string textureNameNoExt, out string subFolderUsed)
+		{
+			string path = null;
+			subFolderUsed = null;
+
+			// Load path from current artset
+			if (path == null && !GameSystem.Instance.UseEnglishText)
+			{
+				path = PathToAssetWithName(textureNameNoExt.ToLower() + "_j.png", CurrentArtset, out subFolderUsed);
+			}
+
+			if (path == null)
+			{
+				path = PathToAssetWithName(textureNameNoExt.ToLower() + ".png", CurrentArtset,out subFolderUsed);
+			}
+
+			return path;
+		}
+
 		public Texture2D LoadTexture(string textureName, out string texturePath)
 		{
 			textureName = FixPath(textureName);
@@ -495,18 +524,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				texturePath = windowTexturePath;
 				return windowTexture;
 			}
-			string path = null;
-
-			// Load path from current artset
-			if (path == null && !GameSystem.Instance.UseEnglishText)
-			{
-				path = PathToAssetWithName(textureName.ToLower() + "_j.png", CurrentArtset);
-			}
-
-			if (path == null)
-			{
-				path = PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
-			}
+			string path = PathToAssetFromTextureNameNoExt(textureName);
 
 			if (path == null)
 			{

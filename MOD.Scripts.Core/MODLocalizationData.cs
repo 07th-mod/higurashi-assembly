@@ -59,11 +59,11 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuNormal_27 => Get("MODMenuNormal_27", "Enables opening videos\n\nNOTE: Once the opening video plays the first time, will automatically switch to 'Launch + In-Game'\n\nWe have setup openings this way to avoid spoilers.");
 		public static string MODMenuNormal_28 => Get("MODMenuNormal_28", "Launch + In-Game");
 		public static string MODMenuNormal_29 => Get("MODMenuNormal_29", "WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches");
-		public static string MODMenuNormal_30 => Get("MODMenuNormal_30", "Show/Hide CGs");
-		public static string MODMenuNormal_31 => Get("MODMenuNormal_31", "Show CGs");
-		public static string MODMenuNormal_32 => Get("MODMenuNormal_32", "Shows CGs (You probably want this enabled for Console ADV/NVL mode)");
-		public static string MODMenuNormal_33 => Get("MODMenuNormal_33", "Hide CGs");
-		public static string MODMenuNormal_34 => Get("MODMenuNormal_34", "Disables all CGs (mainly for use with the Original/Ryukishi preset)");
+		public static string MODMenuNormal_30 => Get("MODMenuNormal_30", "Console CGs");
+		public static string MODMenuNormal_31 => Get("MODMenuNormal_31", "Show Console CGs");
+		public static string MODMenuNormal_32 => Get("MODMenuNormal_32", "Shows Console CGs (You want this enabled for Console ADV/NVL mode)\n\nDoes not impact Mangagamer or OG CGs.");
+		public static string MODMenuNormal_33 => Get("MODMenuNormal_33", "Hide Console CGs");
+		public static string MODMenuNormal_34 => Get("MODMenuNormal_34", "Disables Console CGs (for use with the Original/Ryukishi preset)\n\nDoes not impact Mangagamer or OG CGs.");
 		public static string MODMenuNormal_35 => Get("MODMenuNormal_35", "Background Style");
 		public static string MODMenuNormal_36 => Get("MODMenuNormal_36", "Console BGs");
 		public static string MODMenuNormal_37 => Get("MODMenuNormal_37", "Use Console backgrounds");
