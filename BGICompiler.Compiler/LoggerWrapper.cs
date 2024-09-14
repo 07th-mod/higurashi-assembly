@@ -20,9 +20,14 @@ namespace BGICompiler.Compiler.Logger
 			print("ERROR", message);
 		}
 
+		public static void LogException(Exception exception)
+		{
+			print("EXCEPTION", exception);
+		}
+
 		private static void print(string level, object message)
 		{
-			Console.WriteLine($"[{level}] {message}", message);
+			Console.WriteLine($"[{level}] {message}");
 		}
 #else
 		public static void Log(object message)
@@ -38,6 +43,11 @@ namespace BGICompiler.Compiler.Logger
 		public static void LogError(object message)
 		{
 			UnityEngine.Debug.Log(message);
+		}
+
+		public static void LogException(Exception exception)
+		{
+			UnityEngine.Debug.LogException(exception);
 		}
 #endif
 	}
