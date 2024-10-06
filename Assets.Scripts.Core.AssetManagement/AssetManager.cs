@@ -40,9 +40,12 @@ namespace Assets.Scripts.Core.AssetManagement
 	/// Stores an ordered list of paths for the engine to check when trying to find an asset
 	/// </summary>
 	public class PathCascadeList {
+		const string mappingFolderSuffix = "Mapping";
 		public readonly string nameEN;
 		public readonly string nameJP;
 		public readonly string[] paths;
+
+		// TODO: 'upgrade' paths variable rather than this dict and getter functions
 		private Dictionary<string, MODImageMapping> pathToImageMapping;
 
 		public PathCascadeList(string nameEN, string nameJP, string[] paths)
@@ -85,21 +88,25 @@ namespace Assets.Scripts.Core.AssetManagement
 			return pathToImageMapping.TryGetValue(artSetPath, out mapping);
 		}
 
-		private void LoadMappingFromJSON(string path)
+		public static string GetMappingFolder(string cascadeFolderPath) => $"pathCascadeFolder{mappingFolderSuffix}";
+
+		private void LoadMappingFromJSON(string cascadeFolderPath)
 		{
 			string mappingPath = "";
 			try
 			{
-				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(path, "mapping.json", out mappingPath))
+				Debug.Log($"Checking for mapping.json inside {GetMappingFolder(cascadeFolderPath)} folder...");
+
+				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(GetMappingFolder(cascadeFolderPath), "mapping.json", out mappingPath))
 				{
-					pathToImageMapping[path] = MODImageMapping.GetVoiceBasedMapping(mappingPath);
+					pathToImageMapping[cascadeFolderPath] = MODImageMapping.GetVoiceBasedMapping(mappingPath);
 					// TODO: remove this once checked its working
-					Debug.Log($"Successfully loaded mapping for {path} from {mappingPath} JSON file");
+					Debug.Log($"Successfully loaded mapping for {cascadeFolderPath} from {mappingPath} JSON file");
 				}
 			}
 			catch(Exception e)
 			{
-				Debug.Log($"Failed to load mapping for {path} from {mappingPath} JSON file:\n{e}");
+				Debug.Log($"Failed to load mapping for {cascadeFolderPath} from {mappingPath} JSON file:\n{e}");
 			}
 		}
 	}
@@ -289,6 +296,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 				// Check if the artset has an ImageMapping, if so, map the input asset
 				// before looking for the file on disk
+				string subFolder = artSetPath;
 				string relativePath = name;
 				string currentScript = BurikoScriptSystem.Instance.GetCurrentScript().Filename;
 				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
@@ -301,11 +309,12 @@ namespace Assets.Scripts.Core.AssetManagement
 					{
 						// TODO: remove debug print
 						Debug.Log($"Successfully got mapping {relativePath}->{ogImagePath} from mapping - Source: {debugInfo}");
+						subFolder = PathCascadeList.GetMappingFolder(artSetPath);
 						relativePath = ogImagePath;
 					}
 				}
 
-				if (CheckStreamingAssetsPathExists(artSetPath, relativePath, out string filePath))
+				if (CheckStreamingAssetsPathExists(subFolder, relativePath, out string filePath))
 				{
 					subFolderUsed = artSetPath;
 					return filePath;
