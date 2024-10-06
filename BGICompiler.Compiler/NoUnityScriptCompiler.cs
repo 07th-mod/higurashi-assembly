@@ -3,7 +3,6 @@
 using MOD.Scripts.Core.UnityLoggerShim;
 using System;
 using System.IO;
-using MOD.ImageMapping;
 
 namespace BGICompiler.Compiler
 {
@@ -63,12 +62,6 @@ namespace BGICompiler.Compiler
 
 		public static int Main(string[] args)
 		{
-			bool doImageMappingTest = false;
-			if(doImageMappingTest)
-			{
-				MODImageMapping.TEST_Lookup("D:\\drojf\\large_projects\\umineko\\hou-plus-og-sprites-new\\mod_usable_files\\mapping.json");
-			}
-
 			if(args.Length < 2)
 			{
 				Debug.LogError($"Got {args.Length} args but need at least two args:\n" +

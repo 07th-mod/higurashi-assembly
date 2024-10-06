@@ -35,7 +35,6 @@
     <Reference Include="Antlr3.Runtime">
       <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Compile Include="MOD.ImageMapping\MODImageMappingSaveData.cs" />
     <Compile Include="MOD.Scripts.Core\MODUnityLoggerShim.cs" />
     <Compile Include="MOD.Scripts.Core\MODXMLWrapper.cs" />
     <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
@@ -247,6 +246,7 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.ImageMapping\MODImageMappingSaveData.cs" />
     <Compile Include="MOD.ImageMapping\MODImageMapping.cs" />
     <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
