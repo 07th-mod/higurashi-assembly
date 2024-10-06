@@ -2608,7 +2608,7 @@ namespace Assets.Scripts.Core.Buriko
 			float volume = (float)ReadVariable().IntValue() / 128f;
 			bool flag = ReadVariable().BoolValue();
 
-			AssetManager.Instance.SetLastVoiceFromMODPlayVoiceLS(filenameNoExt);
+			AssetManager.Instance.lastVoiceFromMODPlayVoiceLSNoExt = filenameNoExt;
 
 			string filename = filenameNoExt + ".ogg";
 			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));

@@ -35,6 +35,7 @@
     <Reference Include="Antlr3.Runtime">
       <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Compile Include="MOD.ImageMapping\MODImageMappingSaveData.cs" />
     <Compile Include="MOD.Scripts.Core\MODUnityLoggerShim.cs" />
     <Compile Include="MOD.Scripts.Core\MODXMLWrapper.cs" />
     <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
