@@ -297,12 +297,13 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// <returns>A path to an on-disk asset or null</returns>
 		private string PathToAssetWithName(string name, PathCascadeList artset, out string subFolderUsed)
 		{
+			string pathWithExt = pathNoExt + extension;
 			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
 
 			// If OG backgrounds are enabled, always check OGBackgrounds first.
 			if (backgroundSetIndex == 1)
 			{
-				if(CheckStreamingAssetsPathExists("OGBackgrounds", name, out string filePath))
+				if(CheckStreamingAssetsPathExists("OGBackgrounds", pathWithExt, out string filePath))
 				{
 					subFolderUsed = "OGBackgrounds";
 					return filePath;
@@ -323,24 +324,23 @@ namespace Assets.Scripts.Core.AssetManagement
 				// Check if the artset has an ImageMapping, if so, map the input asset
 				// before looking for the file on disk
 				string subFolder = cascadePath.folderPath;
-				string relativePath = name;
 				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
 				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
 
 				// TODO: remove debug print
-				Debug.Log($"Looking up {cascadePath.folderPath} - {scriptNameNoExt} - {lastPlayedVoice ?? "[null]"} - {name}");
+				Debug.Log($"Looking up {cascadePath.folderPath} - {scriptNameNoExt} - {lastPlayedVoice ?? "[null]"} - {pathNoExt}");
 				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
-					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, name, out string ogImagePath, out string debugInfo))
+					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, pathNoExt, out string mappedPath, out string debugInfo))
 					{
 						// TODO: remove debug print
-						Debug.Log($"Successfully got mapping {relativePath}->{ogImagePath} from mapping - Source: {debugInfo}");
+						Debug.Log($"Successfully got mapping {pathNoExt}->{mappedPath} from mapping - Source: {debugInfo}");
 						subFolder = cascadePath.mappingFolderPath;
-						relativePath = ogImagePath;
+						pathWithExt = mappedPath + extension;
 					}
 				}
 
-				if (CheckStreamingAssetsPathExists(subFolder, relativePath, out string filePath))
+				if (CheckStreamingAssetsPathExists(subFolder, pathWithExt, out string filePath))
 				{
 					subFolderUsed = artSetPath;
 					return filePath;
