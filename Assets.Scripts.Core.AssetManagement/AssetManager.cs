@@ -295,7 +295,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// Gets the path to an asset with the given name in the given artset, or null if none are found
 		/// </summary>
 		/// <returns>A path to an on-disk asset or null</returns>
-		private string PathToAssetWithName(string name, PathCascadeList artset, out string subFolderUsed)
+		private string PathToAssetWithName(string pathNoExt, string extension, PathCascadeList artset, out string subFolderUsed)
 		{
 			string pathWithExt = pathNoExt + extension;
 			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
@@ -342,7 +342,8 @@ namespace Assets.Scripts.Core.AssetManagement
 
 				if (CheckStreamingAssetsPathExists(subFolder, pathWithExt, out string filePath))
 				{
-					subFolderUsed = artSetPath;
+					// Asset was successfully - now report the subfolder where the asset was found
+					subFolderUsed = cascadePath.folderPath;
 					return filePath;
 				}
 			}
@@ -580,12 +581,12 @@ namespace Assets.Scripts.Core.AssetManagement
 			// Load path from current artset
 			if (path == null && !GameSystem.Instance.UseEnglishText)
 			{
-				path = PathToAssetWithName(textureNameNoExt.ToLower() + "_j.png", CurrentArtset, out subFolderUsed);
+				path = PathToAssetWithName(textureNameNoExt.ToLower(), "_j.png", CurrentArtset, out subFolderUsed);
 			}
 
 			if (path == null)
 			{
-				path = PathToAssetWithName(textureNameNoExt.ToLower() + ".png", CurrentArtset,out subFolderUsed);
+				path = PathToAssetWithName(textureNameNoExt.ToLower(), ".png", CurrentArtset,out subFolderUsed);
 			}
 
 			return path;

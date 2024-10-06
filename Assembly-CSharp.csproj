@@ -35,6 +35,7 @@
     <Reference Include="Antlr3.Runtime">
       <HintPath>DLLs\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Compile Include="MOD.Scripts.Core\MODUnityLoggerShim.cs" />
     <Compile Include="MOD.Scripts.Core\MODXMLWrapper.cs" />
     <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
     <Compile Include="System.Runtime.Serialization\DataContractAttribute.cs" />
@@ -42,7 +43,6 @@
     <Compile Include="System.Runtime.Serialization\EnumMemberAttribute.cs" />
     <Compile Include="AntlrTest\bgitestLexer.cs" />
     <Compile Include="AntlrTest\bgitestParser.cs" />
-    <Compile Include="BGICompiler.Compiler\LoggerWrapper.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoCommands.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoMathType.cs" />
     <Compile Include="Assets.Scripts.Core.Buriko\BurikoOperations.cs" />
@@ -246,6 +246,7 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.ImageMapping\MODImageMapping.cs" />
     <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfig.cs" />
     <Compile Include="MOD.Scripts.Core.Config\MODConfigManager.cs" />
