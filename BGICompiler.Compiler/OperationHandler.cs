@@ -3,7 +3,7 @@ using Assets.Scripts.Core.Buriko;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 
 namespace BGICompiler.Compiler
 {
