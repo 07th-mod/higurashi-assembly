@@ -5,58 +5,70 @@ using System.Text;
 using UnityEngine;
 using static MOD.Scripts.UI.MODMenuCommon;
 using Assets.Scripts.Core.AssetManagement;
+using MOD.Scripts.UI;
+using System.Linq;
 
 namespace MOD.Debugging
 {
 	internal class MODDebugSpriteMapping
 	{
+		private static int id = 0;
+
 		private static string LastVoiceLoadedFromSaveFile = "Load Not Performed Yet";
 
-		private static string JSONLoadStatus = "";
+		private static List<string> JSONLoadStatuses = new List<string>();
 
-		private static string SpriteMappingLookupArguments = "No sprite looked up yet";
-		private static string SpriteMappingLookupStatus = "No sprite looked up yet";
+		private static Queue<string> SpriteMappingLookupDebug = new Queue<string>();
 
 		public static void OnGUISpriteMapping()
 		{
 			// TODO: add button to enable debugging?
 
 			Label("---- Sprite Mapping ----");
-			Label($"JSON: {JSONLoadStatus}");
+			foreach(string s in JSONLoadStatuses)
+			{
+				Label(s);
+			}
 
 			Label("-- Last Voice --");
-			Label($"Last Voice (Runtime): {AssetManager.Instance.lastVoiceFromMODPlayVoiceLSNoExt}");
+			Label($"Last Voice (Runtime): {AssetManager.Instance.lastVoiceFromMODPlayVoiceLSNoExt ?? "[null]"}");
 			Label($"Last Voice Loaded From Save File: {LastVoiceLoadedFromSaveFile}");
 
 			Label("-- Mapped Sprite Status --");
-			Label($"Args: {SpriteMappingLookupArguments}");
-			Label($"Status: {SpriteMappingLookupStatus}");
+			foreach(string s in SpriteMappingLookupDebug.Reverse().ToList())
+			{
+				Label(s);
+			}
 		}
 
-		public static void RecordJSONLoadStatus(string mappingPath, string mappingStatus)
+		public static void RecordJSONLoadStatus(string mappingPath, string mappingFile, string mappingStatus)
 		{
-			if(JSONLoadStatus.Length < 100)
+			if(JSONLoadStatuses.Count < 10)
 			{
-				JSONLoadStatus += $"{mappingPath}:{mappingStatus}";
+				JSONLoadStatuses.Add($"StreamingAssets/{mappingPath}/{mappingFile}: {mappingStatus}");
 			}
+			else
+			{
+				MODToaster.Show("MODDebugSpriteMapping: Too many Sprite Mapping JSON Statuses - not showing any more");
+			}
+		}
+
+		private static void QueueSpriteLookupDebug(string s)
+		{
+			if(SpriteMappingLookupDebug.Count > 10)
+			{
+				SpriteMappingLookupDebug.Dequeue();
+			}
+
+			SpriteMappingLookupDebug.Enqueue(s);
 		}
 
 		/// <summary>
 		/// baseSpritePath is the path the sprite would be loaded from, if mapping was not performed
 		/// </summary>
-		public static void RecordSpriteMappingLookupArguments(string baseSpritePath, string scriptNameNoExt, string maybeLastPlayedVoice, string spritePathNoExt)
+		public static void RecordLookup(string baseSpritePath, string scriptNameNoExt, string maybeLastPlayedVoice, string sourcePath, string maybeMappedPath, string resultDescription)
 		{
-			SpriteMappingLookupArguments = $"{baseSpritePath} - {scriptNameNoExt} - {maybeLastPlayedVoice ?? "[null]"} - {spritePathNoExt}";
-		}
-
-		public static void RecordSuccessfulLookupResult(string sourcePath, string mappedPath, string resultDescription)
-		{
-			SpriteMappingLookupStatus = $"{sourcePath}->{mappedPath}: {resultDescription}";
-		}
-
-		public static void RecordFailedLookupResult(string sourcePath, string resultDescription)
-		{
-			SpriteMappingLookupStatus = $"{sourcePath}-><Failed>: {resultDescription}";
+			QueueSpriteLookupDebug($"{id++}: {baseSpritePath} - {scriptNameNoExt} - {maybeLastPlayedVoice ?? "[null]"} | [{sourcePath}] > [{maybeMappedPath ?? ("Failed")}]: {resultDescription}");
 		}
 
 		public static void RecordLastVoiceLoadedFromSaveFile(string lastVoiceFromSaveFile)
