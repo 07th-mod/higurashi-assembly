@@ -3529,9 +3529,13 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("ModPlayVoiceLS");
 			int channel = ReadVariable().IntValue();
 			int character = ReadVariable().IntValue();
-			string filename = ReadVariable().StringValue() + ".ogg";
+			string filenameNoExt = ReadVariable().StringValue();
 			float volume = (float)ReadVariable().IntValue() / 128f;
 			bool flag = ReadVariable().BoolValue();
+
+			AssetManager.Instance.lastVoiceFromMODPlayVoiceLSNoExt = filenameNoExt;
+
+			string filename = filenameNoExt + ".ogg";
 			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			if ((MODSystem.instance.modSceneController.MODLipSyncIsEnabled() && !gameSystem.IsSkipping) & flag)
 			{
@@ -3665,7 +3669,7 @@ namespace Assets.Scripts.Core.Buriko
 			PathCascadeList cascadeList = ReadPathCascadeFromArgs();
 
 			MODAudioSet.Instance.AddBGMSet(cascadeList);
-			foreach (string path in cascadeList.paths)
+			foreach (string path in cascadeList.GetPlainPaths())
 			{
 				MODBGMInfo.LoadFromJSON(path);
 			}

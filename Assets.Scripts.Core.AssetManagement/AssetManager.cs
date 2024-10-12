@@ -1,6 +1,8 @@
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
+using MOD.Debugging;
+using MOD.ImageMapping;
 using MOD.Scripts.Core.Audio;
 using System;
 using System.Collections.Generic;
@@ -36,18 +38,83 @@ namespace Assets.Scripts.Core.AssetManagement
 		}
 	}
 
+	public class CascadePath
+	{
+		// The 'normal' path
+		// For example, if the path cascade is "OGBackgrounds:OGSprites:CG"
+		// Then there will be 3 CascadePath objects, with 'path' set to "OGBackgrounds", "OGSprites", and "CG" respectively
+		public readonly string folderPath;
+
+		// Path containing the "mapping.json" and mapped images. Will be the same as the normal path with the suffix "Mapping"
+		public readonly string mappingFolderPath;
+
+		// Contains data from the "mapping.json" if it exists, otherwise set to null.
+		// Used to determine which mod image corresponds to which image in the mapping folder
+		private MODImageMapping mapping;
+
+		public CascadePath(string folderPath)
+		{
+			this.folderPath = folderPath;
+			this.mappingFolderPath = $"{folderPath}Mapping";
+			if(LoadMappingFromJSON(mappingFolderPath, out MODImageMapping mapping))
+			{
+				this.mapping = mapping;
+			}
+		}
+
+		public bool GetImageMapping(out MODImageMapping retMapping)
+		{
+			if(mapping == null)
+			{
+				retMapping = null;
+				return false;
+			}
+
+			retMapping = mapping;
+			return true;
+		}
+
+		private static bool LoadMappingFromJSON(string mappingFolderPath, out MODImageMapping mapping)
+		{
+			string mappingPath = "";
+			try
+			{
+				Debug.Log($"Checking for mapping.json inside {mappingFolderPath} folder...");
+
+				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(mappingFolderPath, "mapping.json", out mappingPath))
+				{
+					mapping = MODImageMapping.GetVoiceBasedMapping(mappingPath);
+					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, "Load OK");
+					return true;
+				}
+				else
+				{
+					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, "Not Found");
+				}
+			}
+			catch (Exception e)
+			{
+				MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, $"Exception: {e.Message}");
+			}
+
+			mapping = null;
+			return false;
+		}
+	}
+
 	/// <summary>
 	/// Stores an ordered list of paths for the engine to check when trying to find an asset
 	/// </summary>
 	public class PathCascadeList {
 		public readonly string nameEN;
 		public readonly string nameJP;
-		public readonly string[] paths;
+		public readonly CascadePath[] paths;
+
 		public PathCascadeList(string nameEN, string nameJP, string[] paths)
 		{
 			this.nameEN = nameEN;
 			this.nameJP = nameJP;
-			this.paths = paths;
+			this.paths = paths.Select(p => new CascadePath(p)).ToArray();
 		}
 
 		public bool PrimaryFolder(out string primaryFolder)
@@ -58,7 +125,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				return false;
 			}
 
-			primaryFolder = paths[0];
+			primaryFolder = paths[0].folderPath;
 			return true;
 		}
 
@@ -71,6 +138,8 @@ namespace Assets.Scripts.Core.AssetManagement
 
 			return Directory.Exists(Path.Combine(rootPath, primaryFolder));
 		}
+
+		public IEnumerable<string> GetPlainPaths() => paths.Select(p => p.folderPath);
 	}
 
 	public class AssetManager {
@@ -106,6 +175,8 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastSE { get; private set; } = "No SE played yet";
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
+
+		public string lastVoiceFromMODPlayVoiceLSNoExt = null;
 
 		public ScriptCompileStatus compileStatus = new ScriptCompileStatus();
 
@@ -169,7 +240,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// <param name="relativePath">File path relative to subFolder</param>
 		/// <param name="filePath">Output filepath - only valid if function returns true</param>
 		/// <returns></returns>
-		private bool CheckStreamingAssetsPathExistsInner(string subFolder, string relativePath, out string filePath)
+		public bool CheckStreamingAssetsPathExistsInner(string subFolder, string relativePath, out string filePath)
 		{
 			filePath = Path.Combine(Path.Combine(assetPath, subFolder), relativePath);
 			if (File.Exists(filePath))
@@ -228,33 +299,65 @@ namespace Assets.Scripts.Core.AssetManagement
 		/// Gets the path to an asset with the given name in the given artset, or null if none are found
 		/// </summary>
 		/// <returns>A path to an on-disk asset or null</returns>
-		public string PathToAssetWithName(string name, PathCascadeList artset)
+		private string PathToAssetWithName(string pathNoExt, string extension, PathCascadeList artset, out string subFolderUsed)
 		{
+			string pathWithExt = pathNoExt + extension;
 			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
 
 			// If OG backgrounds are enabled, always check OGBackgrounds first.
 			if (backgroundSetIndex == 1)
 			{
-				if(CheckStreamingAssetsPathExists("OGBackgrounds", name, out string filePath))
+				if(CheckStreamingAssetsPathExists("OGBackgrounds", pathWithExt, out string filePath))
 				{
+					subFolderUsed = "OGBackgrounds";
 					return filePath;
 				}
 			}
 
-			foreach (var artSetPath in artset.paths)
+			foreach (CascadePath cascadePath in artset.paths)
 			{
 				// If console backgrounds are enabled, don't check OGBackgrounds
-				if (backgroundSetIndex == 0 && artSetPath == "OGBackgrounds")
+				if (backgroundSetIndex == 0 && cascadePath.folderPath == "OGBackgrounds")
 				{
 					continue;
 				}
 
-				if (CheckStreamingAssetsPathExists(artSetPath, name, out string filePath))
+				// Check if the artset has an ImageMapping, if so, map the input asset
+				// before looking for the file on disk
+				string subFolder = cascadePath.folderPath;
+				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
+				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
+
+				MODDebugSpriteMapping.RecordSpriteMappingLookupArguments(cascadePath.folderPath, scriptNameNoExt, lastPlayedVoice, pathNoExt);
+				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
+					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, pathNoExt, out string mappedPath, out string debugInfo))
+					{
+						// Mapped file OK, so use the mapped folder and mapped path for this asset
+						subFolder = cascadePath.mappingFolderPath;
+						pathWithExt = mappedPath + extension;
+
+						MODDebugSpriteMapping.RecordSuccessfulLookupResult(pathNoExt, mappedPath, debugInfo);
+					}
+					else
+					{
+						MODDebugSpriteMapping.RecordFailedLookupResult(pathNoExt, $"GetOGImage failed: {debugInfo}");
+					}
+				}
+				else
+				{
+					MODDebugSpriteMapping.RecordFailedLookupResult(pathNoExt, $"No Mapping for {cascadePath.folderPath}");
+				}
+
+				if (CheckStreamingAssetsPathExists(subFolder, pathWithExt, out string filePath))
+				{
+					// Asset was successfully - now report the subfolder where the asset was found
+					subFolderUsed = cascadePath.folderPath;
 					return filePath;
 				}
 			}
 
+			subFolderUsed = null;
 			return null;
 		}
 
@@ -496,6 +599,32 @@ namespace Assets.Scripts.Core.AssetManagement
 			return LoadTexture(textureName, out _, 0);
 		}
 
+		public string PathToAssetFromTextureNameNoExt(string textureNameNoExt) => PathToAssetFromTextureNameNoExt(textureNameNoExt, out _);
+
+		/// <summary>
+		/// Given the name of a texture (like "white" or "sprite/re2a_okoru_a1_0"), returns the path to the texture like
+		/// "D:/games/steam/steamapps/common/Higurashi When They Cry Hou - Ch.6 Tsumihoroboshi/HigurashiEp06_Data/StreamingAssets\CG\white.png")
+		/// The current language and current artset will determine which file extension/which subfolder the image will be taken from.
+		/// </summary>
+		public string PathToAssetFromTextureNameNoExt(string textureNameNoExt, out string subFolderUsed)
+		{
+			string path = null;
+			subFolderUsed = null;
+
+			// Load path from current artset
+			if (path == null && !GameSystem.Instance.UseEnglishText)
+			{
+				path = PathToAssetWithName(textureNameNoExt.ToLower(), "_j.png", CurrentArtset, out subFolderUsed);
+			}
+
+			if (path == null)
+			{
+				path = PathToAssetWithName(textureNameNoExt.ToLower(), ".png", CurrentArtset,out subFolderUsed);
+			}
+
+			return path;
+		}
+
 		public Texture2D LoadTexture(string textureName, int refCount = 1)
 		{
 			return LoadTexture(textureName, out _, refCount);
@@ -524,18 +653,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				texturePath = windowTexturePath;
 				return windowTexture;
 			}
-			string path = null;
-
-			// Load path from current artset
-			if (path == null && !GameSystem.Instance.UseEnglishText)
-			{
-				path = PathToAssetWithName(textureName.ToLower() + "_j.png", CurrentArtset);
-			}
-
-			if (path == null)
-			{
-				path = PathToAssetWithName(textureName.ToLower() + ".png", CurrentArtset);
-			}
+			string path = PathToAssetFromTextureNameNoExt(textureName);
 
 			if (path == null)
 			{
@@ -668,7 +786,7 @@ namespace Assets.Scripts.Core.AssetManagement
 
 			// Use the first file that exists. If none exist, return the last one.
 			string relativePath = "INVALID ASSET PATH";
-			foreach (string assetSubFolder in cascade.paths)
+			foreach (string assetSubFolder in cascade.GetPlainPaths())
 			{
 				relativePath = Path.Combine(assetSubFolder, filename);
 				if (File.Exists(Path.Combine(assetPath, relativePath)))
