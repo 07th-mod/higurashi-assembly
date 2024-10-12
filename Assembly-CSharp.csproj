@@ -246,6 +246,7 @@
     <Compile Include="LTRect.cs" />
     <Compile Include="LTSpline.cs" />
     <Compile Include="MenuUIController.cs" />
+    <Compile Include="MOD.Debugging\MODDebugSpriteMapping.cs" />
     <Compile Include="MOD.ImageMapping\MODImageMappingSaveData.cs" />
     <Compile Include="MOD.ImageMapping\MODImageMapping.cs" />
     <Compile Include="MOD.Scripts.Core.Audio\MODBGMInfo.cs" />

@@ -3,6 +3,7 @@ using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Debugging;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Localization;
@@ -143,6 +144,9 @@ namespace MOD.Scripts.UI
 
 			// Font Adjustment Debug Menu
 			fontMenuFragment.OnGUIFontDebug();
+
+			// Sprite Mapping Debug Menu
+			MODDebugSpriteMapping.OnGUISpriteMapping();
 
 			// Button to close the debug menu
 			if (Button(new GUIContent(Loc.MODMenu_4, Loc.MODMenu_5))) //Close | Close the debug menu

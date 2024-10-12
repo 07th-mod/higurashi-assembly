@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Core.AssetManagement;
+using MOD.Debugging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,6 +26,7 @@ namespace MOD.ImageMapping
 		public static void LoadSavedData(MODImageMappingSaveData modImageMappingSaveData, AssetManager assetManager)
 		{
 			assetManager.lastVoiceFromMODPlayVoiceLSNoExt = modImageMappingSaveData.LastVoiceFromMODPlayVoiceLSNoExt;
+			MODDebugSpriteMapping.RecordLastVoiceLoadedFromSaveFile(modImageMappingSaveData.LastVoiceFromMODPlayVoiceLSNoExt);
 		}
 	}
 }

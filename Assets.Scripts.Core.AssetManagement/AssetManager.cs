@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using BGICompiler.Compiler;
+using MOD.Debugging;
 using MOD.ImageMapping;
 using MOD.Scripts.Core.Audio;
 using System;
@@ -82,14 +83,17 @@ namespace Assets.Scripts.Core.AssetManagement
 				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(mappingFolderPath, "mapping.json", out mappingPath))
 				{
 					mapping = MODImageMapping.GetVoiceBasedMapping(mappingPath);
-					// TODO: remove this once checked its working
-					Debug.Log($"Successfully loaded mapping from {mappingPath} JSON file");
+					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, "Load OK");
 					return true;
+				}
+				else
+				{
+					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, "Not Found");
 				}
 			}
 			catch (Exception e)
 			{
-				Debug.Log($"Failed to load mapping from {mappingPath} JSON file:\n{e}");
+				MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, $"Exception: {e.Message}");
 			}
 
 			mapping = null;
@@ -313,26 +317,31 @@ namespace Assets.Scripts.Core.AssetManagement
 					continue;
 				}
 
-				// TODO: need to make sure "lastVoice" is correctly set, even after loading a save
-				// e.g. need to save the last played voice to the save file!
-
 				// Check if the artset has an ImageMapping, if so, map the input asset
 				// before looking for the file on disk
 				string subFolder = cascadePath.folderPath;
 				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
 				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
 
-				// TODO: remove debug print
-				Debug.Log($"Looking up {cascadePath.folderPath} - {scriptNameNoExt} - {lastPlayedVoice ?? "[null]"} - {pathNoExt}");
+				MODDebugSpriteMapping.RecordSpriteMappingLookupArguments(cascadePath.folderPath, scriptNameNoExt, lastPlayedVoice, pathNoExt);
 				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
 					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, pathNoExt, out string mappedPath, out string debugInfo))
 					{
-						// TODO: remove debug print
-						Debug.Log($"Successfully got mapping {pathNoExt}->{mappedPath} from mapping - Source: {debugInfo}");
+						// Mapped file OK, so use the mapped folder and mapped path for this asset
 						subFolder = cascadePath.mappingFolderPath;
 						pathWithExt = mappedPath + extension;
+
+						MODDebugSpriteMapping.RecordSuccessfulLookupResult(pathNoExt, mappedPath, debugInfo);
 					}
+					else
+					{
+						MODDebugSpriteMapping.RecordFailedLookupResult(pathNoExt, $"GetOGImage failed: {debugInfo}");
+					}
+				}
+				else
+				{
+					MODDebugSpriteMapping.RecordFailedLookupResult(pathNoExt, $"No Mapping for {cascadePath.folderPath}");
 				}
 
 				if (CheckStreamingAssetsPathExists(subFolder, pathWithExt, out string filePath))
