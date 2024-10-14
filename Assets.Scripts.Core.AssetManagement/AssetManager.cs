@@ -748,5 +748,16 @@ namespace Assets.Scripts.Core.AssetManagement
 		{
 			return scriptList.ToArray();
 		}
+
+		public void OnScriptJumpOrCall()
+		{
+			// Each time a jump occurs, or a script is called, reset the last voice (used for Image Mapping ),
+			// as the scanner for Image Mapping resets the last voice each time it enters a new script.
+			//
+			// The last voice based image mapping doesn't really take into account the script advancing non-linearly
+			// within the same script file - it just assumes each script file is executed from start to finish, then
+			// returns to "flow".
+			ImageMappingLastVoiceNoExt = null;
+		}
 	}
 }
