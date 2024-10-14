@@ -31,7 +31,7 @@ namespace MOD.Debugging
 			}
 
 			Label("-- Last Voice --");
-			Label($"Last Voice (Runtime): {AssetManager.Instance.lastVoiceFromMODPlayVoiceLSNoExt ?? "[null]"}");
+			Label($"Last Voice (Runtime): {AssetManager.Instance.ImageMappingLastVoiceNoExt ?? "[null]"}");
 			Label($"Last Voice Loaded From Save File: {LastVoiceLoadedFromSaveFile}");
 
 			Label("-- Mapped Sprite Status --");

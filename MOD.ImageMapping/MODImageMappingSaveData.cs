@@ -13,20 +13,20 @@ namespace MOD.ImageMapping
 		// Image Mapping requires knowing the last voice file played. When you load a save,
 		// you're placed in an arbitrary point in the script, so the last played voice file is not known.
 		// So need to restore the last played voice file when the game was saved.
-		public string LastVoiceFromMODPlayVoiceLSNoExt { get; set; }
+		public string ImageMappingLastVoiceNoExt { get; set; }
 
 		public static MODImageMappingSaveData GetDataToSave(AssetManager assetManager)
 		{
 			return new MODImageMappingSaveData()
 			{
-				LastVoiceFromMODPlayVoiceLSNoExt = assetManager.lastVoiceFromMODPlayVoiceLSNoExt
+				ImageMappingLastVoiceNoExt = assetManager.ImageMappingLastVoiceNoExt
 			};
 		}
 
 		public static void LoadSavedData(MODImageMappingSaveData modImageMappingSaveData, AssetManager assetManager)
 		{
-			assetManager.lastVoiceFromMODPlayVoiceLSNoExt = modImageMappingSaveData.LastVoiceFromMODPlayVoiceLSNoExt;
-			MODDebugSpriteMapping.RecordLastVoiceLoadedFromSaveFile(modImageMappingSaveData.LastVoiceFromMODPlayVoiceLSNoExt);
+			assetManager.ImageMappingLastVoiceNoExt = modImageMappingSaveData.ImageMappingLastVoiceNoExt;
+			MODDebugSpriteMapping.RecordLastVoiceLoadedFromSaveFile(modImageMappingSaveData.ImageMappingLastVoiceNoExt);
 		}
 	}
 }

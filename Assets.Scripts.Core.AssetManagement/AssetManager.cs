@@ -168,7 +168,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
-		public string lastVoiceFromMODPlayVoiceLSNoExt = null;
+		public string ImageMappingLastVoiceNoExt = null;
 
 		public ScriptCompileStatus compileStatus = new ScriptCompileStatus();
 
@@ -318,7 +318,7 @@ namespace Assets.Scripts.Core.AssetManagement
 				// before looking for the file on disk
 				string subFolder = cascadePath.folderPath;
 				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
-				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
+				string lastPlayedVoice = ImageMappingLastVoiceNoExt;
 
 				string debugMaybeMappedPath = null;
 				string debugMappedDescription;
