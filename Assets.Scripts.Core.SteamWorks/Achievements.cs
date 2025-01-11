@@ -8,7 +8,24 @@ namespace Assets.Scripts.Core.SteamWorks
 {
 	public static class Achievements
 	{
-		public static Achievement_t[] achievements;
+		private static Achievement_t[] _achievements;
+
+		public static Achievement_t[] achievements
+		{
+			get
+			{
+				if(_achievements == null)
+				{
+					Load();
+				}
+
+				return _achievements;
+			}
+			set
+			{
+				_achievements = value;
+			}
+		}
 
 		public static void Load()
 		{
