@@ -1098,10 +1098,10 @@ namespace Assets.Scripts.Core.Scene
 		// Just to be safe, I've used the Hou+ version of the function.
 		public void UpdateScreenSize() {
 			Vector2 screenSize = NGUITools.screenSize;
-			float num = screenSize.x / screenSize.y;
-			float num2 = GameSystem.Instance.AspectRatio * 480f;
-			float num3 = 480f;
-			float num4 = (num2 / num3 > num) ? ((float)Mathf.RoundToInt(num2 / num)) : num3;
+			float screenAspectRatio = screenSize.x / screenSize.y;
+			float gameAspectRatioTimes480 = GameSystem.Instance.AspectRatio * 480f;
+			float constant480 = 480f;
+			float num4 = (gameAspectRatioTimes480 / constant480 > screenAspectRatio) ? ((float)Mathf.RoundToInt(gameAspectRatioTimes480 / screenAspectRatio)) : constant480;
 			float num5 = 2f / num4;
 			base.gameObject.transform.localScale = new Vector3(num5, num5, num5);
 			lastWidth = Screen.width;
