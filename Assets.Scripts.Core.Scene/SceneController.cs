@@ -7,6 +7,7 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using Assets.Scripts.UI;
 
 namespace Assets.Scripts.Core.Scene
 {
@@ -1094,6 +1095,33 @@ namespace Assets.Scripts.Core.Scene
 			lastWidth = 0;
 		}
 
+		private float CalculateUIScaleFix(float screenAspectRatio)
+		{
+			// If the game is in 4:3 mode, don't apply any scaling (the unmodded game works fine without any changes)
+			if(GameSystem.Instance.AspectRatio == 4f / 3f)
+			{
+				return 1.0f;
+			}
+
+			// ----------- The below sections are for the game being in 16:9 mode -----------
+			// If screen ratio is 4:3 or lower, apply a fixed scaling factor. This is probably correcting
+			// for some other change I made a long time ago, but I don't know what would have caused it.
+			if (screenAspectRatio <= (4f / 3f))
+			{
+				return 3f / 4f;
+			}
+
+			// If screen ratio is between 4:3 and 16:9, scale UI to fit
+			// eg when there are black bars on top and bottom
+			if (GameSystem.Instance.AspectRatio > screenAspectRatio)
+			{
+				return screenAspectRatio / GameSystem.Instance.AspectRatio;
+			}
+
+			// If screen ratio is greater than 16:9, don't do anything
+			return 1.0f;
+		}
+
 		// In Hou+, possibly this function was updated (or decompiler resulted in different output)
 		// Just to be safe, I've used the Hou+ version of the function.
 		public void UpdateScreenSize() {
@@ -1106,6 +1134,24 @@ namespace Assets.Scripts.Core.Scene
 			base.gameObject.transform.localScale = new Vector3(num5, num5, num5);
 			lastWidth = Screen.width;
 			lastHeight = Screen.height;
+
+			// When you resize the game window so that it is taller than it is wide (or use a 16:10 monitor), if the game is 4:3 resolution,
+			// The text and UI buttons work correctly. However, if you're in 16:9 mode, then the UI "lags" when scaling, so is cut-off.
+			// I'm not 100% sure about this, but I think when the game was created in unity, a 4:3 container UI was used which fills the whole screen,
+			// so it automatically will scale when the window is resized.
+			//
+			// However, when we force the game to 16:9 resolution, the widget doesn't fill the screen anymore, so it doesn't begin to shrink until
+			// you've reduced the window size such that it touches container...or something like that
+			//
+			// The correct way to fix this is to resize the bounding box from 4:3 to 16:9 when entering 16:9 mode, but I couldn't figure out how to do it
+			// also the below way seems to work
+			//
+			// I'm not sure how to fix this properly, so I just forcibly scale the UI proportional to how much smaller the width of the screen is compared
+			// to normal 16:9 mode (e.g if the screen aspect is now 14:9, then the UI is scaled by 14/16).
+			//
+			// Since everything works correctly when the aspect ratio is wider than , in that case the UI scale is not modified.
+			float uiScaleFix = CalculateUIScaleFix(screenAspectRatio);
+			GameSystem.Instance.MainUIController.UpdateGuiScale(uiScaleFix, uiScaleFix);
 		}
 
 		private void Update()
