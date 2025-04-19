@@ -326,10 +326,11 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			// By default, the game saves globals only when you try to quit the game
 			// If you force close the game, or the game crashes, this can cause globals to be lost, even though you have created a game "save"
-			// This is probably the cause of some confusing bug reports where various flags were not set.
+			// This is probably the cause of some confusing bug reports where various flags were not set, but the user has
+			// progressed past the point where the flag should be set
 			// Specifically for steam deck, it is very easy to force close the game by powering off the Steam Deck, or exiting the game via the SteamOS menu.
 			//
-			// To alleviate this, the below also saves globals every time normal or quick saves are created.
+			// To alleviate this for the time being, the below also saves globals every time normal or quick saves are created.
 			BurikoMemory.Instance.SaveGlobals();
 
 			if (hasSnapshot)
