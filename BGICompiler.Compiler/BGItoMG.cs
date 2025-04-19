@@ -59,7 +59,7 @@ namespace BGICompiler.Compiler
 				binaryWriter.Write(item.Value);
 			}
 			binaryWriter.Write(array);
-			File.WriteAllBytes(outname, memoryStream.ToArray());
+			MODUtility.WriteAllBytesSemiAtomicOrShowToast(outname, memoryStream.ToArray());
 		}
 
 		public void OutputCmd(BurikoCommands cmd)

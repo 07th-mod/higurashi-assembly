@@ -279,48 +279,52 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
-		public void ModifySaveGame(int slot, string description)
-		{
-			Debug.Log("ModifySaveGame " + slot);
-			SaveEntry saveInfoInSlot = saveManager.GetSaveInfoInSlot(slot);
-			if (saveInfoInSlot != null)
-			{
-				byte[] array = File.ReadAllBytes(saveInfoInSlot.Path);
-				MGHelper.KeyEncode(array);
-				byte[] buffer = CLZF2.Decompress(array);
-				MemoryStream memoryStream = new MemoryStream(buffer);
-				MemoryStream memoryStream2 = new MemoryStream();
-				BinaryReader binaryReader = new BinaryReader(memoryStream);
-				BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
-				binaryWriter.Write(binaryReader.ReadBytes(16));
-				binaryReader.ReadString();
-				binaryWriter.Write(description);
-				binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
-				byte[] inputBytes = memoryStream2.ToArray();
-				memoryStream.Dispose();
-				memoryStream2.Dispose();
-				byte[] array2 = CLZF2.Compress(inputBytes);
-				MGHelper.KeyEncode(array2);
-				File.WriteAllBytes(saveInfoInSlot.Path, array2);
-				saveManager.UpdateSaveSlot(slot);
-			}
-		}
+		// This function is never used
+		//
+		//public void ModifySaveGame(int slot, string description)
+		//{
+		//	Debug.Log("ModifySaveGame " + slot);
+		//	SaveEntry saveInfoInSlot = saveManager.GetSaveInfoInSlot(slot);
+		//	if (saveInfoInSlot != null)
+		//	{
+		//		byte[] array = File.ReadAllBytes(saveInfoInSlot.Path);
+		//		MGHelper.KeyEncode(array);
+		//		byte[] buffer = CLZF2.Decompress(array);
+		//		MemoryStream memoryStream = new MemoryStream(buffer);
+		//		MemoryStream memoryStream2 = new MemoryStream();
+		//		BinaryReader binaryReader = new BinaryReader(memoryStream);
+		//		BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
+		//		binaryWriter.Write(binaryReader.ReadBytes(16));
+		//		binaryReader.ReadString();
+		//		binaryWriter.Write(description);
+		//		binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
+		//		byte[] inputBytes = memoryStream2.ToArray();
+		//		memoryStream.Dispose();
+		//		memoryStream2.Dispose();
+		//		byte[] array2 = CLZF2.Compress(inputBytes);
+		//		MGHelper.KeyEncode(array2);
+		//		File.WriteAllBytes(saveInfoInSlot.Path, array2);
+		//		saveManager.UpdateSaveSlot(slot);
+		//	}
+		//}
 
-		public void ModifySnapshotDescription(string newdescription)
-		{
-			Debug.Log("ModifySnapshotDescription: " + newdescription);
-			MemoryStream memoryStream = new MemoryStream(snapshotData);
-			MemoryStream memoryStream2 = new MemoryStream();
-			BinaryReader binaryReader = new BinaryReader(memoryStream);
-			BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
-			binaryWriter.Write(binaryReader.ReadBytes(16));
-			binaryReader.ReadString();
-			binaryWriter.Write(newdescription);
-			binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
-			snapshotData = memoryStream2.ToArray();
-			memoryStream.Dispose();
-			memoryStream2.Dispose();
-		}
+		// This function is never used
+		//
+		//public void ModifySnapshotDescription(string newdescription)
+		//{
+		//	Debug.Log("ModifySnapshotDescription: " + newdescription);
+		//	MemoryStream memoryStream = new MemoryStream(snapshotData);
+		//	MemoryStream memoryStream2 = new MemoryStream();
+		//	BinaryReader binaryReader = new BinaryReader(memoryStream);
+		//	BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
+		//	binaryWriter.Write(binaryReader.ReadBytes(16));
+		//	binaryReader.ReadString();
+		//	binaryWriter.Write(newdescription);
+		//	binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
+		//	snapshotData = memoryStream2.ToArray();
+		//	memoryStream.Dispose();
+		//	memoryStream2.Dispose();
+		//}
 
 		public void SaveGame(int slotnum)
 		{
@@ -338,7 +342,7 @@ namespace Assets.Scripts.Core.Buriko
 				byte[] array = CLZF2.Compress(snapshotData);
 				MGHelper.KeyEncode(array);
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
-				File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
+				MODUtility.WriteAllBytesSemiAtomicOrShowToast(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
 				saveManager.UpdateSaveSlot(slotnum);
 				GameSystem.Instance.SceneController.WriteScreenshot(Path.Combine(MGHelper.GetSavePath(), str + ".png"));
 			}
