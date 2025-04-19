@@ -26,6 +26,8 @@ namespace MOD.Scripts.UI
 		private readonly GUIContent[] radioLipSyncActive;
 		private readonly GUIContent[] radioLipSyncInactive;
 		private readonly MODRadio radioOpenings;
+		// Only for console arcs - Sets story choice to be auto good choice, highlight good choice etc.
+		private readonly MODRadio radioChoiceMode;
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
@@ -100,6 +102,13 @@ Sets the script censorship level
 				new GUIContent("Launch + In-Game", "WARNING: There is usually no need to set this manually.\n\n" +
 				"If openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\n" +
 				"That is, after the opening is played the first time, from then on openings will play every time the game launches"),
+			});
+
+			radioChoiceMode = new MODRadio("Choice Mode (Console Arcs Only)", new GUIContent[]
+			{
+							new GUIContent("Skip / Auto Good End", "Skip choices. Proceed toward the good ending"),
+							new GUIContent("Normal", "Prompt choices normally"),
+							new GUIContent("Highlight Good", "Prompt choices and highlight correct answers"),
 			});
 
 			radioHideCG = new MODRadio("Show/Hide CGs", new GUIContent[]
@@ -317,6 +326,11 @@ Sets the script censorship level
 			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
 			{
 				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
+			};
+
+			if (this.radioChoiceMode.OnGUIFragment(GetGlobal("GChoiceMode")) is int choiceMode)
+			{
+				SetGlobal("GChoiceMode", choiceMode);
 			};
 		}
 
