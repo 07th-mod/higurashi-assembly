@@ -35,18 +35,17 @@ namespace Assets.Scripts.Core.Buriko
 			return saveList[slot];
 		}
 
+		private void TryDeleteSaveComponent(int slot, string extensionWithDot)
+		{
+			string saveFileName = $"save{slot:D3}{extensionWithDot}";
+			MODUtility.TryDelete(Path.Combine(MGHelper.GetSavePath(), saveFileName));
+		}
+
 		public void DeleteSave(int slot)
 		{
-			string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", slot.ToString("D3")));
-			string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.png", slot.ToString("D3")));
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-			if (File.Exists(path2))
-			{
-				File.Delete(path2);
-			}
+			TryDeleteSaveComponent(slot, ".dat");
+			TryDeleteSaveComponent(slot, ".jpg");
+			TryDeleteSaveComponent(slot, ".png");
 			saveList.Remove(slot);
 		}
 

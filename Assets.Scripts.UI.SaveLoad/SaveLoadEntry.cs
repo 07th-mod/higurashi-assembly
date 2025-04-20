@@ -48,7 +48,7 @@ namespace Assets.Scripts.UI.SaveLoad
 				}
 			}
 			BottomLabel.text = empty.Replace("\n", " ").TrimStart(' ', '\n');
-			SaveTexture.mainTexture = AssetManager.Instance.LoadScreenshot(Path.GetFileNameWithoutExtension(entry.Path) + ".png");
+			SaveTexture.mainTexture = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(Path.GetFileNameWithoutExtension(entry.Path));
 		}
 
 		private void DisableButton()
