@@ -40,6 +40,13 @@ namespace MOD.Scripts.Core.Scene
 
             public static void SetLastDrawInformation(int character, int layer, string baseTextureName)
             {
+                // Ignore any 'null' texture and print error message
+                if(baseTextureName == null)
+                {
+                    MODLogger.Log($"WARNING: LastDrawInformationManager.SetLastDrawInformation called with baseTextureName = null (character: {character} layer: {layer})", true);
+                    return;
+                }
+
                 if (character < lastDrawInformation.Length)
                 {
                     lastDrawInformation[character] = new LastDrawInformation(layer, baseTextureName);
@@ -213,6 +220,13 @@ namespace MOD.Scripts.Core.Scene
                 DebugLog($"Texture Cache count: {cache.Keys.Count}");
 
                 if(!LastDrawInformationManager.GetLastDrawInformation(character, out LastDrawInformation info))
+                {
+                    textureGroup = null;
+                    return false;
+                }
+
+                // If the baseTextureName is null, we won't know what texture to load, so just give up
+                if(info.baseTextureName == null)
                 {
                     textureGroup = null;
                     return false;

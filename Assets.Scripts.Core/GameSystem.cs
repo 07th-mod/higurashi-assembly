@@ -12,7 +12,7 @@ using Assets.Scripts.UI.CGGallery;
 using Assets.Scripts.UI.Choice;
 using Assets.Scripts.UI.Config;
 using Assets.Scripts.UI.Prompt;
-using MOD.Scripts.Core;
+using MOD.Scripts.Core.Localization;
 using MOD.Scripts.UI;
 using System;
 using System.Collections;
@@ -237,7 +237,7 @@ namespace Assets.Scripts.Core
 		{
 			Logger.Log($"GameSystem: Starting GameSystem - DLL Version: {MODUtility.InformationalVersion()}");
 			MainUIController.InitializeToaster();
-			MODLocalization.LoadFromJSON();
+			Loc.LoadFromJSON();
 			IsInitialized = true;
 			AssetManager = new AssetManager();
 			AudioController = new AudioController();
@@ -497,8 +497,17 @@ namespace Assets.Scripts.Core
 		{
 			if (ChoiceController != null)
 			{
-				ChoiceController.Destroy();
-				ChoiceController = null;
+				if (GameSystem.Instance.GameState == GameState.ChoiceScreen)
+				{
+					// If you're currently on the choice screen, then cleanly leave the choices state and delete the choice controller
+					LeaveChoices();
+				}
+				else
+				{
+					// If you're on another screen layered ontop of the choice screen (eg the load screen), just delete the choice controller and hope for the best.
+					ChoiceController.Destroy();
+					ChoiceController = null;
+				}
 			}
 		}
 
@@ -893,14 +902,18 @@ namespace Assets.Scripts.Core
 			if (screenModeSet == -1)
 			{
 				screenModeSet = 0;
+				string source = "Screen.currentResolution";
 				fullscreenResolution = Screen.currentResolution;
 				if (PlayerPrefs.HasKey("fullscreen_width") && PlayerPrefs.HasKey("fullscreen_height") && Screen.fullScreen)
 				{
+					source = "PlayerPrefs[fullscreen_width] and [fullscreen_height]";
 					fullscreenResolution.width = PlayerPrefs.GetInt("fullscreen_width");
 					fullscreenResolution.height = PlayerPrefs.GetInt("fullscreen_height");
 				}
-				Debug.Log("Fullscreen Resolution: " + fullscreenResolution.width + ", " + fullscreenResolution.height);
+				Debug.Log($"LateUpdate Fullscreen Resolution: [{fullscreenResolution.width}, {fullscreenResolution.height}] Source: [{source}]");
 			}
+
+			MOD.Scripts.Core.MODResolutionMonitor.Update();
 		}
 
 		private bool CheckInitialization()
@@ -1064,7 +1077,16 @@ namespace Assets.Scripts.Core
 			}
 		}
 
-		public Resolution GetFullscreenResolution()
+		public bool MODWindowedResolutionValid(int width, int height)
+		{
+			Resolution fullScreenResolution = GetFullscreenResolution();
+			return width > 320 &&
+				height > 240 &&
+				width <= fullScreenResolution.width &&
+				height <= fullScreenResolution.height;
+		}
+
+		public Resolution GetFullscreenResolution(bool useOverride = true, bool doLogging = true)
 		{
 			Resolution resolution = new Resolution();
 			string source = "";
@@ -1098,7 +1120,14 @@ namespace Assets.Scripts.Core
 			// If it's bigger than that, then switch over
 			// Note that this (from what I can tell) gives you the biggest resolution of any of your monitors,
 			// not just the one the game is running under, so it could *also* be wrong, which is why we check both methods
-			if (Screen.resolutions.Length > 0)
+			//
+			// NOTE: On the Higurashi Rei (Ep9) and Hou+ (Ep10) versions of Unity (2019.4.36), Screen.resolutions doesn't work correctly.
+			// The unmodded game for Ep9 and Ep10 works correctly on my laptop, implying the 'stock' fullscreen resolution is correct.
+			// As a result the below "best resolution" code has been disabled for Ep9 and Ep10 (and future chapters too) and the LateUpdate() resolution is used instead.
+			//
+			// See: https://github.com/07th-mod/hou-plus/issues/13
+			const bool doBestResolutionScanning = true;
+			if (doBestResolutionScanning && Screen.resolutions.Length > 0)
 			{
 				int index = 0;
 				Resolution best = Screen.resolutions[0];
@@ -1124,17 +1153,24 @@ namespace Assets.Scripts.Core
 				PlayerPrefs.SetInt("fullscreen_height_override", 0);
 			}
 
-			if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
+			if(useOverride)
 			{
-				resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
-				source += " + Width Override";
+				if (PlayerPrefs.GetInt("fullscreen_width_override") > 0)
+				{
+					resolution.width = PlayerPrefs.GetInt("fullscreen_width_override");
+					source += " + Width Override";
+				}
+				if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
+				{
+					resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
+					source += " + Height Override";
+				}
 			}
-			if (PlayerPrefs.GetInt("fullscreen_height_override") > 0)
+
+			if(doLogging)
 			{
-				resolution.height = PlayerPrefs.GetInt("fullscreen_height_override");
-				source += " + Height Override";
+				Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			}
-			Debug.Log("Using resolution " + resolution.width + "x" + resolution.height + " as the fullscreen resolution based on " + source + ".");
 			return resolution;
 		}
 

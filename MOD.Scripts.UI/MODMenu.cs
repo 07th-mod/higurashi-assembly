@@ -5,6 +5,7 @@ using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
+using MOD.Scripts.Core.Localization;
 using MOD.Scripts.Core.State;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace MOD.Scripts.UI
 		private readonly GameSystem gameSystem;
 		public bool visible;
 		public bool debug;
+		private bool lastDebug;
 		private bool lastMenuVisibleStatus;
 		private MODSimpleTimer defaultToolTipTimer;
 		private MODSimpleTimer startupWatchdogTimer;
@@ -43,22 +45,11 @@ namespace MOD.Scripts.UI
 		private MODMenuAudioSetup audioSetupMenu;
 		private MODMenuModuleInterface currentMenu; // The menu that is currently visible
 
+		private MODMenuFontConfig fontMenuFragment;
+
 		string lastToolTip = String.Empty;
 
-		string startupFailureToolTip = @"It looks like there was a problem starting up
-
-Please send the developers your log file (output_log.txt or Player.log).
-
-You can try the following yourself to fix the issue.
-  1. Try waiting 30 seconds for the game to progress. If nothing happens, try restarting the game
-
-  2. Use the buttons under 'Troubleshooting' on the bottom left to show your save files, log files, and compiled scripts.
-
-  3. If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).
-
-  4. You can try to clear your compiled script files, then restart the game.
-
-  5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.";
+		string startupFailureToolTip = Loc.MODMenu_16; //It looks like there was a problem starting up\n\nPlease send the developers your log file (output_log.txt or Player.log).\n\nYou can try the following yourself to fix the issue.\n  1. Try waiting 30 seconds for the game to progress. If nothing happens, try restarting the game\n\n  2. Use the buttons under 'Troubleshooting' on the bottom left to show your save files, log files, and compiled scripts.\n\n  3. If the log indicates you have corrupt save files, you may wish to delete the offending save file (or all of them).\n\n  4. You can try to clear your compiled script files, then restart the game.\n\n  5. If the above do not fix the problem, please click the 'Open Support Page' button, which has extra troubleshooting info and links to join our Discord server for direct support.
 
 		bool showBGMButtonPressed;
 		Vector2 bgmInfoScrollPosition;
@@ -79,6 +70,7 @@ You can try the following yourself to fix the issue.
 			this.audioOptionsMenu = new MODMenuAudioOptions(this);
 			this.normalMenu = new MODMenuNormal(this, this.audioOptionsMenu);
 			this.audioSetupMenu = new MODMenuAudioSetup(this, this.audioOptionsMenu);
+			this.fontMenuFragment = new MODMenuFontConfig();
 			this.currentMenu = this.normalMenu;
 
 			this.debugWindowRect = new Rect(0, 0, Screen.width / 3, Screen.height - 50);
@@ -104,6 +96,12 @@ You can try the following yourself to fix the issue.
 			}
 		}
 
+		private void OnBeforeDebugMenuVisible()
+		{
+			fontMenuFragment.OnBeforeMenuVisible();
+		}
+
+		// This is a separate, smaller draggable mod menu, mainly for developer use.
 		private void OnGUIDebugWindow(int windowID)
 		{
 			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
@@ -112,42 +110,42 @@ You can try the following yourself to fix the issue.
 			bool bgmFlagOK = MODAudioSet.Instance.GetBGMCascade(GetGlobal("GAltBGM"), out PathCascadeList BGMCascade);
 			bool seFlagOK = MODAudioSet.Instance.GetSECascade(GetGlobal("GAltSE"), out PathCascadeList SECascade);
 
+			// ============================= Begin Sroll View =============================
 			if (!visible)
 			{
 				leftDebugColumnScrollPosition = GUILayout.BeginScrollView(leftDebugColumnScrollPosition, GUILayout.Width(Screen.width / 3), GUILayout.Height(Screen.height*9/10));
 			}
-			GUILayout.Label($"[Audio Tracking] - indicates what would play on each BGM flow", styleManager.Group.upperLeftHeadingLabel);
-			GUILayout.Label($"{MODAudioTracking.Instance}", styleManager.Group.upperLeftHeadingLabel);
+			HeadingLabel(Loc.MODMenu_0); //[Audio Tracking] - indicates what would play on each BGM flow
+			Label($"{MODAudioTracking.Instance}");
 
-			GUILayout.Label($"[Audio Flags and last played audio]", styleManager.Group.upperLeftHeadingLabel);
-			GUILayout.Label($"Audio Set: {GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n" +
-				"\n" +
+			HeadingLabel(Loc.MODMenu_1); //[Audio Flags and last played audio]
+			Label($"Audio Set: {GetGlobal("GAudioSet")} ({MODAudioSet.Instance.GetCurrentAudioSetDisplayName()})\n\n" +
 				$"AltBGM: {GetGlobal("GAltBGM")}\n" +
 				$"AltBGMFlow: {GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(GetGlobal("GAltBGMflow"))})\n" +
 				$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
-				$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n" +
-				"\n" +
+				$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n\n" +
 				$"AltSE:  {GetGlobal("GAltSE")}\n" +
 				$"AltSEFlow: {GetGlobal("GAltSEflow")}\n" +
 				$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
 				$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
 				$"Voice: {GetGlobal("GAltVoice")}\n" +
-				$"Priority: {GetGlobal("GAltVoicePriority")}\n" +
-				"\n" +
+				$"Priority: {GetGlobal("GAltVoicePriority")}\n\n" +
 				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
 				$"Other Last Played Path: {AssetManager.Instance.debugLastOtherAudio}");
 
-			GUILayout.Label(Core.Scene.MODLipsyncCache.DebugInfo());
+			Label(Core.Scene.MODLipsyncCache.DebugInfo());
 
-			if (debug)
+			// Button to reset GAudio Set
+			if(Button(new GUIContent(Loc.MODMenu_2, Loc.MODMenu_3))) //Reset GAudioSet | Set GAudioSet to 0, to force the game to do audio setup on next startup
 			{
-				if(Button(new GUIContent("Reset GAudioSet", "Set GAudioSet to 0, to force the game to do audio setup on next startup")))
-				{
-					SetGlobal("GAudioSet", 0);
-				}
+				SetGlobal("GAudioSet", 0);
 			}
 
-			if (Button(new GUIContent("Close", "Close the debug menu")))
+			// Font Adjustment Debug Menu
+			fontMenuFragment.OnGUIFontDebug();
+
+			// Button to close the debug menu
+			if (Button(new GUIContent(Loc.MODMenu_4, Loc.MODMenu_5))) //Close | Close the debug menu
 			{
 				ToggleDebugMenu();
 			}
@@ -155,6 +153,12 @@ You can try the following yourself to fix the issue.
 			if (!visible)
 			{
 				GUILayout.EndScrollView();
+			}
+			// ============================= End Scroll View =============================
+
+			if(GameSystem.Instance.MODIgnoreInputs())
+			{
+				Label("NOTE: Game Paused while Mouse On Debug Menu!");
 			}
 
 			GUI.DragWindow(new Rect(0, 0, 10000, 10000));
@@ -238,10 +242,24 @@ You can try the following yourself to fix the issue.
 			MODStyleManager styleManager = MODStyleManager.OnGUIInstance;
 			buttonClickSound = GUISound.Click;
 
+			// If no menus are visible, allow mod inputs
+			if(!visible && !debug)
+			{
+				gameSystem.SetMODIgnoreInputs(false);
+			}
+
+			if (debug && !lastDebug)
+			{
+				OnBeforeDebugMenuVisible();
+			}
 			if (debug && AssetManager.Instance != null)
 			{
-				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, "Developer Debug Window (click to drag)", styleManager.modMenuAreaStyleLight);
+				debugWindowRect = GUILayout.Window(DEBUG_WINDOW_ID, debugWindowRect, OnGUIDebugWindow, Loc.MODMenu_6, styleManager.modMenuAreaStyleLight); //Developer Debug Window (click to drag)
+
+				// Prevent mouse clicks being registered by the game when using debug menu
+				gameSystem.SetMODIgnoreInputs(debugWindowRect.Contains(Input.mousePosition));
 			}
+			lastDebug = debug;
 
 			GUI.depth = 0;
 
@@ -268,14 +286,14 @@ You can try the following yourself to fix the issue.
 			// (the normal settings screen that comes with the stock game)
 			if (gameSystem.GameState == GameState.ConfigScreen)
 			{
-				OnGUIConfigMenuButton("Mod Menu\n(Hotkey: F10)", gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show());
+				OnGUIConfigMenuButton(Loc.MODMenu_7, gameSystem.ConfigManager()?.PanelAlpha(), () => this.Show()); //Mod Menu\n(Hotkey: F10)
 			}
 
 			if (!visible && gameSystem.GameState == GameState.RightClickMenu)
 			{
 				OnGUIRightClickMenuOverlay(gameSystem.MenuUIController()?.PanelAlpha(), () =>
 				{
-					HeadingLabel("BGM Info", alignLeft: true);
+					HeadingLabel(Loc.MODMenu_8, alignLeft: true); //BGM Info
 					GUILayout.Space(10);
 
 					// It is possible multiple BGM play at the same time (although secondary BGM are usually just background noises rather than actualBGM)
@@ -298,12 +316,12 @@ You can try the following yourself to fix the issue.
 						// Below the BGM name, add utility buttons, all one one line
 						GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
 						{
-							if (ButtonNoExpandWithPadding($"Copy BGM Name"))
+							if (ButtonNoExpandWithPadding(Loc.MODMenu_9)) //Copy BGM Name
 							{
 								GUIUtility.systemCopyBuffer = bgmInfo.name.Trim();
 							}
 
-							if (ButtonNoExpandWithPadding($"Show File ({audioPath})"))
+							if (ButtonNoExpandWithPadding(Loc.MODMenu_10 + $" ({audioPath})")) //Show File
 							{
 								string bgmFullPath = Path.Combine(Application.streamingAssetsPath, audioPath);
 								showBGMButtonPressed = true;
@@ -312,7 +330,7 @@ You can try the following yourself to fix the issue.
 
 							if (!string.IsNullOrEmpty(bgmInfo.url))
 							{
-								if (ButtonNoExpandWithPadding("Open In Youtube"))
+								if (ButtonNoExpandWithPadding(Loc.MODMenu_11)) //Open In Youtube
 								{
 									Application.OpenURL($"https://www.youtube.com/watch?v={bgmInfo.url}");
 								}
@@ -329,7 +347,7 @@ You can try the following yourself to fix the issue.
 					// On Windows, add note about explorer .ogg file bug
 					if (showBGMButtonPressed && Application.platform == RuntimePlatform.WindowsPlayer)
 					{
-						Label("Note: If explorer freezes\nuninstall Web Media Extensions");
+						Label(Loc.MODMenu_12); //Note: If explorer freezes\nuninstall Web Media Extensions
 					}
 				});
 			}
@@ -429,7 +447,7 @@ You can try the following yourself to fix the issue.
 					if (currentMenu.UserCanClose())
 					{
 						GUILayout.BeginArea(new Rect(toolTipPosX + toolTipWidth - exitButtonWidth - innerMargin, innerMargin, exitButtonWidth, exitButtonHeight));
-						if (Button(new GUIContent("X", "Close the Mod menu")))
+						if (Button(new GUIContent(Loc.MODMenu_13, Loc.MODMenu_14))) //X | Close the Mod menu
 						{
 							this.UserHide();
 						}
@@ -486,7 +504,7 @@ You can try the following yourself to fix the issue.
 
 			if (gameSystem.GameState == GameState.SaveLoadScreen)
 			{
-				MODToaster.Show("Please close the current menu and try again");
+				MODToaster.Show(Loc.MODMenu_15); //Please close the current menu and try again
 			}
 			else if (gameSystem.GameState == GameState.ConfigScreen)
 			{

@@ -1,4 +1,5 @@
 ﻿using MOD.Scripts.Core.Audio;
+using MOD.Scripts.Core.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace MOD.Scripts.UI
 		{
 			this.modMenu = m;
 
-			this.radioBGMSESet = new MODRadio("Audio Presets (Hotkey: 2)", new GUIContent[] { }, itemsPerRow: 2, asButtons: true);
-			this.radioSE = new MODRadio("Override SE", new GUIContent[] { },  itemsPerRow: 2);
+			this.radioBGMSESet = new MODRadio(Loc.MODMenuAudioOptions_0, new GUIContent[] { }, itemsPerRow: 2, asButtons: true); //Audio Presets (Hotkey: 2)
+			this.radioSE = new MODRadio(Loc.MODMenuAudioOptions_1, new GUIContent[] { },  itemsPerRow: 2); //Override SE
 		}
 
 		public void ReloadMenu()
@@ -34,21 +35,20 @@ namespace MOD.Scripts.UI
 				// Append message to button text/tooltip if audioSet is not installed
 				if (!audioSet.IsInstalledCached())
 				{
-					string bgmPrimaryInfo = "Invalid BGM cascade";
+					string bgmPrimaryInfo = Loc.MODMenuAudioOptions_2; //Invalid BGM cascade
 					if (audioSet.BGMCascade(out var bgmCascade) && bgmCascade.PrimaryFolder(out string bgmPrimary))
 					{
 						bgmPrimaryInfo = bgmPrimary;
 					}
 
-					string sePrimaryInfo = "Invalid SE cascade";
+					string sePrimaryInfo = Loc.MODMenuAudioOptions_3; //Invalid SE cascade
 					if (audioSet.SECascade(out var seCascade) && seCascade.PrimaryFolder(out string sePrimary))
 					{
 						sePrimaryInfo = sePrimary;
 					}
 
-					buttonText += " (NOT INSTALLED)";
-					tooltipText += $"\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\n" +
-						$"You're either missing the BGM folder '{bgmPrimaryInfo}' or the SE folder '{sePrimaryInfo}' in the StreamingAssets folder.";
+					buttonText += Loc.MODMenuAudioOptions_4; //(NOT INSTALLED)
+					tooltipText += Loc.MODMenuAudioOptions_5 + $" '{bgmPrimaryInfo}'/'{sePrimaryInfo}'"; //\n\nWARNING: This audio set is not installed! You can try to run the installer again to update your mod with this option.\nYou're missing the BGM or SE folder in the StreamingAssets folder:
 				}
 
 				buttonContents.Add(new GUIContent(buttonText, tooltipText));
@@ -58,7 +58,7 @@ namespace MOD.Scripts.UI
 
 			this.radioSE.SetContents(
 				MODAudioSet.Instance.SECascades.Select(
-					c => new GUIContent(c.nameEN, $"This allows you to use the '{c.nameEN}' sound effects, regardless of what the audio preset would use.")
+					c => new GUIContent(c.nameEN, Loc.MODMenuAudioOptions_6 + $"'{c.nameEN}'") //Force enable the following sound effects (ignore preset SE):
 				).ToArray()
 			);
 		}
@@ -72,7 +72,7 @@ namespace MOD.Scripts.UI
 		{
 			bool hideLabel = setupMenu;
 
-			Label("The patch supports different Background Music (BGM) and Sound Effects(SE). Please click the button below for more information.");
+			Label(Loc.MODMenuAudioOptions_7); //The patch supports different Background Music (BGM) and Sound Effects(SE). Please click the button below for more information.
 
 			// Add extra spacing on setup menu so it looks nicer
 			if(setupMenu)
@@ -80,17 +80,16 @@ namespace MOD.Scripts.UI
 				GUILayout.Space(20);
 			}
 
-			if (Button(new GUIContent("Open BGM/SE FAQ: 07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/", "Click here to open the  Background Music (BGM) and Sound Effects (SE) FAQ in your browser.\n\nThe BGM/SE FAQ contains information on the settings below.")))
+			if (Button(new GUIContent(Loc.MODMenuAudioOptions_8, Loc.MODMenuAudioOptions_9))) //Open BGM/SE FAQ: 07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/ | Click here to open the  Background Music (BGM) and Sound Effects (SE) FAQ in your browser.\n\nThe BGM/SE FAQ contains information on the settings below.
 			{
-				Application.OpenURL("https://07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/");
+				Application.OpenURL(Loc.MODMenuAudioOptions_10); //https://07th-mod.com/wiki/Higurashi/BGM-SE-FAQ/
 			}
 
 			GUILayout.Space(20);
 
 			if (setupMenu)
 			{
-				Label("To continue, please choose a BGM/SE option below (hover button for info).\n" +
-					"You can change this option later via the mod menu.");
+				Label(Loc.MODMenuAudioOptions_11); //To continue, please choose a BGM/SE option below (hover button for info).\nYou can change this option later via the mod menu.
 			}
 
 			if (MODAudioSet.Instance.HasAudioSetsDefined())
@@ -107,7 +106,7 @@ namespace MOD.Scripts.UI
 						}
 						else
 						{
-							MODToaster.Show("Option Not Installed!", maybeSound: null);
+							MODToaster.Show(Loc.MODMenuAudioOptions_12, maybeSound: null); //Option Not Installed!
 							this.modMenu.OverrideClickSound(GUISound.Disable);
 						}
 					}

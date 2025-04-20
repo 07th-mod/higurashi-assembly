@@ -72,4 +72,20 @@ public class TextRefresher : MonoBehaviour
 		if (textMesh == null) { return; }
 		textMesh.fontSize = size;
 	}
+
+	// See MainUIController for detailed comments on this
+	public void SetFontWeight(float weight)
+	{
+		textMesh.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_WeightNormal, weight);
+	}
+
+	public void SetFontOutlineWidth(float outlineWidth)
+	{
+		// Unsure why, but setting the outline width via the property "textMesh.outlineWidth" causes
+		// the config menu text to disappear entirely, no matter what setting you use, even though
+		// when using that same property for the main text window works fine.
+		//
+		// Setting the value in the shader directly seems to work.
+		textMesh.fontSharedMaterial.SetFloat(TMPro.ShaderUtilities.ID_OutlineWidth, outlineWidth);
+	}
 }

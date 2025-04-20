@@ -35,18 +35,17 @@ namespace Assets.Scripts.Core.Buriko
 			return saveList[slot];
 		}
 
+		private void TryDeleteSaveComponent(int slot, string extensionWithDot)
+		{
+			string saveFileName = $"save{slot:D3}{extensionWithDot}";
+			MODUtilityNoDeps.TryDelete(Path.Combine(MGHelper.GetSavePath(), saveFileName));
+		}
+
 		public void DeleteSave(int slot)
 		{
-			string path = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.dat", slot.ToString("D3")));
-			string path2 = Path.Combine(MGHelper.GetSavePath(), string.Format("save{0}.png", slot.ToString("D3")));
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-			if (File.Exists(path2))
-			{
-				File.Delete(path2);
-			}
+			TryDeleteSaveComponent(slot, ".dat");
+			TryDeleteSaveComponent(slot, ".jpg");
+			TryDeleteSaveComponent(slot, ".png");
 			saveList.Remove(slot);
 		}
 
@@ -77,10 +76,15 @@ namespace Assets.Scripts.Core.Buriko
 								throw new FileLoadException("Save file does not appear to be valid! Invalid header.");
 							}
 							int num = binaryReader.ReadInt32();
-							if (num != 1)
-							{
-								throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
-							}
+							// Note: On 01-01-2024, Ch.8 removed the save version check, so that saves with a version other than 1
+							// could be loaded. Currently, there are only two versions 1 (initial version) and 2 (priority included in save file)
+							//
+							// Please note that this means older versions of the DLL won't be able to load new saves, so you won't be able to
+							// downgrade DLL version and keep your save after this.
+							// if (num != 1)
+							// {
+							// 	throw new FileLoadException("Save file does not appear to be valid! Invalid version number.");
+							// }
 							saveEntry2.Time = DateTime.FromBinary(binaryReader.ReadInt64());
 							string textJp = binaryReader.ReadString();
 							string text = saveEntry2.Text = binaryReader.ReadString();

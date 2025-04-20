@@ -2697,8 +2697,7 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			SetOperationType("MODSetMainFontOutlineWidth");
 			int width = ReadVariable().IntValue();
-			GameSystem.Instance.OutlineWidth = width / 100f;
-			GameSystem.Instance.MainUIController.TextWindow.outlineWidth = GameSystem.Instance.OutlineWidth;
+			MODFontAdjuster.SetFontOutlineWidth(width/100f);
 			return BurikoVariable.Null;
 		}
 
@@ -2833,8 +2832,8 @@ namespace Assets.Scripts.Core.Buriko
 					string[] lipSyncParams = callParameters.Split(',');
 
 					if(lipSyncParams.Length == 3 &&
-					   float.TryParse(lipSyncParams[0].Trim(), out float thresh1) &&
-					   float.TryParse(lipSyncParams[1].Trim(), out float thresh2) &&
+					   MODUtility.TryParseInvariantCulture(lipSyncParams[0].Trim(), out float thresh1) &&
+					   MODUtility.TryParseInvariantCulture(lipSyncParams[1].Trim(), out float thresh2) &&
 					   bool.TryParse(lipSyncParams[2].Trim(), out bool forceComputedLipsync))
 					{
 						GameSystem.Instance.SceneController.MODSetExpressionThresholds(thresh1, thresh2);
@@ -2848,13 +2847,34 @@ namespace Assets.Scripts.Core.Buriko
 
 				case "LipSyncCacheSettings":
 					string[] lipSyncCacheParams = callParameters.Split(',');
-					if (lipSyncCacheParams.Length == 1 && int.TryParse(lipSyncCacheParams[0].Trim(), out int maxAge))
+					if (lipSyncCacheParams.Length == 1 && MODUtility.TryParseInvariantCulture(lipSyncCacheParams[0].Trim(), out int maxAge))
 					{
 						MODLipsyncCache.SetMaxTextureAge(maxAge);
 					}
 					else
 					{
 						Debug.LogError("MODGenericCall Error: invalid format for LipSyncCacheSettings, should be '2' for example");
+					}
+					break;
+
+				case "NormalFontWeight":
+					if(MODUtility.TryParseInvariantCulture(callParameters, out int normalFontWeightPercent))
+					{
+						MODFontAdjuster.SetNormalFontWeight(normalFontWeightPercent / 100.0f);
+					}
+					break;
+
+				case "BoldFontWeight":
+					if (MODUtility.TryParseInvariantCulture(callParameters, out int boldFontWeightPercent))
+					{
+						MODFontAdjuster.SetBoldFontWeight(boldFontWeightPercent / 100.0f);
+					}
+					break;
+
+				case "FaceDilate":
+					if (MODUtility.TryParseInvariantCulture(callParameters, out int faceDilate))
+					{
+						MODFontAdjuster.SetFaceDilation(faceDilate / 100.0f);
 					}
 					break;
 

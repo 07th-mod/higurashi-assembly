@@ -56,6 +56,8 @@ namespace Assets.Scripts.UI
 		public MODMenu modMenu;
 		private MODToaster toaster;
 
+		private bool userSkippedFailedCompileMenu;
+
 		public void UpdateGuiPosition(int x, int y)
 		{
 			unscaledPosition = new Vector3((float)x, (float)y, 0f);
@@ -528,9 +530,9 @@ namespace Assets.Scripts.UI
 			this.modMenu = new MODMenu(gameSystem);
 
 			// On startup, display a toast indicating how many scripts were compiled (or failed to compile)
-			int numFail = GameSystem.Instance.AssetManager.numCompileFail;
-			int numOK = GameSystem.Instance.AssetManager.numCompileOK;
-			int total = numOK + numFail;
+			int numFail = GameSystem.Instance.AssetManager.compileStatus.numFail;
+			int numOK = GameSystem.Instance.AssetManager.compileStatus.numPass;
+			int total = GameSystem.Instance.AssetManager.compileStatus.numTotal;
 			if (numFail > 0)
 			{
 				MODToaster.Show($"FAILED compiling {numFail}/{total} scripts");
@@ -554,19 +556,43 @@ namespace Assets.Scripts.UI
 				return;
 			}
 
-			if(this.toaster == null)
+			if(!userSkippedFailedCompileMenu)
+			{
+				if (GameSystem.Instance.AssetManager != null &&
+					GameSystem.Instance.AssetManager.compileStatus.compileFinished &&
+					GameSystem.Instance.AssetManager.compileStatus.numFail > 0)
+				{
+					bool shouldQuitMenu = MODMenuSupport.ScriptsFailedToCompile(GameSystem.Instance.AssetManager.compileStatus);
+					if (shouldQuitMenu)
+					{
+						gameSystem.SetMODIgnoreInputs(false);
+						userSkippedFailedCompileMenu = true;
+					}
+					else
+					{
+						gameSystem.SetMODIgnoreInputs(true);
+						return;
+					}
+				}
+			}
+
+			if (this.toaster == null)
 			{
 				return;
 			}
 
-			toaster.OnGUIFragment();
-
 			if (this.modMenu == null)
 			{
+				// If mod menu not available, just draw any toast notifications and exit
+				toaster.OnGUIFragment();
 				return;
 			}
 
 			modMenu.OnGUIFragment();
+
+			// If the mod menu is available, draw the toast notifications last,
+			// so they appear ontop of the mod menu
+			toaster.OnGUIFragment();
 
 			// Helper Functions for processing flags
 			string boolDesc(string flag, string name)
@@ -661,36 +687,7 @@ namespace Assets.Scripts.UI
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
 				string textToDraw = string.Join("\n", new string[] {
-					"[Vanilla Hotkey]",
-					"Enter,Return,RightArrow,PageDown : Advance Text",
-					"LeftArrow,Pageup : See Backlog",
-					"ESC : Open Menu",
-					"Ctrl : Hold Skip Mode",
-					"A : Auto Mode",
-					"S : Toggle Skip Mode",
-					"F : FullScreen",
-					"Space : Hide Text",
-					"L : Swap Language",
-					"P : Swap Sprites",
-					"\n[MOD Hotkey]",
-					"F1 : ADV-NVL MODE",
-					"F2 : Voice Matching Level",
-					"F3 : Effect Level (Not Used)",
-					"F5 : QuickSave",
-					"F7 : QuickLoad",
-					"F10 : Setting Monitor",
-					"M : Increase Voice Volume",
-					"N : Decrease Voice Volume",
-					"1 : Alternative BGM (Not Used)",
-					"2 : Alternative BGM Flow (Not Used)",
-					"3 : Alternative SE (Not Used)",
-					"4 : Alternative SE Flow (Not Used)",
-					"5 : Alternative Voice (Not Used)",
-					"6 : Alternative Voice Priority (Not Used)",
-					"7 : Lip-Sync",
-					"LShift + F9 : Restore Settings",
-					"LShift + M : Voice Volume MAX",
-					"LShift + N : Voice Volume MIN"
+					"This section is not used anymore.",
 				});
 				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}
@@ -817,6 +814,7 @@ namespace Assets.Scripts.UI
 		{
 			GUI.Label(rect, text, GUI.skin.textArea);
 		}
+
 
 	}
 }

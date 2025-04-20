@@ -1,4 +1,5 @@
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core.Localization;
 using UnityEngine;
 
 namespace Assets.Scripts.UI.SaveLoad
@@ -15,11 +16,13 @@ namespace Assets.Scripts.UI.SaveLoad
 
 		private bool isEnabled = true;
 
+
+
 		public void EnableEntry(SaveEntry entry)
 		{
 			SaveButton.isEnabled = false;
 			LoadButton.isEnabled = true;
-			BottomLabel.text = entry.Time.ToString("MMM dd, yyyy h:mm tt");
+			BottomLabel.text = entry.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo);
 			// Save button is never useful so hide it
 			SaveButton.gameObject.SetActive(false);
 		}

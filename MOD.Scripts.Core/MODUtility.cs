@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using UnityEngine;
 
 /// <summary>
@@ -456,5 +459,15 @@ public static class MODUtility
 			Debug.Log("PatchBrokenResize: Couldn't find broken window resize function!");
 			return false;
 		}
+	}
+
+	static public bool TryParseInvariantCulture(string s, out float value)
+	{
+		return float.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value);
+	}
+
+	static public bool TryParseInvariantCulture(string s, out int value)
+	{
+		return int.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value);
 	}
 }

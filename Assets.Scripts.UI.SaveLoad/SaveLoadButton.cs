@@ -4,6 +4,7 @@ using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using Assets.Scripts.UI.Prompt;
+using MOD.Scripts.Core.Localization;
 using System.IO;
 using UnityEngine;
 
@@ -66,8 +67,8 @@ namespace Assets.Scripts.UI.SaveLoad
 							if (!(promptController == null))
 							{
 								string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d.Path);
-								Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
-								promptController.SetScreenshotDetails(image, d.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d.Text, d.TextJp);
+								Texture2D image = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension);
+								promptController.SetScreenshotDetails(image, d.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d.Text, d.TextJp);
 							}
 						});
 						gameSystem.ExecuteActions();
@@ -91,8 +92,8 @@ namespace Assets.Scripts.UI.SaveLoad
 							if (!(promptController2 == null))
 							{
 								string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d2.Path);
-								Texture2D image2 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension2 + ".png");
-								promptController2.SetScreenshotDetails(image2, d2.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d2.Text, d2.TextJp);
+								Texture2D image2 = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension2);
+								promptController2.SetScreenshotDetails(image2, d2.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d2.Text, d2.TextJp);
 							}
 						});
 						gameSystem.ExecuteActions();
@@ -117,8 +118,8 @@ namespace Assets.Scripts.UI.SaveLoad
 							if (!(promptController3 == null))
 							{
 								string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d3.Path);
-								Texture2D image3 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension3 + ".png");
-								promptController3.SetScreenshotDetails(image3, d3.Time.ToString("ddd MMM dd, yyyy h:mm tt"), d3.Text, d3.TextJp);
+								Texture2D image3 = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension3);
+								promptController3.SetScreenshotDetails(image3, d3.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d3.Text, d3.TextJp);
 							}
 						});
 						break;

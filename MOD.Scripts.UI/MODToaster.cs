@@ -14,6 +14,7 @@ namespace MOD.Scripts.UI
 		static MODToaster Instance;
 		string toastText;
 		MODSimpleTimer toastNotificationTimer;
+		static bool highPriorityToastActive;
 
 		public MODToaster()
 		{
@@ -36,11 +37,15 @@ namespace MOD.Scripts.UI
 			{
 				// This scrolls the toast notification off the window when it's nearly finished
 				float toastYPosition = Math.Min(50f, 200f * toastNotificationTimer.timeLeft - 50f);
-				float toastWidth = 700f;
+				float toastWidth = styleManager.Group.toastWidth;
 				float toastXPosition = (Screen.width - toastWidth) / 2.0f;
-				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, 700f, 200f));
-				GUILayout.Box(toastText, toastText.Length > 30 ? styleManager.smallToastLabelStyle : styleManager.bigToastLabelStyle);
+				GUILayout.BeginArea(new Rect(toastXPosition, toastYPosition, toastWidth, Screen.height));
+				GUILayout.TextArea(toastText, styleManager.Group.bigToastLabelStyle);
 				GUILayout.EndArea();
+			}
+			else
+			{
+				highPriorityToastActive = false;
 			}
 		}
 
@@ -50,18 +55,39 @@ namespace MOD.Scripts.UI
 		/// <param name="toastText">The text to display in the toast</param>
 		/// <param name="toastDuration">The duration the toast will be shown for.
 		/// The toast will slide off the screen for the last part of this duration.</param>
-		public static void Show(string toastText, GUISound? maybeSound = GUISound.Click, float toastDuration = 3)
+		public static void Show(string toastText, GUISound? maybeSound = GUISound.Click, float toastDuration = 3, bool highPriority=false)
 		{
-			if(Instance == null)
+			if(highPriority)
+			{
+				// High prority toasts will always try to show
+				highPriorityToastActive = true;
+			}
+			else if(highPriorityToastActive)
+			{
+				// Low prority toasts disabled while high priority toast is active
+				return;
+			}
+
+			if (Instance == null)
 			{
 				return;
 			}
 
 			Instance.toastText = toastText;
 			Instance.toastNotificationTimer.Start(toastDuration);
-			if (maybeSound is GUISound sound)
+
+			// Try to play sound effect, if requested
+			try
 			{
-				GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(sound));
+				if (maybeSound is GUISound sound)
+				{
+					GameSystem.Instance.AudioController.PlaySystemSound(MODSound.GetSoundPathFromEnum(sound));
+				}
+			}
+			catch (Exception e)
+			{
+				// If an exception occurs here, it probably means the gamesystem is not setup yet
+				// Since this only affects whether the sound is played, just ignore any errors that happen here.
 			}
 		}
 

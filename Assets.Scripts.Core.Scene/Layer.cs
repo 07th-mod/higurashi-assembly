@@ -62,9 +62,17 @@ namespace Assets.Scripts.Core.Scene
 
 		public bool FadingOut;
 
-		private float startRange;
+		private float startRange
+		{
+			get;
+			set;
+		}
 
-		private float targetRange;
+		private float targetRange
+		{
+			get;
+			set;
+		}
 
 		public Vector3 targetPosition = new Vector3(0f, 0f, 0f);
 
@@ -656,6 +664,7 @@ namespace Assets.Scripts.Core.Scene
 			iTween.Stop(base.gameObject);
 			startRange = targetRange;
 			targetRange = alpha;
+			targetAlpha = alpha;
 			iTween.ValueTo(base.gameObject, iTween.Hash("from", startRange, "to", targetRange, "time", time, "onupdate", "SetRange", "oncomplete", "FinishFade"));
 		}
 
@@ -734,7 +743,18 @@ namespace Assets.Scripts.Core.Scene
 		{
 			if (PrimaryName == string.Empty)
 			{
-				HideLayer();
+				// PrimaryName is set to string.Empty when Layer's texture is released -
+				// therefore there is no texture to reload, so do nothing here.
+				//
+				// Note: Previously there was a HideLayer() call here, which caused problems
+				// with backgrounds if ReloadTexture() was called just after the game had started
+				// running, and DrawSceneWithMask() had not yet been called. It would cause
+				// backgrounds to display for one frame(?), then turn black.
+				//
+				// I think may be a special layer is activated on startup, but has no texture set,
+				// triggering this if statement.
+				//
+				// See https://github.com/07th-mod/higurashi-assembly/issues/104 for details
 			}
 			else
 			{
@@ -761,6 +781,7 @@ namespace Assets.Scripts.Core.Scene
 
 		public void ReleaseTextures()
 		{
+			FadingOut = false;
 			if (!(primary == null))
 			{
 				ReleaseSecondaryTexture();
@@ -776,7 +797,6 @@ namespace Assets.Scripts.Core.Scene
 				Object.Destroy(mesh);
 				mesh = null;
 				meshFilter.mesh = null;
-				FadingOut = false;
 				shaderType = 0;
 				targetAngle = 0f;
 			}
@@ -870,6 +890,7 @@ namespace Assets.Scripts.Core.Scene
 			br.Write(targetAlpha);
 			br.Write((int)alignment);
 			br.Write(shaderType);
+			br.Write(Priority);
 		}
 
 		private void Awake()
