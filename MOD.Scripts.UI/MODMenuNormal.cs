@@ -27,6 +27,7 @@ namespace MOD.Scripts.UI
 		private readonly GUIContent[] radioLipSyncActive;
 		private readonly GUIContent[] radioLipSyncInactive;
 		private readonly MODRadio radioOpenings;
+		private readonly MODRadio radioChoiceMode;
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
@@ -90,6 +91,13 @@ namespace MOD.Scripts.UI
 				new GUIContent(Loc.MODMenuNormal_24, Loc.MODMenuNormal_25), //Disabled | Disables all opening videos
 				new GUIContent(Loc.MODMenuNormal_26, Loc.MODMenuNormal_27), //Enabled | Enables opening videos\n\nNOTE: Once the opening video plays the first time, will automatically switch to 'Launch + In-Game'\n\nWe have setup openings this way to avoid spoilers.
 				new GUIContent(Loc.MODMenuNormal_28, Loc.MODMenuNormal_29), //Launch + In-Game | WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches
+			});
+
+			radioChoiceMode = new MODRadio(Loc.MODMenuChoiceModeOptionTitle, new GUIContent[] // "Choice Mode"
+			{
+				new GUIContent(Loc.MODMenuChoiceModeSkipName, Loc.MODMenuChoiceModeSkipDescription), // Skip / Auto Good End
+				new GUIContent(Loc.MODMenuChoiceModeNormalName, Loc.MODMenuChoiceModeNormalDescription), // Normal
+				new GUIContent(Loc.MODMenuChoiceModeHighlightName, Loc.MODMenuChoiceModeHighlightDescription), // Prompt Choices Normally
 			});
 
 			radioHideCG = new MODRadio(Loc.MODMenuNormal_30, new GUIContent[] //Show/Hide CGs
@@ -281,6 +289,11 @@ namespace MOD.Scripts.UI
 			if (this.radioOpenings.OnGUIFragment(GetGlobal("GVideoOpening") - 1) is int openingVideoLevelZeroIndexed)
 			{
 				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
+			};
+
+			if (this.radioChoiceMode.OnGUIFragment(GetGlobal("GChoiceMode")) is int choiceMode)
+			{
+				SetGlobal("GChoiceMode", choiceMode);
 			};
 		}
 

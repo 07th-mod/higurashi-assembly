@@ -240,5 +240,13 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuSupportCompileFailed_22 => Get("MODMenuSupportCompileFailed_22", "The following scripts failed compilation:");
 		public static string MODMenuSupportCompileFailed_23 => Get("MODMenuSupportCompileFailed_23", "Continue playing anyway (NOT RECOMMENDED)");
 		public static string MODMenuSupportCompileFailed_24 => Get("MODMenuSupportCompileFailed_24", "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly.");
+
+		public static string MODMenuChoiceModeOptionTitle => Get("MODMenuChoiceModeOptionTitle","Choice Mode");
+		public static string MODMenuChoiceModeSkipName => Get("MODMenuChoiceModeSkipName","Skip / Auto Good End");
+		public static string MODMenuChoiceModeSkipDescription => Get("MODMenuChoiceModeSkipDescription","Skip choices. Proceed toward the good ending");
+		public static string MODMenuChoiceModeNormalName => Get("MODMenuChoiceModeNormalName","Normal");
+		public static string MODMenuChoiceModeNormalDescription => Get("MODMenuChoiceModeNormalDescription","Prompt choices normally");
+		public static string MODMenuChoiceModeHighlightName => Get("MODMenuChoiceModeHighlightName","Highlight Good");
+		public static string MODMenuChoiceModeHighlightDescription => Get("MODMenuChoiceModeHighlightDescription","Prompt choices and highlight correct answers");
 	}
 }

@@ -699,6 +699,27 @@
 			"text": "[Title]",
 			"textJP": "【Title】",
 			"comment": "Music box button (hou+)"
+		},
+		"MODMenuChoiceModeOptionTitle": {
+			"text": "Choice Mode"
+		},
+		"MODMenuChoiceModeSkipName": {
+			"text": "Skip / Auto Good End"
+		},
+		"MODMenuChoiceModeSkipDescription": {
+			"text": "Skip choices. Proceed toward the good ending"
+		},
+		"MODMenuChoiceModeNormalName": {
+			"text": "Normal"
+		},
+		"MODMenuChoiceModeNormalDescription": {
+			"text": "Prompt choices normally"
+		},
+		"MODMenuChoiceModeHighlightName": {
+			"text": "Highlight Good"
+		},
+		"MODMenuChoiceModeHighlightDescription": {
+			"text": "Prompt choices and highlight correct answers"
 		}
 	}
 }
