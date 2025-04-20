@@ -342,7 +342,7 @@ namespace Assets.Scripts.Core.Buriko
 				byte[] array = CLZF2.Compress(snapshotData);
 				MGHelper.KeyEncode(array);
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
-				MODUtility.WriteAllBytesSemiAtomicOrShowToast(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
+				MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
 				saveManager.UpdateSaveSlot(slotnum);
 				GameSystem.Instance.SceneController.WriteScreenshot(Path.Combine(MGHelper.GetSavePath(), str + ".jpg"));
 			}

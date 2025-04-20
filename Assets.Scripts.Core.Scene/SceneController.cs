@@ -802,7 +802,7 @@ namespace Assets.Scripts.Core.Scene
 			byte[] texout = tex.EncodeToJPG(90);
 			ScreenshotCamera.targetTexture = null;
 			UnityEngine.Object.Destroy(rt);
-			MODUtility.WriteAllBytesSemiAtomicOrShowToast(path, texout);
+			MODUtilityNoDeps.WriteAllBytesSemiAtomic(path, texout);
 		}
 
 		public void WriteScreenshot(string path)

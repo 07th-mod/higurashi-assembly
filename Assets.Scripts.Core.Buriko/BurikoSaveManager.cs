@@ -38,7 +38,7 @@ namespace Assets.Scripts.Core.Buriko
 		private void TryDeleteSaveComponent(int slot, string extensionWithDot)
 		{
 			string saveFileName = $"save{slot:D3}{extensionWithDot}";
-			MODUtility.TryDelete(Path.Combine(MGHelper.GetSavePath(), saveFileName));
+			MODUtilityNoDeps.TryDelete(Path.Combine(MGHelper.GetSavePath(), saveFileName));
 		}
 
 		public void DeleteSave(int slot)
