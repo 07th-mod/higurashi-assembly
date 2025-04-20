@@ -49,7 +49,7 @@ namespace MOD.Scripts.UI
 
 		enum Action
 		{
-			ToggleADV,
+			ToggleTextWindowMode,
 			CensorshipLevel,
 			EffectLevel,
 			DebugMenu,
@@ -73,6 +73,7 @@ namespace MOD.Scripts.UI
 			RestoreSettings,
 			ToggleAudioSet,
 			ToggleFullscreen,
+			TogglePreset,
 		}
 
 		private static Action? GetUserAction()
@@ -121,7 +122,7 @@ namespace MOD.Scripts.UI
 
 			if (Input.GetKeyDown(KeyCode.F1))
 			{
-				return Action.ToggleADV;
+				return Action.TogglePreset;
 			}
 			else if (Input.GetKeyDown(KeyCode.F2))
 			{
@@ -129,7 +130,7 @@ namespace MOD.Scripts.UI
 			}
 			else if (Input.GetKeyDown(KeyCode.F3))
 			{
-				return Action.EffectLevel;
+				return Action.ToggleTextWindowMode;
 			}
 			else if (Input.GetKeyDown(KeyCode.F10))
 			{
@@ -199,8 +200,12 @@ namespace MOD.Scripts.UI
 		{
 			switch (action)
 			{
-				case Action.ToggleADV:
-					MODActions.ToggleAndSaveADVMode();
+				case Action.TogglePreset:
+					MODActions.CycleGraphicsPreset();
+					break;
+
+				case Action.ToggleTextWindowMode:
+					MODActions.CycleTextWindowMode();
 					break;
 
 				case Action.CensorshipLevel:
