@@ -249,6 +249,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			return false;
 		}
 
+		private bool RelativePathIsSprite(string relativePath)
+		{
+			return relativePath.StartsWith("sprite/") || relativePath.StartsWith("portrait/");
+		}
+
 		private bool CheckStreamingAssetsPathExists(string subFolder, string relativePath, out string filePath)
 		{
 			if(CheckStreamingAssetsPathExistsInner(subFolder, relativePath, out filePath))
@@ -264,8 +269,7 @@ namespace Assets.Scripts.Core.AssetManagement
 			}
 
 			// Only allow lipsync variants for files in the 'sprite' or 'portrait' folder.
-			bool isSprite = relativePath.StartsWith("sprite/") || relativePath.StartsWith("portrait/");
-			if (!isSprite)
+			if (!RelativePathIsSprite(relativePath))
 			{
 				return false;
 			}
@@ -330,7 +334,14 @@ namespace Assets.Scripts.Core.AssetManagement
 				string debugMappedDescription;
 				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
-					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, pathNoExt, out string mappedPath, out string debugInfo))
+					string lookupKey = pathNoExt;
+					if (!string.IsNullOrEmpty(pathNoExt) && RelativePathIsSprite(pathNoExt))
+					{
+						// If is a sprite, remove the sprite variant number from the end (which is always one digit)
+						lookupKey = pathNoExt.Remove(pathNoExt.Length - 1);
+					}
+
+					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, lookupKey, out string mappedPath, out string debugInfo))
 					{
 						if(mappedPath.StartsWith("<"))
 						{
