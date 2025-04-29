@@ -154,7 +154,7 @@ namespace MOD.ImageMapping
 				return true;
 			}
 
-			debugInfo = "No match found";
+			debugInfo = $"No match found for {modImagePath}";
 			ogImagePath = null;
 			return false;
 		}
