@@ -77,6 +77,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void JumpToScript(string scriptname, string blockname = "main")
 		{
+			AssetManager.Instance.OnScriptJumpOrCall();
+
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
 			AssetManager.Instance.CleanUpTextures();
@@ -100,6 +102,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void CallScript(string scriptname, string blockname = "main")
 		{
+			AssetManager.Instance.OnScriptJumpOrCall();
+
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
 			if(scriptname == "flow")

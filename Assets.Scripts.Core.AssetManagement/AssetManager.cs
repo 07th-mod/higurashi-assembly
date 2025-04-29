@@ -76,25 +76,22 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		private static bool LoadMappingFromJSON(string mappingFolderPath, out MODImageMapping mapping)
 		{
+			const string mappingFile = "mapping.json";
 			string mappingPath = "";
 			try
 			{
 				Debug.Log($"Checking for mapping.json inside {mappingFolderPath} folder...");
 
-				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(mappingFolderPath, "mapping.json", out mappingPath))
+				if (AssetManager.Instance.CheckStreamingAssetsPathExistsInner(mappingFolderPath, mappingFile, out mappingPath))
 				{
 					mapping = MODImageMapping.GetVoiceBasedMapping(mappingPath);
-					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, "Load OK");
+					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingFolderPath, mappingFile, "Load OK");
 					return true;
-				}
-				else
-				{
-					MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, "Not Found");
 				}
 			}
 			catch (Exception e)
 			{
-				MODDebugSpriteMapping.RecordJSONLoadStatus(mappingPath, $"Exception: {e.Message}");
+				MODDebugSpriteMapping.RecordJSONLoadStatus(mappingFolderPath, mappingFile, $"Exception: {e.Message}");
 			}
 
 			mapping = null;
@@ -176,7 +173,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string debugLastVoice { get; private set; } = "No voice played yet";
 		public string debugLastOtherAudio { get; private set; } = "No other audio played yet";
 
-		public string lastVoiceFromMODPlayVoiceLSNoExt = null;
+		public string ImageMappingLastVoiceNoExt = null;
 
 		public ScriptCompileStatus compileStatus = new ScriptCompileStatus();
 
@@ -326,9 +323,10 @@ namespace Assets.Scripts.Core.AssetManagement
 				// before looking for the file on disk
 				string subFolder = cascadePath.folderPath;
 				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
-				string lastPlayedVoice = lastVoiceFromMODPlayVoiceLSNoExt;
+				string lastPlayedVoice = ImageMappingLastVoiceNoExt;
 
-				MODDebugSpriteMapping.RecordSpriteMappingLookupArguments(cascadePath.folderPath, scriptNameNoExt, lastPlayedVoice, pathNoExt);
+				string debugMaybeMappedPath = null;
+				string debugMappedDescription;
 				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
 				{
 					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, pathNoExt, out string mappedPath, out string debugInfo))
@@ -337,17 +335,20 @@ namespace Assets.Scripts.Core.AssetManagement
 						subFolder = cascadePath.mappingFolderPath;
 						pathWithExt = mappedPath + extension;
 
-						MODDebugSpriteMapping.RecordSuccessfulLookupResult(pathNoExt, mappedPath, debugInfo);
+						debugMappedDescription = debugInfo;
+						debugMaybeMappedPath = pathWithExt;
 					}
 					else
 					{
-						MODDebugSpriteMapping.RecordFailedLookupResult(pathNoExt, $"GetOGImage failed: {debugInfo}");
+						debugMappedDescription = $"GetOGImage: {debugInfo}";
 					}
 				}
 				else
 				{
-					MODDebugSpriteMapping.RecordFailedLookupResult(pathNoExt, $"No Mapping for {cascadePath.folderPath}");
+					debugMappedDescription = $"No Mapping for folder [{cascadePath.folderPath}]";
 				}
+
+				MODDebugSpriteMapping.RecordLookup(cascadePath.folderPath, scriptNameNoExt, lastPlayedVoice, pathNoExt, debugMaybeMappedPath, debugMappedDescription);
 
 				if (CheckStreamingAssetsPathExists(subFolder, pathWithExt, out string filePath))
 				{
@@ -881,6 +882,17 @@ namespace Assets.Scripts.Core.AssetManagement
 		public string[] GetAvailableScriptNames()
 		{
 			return scriptList.ToArray();
+		}
+
+		public void OnScriptJumpOrCall()
+		{
+			// Each time a jump occurs, or a script is called, reset the last voice (used for Image Mapping ),
+			// as the scanner for Image Mapping resets the last voice each time it enters a new script.
+			//
+			// The last voice based image mapping doesn't really take into account the script advancing non-linearly
+			// within the same script file - it just assumes each script file is executed from start to finish, then
+			// returns to "flow".
+			ImageMappingLastVoiceNoExt = null;
 		}
 	}
 }
