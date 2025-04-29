@@ -4,6 +4,7 @@ using BGICompiler.Compiler;
 using MOD.Debugging;
 using MOD.ImageMapping;
 using MOD.Scripts.Core.Audio;
+using MOD.Scripts.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -326,12 +327,20 @@ namespace Assets.Scripts.Core.AssetManagement
 				{
 					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, pathNoExt, out string mappedPath, out string debugInfo))
 					{
-						// Mapped file OK, so use the mapped folder and mapped path for this asset
-						subFolder = cascadePath.mappingFolderPath;
-						pathWithExt = mappedPath + extension;
+						if(mappedPath.StartsWith("<"))
+						{
+							MODToaster.Show($"Console Path {pathNoExt} is mapped to {mappedPath} - need manual fix?");
+							debugMappedDescription = $"Need manual fix for Console Path {pathNoExt} which is mapped to {mappedPath}";
+						}
+						else
+						{
+							// Mapped file OK, so use the mapped folder and mapped path for this asset
+							subFolder = cascadePath.mappingFolderPath;
+							pathWithExt = mappedPath + extension;
 
-						debugMappedDescription = debugInfo;
-						debugMaybeMappedPath = pathWithExt;
+							debugMappedDescription = debugInfo;
+							debugMaybeMappedPath = pathWithExt;
+						}
 					}
 					else
 					{
