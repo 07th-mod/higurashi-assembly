@@ -344,7 +344,13 @@ namespace Assets.Scripts.Core.Buriko
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
 				MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
 				saveManager.UpdateSaveSlot(slotnum);
-				GameSystem.Instance.SceneController.WriteScreenshot(Path.Combine(MGHelper.GetSavePath(), str + ".jpg"));
+
+				// Save screenshot of what is currently on the screen to .jpeg file
+				string screenshotPath = Path.Combine(MGHelper.GetSavePath(), str + ".jpg");
+				GameSystem.Instance.SceneController.WriteScreenshot(screenshotPath);
+
+				// Delete any .png format screenshots from old versions of the mod
+				MODUtilityNoDeps.TryDelete(Path.ChangeExtension(screenshotPath, ".png"));
 			}
 		}
 
