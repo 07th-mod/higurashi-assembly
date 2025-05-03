@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Assets.Scripts.Core.Buriko;
+using MOD.Scripts.Core;
+using MOD.Scripts.UI;
 using UnityEngine;
 
 /// <summary>

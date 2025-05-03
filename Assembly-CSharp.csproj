@@ -43,6 +43,7 @@
     <Reference Include="System.Collections.Generic">
       <HintPath>DLLs\mscorlib.dll</HintPath>
     </Reference>
+    <Compile Include="MOD.Scripts.Core\MODUtilityNoDeps.cs" />
     <Compile Include="MOD.Scripts.Core\MODXMLWrapper.cs" />
     <Compile Include="MOD.Scripts.AssetManager\MODAssetManager.cs" />
     <Compile Include="AntlrTest\bgitestLexer.cs" />
