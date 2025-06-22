@@ -303,10 +303,62 @@ namespace Assets.Scripts.Core.AssetManagement
 			return false;
 		}
 
+		private bool DoSingleAssetLookup(CascadePath cascadePath, string pathNoExt, string extension, out string pathWithExt, out string subFolder)
+		{
+			// Check if the artset has an ImageMapping, if so, map the input asset
+			// before looking for the file on disk
+			string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
+			string lastPlayedVoice = ImageMappingLastVoiceNoExt;
+
+			string debugMaybeMappedPath = "debugMaybeMappedPath not set";
+			string debugMappedDescription = "debugMappedDescription not set";
+			if (cascadePath.GetImageMapping(out MODImageMapping mapping))
+			{
+				string lookupKey = pathNoExt;
+				if (!string.IsNullOrEmpty(pathNoExt) && RelativePathIsSprite(pathNoExt))
+				{
+					// If is a sprite, remove the sprite variant number from the end (which is always one digit)
+					lookupKey = pathNoExt.Remove(pathNoExt.Length - 1);
+				}
+
+				if (mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, lookupKey, out string mappedPath, out string debugInfo))
+				{
+					if (mappedPath.StartsWith("<"))
+					{
+						MODToaster.Show($"Console Path {pathNoExt} is mapped to {mappedPath} - need manual fix?");
+						debugMappedDescription = $"Need manual fix for Console Path {pathNoExt} which is mapped to {mappedPath}";
+					}
+					else
+					{
+						// Mapped file OK, so use the mapped folder and mapped path for this asset
+						subFolder = cascadePath.mappingFolderPath;
+						pathWithExt = mappedPath + extension;
+
+						debugMappedDescription = debugInfo;
+						debugMaybeMappedPath = pathWithExt;
+
+						MODDebugSpriteMapping.RecordLookup(cascadePath.folderPath, scriptNameNoExt, lastPlayedVoice, pathNoExt, debugMaybeMappedPath, debugMappedDescription);
+
+						return true;
+					}
+				}
+				else
+				{
+					debugMappedDescription = $"GetOGImage: {debugInfo}";
+				}
+			}
+			else
+			{
+				debugMappedDescription = $"No Mapping for folder [{cascadePath.folderPath}]";
+			}
+
+			pathWithExt = null;
+			subFolder = null;
+			return false;
+		}
+
 		private bool DoFullAssetLookup(string pathNoExt, string extension, IEnumerable<CascadePath> cascadePaths, int backgroundSetIndex, out string subFolderUsed, out string assetPath)
 		{
-			string pathWithExt = pathNoExt + extension;
-
 			foreach (CascadePath cascadePath in cascadePaths)
 			{
 				// If console backgrounds are enabled, don't check OGBackgrounds
@@ -315,52 +367,20 @@ namespace Assets.Scripts.Core.AssetManagement
 					continue;
 				}
 
-				// Check if the artset has an ImageMapping, if so, map the input asset
-				// before looking for the file on disk
+				// By default, path is just the passed in path with extension added
+				// By default, subfolder is the actual cascade folder. For example subFolder = "OGBackgrounds"
+				// But if mapping folder used, subfolder and path can be overwritten, for example subFolder = "OGBackgroundsMapping" and path could be anything, even with a different file extension
+				string pathWithExt = pathNoExt + extension;
 				string subFolder = cascadePath.folderPath;
-				string scriptNameNoExt = Path.GetFileNameWithoutExtension(BurikoScriptSystem.Instance.GetCurrentScript().Filename);
-				string lastPlayedVoice = ImageMappingLastVoiceNoExt;
 
-				string debugMaybeMappedPath = null;
-				string debugMappedDescription;
-				if (cascadePath.GetImageMapping(out MODImageMapping mapping))
+				// If a valid image mapping is found, overwrite the 'normal' image path and subfolder with the mappped image anad subfolder
+				if (DoSingleAssetLookup(cascadePath, pathNoExt, extension, out string maybePathWithExt, out string maybeSubFolder))
 				{
-					string lookupKey = pathNoExt;
-					if (!string.IsNullOrEmpty(pathNoExt) && RelativePathIsSprite(pathNoExt))
-					{
-						// If is a sprite, remove the sprite variant number from the end (which is always one digit)
-						lookupKey = pathNoExt.Remove(pathNoExt.Length - 1);
-					}
-
-					if(mapping.GetOGImage(scriptNameNoExt, lastPlayedVoice, lookupKey, out string mappedPath, out string debugInfo))
-					{
-						if(mappedPath.StartsWith("<"))
-						{
-							MODToaster.Show($"Console Path {pathNoExt} is mapped to {mappedPath} - need manual fix?");
-							debugMappedDescription = $"Need manual fix for Console Path {pathNoExt} which is mapped to {mappedPath}";
-						}
-						else
-						{
-							// Mapped file OK, so use the mapped folder and mapped path for this asset
-							subFolder = cascadePath.mappingFolderPath;
-							pathWithExt = mappedPath + extension;
-
-							debugMappedDescription = debugInfo;
-							debugMaybeMappedPath = pathWithExt;
-						}
-					}
-					else
-					{
-						debugMappedDescription = $"GetOGImage: {debugInfo}";
-					}
-				}
-				else
-				{
-					debugMappedDescription = $"No Mapping for folder [{cascadePath.folderPath}]";
+					pathWithExt = maybePathWithExt;
+					subFolder = maybeSubFolder;
 				}
 
-				MODDebugSpriteMapping.RecordLookup(cascadePath.folderPath, scriptNameNoExt, lastPlayedVoice, pathNoExt, debugMaybeMappedPath, debugMappedDescription);
-
+				// Regardless of how the image was found, do any additional checks, and if OK return the asset
 				if (CheckStreamingAssetsPathExists(subFolder, pathWithExt, out string filePath))
 				{
 					// Asset was successfully - now report the subfolder where the asset was found
