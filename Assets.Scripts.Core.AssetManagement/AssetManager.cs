@@ -388,14 +388,24 @@ namespace Assets.Scripts.Core.AssetManagement
 		{
 			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
 
-			SortedDictionary<string, CascadePath> pathsToLookup = new SortedDictionary<string, CascadePath>();
+			Dictionary<string, CascadePath> alreadyExistingPaths = new Dictionary<string, CascadePath>();
+			List<CascadePath> pathsToLookup = new List<CascadePath>();
+
+			void AddPathIfNotAlreadyAdded(CascadePath p)
+			{
+				if (!alreadyExistingPaths.ContainsKey(p.folderPath))
+				{
+					alreadyExistingPaths.Add(p.folderPath, p);
+					pathsToLookup.Add(p);
+				}
+			}
 
 			// If Original Backgrounds are enabled, then always look the OGBackgrounds folder/mapping first.
 			if (backgroundSetIndex == 1)
 			{
 				if(MaybeOriginalBackgroundCascadePath != null)
 				{
-					pathsToLookup.Add(MaybeOriginalBackgroundCascadePath.folderPath, MaybeOriginalBackgroundCascadePath);
+					AddPathIfNotAlreadyAdded(MaybeOriginalBackgroundCascadePath);
 				}
 				else
 				{
@@ -406,15 +416,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			// Then, if the above overrides don't match, lookup the normal paths associated with this artset
 			foreach(CascadePath p in artset.paths)
 			{
-				// Avoid adding the same path twice
-				if(!pathsToLookup.ContainsKey(p.folderPath))
-				{
-					pathsToLookup.Add(p.folderPath, p);
-				}
+				AddPathIfNotAlreadyAdded(p);
 			}
 
 			// Finally, lookup the asset using the list of possible paths prepared earlier
-			if (DoFullAssetLookup(pathNoExt, extension, pathsToLookup.Values, backgroundSetIndex, out string subFolderUsedFromFullLookup, out string assetPath))
+			if (DoFullAssetLookup(pathNoExt, extension, pathsToLookup, backgroundSetIndex, out string subFolderUsedFromFullLookup, out string assetPath))
 			{
 				subFolderUsed = subFolderUsedFromFullLookup;
 				return assetPath;
