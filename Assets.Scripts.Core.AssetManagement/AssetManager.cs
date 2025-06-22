@@ -144,6 +144,7 @@ namespace Assets.Scripts.Core.AssetManagement
 		private static AssetManager _instance;
 
 		public List<PathCascadeList> Artsets = new List<PathCascadeList>();
+		public CascadePath MaybeOriginalBackgroundCascadePath = null;
 		public int CurrentArtsetIndex = 0;
 		public int ArtsetCount => Artsets.Count == 0 ? 2 : Artsets.Count;
 		public PathCascadeList CurrentArtset => GetArtset(CurrentArtsetIndex);
@@ -207,6 +208,16 @@ namespace Assets.Scripts.Core.AssetManagement
 		public void AddArtset(PathCascadeList artset)
 		{
 			Artsets.Add(artset);
+
+			// Each time new artset added, check if it contains the OGBackgrounds path
+			// To be used as override if the OGBackground flag is enabled
+			foreach (CascadePath cascadePath in artset.paths)
+			{
+				if(cascadePath.folderPath == "OGBackgrounds")
+				{
+					MaybeOriginalBackgroundCascadePath = cascadePath;
+				}
+			}
 		}
 
 		public void ClearArtsets()
@@ -297,26 +308,11 @@ namespace Assets.Scripts.Core.AssetManagement
 			return false;
 		}
 
-		/// <summary>
-		/// Gets the path to an asset with the given name in the given artset, or null if none are found
-		/// </summary>
-		/// <returns>A path to an on-disk asset or null</returns>
-		private string PathToAssetWithName(string pathNoExt, string extension, PathCascadeList artset, out string subFolderUsed)
+		private bool DoFullAssetLookup(string pathNoExt, string extension, IEnumerable<CascadePath> cascadePaths, int backgroundSetIndex, out string subFolderUsed, out string assetPath)
 		{
 			string pathWithExt = pathNoExt + extension;
-			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
 
-			// If OG backgrounds are enabled, always check OGBackgrounds first.
-			if (backgroundSetIndex == 1)
-			{
-				if(CheckStreamingAssetsPathExists("OGBackgrounds", pathWithExt, out string filePath))
-				{
-					subFolderUsed = "OGBackgrounds";
-					return filePath;
-				}
-			}
-
-			foreach (CascadePath cascadePath in artset.paths)
+			foreach (CascadePath cascadePath in cascadePaths)
 			{
 				// If console backgrounds are enabled, don't check OGBackgrounds
 				if (backgroundSetIndex == 0 && cascadePath.folderPath == "OGBackgrounds")
@@ -374,8 +370,54 @@ namespace Assets.Scripts.Core.AssetManagement
 				{
 					// Asset was successfully - now report the subfolder where the asset was found
 					subFolderUsed = cascadePath.folderPath;
-					return filePath;
+					assetPath = filePath;
+					return true;
 				}
+			}
+
+			subFolderUsed = null;
+			assetPath = null;
+			return false;
+		}
+
+		/// <summary>
+		/// Gets the path to an asset with the given name in the given artset, or null if none are found
+		/// </summary>
+		/// <returns>A path to an on-disk asset or null</returns>
+		private string PathToAssetWithName(string pathNoExt, string extension, PathCascadeList artset, out string subFolderUsed)
+		{
+			int backgroundSetIndex = BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue();
+
+			SortedDictionary<string, CascadePath> pathsToLookup = new SortedDictionary<string, CascadePath>();
+
+			// If Original Backgrounds are enabled, then always look the OGBackgrounds folder/mapping first.
+			if (backgroundSetIndex == 1)
+			{
+				if(MaybeOriginalBackgroundCascadePath != null)
+				{
+					pathsToLookup.Add(MaybeOriginalBackgroundCascadePath.folderPath, MaybeOriginalBackgroundCascadePath);
+				}
+				else
+				{
+					Logger.LogError("ERROR: Original Backgrounds Option Enabled (GBackgroundSet=1) but OGBackgrounds Folder not in any artset - will never display original backgrounds!");
+				}
+			}
+
+			// Then, if the above overrides don't match, lookup the normal paths associated with this artset
+			foreach(CascadePath p in artset.paths)
+			{
+				// Avoid adding the same path twice
+				if(!pathsToLookup.ContainsKey(p.folderPath))
+				{
+					pathsToLookup.Add(p.folderPath, p);
+				}
+			}
+
+			// Finally, lookup the asset using the list of possible paths prepared earlier
+			if (DoFullAssetLookup(pathNoExt, extension, pathsToLookup.Values, backgroundSetIndex, out string subFolderUsedFromFullLookup, out string assetPath))
+			{
+				subFolderUsed = subFolderUsedFromFullLookup;
+				return assetPath;
 			}
 
 			subFolderUsed = null;
