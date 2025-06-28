@@ -30,9 +30,38 @@ namespace MOD.ImageMapping
 			this.modToOG = modToOG;
 		}
 
+		private static bool OGImagePathShouldBeUsed(string ogImagePath)
+		{
+			// In the future, ogImagePath may be a special string like <SKIP>, but for now just check for null
+			if (ogImagePath == null)
+			{
+				return false;
+			}
+			if (ogImagePath.StartsWith("<"))
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
 		public bool GetOGImage(string modImagePath, out string ogImagePath)
 		{
-			return modToOG.TryGetValue(modImagePath, out ogImagePath);
+			if(!modToOG.TryGetValue(modImagePath, out ogImagePath))
+			{
+				ogImagePath = null;
+				return false;
+			}
+
+			if(!OGImagePathShouldBeUsed(ogImagePath))
+			{
+				ogImagePath = null;
+				return false;
+			}
+
+			return true;
 		}
 	}
 
