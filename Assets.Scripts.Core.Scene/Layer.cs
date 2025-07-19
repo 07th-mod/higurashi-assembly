@@ -336,16 +336,13 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript)
 		{
 			bool ryukishiClamp = false;
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
-				bool isSpriteOrPortrait = texturePath.Contains("sprite/") ||
-						texturePath.Contains("sprite\\") ||
-						texturePath.Contains("portrait/") ||
-						texturePath.Contains("portrait\\");
+				bool isSpriteOrPortrait = AssetManager.RelativePathIsSprite(textureNameFromGameScript);
 
 				if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
 				{
@@ -434,7 +431,8 @@ namespace Assets.Scripts.Core.Scene
 				origin: origin,
 				isBustShot: isBustshot,
 				finalXOffset: x,
-				texturePath: texturePath
+				texturePath: texturePath,
+				textureNameFromGameScript: textureName
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
@@ -516,7 +514,8 @@ namespace Assets.Scripts.Core.Scene
 						origin: origin,
 						isBustShot: isBustshot,
 						finalXOffset: x,
-						texturePath: texturePath
+						texturePath: texturePath,
+						textureNameFromGameScript: textureName
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
 					if (primary != null)
@@ -773,7 +772,8 @@ namespace Assets.Scripts.Core.Scene
 						origin,
 						isBustShot: cachedIsBustShot,
 						finalXOffset: (int) base.transform.localPosition.x,
-						texturePath: texturePath
+						texturePath: texturePath,
+						textureNameFromGameScript: PrimaryName
 					);
 				}
 			}

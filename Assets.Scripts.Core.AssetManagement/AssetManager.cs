@@ -255,8 +255,15 @@ namespace Assets.Scripts.Core.AssetManagement
 			return false;
 		}
 
-		private bool RelativePathIsSprite(string relativePath)
+		// Determines whether a path which comes from the script file is a sprite or not ("not" being background, effect etc.)
+		// Do not use on 'real' on disk paths, as the resolved on disk path may be something like "OGBackgroundMapping/sprites/" which won't work correctly.
+		public static bool RelativePathIsSprite(string relativePath)
 		{
+			if(relativePath == null)
+			{
+				return false;
+			}
+
 			return relativePath.StartsWith("sprite/") || relativePath.StartsWith("portrait/");
 		}
 
