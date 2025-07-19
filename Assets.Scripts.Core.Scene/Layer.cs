@@ -384,7 +384,7 @@ namespace Assets.Scripts.Core.Scene
 				meshFilter.mesh = mesh;
 			}
 		 */
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, Vector2? forceSize, bool isBustShot, int finalXOffset, string texturePath)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, Vector2? forceSize, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript)
 		{
 			if (forceSize is Vector2 nonnullForceSize)
 			{
@@ -395,10 +395,7 @@ namespace Assets.Scripts.Core.Scene
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
-				bool isSpriteOrPortrait = texturePath.Contains("sprite/") ||
-						texturePath.Contains("sprite\\") ||
-						texturePath.Contains("portrait/") ||
-						texturePath.Contains("portrait\\");
+				bool isSpriteOrPortrait = AssetManager.RelativePathIsSprite(textureNameFromGameScript);
 
 				if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
 				{
@@ -484,7 +481,8 @@ namespace Assets.Scripts.Core.Scene
 				forceSize: forceSize,
 				isBustShot: isBustshot,
 				finalXOffset: x,
-				texturePath: texturePath
+				texturePath: texturePath,
+				textureNameFromGameScript: textureName
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
@@ -582,7 +580,8 @@ namespace Assets.Scripts.Core.Scene
 				forceSize: forceSize,
 				isBustShot: isBustshot,
 				finalXOffset: x,
-				texturePath: texturePath
+				texturePath: texturePath,
+				textureNameFromGameScript: textureName
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3(x, -y, (float)Priority * -0.1f);
@@ -926,7 +925,8 @@ namespace Assets.Scripts.Core.Scene
 				ForceSize,
 				isBustShot: cachedIsBustShot,
 				finalXOffset: (int)base.transform.localPosition.x,
-				texturePath: texturePath
+				texturePath: texturePath,
+				textureNameFromGameScript: PrimaryName
 			);
 			SetSecondaryTexture(secondaryName);
 			SetMaskTexture(maskName);

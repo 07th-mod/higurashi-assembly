@@ -3804,7 +3804,7 @@ namespace Assets.Scripts.Core.Buriko
 			if(BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 && // Using OG Backgrounds AND
 			   BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0) // Not stretching backgrounds
 			{
-				if (path.StartsWith("sprite/") || path.StartsWith("portrait/")) // is from the sprite or portrait folder
+				if (AssetManager.RelativePathIsSprite(path)) // is from the sprite or portrait folder
 				{
 					if (x == 240) // See note 1) above
 					{
