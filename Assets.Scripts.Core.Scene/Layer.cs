@@ -386,6 +386,20 @@ namespace Assets.Scripts.Core.Scene
 		 */
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, Vector2? forceSize, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript)
 		{
+			bool FilterStretchingBasedOnAspectRatio(bool inputShouldStretch, float targetAspect)
+			{
+				// Do not stretch if the image is more than 5% off the target aspect ratio.
+				// Likely these are special images like credits images or effect images.
+				float imageAspect = (float)width / (float)height;
+				if (imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
+				{
+					return false;
+				}
+
+				// Otherwise, leave value unchanged
+				return inputShouldStretch;
+			}
+
 			if (forceSize is Vector2 nonnullForceSize)
 			{
 				width = Mathf.RoundToInt(nonnullForceSize.x);
@@ -409,13 +423,7 @@ namespace Assets.Scripts.Core.Scene
 
 					// Do not stretch if the image is more than 5% off a 16:9 aspect ratio.
 					// Likely these are special images like credits images or effect images.
-					float targetAspect = 16f / 9f;
-					float imageAspect = (float)width / (float)height;
-					Debug.Log($"{texturePath}: aspect: {imageAspect} ref: {targetAspect}");
-					if(imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
-					{
-						stretchToFit = false;
-					}
+					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 16f / 9f);
 				}
 				else
 				{
@@ -427,6 +435,10 @@ namespace Assets.Scripts.Core.Scene
 
 					// When using old backgrounds with stretch backgrounds enabled, stretch old 4:3 backgrounds to 16:9 to fill the screen
 					stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+
+					// Do not stretch if the image is more than 5% off a 4:3 aspect ratio.
+					// Likely these are special images like credits images or effect images.
+					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 4f / 3f);
 				}
 			}
 
