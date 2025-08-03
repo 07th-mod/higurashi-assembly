@@ -156,8 +156,30 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		private void EnsureCorrectlySizedMeshWhenLayerMoved()
+		{
+			// Disable ryukishi clamp for sprites which are about to move
+			// Should reset the sprite mesh to default size (the size of texture)
+			if (cachedIsBustShot)
+			{
+				EnsureCorrectlySizedMesh(
+					primary.width,
+					primary.height,
+					alignment,
+					origin,
+					isBustShot: cachedIsBustShot,
+					finalXOffset: (int)base.transform.localPosition.x,
+					texturePath: null,
+					textureNameFromGameScript: PrimaryName,
+					disableRyukishiClamp: true
+				);
+			}
+		}
+
 		public void MoveLayerEx(Vector3[] path, int points, float alpha, float time)
 		{
+			EnsureCorrectlySizedMeshWhenLayerMoved();
+
 			iTween.Stop(base.gameObject);
 			Vector3[] array = new Vector3[points + 1];
 			array[0] = base.transform.localPosition;
@@ -190,6 +212,8 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveLayer(int x, int y, int z, float alpha, int easetype, float wait, bool isBlocking, bool adjustAlpha)
 		{
+			EnsureCorrectlySizedMeshWhenLayerMoved();
+
 			float num = 1f;
 			if (z > 0)
 			{
@@ -336,7 +360,7 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript, bool disableRyukishiClamp = false)
 		{
 			bool FilterStretchingBasedOnAspectRatio(bool inputShouldStretch, float targetAspect)
 			{
@@ -387,6 +411,14 @@ namespace Assets.Scripts.Core.Scene
 					// Likely these are special images like credits images or effect images.
 					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 4f / 3f);
 				}
+			}
+
+			// Sometimes we want to forcibly disable ryukishi clamping of sprites,
+			// for example, if the sprite is initially off-screen, then moves on-screen
+			// See https://github.com/07th-mod/hou-plus-og-sprites-new/issues/10
+			if (disableRyukishiClamp)
+			{
+				ryukishiClamp = false;
 			}
 
 			if (mesh == null ||
