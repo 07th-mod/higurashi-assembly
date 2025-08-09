@@ -654,7 +654,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
-			File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+			MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
 		}
 
 		/// <summary>

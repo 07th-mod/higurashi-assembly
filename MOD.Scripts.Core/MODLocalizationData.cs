@@ -158,7 +158,7 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuNormal_126 => Get("MODMenuNormal_126", "Invalid thresholds - each threshold should be a value between 0 and 1");
 		public static string MODMenuNormal_127 => Get("MODMenuNormal_127", "Mod Options Menu");
 		public static string MODMenuNormal_128 => Get("MODMenuNormal_128", "\n\nSets the script censorship level\n- This setting exists because the voices are taken from the censored, Console versions of the game, so no voices exist for the PC uncensored dialogue.\n- We recommend the default level (2), the most balanced option. Using this option, only copyright changes, innuendos, and a few words will be changed.\n  - 5: Use voiced lines from PS3 script as much as possible (censored at parts)\n  - 2: Default - most balanced option\n  - 0: Original PC Script with voices where it fits (fully uncensored), but uncensored scenes may be missing voices");
-		public static string MODMenuNormal_129 => Get("MODMenuNormal_129", "Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF, Alt-Enter : FullScreen\nSpace : Hide Text\nL : Swap Language\n\n[MOD Hotkeys]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level (Not Used)\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Mod Menu\nM : Increase Voice Volume\nN : Decrease Voice Volume\nP : Cycle through art styles\n2 : Cycle through BGM/SE\n7 : Enable/Disable Lip-Sync\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MINN");
+		public static string MODMenuNormal_129 => Get("MODMenuNormal_129", "Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF, Alt-Enter : FullScreen\nSpace : Hide Text\nL : Swap Language\n\n[MOD Hotkeys]\nF1 : Graphics Preset\nF2 : Voice Matching Level\nF3 : Text Window Appearance\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Mod Menu\nM : Increase Voice Volume\nN : Decrease Voice Volume\nP : Cycle through art styles\n2 : Cycle through BGM/SE\n7 : Enable/Disable Lip-Sync\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MINN");
 
 		// The resolution part of the F10 menu
 		public static string MODMenuResolution_0 => Get("MODMenuResolution_0", "Set a custom fullscreen resolution\n\nUse this option only if the fullscreen resolution is detected incorrectly (such as on some Linux systems)\nYou can manually type in a resolution to use below.\n\nClick 'Clear Override' to let the game automatically determine the fullscreen resolution");
@@ -245,5 +245,12 @@ namespace MOD.Scripts.Core.Localization
 		public static string MusicBoxShuffle => Get("MusicBoxShuffle", "Shuffle");
 		public static string MusicBoxPlayAll => Get("MusicBoxPlayAll", "Play All");
 		public static string MusicBoxTitle => Get("MusicBoxTitle", "[Title]");
+		public static string MODMenuChoiceModeOptionTitle => Get("MODMenuChoiceModeOptionTitle","Choice Mode");
+		public static string MODMenuChoiceModeSkipName => Get("MODMenuChoiceModeSkipName","Skip / Auto Good End");
+		public static string MODMenuChoiceModeSkipDescription => Get("MODMenuChoiceModeSkipDescription","Skip choices. Proceed toward the good ending");
+		public static string MODMenuChoiceModeNormalName => Get("MODMenuChoiceModeNormalName","Normal");
+		public static string MODMenuChoiceModeNormalDescription => Get("MODMenuChoiceModeNormalDescription","Prompt choices normally");
+		public static string MODMenuChoiceModeHighlightName => Get("MODMenuChoiceModeHighlightName","Highlight Good");
+		public static string MODMenuChoiceModeHighlightDescription => Get("MODMenuChoiceModeHighlightDescription","Prompt choices and highlight correct answers");
 	}
 }
