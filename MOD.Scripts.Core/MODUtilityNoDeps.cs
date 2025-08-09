@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 
 /// <summary>
 /// This file is used by both the actual main mod, and also the

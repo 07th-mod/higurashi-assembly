@@ -78,6 +78,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void JumpToScript(string scriptname, string blockname = "main")
 		{
+			AssetManager.Instance.OnScriptJumpOrCall();
+
 			Logger.Log((currentScript == null) ? $"Starting at script {scriptname} (block {blockname})" : $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})");
 			callStack.Clear();
 			scriptname = scriptname.ToLower();
@@ -95,6 +97,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void CallScript(string scriptname, string blockname = "main")
 		{
+			AssetManager.Instance.OnScriptJumpOrCall();
+
 			if(scriptname == "flow")
 			{
 				FlowWasReached = true;

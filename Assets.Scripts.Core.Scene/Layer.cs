@@ -156,8 +156,30 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		private void EnsureCorrectlySizedMeshWhenLayerMoved()
+		{
+			// Disable ryukishi clamp for sprites which are about to move
+			// Should reset the sprite mesh to default size (the size of texture)
+			if (cachedIsBustShot)
+			{
+				EnsureCorrectlySizedMesh(
+					primary.width,
+					primary.height,
+					alignment,
+					origin,
+					isBustShot: cachedIsBustShot,
+					finalXOffset: (int)base.transform.localPosition.x,
+					texturePath: null,
+					textureNameFromGameScript: PrimaryName,
+					disableRyukishiClamp: true
+				);
+			}
+		}
+
 		public void MoveLayerEx(Vector3[] path, int points, float alpha, float time)
 		{
+			EnsureCorrectlySizedMeshWhenLayerMoved();
+
 			iTween.Stop(base.gameObject);
 			Vector3[] array = new Vector3[points + 1];
 			array[0] = base.transform.localPosition;
@@ -190,6 +212,8 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveLayer(int x, int y, int z, float alpha, int easetype, float wait, bool isBlocking, bool adjustAlpha)
 		{
+			EnsureCorrectlySizedMeshWhenLayerMoved();
+
 			float num = 1f;
 			if (z > 0)
 			{
@@ -336,16 +360,27 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript, bool disableRyukishiClamp = false)
 		{
+			bool FilterStretchingBasedOnAspectRatio(bool inputShouldStretch, float targetAspect)
+			{
+				// Do not stretch if the image is more than 5% off the target aspect ratio.
+				// Likely these are special images like credits images or effect images.
+				float imageAspect = (float)width / (float)height;
+				if (imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
+				{
+					return false;
+				}
+
+				// Otherwise, leave value unchanged
+				return inputShouldStretch;
+			}
+
 			bool ryukishiClamp = false;
 			bool stretchToFit = false;
 			if (texturePath != null)
 			{
-				bool isSpriteOrPortrait = texturePath.Contains("sprite/") ||
-						texturePath.Contains("sprite\\") ||
-						texturePath.Contains("portrait/") ||
-						texturePath.Contains("portrait\\");
+				bool isSpriteOrPortrait = AssetManager.RelativePathIsSprite(textureNameFromGameScript);
 
 				if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
 				{
@@ -359,13 +394,7 @@ namespace Assets.Scripts.Core.Scene
 
 					// Do not stretch if the image is more than 5% off a 16:9 aspect ratio.
 					// Likely these are special images like credits images or effect images.
-					float targetAspect = 16f / 9f;
-					float imageAspect = (float)width / (float)height;
-					Debug.Log($"{texturePath}: aspect: {imageAspect} ref: {targetAspect}");
-					if(imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
-					{
-						stretchToFit = false;
-					}
+					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 16f / 9f);
 				}
 				else
 				{
@@ -377,7 +406,19 @@ namespace Assets.Scripts.Core.Scene
 
 					// When using old backgrounds with stretch backgrounds enabled, stretch old 4:3 backgrounds to 16:9 to fill the screen
 					stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+
+					// Do not stretch if the image is more than 5% off a 4:3 aspect ratio.
+					// Likely these are special images like credits images or effect images.
+					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 4f / 3f);
 				}
+			}
+
+			// Sometimes we want to forcibly disable ryukishi clamping of sprites,
+			// for example, if the sprite is initially off-screen, then moves on-screen
+			// See https://github.com/07th-mod/hou-plus-og-sprites-new/issues/10
+			if (disableRyukishiClamp)
+			{
+				ryukishiClamp = false;
 			}
 
 			if (mesh == null ||
@@ -434,7 +475,8 @@ namespace Assets.Scripts.Core.Scene
 				origin: origin,
 				isBustShot: isBustshot,
 				finalXOffset: x,
-				texturePath: texturePath
+				texturePath: texturePath,
+				textureNameFromGameScript: textureName
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
@@ -516,7 +558,8 @@ namespace Assets.Scripts.Core.Scene
 						origin: origin,
 						isBustShot: isBustshot,
 						finalXOffset: x,
-						texturePath: texturePath
+						texturePath: texturePath,
+						textureNameFromGameScript: textureName
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
 					if (primary != null)
@@ -773,7 +816,8 @@ namespace Assets.Scripts.Core.Scene
 						origin,
 						isBustShot: cachedIsBustShot,
 						finalXOffset: (int) base.transform.localPosition.x,
-						texturePath: texturePath
+						texturePath: texturePath,
+						textureNameFromGameScript: PrimaryName
 					);
 				}
 			}
