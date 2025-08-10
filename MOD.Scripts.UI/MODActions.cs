@@ -61,8 +61,7 @@ namespace MOD.Scripts.UI
 		/// <summary>
 		/// Cycles and saves Console->MangaGamer->OG->Custom->Console...
 		/// </summary>
-		/// <returns>True if set and displayed, false if in a NVL_in_ADV region and value might not be applied immediately</returns>
-		public static void ToggleAndSaveADVMode()
+		public static void CycleGraphicsPreset()
 		{
 			MODCustomFlagPreset customPreset = BurikoMemory.Instance.GetCustomFlagPresetInstance();
 
@@ -92,6 +91,13 @@ namespace MOD.Scripts.UI
 			}
 		}
 
+		public static void CycleTextWindowMode()
+		{
+			int nextWindowMode = (GetADVNVLRyukishiModeFromFlags() + 1) % 3;
+			SetTextWindowAppearance((ModPreset)nextWindowMode, showInfoToast: true);
+			GameSystem.Instance.SceneController.ReloadAllImages();
+		}
+
 		/// <summary>
 		/// Sets and saves NVL/ADV mode
 		/// </summary>
@@ -105,8 +111,12 @@ namespace MOD.Scripts.UI
 		{
 			MODMainUIController mODMainUIController = new MODMainUIController();
 
-			// Always reset experimental 4:3 mode when setting any preset
-			BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode43Aspect", 0);
+			// drojf - 2025-08-03 - Make true 4:3 mode default for Hou+ in OG mode, to avoid some graphical artifacts when sprites move.
+			// In the future this may be applied to all chapters, but because older chapters were mainly tested with ryukishi cropping,
+			// using true 4:3 mode expose previously unseen bugs.
+			// Always enable experimental 4:3 mode when setting any preset
+			BurikoMemory.Instance.SetGlobalFlag("GRyukishiMode43Aspect", setting == ModPreset.OG ? 1 : 0);
+
 			GameSystem.Instance.UpdateAspectRatio();
 
 			BurikoMemory.Instance.GetCustomFlagPresetInstance().DisablePresetAndSavePresetToMemory();
