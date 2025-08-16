@@ -458,6 +458,10 @@ namespace Assets.Scripts.Core.Buriko
 						{
 							MODActions.EnableNVLModeINADVMode();
 						}
+
+						// Refresh aspect ratio and text position in case the saved value is different to the current one
+						// This also refreshes the text position (for example, if you are currently in the Console Preset, and load a save on the OG preset, the text may be in the wrong position)
+						GameSystem.Instance.UpdateAspectRatio();
 					}
 				}
 			}
