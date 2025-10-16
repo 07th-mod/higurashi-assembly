@@ -14,6 +14,7 @@ namespace MOD.Scripts.UI
 		static MODToaster Instance;
 		string toastText;
 		MODSimpleTimer toastNotificationTimer;
+		static bool highPriorityToastActive;
 
 		public MODToaster()
 		{
@@ -42,6 +43,10 @@ namespace MOD.Scripts.UI
 				GUILayout.TextArea(toastText, styleManager.Group.bigToastLabelStyle);
 				GUILayout.EndArea();
 			}
+			else
+			{
+				highPriorityToastActive = false;
+			}
 		}
 
 		/// <summary>
@@ -50,9 +55,20 @@ namespace MOD.Scripts.UI
 		/// <param name="toastText">The text to display in the toast</param>
 		/// <param name="toastDuration">The duration the toast will be shown for.
 		/// The toast will slide off the screen for the last part of this duration.</param>
-		public static void Show(string toastText, GUISound? maybeSound = GUISound.Click, float toastDuration = 3)
+		public static void Show(string toastText, GUISound? maybeSound = GUISound.Click, float toastDuration = 3, bool highPriority=false)
 		{
-			if(Instance == null)
+			if(highPriority)
+			{
+				// High prority toasts will always try to show
+				highPriorityToastActive = true;
+			}
+			else if(highPriorityToastActive)
+			{
+				// Low prority toasts disabled while high priority toast is active
+				return;
+			}
+
+			if (Instance == null)
 			{
 				return;
 			}

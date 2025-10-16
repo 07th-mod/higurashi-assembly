@@ -3,6 +3,7 @@ using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Audio;
 using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
+using MOD.Debugging;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Localization;
@@ -123,11 +124,11 @@ namespace MOD.Scripts.UI
 				$"AltBGM: {GetGlobal("GAltBGM")}\n" +
 				$"AltBGMFlow: {GetGlobal("GAltBGMflow")} ({MODAudioSet.Instance.GetBGMFlowName(GetGlobal("GAltBGMflow"))})\n" +
 				$"Last Played BGM: {AssetManager.Instance.debugLastBGM}\n" +
-				$"BGM Cascade: [{string.Join(":", BGMCascade.paths)}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n\n" +
+				$"BGM Cascade: [{string.Join(":", BGMCascade.GetPlainPaths().ToArray())}] ({BGMCascade.nameEN}) {(bgmFlagOK ? "" : "9Warning: Using default due to unknown flag)")}\n\n" +
 				$"AltSE:  {GetGlobal("GAltSE")}\n" +
 				$"AltSEFlow: {GetGlobal("GAltSEflow")}\n" +
 				$"Last Played SE Path: {AssetManager.Instance.debugLastSE}\n" +
-				$"SE Cascade: [{string.Join(":", SECascade.paths)}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
+				$"SE Cascade: [{string.Join(":", SECascade.GetPlainPaths().ToArray())}] ({SECascade.nameEN}) {(seFlagOK ? "" : "(Warning: Using default due to unknown flag)")}\n" +
 				$"Voice: {GetGlobal("GAltVoice")}\n" +
 				$"Priority: {GetGlobal("GAltVoicePriority")}\n\n" +
 				$"Last Played Voice Path: {AssetManager.Instance.debugLastVoice}\n" +
@@ -143,6 +144,9 @@ namespace MOD.Scripts.UI
 
 			// Font Adjustment Debug Menu
 			fontMenuFragment.OnGUIFontDebug();
+
+			// Sprite Mapping Debug Menu
+			MODDebugSpriteMapping.OnGUISpriteMapping();
 
 			// Button to close the debug menu
 			if (Button(new GUIContent(Loc.MODMenu_4, Loc.MODMenu_5))) //Close | Close the debug menu
