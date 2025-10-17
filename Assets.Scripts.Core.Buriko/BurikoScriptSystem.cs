@@ -78,6 +78,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void JumpToScript(string scriptname, string blockname = "main")
 		{
+			AssetManager.Instance.OnScriptJumpOrCall();
+
 			Logger.Log((currentScript == null) ? $"Starting at script {scriptname} (block {blockname})" : $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})");
 			callStack.Clear();
 			scriptname = scriptname.ToLower();
@@ -95,6 +97,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void CallScript(string scriptname, string blockname = "main")
 		{
+			AssetManager.Instance.OnScriptJumpOrCall();
+
 			if(scriptname == "flow")
 			{
 				FlowWasReached = true;
@@ -278,59 +282,78 @@ namespace Assets.Scripts.Core.Buriko
 			}
 		}
 
-		public void ModifySaveGame(int slot, string description)
-		{
-			Debug.Log("ModifySaveGame " + slot);
-			SaveEntry saveInfoInSlot = saveManager.GetSaveInfoInSlot(slot);
-			if (saveInfoInSlot != null)
-			{
-				byte[] array = File.ReadAllBytes(saveInfoInSlot.Path);
-				MGHelper.KeyEncode(array);
-				byte[] buffer = CLZF2.Decompress(array);
-				MemoryStream memoryStream = new MemoryStream(buffer);
-				MemoryStream memoryStream2 = new MemoryStream();
-				BinaryReader binaryReader = new BinaryReader(memoryStream);
-				BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
-				binaryWriter.Write(binaryReader.ReadBytes(16));
-				binaryReader.ReadString();
-				binaryWriter.Write(description);
-				binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
-				byte[] inputBytes = memoryStream2.ToArray();
-				memoryStream.Dispose();
-				memoryStream2.Dispose();
-				byte[] array2 = CLZF2.Compress(inputBytes);
-				MGHelper.KeyEncode(array2);
-				File.WriteAllBytes(saveInfoInSlot.Path, array2);
-				saveManager.UpdateSaveSlot(slot);
-			}
-		}
+		// This function is never used
+		//
+		//public void ModifySaveGame(int slot, string description)
+		//{
+		//	Debug.Log("ModifySaveGame " + slot);
+		//	SaveEntry saveInfoInSlot = saveManager.GetSaveInfoInSlot(slot);
+		//	if (saveInfoInSlot != null)
+		//	{
+		//		byte[] array = File.ReadAllBytes(saveInfoInSlot.Path);
+		//		MGHelper.KeyEncode(array);
+		//		byte[] buffer = CLZF2.Decompress(array);
+		//		MemoryStream memoryStream = new MemoryStream(buffer);
+		//		MemoryStream memoryStream2 = new MemoryStream();
+		//		BinaryReader binaryReader = new BinaryReader(memoryStream);
+		//		BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
+		//		binaryWriter.Write(binaryReader.ReadBytes(16));
+		//		binaryReader.ReadString();
+		//		binaryWriter.Write(description);
+		//		binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
+		//		byte[] inputBytes = memoryStream2.ToArray();
+		//		memoryStream.Dispose();
+		//		memoryStream2.Dispose();
+		//		byte[] array2 = CLZF2.Compress(inputBytes);
+		//		MGHelper.KeyEncode(array2);
+		//		File.WriteAllBytes(saveInfoInSlot.Path, array2);
+		//		saveManager.UpdateSaveSlot(slot);
+		//	}
+		//}
 
-		public void ModifySnapshotDescription(string newdescription)
-		{
-			Debug.Log("ModifySnapshotDescription: " + newdescription);
-			MemoryStream memoryStream = new MemoryStream(snapshotData);
-			MemoryStream memoryStream2 = new MemoryStream();
-			BinaryReader binaryReader = new BinaryReader(memoryStream);
-			BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
-			binaryWriter.Write(binaryReader.ReadBytes(16));
-			binaryReader.ReadString();
-			binaryWriter.Write(newdescription);
-			binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
-			snapshotData = memoryStream2.ToArray();
-			memoryStream.Dispose();
-			memoryStream2.Dispose();
-		}
+		// This function is never used
+		//
+		//public void ModifySnapshotDescription(string newdescription)
+		//{
+		//	Debug.Log("ModifySnapshotDescription: " + newdescription);
+		//	MemoryStream memoryStream = new MemoryStream(snapshotData);
+		//	MemoryStream memoryStream2 = new MemoryStream();
+		//	BinaryReader binaryReader = new BinaryReader(memoryStream);
+		//	BinaryWriter binaryWriter = new BinaryWriter(memoryStream2);
+		//	binaryWriter.Write(binaryReader.ReadBytes(16));
+		//	binaryReader.ReadString();
+		//	binaryWriter.Write(newdescription);
+		//	binaryWriter.Write(binaryReader.ReadBytes((int)(memoryStream.Length - memoryStream.Position)));
+		//	snapshotData = memoryStream2.ToArray();
+		//	memoryStream.Dispose();
+		//	memoryStream2.Dispose();
+		//}
 
 		public void SaveGame(int slotnum)
 		{
+			// By default, the game saves globals only when you try to quit the game
+			// If you force close the game, or the game crashes, this can cause globals to be lost, even though you have created a game "save"
+			// This is probably the cause of some confusing bug reports where various flags were not set, but the user has
+			// progressed past the point where the flag should be set
+			// Specifically for steam deck, it is very easy to force close the game by powering off the Steam Deck, or exiting the game via the SteamOS menu.
+			//
+			// To alleviate this for the time being, the below also saves globals every time normal or quick saves are created.
+			BurikoMemory.Instance.SaveGlobals();
+
 			if (hasSnapshot)
 			{
 				byte[] array = CLZF2.Compress(snapshotData);
 				MGHelper.KeyEncode(array);
 				string str = (slotnum < 100) ? ("save" + slotnum.ToString("D3")) : ("qsave" + (slotnum - 100));
-				File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
+				MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), str + ".dat"), array);
 				saveManager.UpdateSaveSlot(slotnum);
-				GameSystem.Instance.SceneController.WriteScreenshot(Path.Combine(MGHelper.GetSavePath(), str + ".png"));
+
+				// Save screenshot of what is currently on the screen to .jpeg file
+				string screenshotPath = Path.Combine(MGHelper.GetSavePath(), str + ".jpg");
+				GameSystem.Instance.SceneController.WriteScreenshot(screenshotPath);
+
+				// Delete any .png format screenshots from old versions of the mod
+				MODUtilityNoDeps.TryDelete(Path.ChangeExtension(screenshotPath, ".png"));
 			}
 		}
 
@@ -434,6 +457,10 @@ namespace Assets.Scripts.Core.Buriko
 						{
 							MODActions.EnableNVLModeINADVMode();
 						}
+
+						// Refresh aspect ratio and text position in case the saved value is different to the current one
+						// This also refreshes the text position (for example, if you are currently in the Console Preset, and load a save on the OG preset, the text may be in the wrong position)
+						GameSystem.Instance.UpdateAspectRatio();
 					}
 				}
 			}
