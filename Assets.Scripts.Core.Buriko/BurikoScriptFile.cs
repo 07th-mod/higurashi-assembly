@@ -2875,6 +2875,13 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "ShowChoiceModeOption":
+					if (MODUtility.TryParseInvariantCulture(callParameters, out int shouldShow))
+					{
+						MODMenuNormal.ShowChoiceModeOption(shouldShow != 0);
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;
