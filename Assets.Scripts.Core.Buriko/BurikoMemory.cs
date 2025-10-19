@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
+using MOD.ImageMapping;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Scene;
 using MOD.Scripts.UI;
@@ -390,6 +391,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				serializeToSave("$artsets", AssetManager.Instance.Artsets);
 			}
+			serializeToSave("$imageMapping", MODImageMappingSaveData.GetDataToSave(AssetManager.Instance));
 			try
 			{
 				using (MemoryStream memoryStream = new MemoryStream())
@@ -422,6 +424,7 @@ namespace Assets.Scripts.Core.Buriko
 				memorylist.Remove("$layerFilters");
 				memorylist.Remove("$artsets");
 				memorylist.Remove("$audioTracking");
+				memorylist.Remove("$imageMapping");
 			}
 		}
 
@@ -472,6 +475,10 @@ namespace Assets.Scripts.Core.Buriko
 			if(tryDeserializeFromSave<Dictionary<int, Audio.AudioInfo>[]>("$audioTracking", out var audioTracking))
 			{
 				MODAudioTracking.Instance.QueueState(audioTracking);
+			}
+			if (tryDeserializeFromSave("$imageMapping", out MODImageMappingSaveData modImageMappingSaveData))
+			{
+				MODImageMappingSaveData.LoadSavedData(modImageMappingSaveData, AssetManager.Instance);
 			}
 			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
@@ -592,7 +599,7 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
-			File.WriteAllBytes(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+			MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
 		}
 
 		/// <summary>

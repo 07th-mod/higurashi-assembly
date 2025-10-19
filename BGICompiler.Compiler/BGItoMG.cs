@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 
 namespace BGICompiler.Compiler
 {
@@ -59,7 +59,7 @@ namespace BGICompiler.Compiler
 				binaryWriter.Write(item.Value);
 			}
 			binaryWriter.Write(array);
-			File.WriteAllBytes(outname, memoryStream.ToArray());
+			MODUtilityNoDeps.WriteAllBytesSemiAtomic(outname, memoryStream.ToArray());
 		}
 
 		public void OutputCmd(BurikoCommands cmd)
