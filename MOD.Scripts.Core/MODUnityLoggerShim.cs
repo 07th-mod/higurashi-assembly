@@ -1,6 +1,6 @@
 using System;
 
-namespace BGICompiler.Compiler.Logger
+namespace MOD.Scripts.Core.UnityLoggerShim
 {
 	class Debug
 	{
