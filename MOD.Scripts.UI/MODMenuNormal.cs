@@ -47,6 +47,8 @@ namespace MOD.Scripts.UI
 
 		private static int gameClearClickCount = 3;
 
+		private static bool showChoiceModeOption;
+
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
 			this.modMenu = modMenu;
@@ -291,10 +293,14 @@ namespace MOD.Scripts.UI
 				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 			};
 
-			if (this.radioChoiceMode.OnGUIFragment(GetGlobal("GChoiceMode")) is int choiceMode)
+			// Some chapters have no options, so in that case don't show the choice option.
+			if (showChoiceModeOption)
 			{
-				SetGlobal("GChoiceMode", choiceMode);
-			};
+				if (this.radioChoiceMode.OnGUIFragment(GetGlobal("GChoiceMode")) is int choiceMode)
+				{
+					SetGlobal("GChoiceMode", choiceMode);
+				}
+			}
 		}
 
 
@@ -526,6 +532,11 @@ namespace MOD.Scripts.UI
 		public string DefaultTooltip()
 		{
 			return Loc.MODMenuNormal_129; //Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown...
+		}
+
+		public static void ShowChoiceModeOption(bool shouldShow)
+		{
+			showChoiceModeOption = shouldShow;
 		}
 	}
 }
