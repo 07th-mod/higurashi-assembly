@@ -35,6 +35,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		private int scopeLevel;
 
+		private bool globalFlagsNeedSaving;
+
 		public static BurikoMemory Instance
 		{
 			get;
@@ -228,6 +230,7 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void SetGlobalFlag(int key, int val)
 		{
+			globalFlagsNeedSaving = true;
 			if (!globalFlags.ContainsKey(key))
 			{
 				globalFlags.Add(key, val);
@@ -620,6 +623,15 @@ namespace Assets.Scripts.Core.Buriko
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
 			MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+		}
+
+		public void SaveGlobalsIfRequired()
+		{
+			if(globalFlagsNeedSaving)
+			{
+				globalFlagsNeedSaving = false;
+				SaveGlobals();
+			}
 		}
 
 		/// <summary>
