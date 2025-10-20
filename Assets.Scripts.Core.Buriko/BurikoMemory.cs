@@ -230,13 +230,17 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void SetGlobalFlag(int key, int val)
 		{
-			globalFlagsNeedSaving = true;
 			if (!globalFlags.ContainsKey(key))
 			{
 				globalFlags.Add(key, val);
 			}
 			else
 			{
+				if(globalFlags[key] != val)
+				{
+					globalFlagsNeedSaving = true;
+				}
+
 				globalFlags[key] = val;
 			}
 		}
