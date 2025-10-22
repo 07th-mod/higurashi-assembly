@@ -872,28 +872,33 @@ namespace Assets.Scripts.Core.Scene
 		// (the height of the screen in vertex coords) while maintaining the aspect ratio. 
 		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
 		{
-			int num = Mathf.Clamp(height, 1, 480);
-			int num2 = num / height;
-			int width2 = Mathf.RoundToInt((float)Mathf.Clamp(width, 1, num2 * width));
-			if(stretchToFit)
-			{
-				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
-			}
-			mesh = MGHelper.CreateMeshWithOrigin(width2, num, origin, ryukishiClamp, finalXOffset);
+			Vector2 meshSize = CreateMeshInner(width, height, stretchToFit);
+			mesh = MGHelper.CreateMeshWithOrigin((int)meshSize.x, (int)meshSize.y, origin, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
 		}
 
 		private void CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
 		{
-			int num = Mathf.Clamp(height, 1, 480);
-			float num2 = (float)num / (float)height;
-			int width2 = Mathf.RoundToInt(Mathf.Clamp((float)width, 1f, num2 * (float)width));
+			Vector2 meshSize = CreateMeshInner(width, height, stretchToFit);
+			mesh = MGHelper.CreateMesh((int)meshSize.x, (int)meshSize.y, alignment, ryukishiClamp, finalXOffset);
+			meshFilter.mesh = mesh;
+		}
+
+		private Vector2 CreateMeshInner(int originalWidth, int originalHeight, bool stretchToFit)
+		{
+			// Clamp height to fit on the screen (in game coord system max height is 480)
+			float newHeight = Mathf.Clamp(originalHeight, 1, 480);
+
+			// Calculate the new width such that the image's aspect ratio is kept the same
+			int newWidth = Mathf.RoundToInt(Mathf.Clamp(originalWidth, 1f, newHeight / originalHeight * originalWidth));
+
+			// If stretching the image, then just set width according to aspect ratio, to fill entire screen
 			if (stretchToFit)
 			{
-				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
+				newWidth = Mathf.RoundToInt(newHeight * GameSystem.Instance.AspectRatio);
 			}
-			mesh = MGHelper.CreateMesh(width2, num, alignment, ryukishiClamp, finalXOffset);
-			meshFilter.mesh = mesh;
+
+			return new Vector2(newWidth, newHeight);
 		}
 
 		public void Initialize()
