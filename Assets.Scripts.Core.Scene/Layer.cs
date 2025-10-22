@@ -869,7 +869,36 @@ namespace Assets.Scripts.Core.Scene
 		}
 
 		// The below two CreateMesh functions clamp the image height to 480 
-		// (the height of the screen in vertex coords) while maintaining the aspect ratio. 
+		// (the height of the screen in vertex coords) while maintaining the aspect ratio.
+		// I think the "LayerAlignment" version is ever called 99-100% of the time, and the "origin" function
+		// is rarely or never called in our game scripts.
+		//
+		//////////////////////// Regarding the "origin" version of the function ///////////////////////////////////////////////
+		// AFAIK, CreateMesh(..., Vector 2 origin, ...) is only ever called when the third last argument, "originx" of:
+		// - DrawBustshotWithFiltering(...)
+		// - DrawSprite(...)
+		// - MODDrawCharacterWithFiltering(...)
+		// is called in the game script (or possibly in some cases where a layer has its origin set non-null)
+		// However, I think we never do this in our game scripts, so I think this function is never (or rarely) called.
+		//
+		// On closer inspection, I think the function is broken, because it calculates the new scaling ratio for the width as:
+		//     scaling = newHeight / oldHeight
+		// where all three variables are integers (I think they should be floats like the "Alignment" version of the function).
+		// This means scaling is sort of a step function. For example, if the image height is 800, and it gets clamped to 480,
+		// then scaling = 800 / 480 = 0, so the width becomes 0 and the image doesn't show at all...
+		//
+		// Because I'm not really sure, I'm not going to fix it for now and try to retain the existing behavior.
+		/// Regarding differences bewteen chapters
+		/// - "Mod" branch + Ch[1, 2]: Left and right black bars only
+		///     - In other words, the image height is clamped to the window height, then the width is set to keep the same aspect
+		///       ratio. Tall images are OK, but images wider than the window will be cut-off
+		/// - Console + Ch[3, 4, 5, 7]: Both Left and right black bars, and top and bottom black bars are supported
+		/// - Ch[6, 8, 9, 10 (hou)] : In addition to both types of letterboxing, ONLY when origin is non-null, special cases are
+		///   added for specific width and heights:
+		///     - A height of 960 is converted to a height of 480
+		///     - A width of 1280 is converted to a width of 640
+		///     - I don't actually know if this does anything extra compared to normal?
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
