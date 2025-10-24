@@ -8,6 +8,13 @@ namespace Assets.Scripts.Core.Scene
 {
 	public class Layer : MonoBehaviour
 	{
+		private enum ScalingOverride
+		{
+			Normal,
+			StretchToFit,
+			LetterboxVerticalHorizontal
+		}
+
 		private const string shaderDefaultName = "MGShader/LayerShader";
 
 		private const string shaderAlphaBlendName = "MGShader/LayerShaderAlpha";
@@ -432,13 +439,19 @@ namespace Assets.Scripts.Core.Scene
 				cachedFinalXOffset = finalXOffset;
 				cachedRyukishiClamp = ryukishiClamp;
 
+				ScalingOverride scalingOverride = ScalingOverride.Normal;
+				if (stretchToFit)
+				{
+					scalingOverride = ScalingOverride.StretchToFit;
+				}
+
 				if (origin is Vector2 nonnullOrigin)
 				{
-					CreateMesh(width, height, nonnullOrigin, ryukishiClamp, finalXOffset, stretchToFit);
+					CreateMesh(width, height, nonnullOrigin, ryukishiClamp, finalXOffset, scalingOverride);
 				}
 				else
 				{
-					CreateMesh(width, height, alignment, ryukishiClamp, finalXOffset, stretchToFit);
+					CreateMesh(width, height, alignment, ryukishiClamp, finalXOffset, scalingOverride);
 				}
 			}
 			this.origin = origin;
@@ -899,30 +912,67 @@ namespace Assets.Scripts.Core.Scene
 		///     - A width of 1280 is converted to a width of 640
 		///     - I don't actually know if this does anything extra compared to normal?
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
+		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, ScalingOverride scalingOverride)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			int num2 = num / height;
 			int width2 = Mathf.RoundToInt((float)Mathf.Clamp(width, 1, num2 * width));
-			if(stretchToFit)
-			{
-				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
-			}
+
+			ApplyScalingOverride(width, height, scalingOverride, ref width2, ref num);
+
 			mesh = MGHelper.CreateMeshWithOrigin(width2, num, origin, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
 		}
 
-		private void CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
+		private void CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset, ScalingOverride scalingOverride)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			float num2 = (float)num / (float)height;
 			int width2 = Mathf.RoundToInt(Mathf.Clamp((float)width, 1f, num2 * (float)width));
-			if (stretchToFit)
-			{
-				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
-			}
+
+			ApplyScalingOverride(width, height, scalingOverride, ref width2, ref num);
+
 			mesh = MGHelper.CreateMesh(width2, num, alignment, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
+		}
+
+		private void ApplyScalingOverride(int width, int height, ScalingOverride scalingOverride, ref int newWidth, ref int newHeight)
+		{
+			switch (scalingOverride)
+			{
+				case ScalingOverride.StretchToFit:
+					// Stretch image to fit the entire screen
+					newHeight = Mathf.Clamp(height, 1, 480);
+					newWidth = Mathf.RoundToInt(newHeight * GameSystem.Instance.AspectRatio);
+					break;
+				case ScalingOverride.LetterboxVerticalHorizontal:
+					LetterboxVerticalHorizontal(width, height, out newWidth, out newHeight);
+					break;
+				case ScalingOverride.Normal:
+				default:
+					// Don't change the existing values
+					break;
+			}
+		}
+
+		private void LetterboxVerticalHorizontal(int width, int height, out int newWidth, out int newHeight)
+		{
+			// For convenience, these variables store the window size in game coordinates.
+			// For 4:3 mode it is 640 x 480. For 16:9 it is 853 * 640.
+			float windowHeightGameCoordinates = 480;
+			float windowWidthGameCoordinates = windowHeightGameCoordinates * GameSystem.Instance.AspectRatio;
+
+			// Separately calculate the scaling required for the texture to fit on the window, for the x and y axis
+			// For example, if the image was 960 in height, then the yScalingRequired would be 0.5
+			float xScalingToFitWidth = Mathf.Clamp(width, 1, windowWidthGameCoordinates) / width;
+			float yScalingToFitHeight = Mathf.Clamp(height, 1, windowHeightGameCoordinates) / height;
+
+			// To ensure texture always fits in window, take the minimum of the two scaling factors
+			float scalingRequired = Mathf.Min(xScalingToFitWidth, yScalingToFitHeight);
+
+			// Apply this scaling to both axis to maintain the original texture's aspect ratio
+			newWidth = (int)(width * scalingRequired);
+			newHeight = (int)(height * scalingRequired);
 		}
 
 		public void Initialize()
