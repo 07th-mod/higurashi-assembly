@@ -403,7 +403,7 @@ namespace Assets.Scripts.Core.Scene
 					// We could letter-box the images, but in some cases whatever is behind the image may show up? Not sure.
 					if(!isSpriteOrPortrait)
 					{
-						if (GetGlobalFlagBool("GRyukishiMode43Letterbox") && textureNameFromGameScript.StartsWith("scene/"))
+						if ((GetGlobalFlagInt("GRyukishiMode43CGScalingMode") != 0) && textureNameFromGameScript.StartsWith("scene/"))
 						{
 							scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
 						}

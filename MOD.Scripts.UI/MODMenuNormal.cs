@@ -35,6 +35,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioTextWindowModeAndCrop;
 		private readonly MODRadio radioForceComputedLipsync;
 		private readonly MODRadio radioRyukishiExperimentalAspect;
+		private readonly MODRadio radioRyukishiExperimentalAspectScalingMode;
 
 		private readonly MODTabControl tabControl;
 
@@ -143,6 +144,12 @@ namespace MOD.Scripts.UI
 			radioRyukishiExperimentalAspect = new MODRadio(Loc.MODMenuNormal_66, new GUIContent[]{ //Original/Ryukishi Experimental 4:3 Aspect Ratio
 				new GUIContent(Loc.MODMenuNormal_67, Loc.MODMenuNormal_68), //16:9 (default) | The game's aspect ratio will be 16:9.\n\nWhen playing in OG mode, the left and right of the screen will be padded to 4:3 with black bars.
 				new GUIContent("4:3", Loc.MODMenuNormal_69 //The game's aspect ratio will be 4:3, however this may cause some issues when playing our mod.\nOnly use this option if your monitor is 4:3 aspect ratio, like an old CRT monitor.\n\nPlease note the following:\n\n - You should enable the Original/Ryukishi preset before enabling this option. Using other settings should all work, but are not well tested.\n\n - 16:9 images will be squished to fit in 4:3 so they don't get cut off. This includes text images, and PS3 CG images if enabled.\n\n - You may see graphical artifacts just after this is enabled - they should fix after the next character transition or text clear\n\n
+				),
+			});
+
+			radioRyukishiExperimentalAspectScalingMode = new MODRadio(Loc.MODMenu43CGScalingModeTitle, new GUIContent[]{
+				new GUIContent(Loc.MODMenu43CGScalingModeStretchName, Loc.MODMenu43CGScalingModeStretchDescription),
+				new GUIContent(Loc.MODMenu43CGScalingModeLetterBoxName, Loc.MODMenu43CGScalingModeLetterBoxDescription
 				),
 			});
 
@@ -268,6 +275,12 @@ namespace MOD.Scripts.UI
 			{
 				SetGlobal("GRyukishiMode43Aspect", experimentalAspect);
 				GameSystem.Instance.UpdateAspectRatio();
+				GameSystem.Instance.SceneController.ReloadAllImages();
+			}
+
+			if (this.radioRyukishiExperimentalAspectScalingMode.OnGUIFragment(GetGlobal("GRyukishiMode43CGScalingMode")) is int cgScalingMode)
+			{
+				SetGlobal("GRyukishiMode43CGScalingMode", cgScalingMode);
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 
