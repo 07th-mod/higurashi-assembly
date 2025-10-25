@@ -10,7 +10,7 @@ namespace Assets.Scripts.Core.Scene
 	{
 		private enum ScalingOverride
 		{
-			Normal,
+			None,
 			StretchToFit,
 			LetterboxVerticalHorizontal
 		}
@@ -102,9 +102,10 @@ namespace Assets.Scripts.Core.Scene
 		private int? layerID; // The layer number in the scene controller, if it has one
 
 		private bool cachedIsBustShot;
-		private bool cachedStretchToFit;
+		private ScalingOverride cachedScalingOverride;
 		private bool cachedRyukishiClamp;
 		private int cachedFinalXOffset;
+		private bool stretchModeLetterboxing;
 
 		public int? LayerID
 		{
@@ -369,27 +370,30 @@ namespace Assets.Scripts.Core.Scene
 
 		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript, bool disableRyukishiClamp = false)
 		{
-			bool FilterStretchingBasedOnAspectRatio(bool inputShouldStretch, float targetAspect)
+			ScalingOverride FilterStretchingBasedOnAspectRatio(ScalingOverride inputScalingOverride, float targetAspect)
 			{
 				// Do not stretch if the image is more than 5% off the target aspect ratio.
 				// Likely these are special images like credits images or effect images.
 				float imageAspect = (float)width / (float)height;
 				if (imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
 				{
-					return false;
+					return ScalingOverride.None;
 				}
 
 				// Otherwise, leave value unchanged
-				return inputShouldStretch;
+				return inputScalingOverride;
 			}
 
-			bool ryukishiClamp = false;
-			bool stretchToFit = false;
+            int GetGlobalFlagInt(string flagname) => Buriko.BurikoMemory.Instance.GetGlobalFlag(flagname).IntValue();
+            bool GetGlobalFlagBool(string flagname) => Buriko.BurikoMemory.Instance.GetGlobalFlag(flagname).IntValue() != 0;
+
+            bool ryukishiClamp = false;
+			ScalingOverride scalingOverride = ScalingOverride.None;
 			if (texturePath != null)
 			{
 				bool isSpriteOrPortrait = AssetManager.RelativePathIsSprite(textureNameFromGameScript);
 
-				if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+				if (GetGlobalFlagBool("GRyukishiMode43Aspect"))
 				{
 					// When using true 4:3 mode, we don't need to clamp the sprites, as they are automatically cut off by the viewport
 					ryukishiClamp = false;
@@ -397,26 +401,41 @@ namespace Assets.Scripts.Core.Scene
 					// When using true 4:3 aspect mode, any 16:9 images (except for sprites) should be squished to 4:3.
 					// This make sure any text or other images don't get cut off
 					// We could letter-box the images, but in some cases whatever is behind the image may show up? Not sure.
-					stretchToFit = !isSpriteOrPortrait;
+					if(!isSpriteOrPortrait)
+					{
+						if (GetGlobalFlagBool("GRyukishiMode43Letterbox") && textureNameFromGameScript.StartsWith("scene/"))
+						{
+							scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
+						}
+						else
+						{
+							scalingOverride = ScalingOverride.StretchToFit;
+						}
+					}
+
+					// Option to letter box CGs ('scene' folder), instead of stretching
 
 					// Do not stretch if the image is more than 5% off a 16:9 aspect ratio.
 					// Likely these are special images like credits images or effect images.
-					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 16f / 9f);
+					scalingOverride = FilterStretchingBasedOnAspectRatio(scalingOverride, 16f / 9f);
 				}
 				else
 				{
 					// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
 					ryukishiClamp = isBustShot &&
-						Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
-						Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+						GetGlobalFlagInt("GBackgroundSet") == 1 &&      // Using OG Backgrounds AND
+						GetGlobalFlagInt("GStretchBackgrounds") == 0 && // Not stretching backgrounds AND
 						isSpriteOrPortrait; // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
 
 					// When using old backgrounds with stretch backgrounds enabled, stretch old 4:3 backgrounds to 16:9 to fill the screen
-					stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+					if(GetGlobalFlagInt("GStretchBackgrounds") == 1 && texturePath.Contains("OGBackgrounds"))
+					{
+						scalingOverride = ScalingOverride.StretchToFit;
+					}
 
 					// Do not stretch if the image is more than 5% off a 4:3 aspect ratio.
 					// Likely these are special images like credits images or effect images.
-					stretchToFit = FilterStretchingBasedOnAspectRatio(stretchToFit, 4f / 3f);
+					scalingOverride = FilterStretchingBasedOnAspectRatio(scalingOverride, 4f / 3f);
 				}
 			}
 
@@ -434,16 +453,10 @@ namespace Assets.Scripts.Core.Scene
 				this.origin != origin ||
 				cachedRyukishiClamp != ryukishiClamp ||
 				cachedFinalXOffset != finalXOffset ||
-				cachedStretchToFit != stretchToFit)
+				cachedScalingOverride != scalingOverride)
 			{
 				cachedFinalXOffset = finalXOffset;
 				cachedRyukishiClamp = ryukishiClamp;
-
-				ScalingOverride scalingOverride = ScalingOverride.Normal;
-				if (stretchToFit)
-				{
-					scalingOverride = ScalingOverride.StretchToFit;
-				}
 
 				if (origin is Vector2 nonnullOrigin)
 				{
@@ -457,7 +470,7 @@ namespace Assets.Scripts.Core.Scene
 			this.origin = origin;
 			this.alignment = alignment;
 			this.aspectRatio = (float)width / height;
-			cachedStretchToFit = stretchToFit;
+			this.cachedScalingOverride = scalingOverride;
 
 			// Do not rotate character sprites when using 4:3 letterboxing as current method does not handle it properly
 			if (ryukishiClamp)
@@ -948,7 +961,7 @@ namespace Assets.Scripts.Core.Scene
 				case ScalingOverride.LetterboxVerticalHorizontal:
 					LetterboxVerticalHorizontal(width, height, out newWidth, out newHeight);
 					break;
-				case ScalingOverride.Normal:
+				case ScalingOverride.None:
 				default:
 					// Don't change the existing values
 					break;
