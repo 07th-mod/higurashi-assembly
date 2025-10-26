@@ -977,8 +977,8 @@ namespace Assets.Scripts.Core.Scene
 
 			// Separately calculate the scaling required for the texture to fit on the window, for the x and y axis
 			// For example, if the image was 960 in height, then the yScalingRequired would be 0.5
-			float xScalingToFitWidth = width / Mathf.Clamp(width, 1, windowWidthGameCoordinates);
-			float yScalingToFitHeight = height / Mathf.Clamp(height, 1, windowHeightGameCoordinates);
+			float xScalingToFitWidth = Mathf.Clamp(width, 1, windowWidthGameCoordinates) / width;
+			float yScalingToFitHeight = Mathf.Clamp(height, 1, windowHeightGameCoordinates) / height;
 
 			// To ensure texture always fits in window, take the minimum of the two scaling factors
 			float scalingRequired = Mathf.Min(xScalingToFitWidth, yScalingToFitHeight);
