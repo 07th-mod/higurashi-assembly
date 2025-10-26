@@ -278,10 +278,14 @@ namespace MOD.Scripts.UI
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 
-			if (this.radioRyukishiExperimentalAspectScalingMode.OnGUIFragment(GetGlobal("GRyukishiMode43CGScalingMode")) is int cgScalingMode)
+			// Only show this option if "Ryukishi 4:3 Mode" and "Show CGs" are both enabled
+			if(GetGlobal("GRyukishiMode43Aspect") != 0  && GetGlobal("GHideCG") == 0)
 			{
-				SetGlobal("GRyukishiMode43CGScalingMode", cgScalingMode);
-				GameSystem.Instance.SceneController.ReloadAllImages();
+				if (this.radioRyukishiExperimentalAspectScalingMode.OnGUIFragment(GetGlobal("GRyukishiMode43CGScalingMode")) is int cgScalingMode)
+				{
+					SetGlobal("GRyukishiMode43CGScalingMode", cgScalingMode);
+					GameSystem.Instance.SceneController.ReloadAllImages();
+				}
 			}
 
 			if (Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
