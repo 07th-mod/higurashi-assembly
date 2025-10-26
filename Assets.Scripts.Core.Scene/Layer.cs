@@ -403,20 +403,36 @@ namespace Assets.Scripts.Core.Scene
 					// We could letter-box the images, but in some cases whatever is behind the image may show up? Not sure.
 					if(!isSpriteOrPortrait)
 					{
-						if ((GetGlobalFlagInt("GRyukishiMode43CGScalingMode") != 0) && textureNameFromGameScript.StartsWith("scene/"))
+						// Non-sprites handling (backgrounds, Console CG, effects etc.)
+						if(textureNameFromGameScript.StartsWith("scene/"))
 						{
-							scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
+							// Console CG handling
+							if (GetGlobalFlagInt("GRyukishiMode43CGScalingMode") == 0)
+							{
+								// Default option is to letterbox Console CGs
+								scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
+							}
+							else
+							{
+								// Option to stretch Console CGs to fill screen
+								// (this was the default behavior before 2025-10-26)
+								scalingOverride = ScalingOverride.StretchToFit;
+							}
 						}
 						else
 						{
+							// Backgrounds, effects etc. handling (non-console CGs)
+							// Everything except Console CGs stretch to fit the screen even if the aspect ratio is wrong
+							// For example, effect images or text images which have not been replaced.
 							scalingOverride = ScalingOverride.StretchToFit;
 						}
 					}
 
-					// Option to letter box CGs ('scene' folder), instead of stretching
-
 					// Do not stretch if the image is more than 5% off a 16:9 aspect ratio.
 					// Likely these are special images like credits images or effect images.
+					// Some Console CGs are funny aspect ratios because there is a panning effect,
+					// Letterboxing may intefere with the panning so for now just use the default scaling
+					// for this chapter and hopefully it works out.
 					scalingOverride = FilterStretchingBasedOnAspectRatio(scalingOverride, 16f / 9f);
 				}
 				else
