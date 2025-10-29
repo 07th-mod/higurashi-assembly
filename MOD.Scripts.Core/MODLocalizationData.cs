@@ -254,5 +254,7 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenu43CGScalingModeStretchDescription => Get("MODMenu43CGScalingModeStretchDescription", "Any 16:9 Console CGs will be stretched to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.\n\nThis was the default behavior before 2025-10-26.");
 		public static string MODMenu43CGScalingModeLetterBoxName => Get("MODMenu43CGScalingModeLetterBoxName", "Letterbox to Fit 4:3");
 		public static string MODMenu43CGScalingModeLetterBoxDescription => Get("MODMenu43CGScalingModeLetterBoxDescription", "Any 16:9 Console CGs will be letterboxed to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.");
+		public static string MODMenu43CGScalingModeCropName => Get("MODMenu43CGScalingModeCropName", "Crop to Fit 4:3");
+		public static string MODMenu43CGScalingModeCropDescription => Get("MODMenu43CGScalingModeCropDescription", "Any 16:9 Console CGs will be cropped to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.\n\nWARNING: Cropping is automatic, thus some CGs may be 'cut-off' on the left and right hand sides, or be poorly framed.");
 	}
 }

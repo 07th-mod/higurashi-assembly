@@ -149,7 +149,8 @@ namespace MOD.Scripts.UI
 
 			radioRyukishiExperimentalAspectScalingMode = new MODRadio(Loc.MODMenu43CGScalingModeTitle, new GUIContent[]{
 				new GUIContent(Loc.MODMenu43CGScalingModeLetterBoxName, Loc.MODMenu43CGScalingModeLetterBoxDescription),
-				new GUIContent(Loc.MODMenu43CGScalingModeStretchName, Loc.MODMenu43CGScalingModeStretchDescription)
+				new GUIContent(Loc.MODMenu43CGScalingModeStretchName, Loc.MODMenu43CGScalingModeStretchDescription),
+				new GUIContent(Loc.MODMenu43CGScalingModeCropName, Loc.MODMenu43CGScalingModeCropDescription)
 			});
 
 			customFlagPreset = Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetCustomFlagPresetInstance();
