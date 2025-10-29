@@ -12,7 +12,8 @@ namespace Assets.Scripts.Core.Scene
 		{
 			None,
 			StretchToFit,
-			LetterboxVerticalHorizontal
+			LetterboxVerticalHorizontal,
+			FitHeight
 		}
 
 		private const string shaderDefaultName = "MGShader/LayerShader";
@@ -407,16 +408,23 @@ namespace Assets.Scripts.Core.Scene
 						if(textureNameFromGameScript.StartsWith("scene/"))
 						{
 							// Console CG handling
-							if (GetGlobalFlagInt("GRyukishiMode43CGScalingMode") == 0)
-							{
-								// Default option is to letterbox Console CGs
-								scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
-							}
-							else
+							if (GetGlobalFlagInt("GRyukishiMode43CGScalingMode") == 1)
 							{
 								// Option to stretch Console CGs to fill screen
 								// (this was the default behavior before 2025-10-26)
 								scalingOverride = ScalingOverride.StretchToFit;
+							}
+							else if (GetGlobalFlagInt("GRyukishiMode43CGScalingMode") == 2)
+							{
+								// Crop Console CGs to 4:3
+								// Fitting a 16:9 image to a 4:3 aspect by height effectively crops the image -
+								// the left and right side of the image will extend beyond the game window and not be seen.
+								scalingOverride = ScalingOverride.FitHeight;
+							}
+							else
+							{
+								// Default option is to letterbox Console CGs
+								scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
 							}
 						}
 						else
@@ -976,6 +984,15 @@ namespace Assets.Scripts.Core.Scene
 					break;
 				case ScalingOverride.LetterboxVerticalHorizontal:
 					LetterboxVerticalHorizontal(width, height, out newWidth, out newHeight);
+					break;
+				case ScalingOverride.FitHeight:
+					{
+						// Scale the image (preserving aspect ratio) so the new height is the height of the window
+						// Wide images will appear cropped as they will extend beyond the edge of the window
+						newHeight = Mathf.Clamp(height, 1, 480);
+						float scale = newHeight / (float)height;
+						newWidth = Mathf.RoundToInt(width * scale);
+					}
 					break;
 				case ScalingOverride.None:
 				default:
