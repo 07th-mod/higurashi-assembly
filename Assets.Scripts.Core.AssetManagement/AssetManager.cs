@@ -177,6 +177,8 @@ namespace Assets.Scripts.Core.AssetManagement
 		public static readonly int ScreenshotWidth = 382;
 		public static readonly int ScreenshotHeight = 286;
 
+		public static readonly string MOVIE_TEXTURE_NAME = "scene/_internal_movie_texture";
+
 		/// <summary>
 		/// Get the artset at the given index
 		/// </summary>
@@ -698,6 +700,17 @@ namespace Assets.Scripts.Core.AssetManagement
 
 		public Texture2D LoadTexture(string textureName, out string texturePath)
 		{
+			if(textureName == MOVIE_TEXTURE_NAME)
+			{
+				// This is a hacky way to easily get an appropriately sized layer for movie playback.
+				// Since the texture pretends to be in the 'scene' folder, it will be treated as a CG,
+				// and scaled according to CG scaling options when in 4:3 mode.
+				// This will work appropriately for 16:9 movies, but if we ever have a movie with an odd
+				// aspect ratio it will just stretch to the size of the screen.
+				texturePath = string.Empty;
+				return new Texture2D(1920, 1080, TextureFormat.ARGB32, mipmap: false);
+			}
+
 			if (textureName == "windo_filter" && windowTexture != null)
 			{
 				texturePath = windowTexturePath;

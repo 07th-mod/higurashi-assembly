@@ -35,6 +35,8 @@ namespace Assets.Scripts.Core.Buriko
 
 		private int scopeLevel;
 
+		private bool globalFlagsNeedSaving;
+
 		public static BurikoMemory Instance
 		{
 			get;
@@ -107,6 +109,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GBackgroundSet", 528);
 			variableReference.Add("GAudioSet", 529);
 			variableReference.Add("GRyukishiMode43Aspect", 530);
+			variableReference.Add("GRyukishiMode43CGScalingMode", 531);
 
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 60);
@@ -214,6 +217,11 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			else
 			{
+				if(globalFlags[key] != val)
+				{
+					globalFlagsNeedSaving = true;
+				}
+
 				globalFlags[key] = val;
 			}
 		}
@@ -600,6 +608,15 @@ namespace Assets.Scripts.Core.Buriko
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
 			MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+		}
+
+		public void SaveGlobalsIfRequired()
+		{
+			if(globalFlagsNeedSaving)
+			{
+				globalFlagsNeedSaving = false;
+				SaveGlobals();
+			}
 		}
 
 		/// <summary>

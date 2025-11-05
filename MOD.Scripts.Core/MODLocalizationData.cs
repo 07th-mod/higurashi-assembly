@@ -241,12 +241,20 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuSupportCompileFailed_23 => Get("MODMenuSupportCompileFailed_23", "Continue playing anyway (NOT RECOMMENDED)");
 		public static string MODMenuSupportCompileFailed_24 => Get("MODMenuSupportCompileFailed_24", "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly.");
 
-		public static string MODMenuChoiceModeOptionTitle => Get("MODMenuChoiceModeOptionTitle","Choice Mode");
-		public static string MODMenuChoiceModeSkipName => Get("MODMenuChoiceModeSkipName","Skip / Auto Good End");
-		public static string MODMenuChoiceModeSkipDescription => Get("MODMenuChoiceModeSkipDescription","Skip choices. Proceed toward the good ending");
-		public static string MODMenuChoiceModeNormalName => Get("MODMenuChoiceModeNormalName","Normal");
-		public static string MODMenuChoiceModeNormalDescription => Get("MODMenuChoiceModeNormalDescription","Prompt choices normally");
-		public static string MODMenuChoiceModeHighlightName => Get("MODMenuChoiceModeHighlightName","Highlight Good");
-		public static string MODMenuChoiceModeHighlightDescription => Get("MODMenuChoiceModeHighlightDescription","Prompt choices and highlight correct answers");
+		public static string MODMenuChoiceModeOptionTitle => Get("MODMenuChoiceModeOptionTitle", "Choice Mode");
+		public static string MODMenuChoiceModeSkipName => Get("MODMenuChoiceModeSkipName", "Skip / Auto Good End");
+		public static string MODMenuChoiceModeSkipDescription => Get("MODMenuChoiceModeSkipDescription", "Skip choices. Proceed toward the good ending");
+		public static string MODMenuChoiceModeNormalName => Get("MODMenuChoiceModeNormalName", "Normal");
+		public static string MODMenuChoiceModeNormalDescription => Get("MODMenuChoiceModeNormalDescription", "Prompt choices normally");
+		public static string MODMenuChoiceModeHighlightName => Get("MODMenuChoiceModeHighlightName", "Highlight Good");
+		public static string MODMenuChoiceModeHighlightDescription => Get("MODMenuChoiceModeHighlightDescription", "Prompt choices and highlight correct answers");
+
+		public static string MODMenu43CGScalingModeTitle => Get("MODMenu43CGScalingModeTitle", "Original/Ryukishi 4:3 Mode CG Scaling");
+		public static string MODMenu43CGScalingModeStretchName => Get("MODMenu43CGScalingModeStretchName", "Stretch to Fit 4:3");
+		public static string MODMenu43CGScalingModeStretchDescription => Get("MODMenu43CGScalingModeStretchDescription", "Any 16:9 Console CGs will be stretched to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.\n\nThis was the default behavior before 2025-10-26.");
+		public static string MODMenu43CGScalingModeLetterBoxName => Get("MODMenu43CGScalingModeLetterBoxName", "Letterbox to Fit 4:3");
+		public static string MODMenu43CGScalingModeLetterBoxDescription => Get("MODMenu43CGScalingModeLetterBoxDescription", "Any 16:9 Console CGs will be letterboxed to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.");
+		public static string MODMenu43CGScalingModeCropName => Get("MODMenu43CGScalingModeCropName", "Crop to Fit 4:3");
+		public static string MODMenu43CGScalingModeCropDescription => Get("MODMenu43CGScalingModeCropDescription", "Any 16:9 Console CGs will be cropped to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.\n\nWARNING: Cropping is automatic, thus some CGs may be 'cut-off' on the left and right hand sides, or be poorly framed.");
 	}
 }
