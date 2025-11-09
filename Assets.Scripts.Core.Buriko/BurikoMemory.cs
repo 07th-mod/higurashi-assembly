@@ -522,6 +522,19 @@ namespace Assets.Scripts.Core.Buriko
 		public void LoadGlobals()
 		{
 			string path = Path.Combine(MGHelper.GetSavePath(), "global.dat");
+
+			// Because we write to the `global.dat` more often (see https://github.com/07th-mod/higurashi-assembly/pull/144)
+			// and `global.dat` will kind of wipe your progress if it is missing, the below logic is added
+			// to restore a backup if the WriteAllBytesSemiAtomic() was interrupted causing `global.dat` to be missing.
+			//
+			// The old file would be at `global.dat.temporarybackup`
+			if(MODUtilityNoDeps.RestoreSemiAtomicBackupIfRequired(path))
+			{
+				string message = "Warning: Restored backup global.dat";
+				MODToaster.Show(message, toastDuration: 10);
+				Logger.LogWarning(message);
+			}
+
 			if (!File.Exists(path))
 			{
 				SetGlobalFlag("GUsePrompts", 1);
