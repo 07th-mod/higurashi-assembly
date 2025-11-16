@@ -80,6 +80,9 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			AssetManager.Instance.OnScriptJumpOrCall();
 
+			// Save globals when jumping to a new script
+			BurikoMemory.Instance.SaveGlobalsIfRequired();
+
 			Logger.Log((currentScript == null) ? $"Starting at script {scriptname} (block {blockname})" : $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})");
 			callStack.Clear();
 			scriptname = scriptname.ToLower();
@@ -98,6 +101,9 @@ namespace Assets.Scripts.Core.Buriko
 		public void CallScript(string scriptname, string blockname = "main")
 		{
 			AssetManager.Instance.OnScriptJumpOrCall();
+
+			// Save globals before calling a new script
+			BurikoMemory.Instance.SaveGlobalsIfRequired();
 
 			if(scriptname == "flow")
 			{
@@ -121,6 +127,10 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void Return()
 		{
+			// Save globals when returning from a script
+			// This typically happens when you finish a day of the game
+			BurikoMemory.Instance.SaveGlobalsIfRequired();
+
 			if (callStack.Count <= 0)
 			{
 				throw new Exception("Could not return from script, as the script is currently at the bottom of the call stack.");
