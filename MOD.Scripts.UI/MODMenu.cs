@@ -556,6 +556,14 @@ namespace MOD.Scripts.UI
 			this.visible = false;
 			gameSystem.SetMODIgnoreInputs(false);
 			gameSystem.ShowUIControls();
+
+			// Save globals if required when closing any mod menu
+			// Make sure that the game is working correctly (reached flow.txt) as we don't want to
+			// save globals if the game has a serious error.
+			if (BurikoScriptSystem.Instance != null && BurikoScriptSystem.Instance.FlowWasReached)
+			{
+				BurikoMemory.Instance.SaveGlobalsIfRequired();
+			}
 		}
 
 		/// <summary>
