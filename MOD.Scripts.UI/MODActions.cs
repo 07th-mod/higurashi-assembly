@@ -61,8 +61,7 @@ namespace MOD.Scripts.UI
 		/// <summary>
 		/// Cycles and saves Console->MangaGamer->OG->Custom->Console...
 		/// </summary>
-		/// <returns>True if set and displayed, false if in a NVL_in_ADV region and value might not be applied immediately</returns>
-		public static void ToggleAndSaveADVMode()
+		public static void CycleGraphicsPreset()
 		{
 			MODCustomFlagPreset customPreset = BurikoMemory.Instance.GetCustomFlagPresetInstance();
 
@@ -90,6 +89,13 @@ namespace MOD.Scripts.UI
 					LoadCustomGraphicsPreset();
 					break;
 			}
+		}
+
+		public static void CycleTextWindowMode()
+		{
+			int nextWindowMode = (GetADVNVLRyukishiModeFromFlags() + 1) % 3;
+			SetTextWindowAppearance((ModPreset)nextWindowMode, showInfoToast: true);
+			GameSystem.Instance.SceneController.ReloadAllImages();
 		}
 
 		/// <summary>

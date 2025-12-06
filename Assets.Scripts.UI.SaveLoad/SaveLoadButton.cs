@@ -72,7 +72,7 @@ namespace Assets.Scripts.UI.SaveLoad
 					if (!(promptController == null))
 					{
 						string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(d.Path);
-						Texture2D image = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension + ".png");
+						Texture2D image = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension);
 						promptController.SetScreenshotDetails(image, d.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d.Text, d.TextJp);
 					}
 				});
@@ -97,7 +97,7 @@ namespace Assets.Scripts.UI.SaveLoad
 					if (!(promptController2 == null))
 					{
 						string fileNameWithoutExtension2 = Path.GetFileNameWithoutExtension(d2.Path);
-						Texture2D image2 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension2 + ".png");
+						Texture2D image2 = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension2);
 						promptController2.SetScreenshotDetails(image2, d2.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d2.Text, d2.TextJp);
 					}
 				});
@@ -123,7 +123,7 @@ namespace Assets.Scripts.UI.SaveLoad
 					if (!(promptController3 == null))
 					{
 						string fileNameWithoutExtension3 = Path.GetFileNameWithoutExtension(d3.Path);
-						Texture2D image3 = AssetManager.Instance.LoadScreenshot(fileNameWithoutExtension3 + ".png");
+						Texture2D image3 = AssetManager.Instance.LoadScreenshotByNameWithoutExtension(fileNameWithoutExtension3);
 						promptController3.SetScreenshotDetails(image3, d3.Time.ToString(Loc.dateTimeFormat, Loc.cultureInfo), d3.Text, d3.TextJp);
 					}
 				});

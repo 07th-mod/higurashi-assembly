@@ -59,11 +59,11 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuNormal_27 => Get("MODMenuNormal_27", "Enables opening videos\n\nNOTE: Once the opening video plays the first time, will automatically switch to 'Launch + In-Game'\n\nWe have setup openings this way to avoid spoilers.");
 		public static string MODMenuNormal_28 => Get("MODMenuNormal_28", "Launch + In-Game");
 		public static string MODMenuNormal_29 => Get("MODMenuNormal_29", "WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches");
-		public static string MODMenuNormal_30 => Get("MODMenuNormal_30", "Show/Hide CGs");
-		public static string MODMenuNormal_31 => Get("MODMenuNormal_31", "Show CGs");
-		public static string MODMenuNormal_32 => Get("MODMenuNormal_32", "Shows CGs (You probably want this enabled for Console ADV/NVL mode)");
-		public static string MODMenuNormal_33 => Get("MODMenuNormal_33", "Hide CGs");
-		public static string MODMenuNormal_34 => Get("MODMenuNormal_34", "Disables all CGs (mainly for use with the Original/Ryukishi preset)");
+		public static string MODMenuNormal_30 => Get("MODMenuNormal_30", "Console CGs");
+		public static string MODMenuNormal_31 => Get("MODMenuNormal_31", "Show Console CGs");
+		public static string MODMenuNormal_32 => Get("MODMenuNormal_32", "Shows Console CGs (You want this enabled for Console ADV/NVL mode)\n\nDoes not impact Mangagamer or OG CGs.");
+		public static string MODMenuNormal_33 => Get("MODMenuNormal_33", "Hide Console CGs");
+		public static string MODMenuNormal_34 => Get("MODMenuNormal_34", "Disables Console CGs (for use with the Original/Ryukishi preset)\n\nDoes not impact Mangagamer or OG CGs.");
 		public static string MODMenuNormal_35 => Get("MODMenuNormal_35", "Background Style");
 		public static string MODMenuNormal_36 => Get("MODMenuNormal_36", "Console BGs");
 		public static string MODMenuNormal_37 => Get("MODMenuNormal_37", "Use Console backgrounds");
@@ -158,7 +158,7 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuNormal_126 => Get("MODMenuNormal_126", "Invalid thresholds - each threshold should be a value between 0 and 1");
 		public static string MODMenuNormal_127 => Get("MODMenuNormal_127", "Mod Options Menu");
 		public static string MODMenuNormal_128 => Get("MODMenuNormal_128", "\n\nSets the script censorship level\n- This setting exists because the voices are taken from the censored, Console versions of the game, so no voices exist for the PC uncensored dialogue.\n- We recommend the default level (2), the most balanced option. Using this option, only copyright changes, innuendos, and a few words will be changed.\n  - 5: Use voiced lines from PS3 script as much as possible (censored at parts)\n  - 2: Default - most balanced option\n  - 0: Original PC Script with voices where it fits (fully uncensored), but uncensored scenes may be missing voices");
-		public static string MODMenuNormal_129 => Get("MODMenuNormal_129", "Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF, Alt-Enter : FullScreen\nSpace : Hide Text\nL : Swap Language\n\n[MOD Hotkeys]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level (Not Used)\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Mod Menu\nM : Increase Voice Volume\nN : Decrease Voice Volume\nP : Cycle through art styles\n2 : Cycle through BGM/SE\n7 : Enable/Disable Lip-Sync\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MINN");
+		public static string MODMenuNormal_129 => Get("MODMenuNormal_129", "Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF, Alt-Enter : FullScreen\nSpace : Hide Text\nL : Swap Language\n\n[MOD Hotkeys]\nF1 : Graphics Preset\nF2 : Voice Matching Level\nF3 : Text Window Appearance\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Mod Menu\nM : Increase Voice Volume\nN : Decrease Voice Volume\nP : Cycle through art styles\n2 : Cycle through BGM/SE\n7 : Enable/Disable Lip-Sync\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MINN");
 
 		// The resolution part of the F10 menu
 		public static string MODMenuResolution_0 => Get("MODMenuResolution_0", "Set a custom fullscreen resolution\n\nUse this option only if the fullscreen resolution is detected incorrectly (such as on some Linux systems)\nYou can manually type in a resolution to use below.\n\nClick 'Clear Override' to let the game automatically determine the fullscreen resolution");
@@ -240,5 +240,21 @@ namespace MOD.Scripts.Core.Localization
 		public static string MODMenuSupportCompileFailed_22 => Get("MODMenuSupportCompileFailed_22", "The following scripts failed compilation:");
 		public static string MODMenuSupportCompileFailed_23 => Get("MODMenuSupportCompileFailed_23", "Continue playing anyway (NOT RECOMMENDED)");
 		public static string MODMenuSupportCompileFailed_24 => Get("MODMenuSupportCompileFailed_24", "It is NOT RECOMMENDED to continue playing despite this error. The game may seem to be OK, but once you reach the script which failed to compile, the game may restart, or you may get severe graphical glitches or skip forward in the story unexpectedly.");
+
+		public static string MODMenuChoiceModeOptionTitle => Get("MODMenuChoiceModeOptionTitle", "Choice Mode");
+		public static string MODMenuChoiceModeSkipName => Get("MODMenuChoiceModeSkipName", "Skip / Auto Good End");
+		public static string MODMenuChoiceModeSkipDescription => Get("MODMenuChoiceModeSkipDescription", "Skip choices. Proceed toward the good ending");
+		public static string MODMenuChoiceModeNormalName => Get("MODMenuChoiceModeNormalName", "Normal");
+		public static string MODMenuChoiceModeNormalDescription => Get("MODMenuChoiceModeNormalDescription", "Prompt choices normally");
+		public static string MODMenuChoiceModeHighlightName => Get("MODMenuChoiceModeHighlightName", "Highlight Good");
+		public static string MODMenuChoiceModeHighlightDescription => Get("MODMenuChoiceModeHighlightDescription", "Prompt choices and highlight correct answers");
+
+		public static string MODMenu43CGScalingModeTitle => Get("MODMenu43CGScalingModeTitle", "Original/Ryukishi 4:3 Mode CG Scaling");
+		public static string MODMenu43CGScalingModeStretchName => Get("MODMenu43CGScalingModeStretchName", "Stretch to Fit 4:3");
+		public static string MODMenu43CGScalingModeStretchDescription => Get("MODMenu43CGScalingModeStretchDescription", "Any 16:9 Console CGs will be stretched to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.\n\nThis was the default behavior before 2025-10-26.");
+		public static string MODMenu43CGScalingModeLetterBoxName => Get("MODMenu43CGScalingModeLetterBoxName", "Letterbox to Fit 4:3");
+		public static string MODMenu43CGScalingModeLetterBoxDescription => Get("MODMenu43CGScalingModeLetterBoxDescription", "Any 16:9 Console CGs will be letterboxed to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.");
+		public static string MODMenu43CGScalingModeCropName => Get("MODMenu43CGScalingModeCropName", "Crop to Fit 4:3");
+		public static string MODMenu43CGScalingModeCropDescription => Get("MODMenu43CGScalingModeCropDescription", "Any 16:9 Console CGs will be cropped to fit the 4:3 aspect ratio. This option only has an effect if 'Show Console CGs' is enabled.\n\nWARNING: Cropping is automatic, thus some CGs may be 'cut-off' on the left and right hand sides, or be poorly framed.");
 	}
 }
