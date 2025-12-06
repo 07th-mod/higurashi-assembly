@@ -8,6 +8,14 @@ namespace Assets.Scripts.Core.Scene
 {
 	public class Layer : MonoBehaviour
 	{
+		private enum ScalingOverride
+		{
+			None,
+			StretchToFit,
+			LetterboxVerticalHorizontal,
+			FitHeight
+		}
+
 		private Mesh mesh;
 
 		private MeshFilter meshFilter;
@@ -95,9 +103,10 @@ namespace Assets.Scripts.Core.Scene
 		private int? layerID; // The layer number in the scene controller, if it has one
 
 		private bool cachedIsBustShot;
-		private bool cachedStretchToFit;
+		private ScalingOverride cachedScalingOverride;
 		private bool cachedRyukishiClamp;
 		private int cachedFinalXOffset;
+		private bool stretchModeLetterboxing;
 
 		public int? LayerID
 		{
@@ -156,8 +165,30 @@ namespace Assets.Scripts.Core.Scene
 			});
 		}
 
+		private void EnsureCorrectlySizedMeshWhenLayerMoved()
+		{
+			// Disable ryukishi clamp for sprites which are about to move
+			// Should reset the sprite mesh to default size (the size of texture)
+			if (cachedIsBustShot)
+			{
+				EnsureCorrectlySizedMesh(
+					primary.width,
+					primary.height,
+					alignment,
+					origin,
+					isBustShot: cachedIsBustShot,
+					finalXOffset: (int)base.transform.localPosition.x,
+					texturePath: null,
+					textureNameFromGameScript: PrimaryName,
+					disableRyukishiClamp: true
+				);
+			}
+		}
+
 		public void MoveLayerEx(Vector3[] path, int points, float alpha, float time)
 		{
+			EnsureCorrectlySizedMeshWhenLayerMoved();
+
 			iTween.Stop(base.gameObject);
 			Vector3[] array = new Vector3[points + 1];
 			array[0] = base.transform.localPosition;
@@ -190,6 +221,8 @@ namespace Assets.Scripts.Core.Scene
 
 		public void MoveLayer(int x, int y, int z, float alpha, int easetype, float wait, bool isBlocking, bool adjustAlpha)
 		{
+			EnsureCorrectlySizedMeshWhenLayerMoved();
+
 			float num = 1f;
 			if (z > 0)
 			{
@@ -336,18 +369,32 @@ namespace Assets.Scripts.Core.Scene
 			}
 		}
 
-		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath)
+		private void EnsureCorrectlySizedMesh(int width, int height, LayerAlignment alignment, Vector2? origin, bool isBustShot, int finalXOffset, string texturePath, string textureNameFromGameScript, bool disableRyukishiClamp = false)
 		{
-			bool ryukishiClamp = false;
-			bool stretchToFit = false;
+			ScalingOverride FilterStretchingBasedOnAspectRatio(ScalingOverride inputScalingOverride, float targetAspect)
+			{
+				// Do not stretch if the image is more than 5% off the target aspect ratio.
+				// Likely these are special images like credits images or effect images.
+				float imageAspect = (float)width / (float)height;
+				if (imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
+				{
+					return ScalingOverride.None;
+				}
+
+				// Otherwise, leave value unchanged
+				return inputScalingOverride;
+			}
+
+            int GetGlobalFlagInt(string flagname) => Buriko.BurikoMemory.Instance.GetGlobalFlag(flagname).IntValue();
+            bool GetGlobalFlagBool(string flagname) => Buriko.BurikoMemory.Instance.GetGlobalFlag(flagname).IntValue() != 0;
+
+            bool ryukishiClamp = false;
+			ScalingOverride scalingOverride = ScalingOverride.None;
 			if (texturePath != null)
 			{
-				bool isSpriteOrPortrait = texturePath.Contains("sprite/") ||
-						texturePath.Contains("sprite\\") ||
-						texturePath.Contains("portrait/") ||
-						texturePath.Contains("portrait\\");
+				bool isSpriteOrPortrait = AssetManager.RelativePathIsSprite(textureNameFromGameScript);
 
-				if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GRyukishiMode43Aspect").IntValue() != 0)
+				if (GetGlobalFlagBool("GRyukishiMode43Aspect"))
 				{
 					// When using true 4:3 mode, we don't need to clamp the sprites, as they are automatically cut off by the viewport
 					ryukishiClamp = false;
@@ -355,29 +402,73 @@ namespace Assets.Scripts.Core.Scene
 					// When using true 4:3 aspect mode, any 16:9 images (except for sprites) should be squished to 4:3.
 					// This make sure any text or other images don't get cut off
 					// We could letter-box the images, but in some cases whatever is behind the image may show up? Not sure.
-					stretchToFit = !isSpriteOrPortrait;
+					if(!isSpriteOrPortrait)
+					{
+						// Non-sprites handling (backgrounds, Console CG, effects etc.)
+						if(textureNameFromGameScript.StartsWith("scene/"))
+						{
+							// Console CG handling
+							if (GetGlobalFlagInt("GRyukishiMode43CGScalingMode") == 1)
+							{
+								// Option to stretch Console CGs to fill screen
+								// (this was the default behavior before 2025-10-26)
+								scalingOverride = ScalingOverride.StretchToFit;
+							}
+							else if (GetGlobalFlagInt("GRyukishiMode43CGScalingMode") == 2)
+							{
+								// Crop Console CGs to 4:3
+								// Fitting a 16:9 image to a 4:3 aspect by height effectively crops the image -
+								// the left and right side of the image will extend beyond the game window and not be seen.
+								scalingOverride = ScalingOverride.FitHeight;
+							}
+							else
+							{
+								// Default option is to letterbox Console CGs
+								scalingOverride = ScalingOverride.LetterboxVerticalHorizontal;
+							}
+						}
+						else
+						{
+							// Backgrounds, effects etc. handling (non-console CGs)
+							// Everything except Console CGs stretch to fit the screen even if the aspect ratio is wrong
+							// For example, effect images or text images which have not been replaced.
+							scalingOverride = ScalingOverride.StretchToFit;
+						}
+					}
 
 					// Do not stretch if the image is more than 5% off a 16:9 aspect ratio.
 					// Likely these are special images like credits images or effect images.
-					float targetAspect = 16f / 9f;
-					float imageAspect = (float)width / (float)height;
-					Debug.Log($"{texturePath}: aspect: {imageAspect} ref: {targetAspect}");
-					if(imageAspect > targetAspect * 1.05 || imageAspect < targetAspect * .95f)
-					{
-						stretchToFit = false;
-					}
+					// Some Console CGs are funny aspect ratios because there is a panning effect,
+					// Letterboxing may intefere with the panning so for now just use the default scaling
+					// for this chapter and hopefully it works out.
+					scalingOverride = FilterStretchingBasedOnAspectRatio(scalingOverride, 16f / 9f);
 				}
 				else
 				{
 					// We want to clamp sprites to 4:3 if you are using the OG backgrounds, and you are not stretching the background
 					ryukishiClamp = isBustShot &&
-						Buriko.BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 &&      // Using OG Backgrounds AND
-						Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0 && // Not stretching backgrounds AND
+						GetGlobalFlagInt("GBackgroundSet") == 1 &&      // Using OG Backgrounds AND
+						GetGlobalFlagInt("GStretchBackgrounds") == 0 && // Not stretching backgrounds AND
 						isSpriteOrPortrait; // Is a sprite or portrait image. I don't think we can rely only on isBustShot, as sometimes non-sprites are drawn with isBustShot
 
 					// When using old backgrounds with stretch backgrounds enabled, stretch old 4:3 backgrounds to 16:9 to fill the screen
-					stretchToFit = Buriko.BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 1 && texturePath.Contains("OGBackgrounds");
+					if(GetGlobalFlagInt("GStretchBackgrounds") == 1 && texturePath.Contains("OGBackgrounds"))
+					{
+						scalingOverride = ScalingOverride.StretchToFit;
+					}
+
+					// Do not stretch if the image is more than 5% off a 4:3 aspect ratio.
+					// Likely these are special images like credits images or effect images.
+					scalingOverride = FilterStretchingBasedOnAspectRatio(scalingOverride, 4f / 3f);
 				}
+			}
+
+			// Sometimes we want to forcibly disable ryukishi clamping of sprites,
+			// for example, if the sprite is initially off-screen, then moves on-screen
+			// See https://github.com/07th-mod/hou-plus-og-sprites-new/issues/10
+			if (disableRyukishiClamp)
+			{
+				ryukishiClamp = false;
 			}
 
 			if (mesh == null ||
@@ -386,24 +477,24 @@ namespace Assets.Scripts.Core.Scene
 				this.origin != origin ||
 				cachedRyukishiClamp != ryukishiClamp ||
 				cachedFinalXOffset != finalXOffset ||
-				cachedStretchToFit != stretchToFit)
+				cachedScalingOverride != scalingOverride)
 			{
 				cachedFinalXOffset = finalXOffset;
 				cachedRyukishiClamp = ryukishiClamp;
 
 				if (origin is Vector2 nonnullOrigin)
 				{
-					CreateMesh(width, height, nonnullOrigin, ryukishiClamp, finalXOffset, stretchToFit);
+					CreateMesh(width, height, nonnullOrigin, ryukishiClamp, finalXOffset, scalingOverride);
 				}
 				else
 				{
-					CreateMesh(width, height, alignment, ryukishiClamp, finalXOffset, stretchToFit);
+					CreateMesh(width, height, alignment, ryukishiClamp, finalXOffset, scalingOverride);
 				}
 			}
 			this.origin = origin;
 			this.alignment = alignment;
 			this.aspectRatio = (float)width / height;
-			cachedStretchToFit = stretchToFit;
+			this.cachedScalingOverride = scalingOverride;
 
 			// Do not rotate character sprites when using 4:3 letterboxing as current method does not handle it properly
 			if (ryukishiClamp)
@@ -434,7 +525,8 @@ namespace Assets.Scripts.Core.Scene
 				origin: origin,
 				isBustShot: isBustshot,
 				finalXOffset: x,
-				texturePath: texturePath
+				texturePath: texturePath,
+				textureNameFromGameScript: textureName
 			);
 			SetRange(startRange);
 			base.transform.localPosition = new Vector3((float)x, (float)(-y), (float)Priority * -0.1f);
@@ -516,7 +608,8 @@ namespace Assets.Scripts.Core.Scene
 						origin: origin,
 						isBustShot: isBustshot,
 						finalXOffset: x,
-						texturePath: texturePath
+						texturePath: texturePath,
+						textureNameFromGameScript: textureName
 					);
 					aspectRatio = (float)texture2D.width / texture2D.height;
 					if (primary != null)
@@ -774,7 +867,8 @@ namespace Assets.Scripts.Core.Scene
 						origin,
 						isBustShot: cachedIsBustShot,
 						finalXOffset: (int) base.transform.localPosition.x,
-						texturePath: texturePath
+						texturePath: texturePath,
+						textureNameFromGameScript: PrimaryName
 					);
 				}
 			}
@@ -826,8 +920,37 @@ namespace Assets.Scripts.Core.Scene
 		}
 
 		// The below two CreateMesh functions clamp the image height to 480 
-		// (the height of the screen in vertex coords) while maintaining the aspect ratio. 
-		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
+		// (the height of the screen in vertex coords) while maintaining the aspect ratio.
+		// I think the "LayerAlignment" version is ever called 99-100% of the time, and the "origin" function
+		// is rarely or never called in our game scripts.
+		//
+		//////////////////////// Regarding the "origin" version of the function ///////////////////////////////////////////////
+		// AFAIK, CreateMesh(..., Vector 2 origin, ...) is only ever called when the third last argument, "originx" of:
+		// - DrawBustshotWithFiltering(...)
+		// - DrawSprite(...)
+		// - MODDrawCharacterWithFiltering(...)
+		// is called in the game script (or possibly in some cases where a layer has its origin set non-null)
+		// However, I think we never do this in our game scripts, so I think this function is never (or rarely) called.
+		//
+		// On closer inspection, I think the function is broken, because it calculates the new scaling ratio for the width as:
+		//     scaling = newHeight / oldHeight
+		// where all three variables are integers (I think they should be floats like the "Alignment" version of the function).
+		// This means scaling is sort of a step function. For example, if the image height is 800, and it gets clamped to 480,
+		// then scaling = 800 / 480 = 0, so the width becomes 0 and the image doesn't show at all...
+		//
+		// Because I'm not really sure, I'm not going to fix it for now and try to retain the existing behavior.
+		/// Regarding differences bewteen chapters
+		/// - "Mod" branch + Ch[1, 2]: Left and right black bars only
+		///     - In other words, the image height is clamped to the window height, then the width is set to keep the same aspect
+		///       ratio. Tall images are OK, but images wider than the window will be cut-off
+		/// - Console + Ch[3, 4, 5, 7]: Both Left and right black bars, and top and bottom black bars are supported
+		/// - Ch[6, 8, 9, 10 (hou)] : In addition to both types of letterboxing, ONLY when origin is non-null, special cases are
+		///   added for specific width and heights:
+		///     - A height of 960 is converted to a height of 480
+		///     - A width of 1280 is converted to a width of 640
+		///     - I don't actually know if this does anything extra compared to normal?
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		private void CreateMesh(int width, int height, Vector2 origin, bool ryukishiClamp, int finalXOffset, ScalingOverride scalingOverride)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			int num2 = num / height;
@@ -838,15 +961,14 @@ namespace Assets.Scripts.Core.Scene
 				num2 = width2 / width;
 				num = Mathf.RoundToInt((float)Mathf.Clamp(height, 1, num2 * height));
 			}
-			if(stretchToFit)
-			{
-				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
-			}
+
+			ApplyScalingOverride(width, height, scalingOverride, ref width2, ref num);
+
 			mesh = MGHelper.CreateMeshWithOrigin(width2, num, origin, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
 		}
 
-		private void CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset, bool stretchToFit)
+		private void CreateMesh(int width, int height, LayerAlignment alignment, bool ryukishiClamp, int finalXOffset, ScalingOverride scalingOverride)
 		{
 			int num = Mathf.Clamp(height, 1, 480);
 			float num2 = (float)num / (float)height;
@@ -857,12 +979,59 @@ namespace Assets.Scripts.Core.Scene
 				num2 = (float)width2 / (float)width;
 				num = Mathf.RoundToInt(Mathf.Clamp((float)height, 1f, num2 * (float)height));
 			}
-			if (stretchToFit)
-			{
-				width2 = Mathf.RoundToInt(num * GameSystem.Instance.AspectRatio);
-			}
+
+			ApplyScalingOverride(width, height, scalingOverride, ref width2, ref num);
+
 			mesh = MGHelper.CreateMesh(width2, num, alignment, ryukishiClamp, finalXOffset);
 			meshFilter.mesh = mesh;
+		}
+
+		private void ApplyScalingOverride(int width, int height, ScalingOverride scalingOverride, ref int newWidth, ref int newHeight)
+		{
+			switch (scalingOverride)
+			{
+				case ScalingOverride.StretchToFit:
+					// Stretch image to fit the entire screen
+					newHeight = Mathf.Clamp(height, 1, 480);
+					newWidth = Mathf.RoundToInt(newHeight * GameSystem.Instance.AspectRatio);
+					break;
+				case ScalingOverride.LetterboxVerticalHorizontal:
+					LetterboxVerticalHorizontal(width, height, out newWidth, out newHeight);
+					break;
+				case ScalingOverride.FitHeight:
+					{
+						// Scale the image (preserving aspect ratio) so the new height is the height of the window
+						// Wide images will appear cropped as they will extend beyond the edge of the window
+						newHeight = Mathf.Clamp(height, 1, 480);
+						float scale = newHeight / (float)height;
+						newWidth = Mathf.RoundToInt(width * scale);
+					}
+					break;
+				case ScalingOverride.None:
+				default:
+					// Don't change the existing values
+					break;
+			}
+		}
+
+		private void LetterboxVerticalHorizontal(int width, int height, out int newWidth, out int newHeight)
+		{
+			// For convenience, these variables store the window size in game coordinates.
+			// For 4:3 mode it is 640 x 480. For 16:9 it is 853 * 640.
+			float windowHeightGameCoordinates = 480;
+			float windowWidthGameCoordinates = windowHeightGameCoordinates * GameSystem.Instance.AspectRatio;
+
+			// Separately calculate the scaling required for the texture to fit on the window, for the x and y axis
+			// For example, if the image was 960 in height, then the yScalingRequired would be 0.5
+			float xScalingToFitWidth = Mathf.Clamp(width, 1, windowWidthGameCoordinates) / width;
+			float yScalingToFitHeight = Mathf.Clamp(height, 1, windowHeightGameCoordinates) / height;
+
+			// To ensure texture always fits in window, take the minimum of the two scaling factors
+			float scalingRequired = Mathf.Min(xScalingToFitWidth, yScalingToFitHeight);
+
+			// Apply this scaling to both axis to maintain the original texture's aspect ratio
+			newWidth = (int)(width * scalingRequired);
+			newHeight = (int)(height * scalingRequired);
 		}
 
 		public void Initialize()

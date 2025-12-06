@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 
 public class MODCompileRequiredDetector
 {
