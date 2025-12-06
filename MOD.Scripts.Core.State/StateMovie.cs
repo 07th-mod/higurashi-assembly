@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core.Movie;
 using UnityEngine;
@@ -91,7 +92,11 @@ namespace MOD.Scripts.Core.State
 		private void SetupBackgroundLayerForVideo()
 		{
 			movieInfo.Layer.ReleaseTextures();
-			movieInfo.Layer.DrawLayer("black", 0, 0, 0, null, null, 1f, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+			// Refer to function "LoadTexture(...)" in Assets.Scripts.Core.AssetManagement\AssetManager.cs
+			// for details on special texture name AssetManager.MOVIE_TEXTURE_NAME used for movie playback
+			// Chapters 1-9 only have 16:9 videos
+			// Chapter 10 has both 16:9 and 4:3 videos, but has a different way of movie playback (StateMovie/ModPlayMovie is depreciated/never used on Ch.10)
+			movieInfo.Layer.DrawLayer(AssetManager.MOVIE_TEXTURE_NAME, 0, 0, 0, null, null, 1f, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
 		}
 	}
 }

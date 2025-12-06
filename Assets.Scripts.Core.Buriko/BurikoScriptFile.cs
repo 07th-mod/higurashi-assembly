@@ -2990,9 +2990,13 @@ namespace Assets.Scripts.Core.Buriko
 			SetOperationType("ModPlayVoiceLS");
 			int channel = ReadVariable().IntValue();
 			int character = ReadVariable().IntValue();
-			string filename = ReadVariable().StringValue() + ".ogg";
+			string filenameNoExt = ReadVariable().StringValue();
 			float volume = (float)ReadVariable().IntValue() / 128f;
 			bool flag = ReadVariable().BoolValue();
+
+			AssetManager.Instance.ImageMappingLastVoiceNoExt = filenameNoExt;
+
+			string filename = filenameNoExt + ".ogg";
 			GameSystem.Instance.TextHistory.RegisterVoice(new AudioInfo(volume, filename, channel));
 			if ((MODSystem.instance.modSceneController.MODLipSyncIsEnabled() && !gameSystem.IsSkipping) & flag)
 			{
@@ -3125,7 +3129,7 @@ namespace Assets.Scripts.Core.Buriko
 			PathCascadeList cascadeList = ReadPathCascadeFromArgs();
 
 			MODAudioSet.Instance.AddBGMSet(cascadeList);
-			foreach (string path in cascadeList.paths)
+			foreach (string path in cascadeList.GetPlainPaths())
 			{
 				MODBGMInfo.LoadFromJSON(path);
 			}
@@ -3233,6 +3237,13 @@ namespace Assets.Scripts.Core.Buriko
 					}
 					break;
 
+				case "ShowChoiceModeOption":
+					if (MODUtility.TryParseInvariantCulture(callParameters, out int shouldShow))
+					{
+						MODMenuNormal.ShowChoiceModeOption(shouldShow != 0);
+					}
+					break;
+
 				default:
 					Logger.Log($"WARNING: Unknown ModGenericCall ID '{callID}'");
 					break;
@@ -3260,7 +3271,7 @@ namespace Assets.Scripts.Core.Buriko
 			if(BurikoMemory.Instance.GetGlobalFlag("GBackgroundSet").IntValue() == 1 && // Using OG Backgrounds AND
 			   BurikoMemory.Instance.GetGlobalFlag("GStretchBackgrounds").IntValue() == 0) // Not stretching backgrounds
 			{
-				if (path.StartsWith("sprite/") || path.StartsWith("portrait/")) // is from the sprite or portrait folder
+				if (AssetManager.RelativePathIsSprite(path)) // is from the sprite or portrait folder
 				{
 					if (x == 240) // See note 1) above
 					{

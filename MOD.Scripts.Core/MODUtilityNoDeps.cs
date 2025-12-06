@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 
 /// <summary>
 /// This file is used by both the actual main mod, and also the
@@ -22,6 +22,35 @@ public static class MODUtilityNoDeps
 	{
 		TryDelete(dst);
 		File.Move(src, dst);
+	}
+
+	// Restores a backup (from WriteAllBytesSemiAtomic()) if 'path' doesn't exist
+	// If you passed a custom backupExt to WriteAllBytesSemiAtomic(), then you must use the same
+	// backupExt so the backup file can be found.
+	//
+	// Note: It would be possible to "complete" the transaction if we knew the temporary file was
+	// fully written, but not yet moved, but the complexity/chance/benefit tradeoff is not worth it
+	// for this application, as the files we are moving are very small.
+	static public bool RestoreSemiAtomicBackupIfRequired(string path, string backupExt = ".temporarybackup")
+	{
+		string backupPath = path + backupExt;
+
+		// If the target file already exists, take no action
+		if (File.Exists(path))
+		{
+			return false;
+		}
+
+		// If there is no backup to restore, take no action
+		if (!File.Exists(backupPath))
+		{
+			return false;
+		}
+
+		// If the target file doesn't exist, and there is a backup, restore the backup
+		File.Move(backupPath, path);
+
+		return true;
 	}
 
 	// Try to write to a new or existing file atomically, such that the final file is never half-written.

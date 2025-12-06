@@ -81,6 +81,11 @@ namespace Assets.Scripts.Core.Buriko
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
 			Logger.Log((currentScript != null) ? $"Jumping from script {currentScript.Filename} to script {scriptname} (block {blockname})" : $"Starting at script {scriptname} (block {blockname})");
+			AssetManager.Instance.OnScriptJumpOrCall();
+
+			// Save globals when jumping to a new script
+			BurikoMemory.Instance.SaveGlobalsIfRequired();
+
 			callStack.Clear();
 			scriptname = scriptname.ToLower();
 			if (!scriptFiles.TryGetValue(scriptname + ".mg", out currentScript))
@@ -99,6 +104,11 @@ namespace Assets.Scripts.Core.Buriko
 		{
 			scriptname = scriptname.ToLower();
 			Resources.UnloadUnusedAssets();
+			AssetManager.Instance.OnScriptJumpOrCall();
+
+			// Save globals before calling a new script
+			BurikoMemory.Instance.SaveGlobalsIfRequired();
+
 			if(scriptname == "flow")
 			{
 				FlowWasReached = true;
@@ -121,6 +131,10 @@ namespace Assets.Scripts.Core.Buriko
 
 		public void Return()
 		{
+			// Save globals when returning from a script
+			// This typically happens when you finish a day of the game
+			BurikoMemory.Instance.SaveGlobalsIfRequired();
+
 			if (callStack.Count <= 0)
 			{
 				throw new Exception("Could not return from script, as the script is currently at the bottom of the call stack.");
@@ -455,6 +469,10 @@ namespace Assets.Scripts.Core.Buriko
 						{
 							MODActions.EnableNVLModeINADVMode();
 						}
+
+						// Refresh aspect ratio and text position in case the saved value is different to the current one
+						// This also refreshes the text position (for example, if you are currently in the Console Preset, and load a save on the OG preset, the text may be in the wrong position)
+						GameSystem.Instance.UpdateAspectRatio();
 					}
 				}
 			}

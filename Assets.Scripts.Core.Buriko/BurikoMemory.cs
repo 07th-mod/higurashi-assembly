@@ -1,6 +1,7 @@
 using Assets.Scripts.Core.AssetManagement;
 using Assets.Scripts.Core.Buriko.Util;
 using Assets.Scripts.Core.Buriko.VarTypes;
+using MOD.ImageMapping;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.Scene;
 using MOD.Scripts.UI;
@@ -32,6 +33,8 @@ namespace Assets.Scripts.Core.Buriko
 		private MODCustomFlagPreset customFlagPreset = new MODCustomFlagPreset();
 
 		private int scopeLevel;
+
+		private bool globalFlagsNeedSaving;
 
 		public static BurikoMemory Instance
 		{
@@ -99,6 +102,7 @@ namespace Assets.Scripts.Core.Buriko
 			variableReference.Add("GBackgroundSet", 528);
 			variableReference.Add("GAudioSet", 529);
 			variableReference.Add("GRyukishiMode43Aspect", 530);
+			variableReference.Add("GRyukishiMode43CGScalingMode", 531);
 
 			// 611 - 619 used for additional chapter progress info
 			SetGlobalFlag("GMessageSpeed", 50);
@@ -207,6 +211,11 @@ namespace Assets.Scripts.Core.Buriko
 			}
 			else
 			{
+				if(globalFlags[key] != val)
+				{
+					globalFlagsNeedSaving = true;
+				}
+
 				globalFlags[key] = val;
 			}
 		}
@@ -412,6 +421,7 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				serializeToSave("$artsets", AssetManager.Instance.Artsets);
 			}
+			serializeToSave("$imageMapping", MODImageMappingSaveData.GetDataToSave(AssetManager.Instance));
 			try
 			{
 				using (MemoryStream memoryStream = new MemoryStream())
@@ -444,6 +454,7 @@ namespace Assets.Scripts.Core.Buriko
 				memorylist.Remove("$layerFilters");
 				memorylist.Remove("$artsets");
 				memorylist.Remove("$audioTracking");
+				memorylist.Remove("$imageMapping");
 			}
 		}
 
@@ -495,6 +506,10 @@ namespace Assets.Scripts.Core.Buriko
 			{
 				MODAudioTracking.Instance.QueueState(audioTracking);
 			}
+			if (tryDeserializeFromSave("$imageMapping", out MODImageMappingSaveData modImageMappingSaveData))
+			{
+				MODImageMappingSaveData.LoadSavedData(modImageMappingSaveData, AssetManager.Instance);
+			}
 			using (BsonReader reader = new BsonReader(ms) { CloseInput = false })
 			{
 				// fix: when new variables are added for mod things, loading old save files would remove them and break stuff
@@ -509,6 +524,19 @@ namespace Assets.Scripts.Core.Buriko
 		public void LoadGlobals()
 		{
 			string path = Path.Combine(MGHelper.GetSavePath(), "global.dat");
+
+			// Because we write to the `global.dat` more often (see https://github.com/07th-mod/higurashi-assembly/pull/144)
+			// and `global.dat` will kind of wipe your progress if it is missing, the below logic is added
+			// to restore a backup if the WriteAllBytesSemiAtomic() was interrupted causing `global.dat` to be missing.
+			//
+			// The old file would be at `global.dat.temporarybackup`
+			if(MODUtilityNoDeps.RestoreSemiAtomicBackupIfRequired(path))
+			{
+				string message = "Warning: Restored backup global.dat";
+				MODToaster.Show(message, toastDuration: 10);
+				Logger.LogWarning(message);
+			}
+
 			if (!File.Exists(path))
 			{
 				SetGlobalFlag("GUsePrompts", 1);
@@ -614,6 +642,15 @@ namespace Assets.Scripts.Core.Buriko
 			byte[] array = CLZF2.Compress(inputBytes);
 			MGHelper.KeyEncode(array);
 			MODUtilityNoDeps.WriteAllBytesSemiAtomic(Path.Combine(MGHelper.GetSavePath(), "global.dat"), array);
+		}
+
+		public void SaveGlobalsIfRequired()
+		{
+			if(globalFlagsNeedSaving)
+			{
+				globalFlagsNeedSaving = false;
+				SaveGlobals();
+			}
 		}
 
 		/// <summary>

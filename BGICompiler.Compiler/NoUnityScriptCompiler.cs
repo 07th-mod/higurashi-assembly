@@ -1,8 +1,8 @@
 ﻿#if STANDALONE_SCRIPT_COMPILER
 
+using MOD.Scripts.Core.UnityLoggerShim;
 using System;
 using System.IO;
-using BGICompiler.Compiler.Logger;
 
 namespace BGICompiler.Compiler
 {
