@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using System.Security;
 
 #if STANDALONE_SCRIPT_COMPILER
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 #else
 using UnityEngine;
 #endif

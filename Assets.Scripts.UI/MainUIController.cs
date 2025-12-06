@@ -643,36 +643,7 @@ namespace Assets.Scripts.UI
 			if (BurikoMemory.Instance.GetFlag("LFlagMonitor").IntValue() == 2)
 			{
 				string textToDraw = string.Join("\n", new string[] {
-					"[Vanilla Hotkey]",
-					"Enter,Return,RightArrow,PageDown : Advance Text",
-					"LeftArrow,Pageup : See Backlog",
-					"ESC : Open Menu",
-					"Ctrl : Hold Skip Mode",
-					"A : Auto Mode",
-					"S : Toggle Skip Mode",
-					"F : FullScreen",
-					"Space : Hide Text",
-					"L : Swap Language",
-					"P : Swap Sprites",
-					"\n[MOD Hotkey]",
-					"F1 : ADV-NVL MODE",
-					"F2 : Voice Matching Level",
-					"F3 : Effect Level (Not Used)",
-					"F5 : QuickSave",
-					"F7 : QuickLoad",
-					"F10 : Setting Monitor",
-					"M : Increase Voice Volume",
-					"N : Decrease Voice Volume",
-					"1 : Alternative BGM (Not Used)",
-					"2 : Alternative BGM Flow (Not Used)",
-					"3 : Alternative SE (Not Used)",
-					"4 : Alternative SE Flow (Not Used)",
-					"5 : Alternative Voice (Not Used)",
-					"6 : Alternative Voice Priority (Not Used)",
-					"7 : Lip-Sync",
-					"LShift + F9 : Restore Settings",
-					"LShift + M : Voice Volume MAX",
-					"LShift + N : Voice Volume MIN"
+					"This section is not used anymore.",
 				});
 				GUIUnclickableTextArea(new Rect(320f, 0f, 320f, 1080f), textToDraw);
 			}

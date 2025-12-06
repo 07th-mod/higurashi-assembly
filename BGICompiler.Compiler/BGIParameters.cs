@@ -1,7 +1,7 @@
 using Antlr.Runtime.Tree;
 using Assets.Scripts.Core.Buriko;
 using System.Collections.Generic;
-using BGICompiler.Compiler.Logger;
+using MOD.Scripts.Core.UnityLoggerShim;
 
 namespace BGICompiler.Compiler
 {

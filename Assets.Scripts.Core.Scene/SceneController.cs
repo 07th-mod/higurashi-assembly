@@ -834,7 +834,7 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator GetScreenshotCoroutine(Action<Texture2D> OnFinishAction)
 		{
 			yield return new WaitForEndOfFrame();
-			RenderTexture rt = new RenderTexture(800, 600, 24);
+			RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
 			this.ScreenshotCamera.cullingMask = (1 << this.GetActiveLayerMask() | 1 << LayerMask.NameToLayer("Scene3"));
 			this.ScreenshotCamera.targetTexture = rt;
 			this.ScreenshotCamera.Render();
@@ -849,7 +849,7 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator WriteScreenshotToFile(string path)
 		{
 			yield return new WaitForEndOfFrame();
-			RenderTexture rt = new RenderTexture(800, 600, 24);
+			RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
 			this.ScreenshotCamera.cullingMask = (1 << this.GetActiveLayerMask() | 1 << LayerMask.NameToLayer("Scene3"));
 			this.ScreenshotCamera.targetTexture = rt;
 			this.ScreenshotCamera.Render();
@@ -857,10 +857,10 @@ namespace Assets.Scripts.Core.Scene
 			Texture2D tex = new Texture2D(rt.width, rt.height);
 			tex.ReadPixels(new Rect(0f, 0f, (float)rt.width, (float)rt.height), 0, 0, true);
 			tex.Apply();
-			byte[] texout = tex.EncodeToPNG();
+			byte[] texout = tex.EncodeToJPG(90);
 			this.ScreenshotCamera.targetTexture = null;
 			UnityEngine.Object.Destroy(rt);
-			File.WriteAllBytes(path, texout);
+			MODUtilityNoDeps.WriteAllBytesSemiAtomic(path, texout);
 			yield break;
 		}
 
