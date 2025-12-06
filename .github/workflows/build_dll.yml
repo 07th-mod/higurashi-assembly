@@ -10,12 +10,21 @@ on:
 jobs:
   build_dll:
     name: Build DLL
-    runs-on: ubuntu-latest
+
+    # Note: Currently, we use mono which comes with ubuntu-22.04 to build the DLL
+    # Eventually this will be unsupported, at which point we can:
+    # - Add commands to install mono from here: https://www.mono-project.com/download/stable/
+    # - Use Microsoft's .NET SDK on Windows Runner (I think since we need .NET Framework 2.0, it isn't available for Linux? not sure..)
+    # - Work out how to compile on linux without mono
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
       # Note: This uses the mono bundled with Ubuntu to build the project
-      - name: Compile project
+      - name: Compile Mod DLL
         run: msbuild /p:Configuration=Release
+
+      - name: Compile standalone Higurashi Script Compiler
+        run: msbuild /p:Configuration=ScriptCompiler

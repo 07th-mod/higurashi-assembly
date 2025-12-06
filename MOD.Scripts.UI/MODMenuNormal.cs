@@ -27,6 +27,7 @@ namespace MOD.Scripts.UI
 		private readonly GUIContent[] radioLipSyncActive;
 		private readonly GUIContent[] radioLipSyncInactive;
 		private readonly MODRadio radioOpenings;
+		private readonly MODRadio radioChoiceMode;
 		private readonly MODRadio radioHideCG;
 		private readonly MODRadio radioBackgrounds;
 		private readonly MODRadio radioArtSet;
@@ -34,6 +35,7 @@ namespace MOD.Scripts.UI
 		private readonly MODRadio radioTextWindowModeAndCrop;
 		private readonly MODRadio radioForceComputedLipsync;
 		private readonly MODRadio radioRyukishiExperimentalAspect;
+		private readonly MODRadio radioRyukishiExperimentalAspectScalingMode;
 
 		private readonly MODTabControl tabControl;
 
@@ -45,6 +47,8 @@ namespace MOD.Scripts.UI
 		string TextField_ComputedLipSyncThreshold2;
 
 		private static int gameClearClickCount = 3;
+
+		private static bool showChoiceModeOption;
 
 		public MODMenuNormal(MODMenu modMenu, MODMenuAudioOptions audioOptionsMenu)
 		{
@@ -92,10 +96,17 @@ namespace MOD.Scripts.UI
 				new GUIContent(Loc.MODMenuNormal_28, Loc.MODMenuNormal_29), //Launch + In-Game | WARNING: There is usually no need to set this manually.\n\nIf openings are enabled, the first time you reach an opening while playing the game, this flag will be set automatically\n\nThat is, after the opening is played the first time, from then on openings will play every time the game launches
 			});
 
-			radioHideCG = new MODRadio(Loc.MODMenuNormal_30, new GUIContent[] //Show/Hide CGs
+			radioChoiceMode = new MODRadio(Loc.MODMenuChoiceModeOptionTitle, new GUIContent[] // "Choice Mode"
 			{
-				new GUIContent(Loc.MODMenuNormal_31, Loc.MODMenuNormal_32), //Show CGs | Shows CGs (You probably want this enabled for Console ADV/NVL mode)
-				new GUIContent(Loc.MODMenuNormal_33, Loc.MODMenuNormal_34), //Hide CGs | Disables all CGs (mainly for use with the Original/Ryukishi preset)
+				new GUIContent(Loc.MODMenuChoiceModeSkipName, Loc.MODMenuChoiceModeSkipDescription), // Skip / Auto Good End
+				new GUIContent(Loc.MODMenuChoiceModeNormalName, Loc.MODMenuChoiceModeNormalDescription), // Normal
+				new GUIContent(Loc.MODMenuChoiceModeHighlightName, Loc.MODMenuChoiceModeHighlightDescription), // Prompt Choices Normally
+			});
+
+			radioHideCG = new MODRadio(Loc.MODMenuNormal_30, new GUIContent[] //Console CGs
+			{
+				new GUIContent(Loc.MODMenuNormal_31, Loc.MODMenuNormal_32), //Show Console CGs | Shows Console CGs (You want this enabled for Console ADV/NVL mode)\n\nDoes not impact Mangagamer or OG CGs.
+				new GUIContent(Loc.MODMenuNormal_33, Loc.MODMenuNormal_34), //Hide Console CGs | Disables Console CGs (for use with the Original/Ryukishi preset)\n\nDoes not impact Mangagamer or OG CGs.
 			});
 
 			radioBackgrounds = new MODRadio(Loc.MODMenuNormal_35, new GUIContent[]{ //Background Style
@@ -134,6 +145,12 @@ namespace MOD.Scripts.UI
 				new GUIContent(Loc.MODMenuNormal_67, Loc.MODMenuNormal_68), //16:9 (default) | The game's aspect ratio will be 16:9.\n\nWhen playing in OG mode, the left and right of the screen will be padded to 4:3 with black bars.
 				new GUIContent("4:3", Loc.MODMenuNormal_69 //The game's aspect ratio will be 4:3, however this may cause some issues when playing our mod.\nOnly use this option if your monitor is 4:3 aspect ratio, like an old CRT monitor.\n\nPlease note the following:\n\n - You should enable the Original/Ryukishi preset before enabling this option. Using other settings should all work, but are not well tested.\n\n - 16:9 images will be squished to fit in 4:3 so they don't get cut off. This includes text images, and PS3 CG images if enabled.\n\n - You may see graphical artifacts just after this is enabled - they should fix after the next character transition or text clear\n\n
 				),
+			});
+
+			radioRyukishiExperimentalAspectScalingMode = new MODRadio(Loc.MODMenu43CGScalingModeTitle, new GUIContent[]{
+				new GUIContent(Loc.MODMenu43CGScalingModeLetterBoxName, Loc.MODMenu43CGScalingModeLetterBoxDescription),
+				new GUIContent(Loc.MODMenu43CGScalingModeStretchName, Loc.MODMenu43CGScalingModeStretchDescription),
+				new GUIContent(Loc.MODMenu43CGScalingModeCropName, Loc.MODMenu43CGScalingModeCropDescription)
 			});
 
 			customFlagPreset = Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetCustomFlagPresetInstance();
@@ -261,6 +278,16 @@ namespace MOD.Scripts.UI
 				GameSystem.Instance.SceneController.ReloadAllImages();
 			}
 
+			// Only show this option if "Ryukishi 4:3 Mode" and "Show CGs" are both enabled
+			if(GetGlobal("GRyukishiMode43Aspect") != 0  && GetGlobal("GHideCG") == 0)
+			{
+				if (this.radioRyukishiExperimentalAspectScalingMode.OnGUIFragment(GetGlobal("GRyukishiMode43CGScalingMode")) is int cgScalingMode)
+				{
+					SetGlobal("GRyukishiMode43CGScalingMode", cgScalingMode);
+					GameSystem.Instance.SceneController.ReloadAllImages();
+				}
+			}
+
 			if (Assets.Scripts.Core.Buriko.BurikoMemory.Instance.GetFlag("NVL_in_ADV").IntValue() == 1)
 			{
 				Label(Loc.MODMenuNormal_80); //WARNING: You have ADV mode enabled, but you are in a forced-NVL section, so the game will display in NVL mode temporarily!
@@ -282,6 +309,15 @@ namespace MOD.Scripts.UI
 			{
 				SetGlobal("GVideoOpening", openingVideoLevelZeroIndexed + 1);
 			};
+
+			// Some chapters have no options, so in that case don't show the choice option.
+			if (showChoiceModeOption)
+			{
+				if (this.radioChoiceMode.OnGUIFragment(GetGlobal("GChoiceMode")) is int choiceMode)
+				{
+					SetGlobal("GChoiceMode", choiceMode);
+				}
+			}
 		}
 
 
@@ -512,7 +548,12 @@ namespace MOD.Scripts.UI
 
 		public string DefaultTooltip()
 		{
-			return Loc.MODMenuNormal_129; //Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown : Advance Text\nLeftArrow,Pageup : See Backlog\nESC : Open Menu\nCtrl : Hold Skip Mode\nA : Auto Mode\nS : Toggle Skip Mode\nF, Alt-Enter : FullScreen\nSpace : Hide Text\nL : Swap Language\n\n[MOD Hotkeys]\nF1 : ADV-NVL MODE\nF2 : Voice Matching Level\nF3 : Effect Level (Not Used)\nF5 : QuickSave\nF7 : QuickLoad\nF10 : Mod Menu\nM : Increase Voice Volume\nN : Decrease Voice Volume\nP : Cycle through art styles\n2 : Cycle through BGM/SE\n7 : Enable/Disable Lip-Sync\nLShift + M : Voice Volume MAX\nLShift + N : Voice Volume MINN
+			return Loc.MODMenuNormal_129; //Hover over a button on the left panel for its description.\n\n[Vanilla Hotkeys]\nEnter,Return,RightArrow,PageDown...
+		}
+
+		public static void ShowChoiceModeOption(bool shouldShow)
+		{
+			showChoiceModeOption = shouldShow;
 		}
 	}
 }

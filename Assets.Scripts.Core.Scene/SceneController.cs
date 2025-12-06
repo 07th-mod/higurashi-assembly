@@ -866,7 +866,7 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator GetScreenshotCoroutine(Action<Texture2D> OnFinishAction)
 		{
 			yield return new WaitForEndOfFrame();
-			RenderTexture rt = new RenderTexture(800, 600, 24);
+			RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
 			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
 			ScreenshotCamera.targetTexture = rt;
 			ScreenshotCamera.Render();
@@ -880,7 +880,7 @@ namespace Assets.Scripts.Core.Scene
 		private IEnumerator WriteScreenshotToFile(string path)
 		{
 			yield return new WaitForEndOfFrame();
-			RenderTexture rt = new RenderTexture(800, 600, 24);
+			RenderTexture rt = new RenderTexture(AssetManager.ScreenshotWidth, AssetManager.ScreenshotHeight, 24);
 			ScreenshotCamera.cullingMask = ((1 << GetActiveLayerMask()) | (1 << LayerMask.NameToLayer("Scene3")));
 			ScreenshotCamera.targetTexture = rt;
 			ScreenshotCamera.Render();
@@ -888,10 +888,10 @@ namespace Assets.Scripts.Core.Scene
 			Texture2D tex = new Texture2D(rt.width, rt.height);
 			tex.ReadPixels(new Rect(0f, 0f, rt.width, rt.height), 0, 0, recalculateMipMaps: true);
 			tex.Apply();
-			byte[] texout = tex.EncodeToPNG();
+			byte[] texout = tex.EncodeToJPG(90);
 			ScreenshotCamera.targetTexture = null;
 			UnityEngine.Object.Destroy(rt);
-			File.WriteAllBytes(path, texout);
+			MODUtilityNoDeps.WriteAllBytesSemiAtomic(path, texout);
 		}
 
 		public void WriteScreenshot(string path)
@@ -1181,9 +1181,17 @@ namespace Assets.Scripts.Core.Scene
 			StartCoroutine(MODLipSyncCoroutine);
 		}
 
-		private bool MODSkipImage(string backgroundfilename)
+		private bool MODSkipImage(string textureName)
 		{
-			if(Buriko.BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() == 1 && backgroundfilename.Contains("scene/"))
+			// We only want to skip Console CGs (in the "CG" folder), so ignore images not in the "CG" folder.
+			AssetManager.Instance.PathToAssetFromTextureNameNoExt(textureName, out string subFolderUsed);
+			if (subFolderUsed == null || subFolderUsed != "CG")
+			{
+				return false;
+			}
+
+			// In the game script, Console CG names always start with "scene/" folder, like "scene/303c"
+			if (Buriko.BurikoMemory.Instance.GetGlobalFlag("GHideCG").IntValue() == 1 && textureName.StartsWith("scene/"))
 			{
 				return true;
 			}
