@@ -2070,11 +2070,12 @@ namespace Assets.Scripts.Core.Buriko
 			return BurikoVariable.Null;
 		}
 
+		// This function is only used on Chapter 6 (tsumihoroboshi) onwards
 		private BurikoVariable OperationGetRandomNumber()
 		{
 			SetOperationType("GetRandomNumber");
 			int num = ReadVariable().IntValue();
-			int i = UnityEngine.Random.Range(0, num - 1);
+			int i = UnityEngine.Random.Range(0, num);
 			return new BurikoVariable(i);
 		}
 

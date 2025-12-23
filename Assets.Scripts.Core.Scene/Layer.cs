@@ -171,20 +171,28 @@ namespace Assets.Scripts.Core.Scene
 		{
 			// Disable ryukishi clamp for sprites which are about to move
 			// Should reset the sprite mesh to default size (the size of texture)
-			if (cachedIsBustShot)
+			if (!cachedIsBustShot)
 			{
-				EnsureCorrectlySizedMesh(
-					primary.width,
-					primary.height,
-					alignment,
-					origin,
-					isBustShot: cachedIsBustShot,
-					finalXOffset: (int)base.transform.localPosition.x,
-					texturePath: null,
-					textureNameFromGameScript: PrimaryName,
-					disableRyukishiClamp: true
-				);
+				return;
 			}
+
+			// If an yet unused layer is moved, primary will be null since nothing has been drawn to the layer yet.
+			if(primary == null)
+			{
+				return;
+			}
+
+			EnsureCorrectlySizedMesh(
+				primary.width,
+				primary.height,
+				alignment,
+				origin,
+				isBustShot: cachedIsBustShot,
+				finalXOffset: (int)base.transform.localPosition.x,
+				texturePath: null,
+				textureNameFromGameScript: PrimaryName,
+				disableRyukishiClamp: true
+			);
 		}
 
 		public void MoveLayerEx(Vector3[] path, int points, float alpha, float time)
