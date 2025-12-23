@@ -1936,12 +1936,28 @@ namespace Assets.Scripts.Core.Buriko
 		}
 
 		// This function is only used on Chapter 6 (tsumihoroboshi) onwards
+		//
+		// This function returns an integer [0, maxExclusive), where maxExclusive
+		// is input to this function in the game script.
+		//
+		// For example, GetRandomNumber(3) would return either 0, 1, or 2
+		// Refer to _tsum_003_3.txt for an example usage.
+		//
+		// It is just a wrapper around the UnityEngine.Random.Range(...) with
+		// first argument `minInclusive` always set to 0.
+		//
+		// Please note that in unity:
+		// - the float overload of Random.Range is INCLUSIVE on the max range
+		// - the int overload of Random.Range for EXCLUSIVE on the max range
 		private BurikoVariable OperationGetRandomNumber()
 		{
 			SetOperationType("GetRandomNumber");
-			int num = ReadVariable().IntValue();
-			int i = UnityEngine.Random.Range(0, num);
-			return new BurikoVariable(i);
+			int maxExclusive = ReadVariable().IntValue();
+
+			// Since the int overload of Random.Range for EXCLUSIVE on the max range
+			// we can pass in the max range directly.
+			int randomInteger = UnityEngine.Random.Range(0, maxExclusive);
+			return new BurikoVariable(randomInteger);
 		}
 
 		public int GetPositionByLineNumber(int linenum)
