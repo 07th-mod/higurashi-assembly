@@ -545,6 +545,15 @@ namespace Assets.Scripts.Core.Audio
 
 		public void MODPlayVoiceLS(string filename, int channel, float volume, int character)
 		{
+			// If voice volume set to 0, skip executing MODPlayVoiceLS(...) altogether.
+			// This ensures that, for users who have voices "turned off":
+			// - No unecessary delays waiting for voices to play out in Auto Mode
+			// - Lipsync is automatically disabled when voice volume is 0
+			if (VoiceVolume <= 0f)
+			{
+				return;
+			}
+
 			MODTextController.MODCurrentVoiceLayerDetect = channel;
 			AudioLayerUnity audio = channelDictionary[GetChannelByTypeChannel(AudioType.Voice, channel)];
 			if (currentAudio[AudioType.Voice].ContainsKey(channel))
