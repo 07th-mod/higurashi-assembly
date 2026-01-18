@@ -198,7 +198,8 @@ namespace Assets.Scripts.Core.Audio
 			audioSource.clip = audioClip;
 			audioSource.loop = isLoop;
 			audioSource.priority = audioController.GetPriorityByType(audioType);
-			volume = audioController.GetVolumeByType(audioType) * subVolume;
+			volume = audioController.GetVolumeByType(audioType);
+			audioSource.volume = volume * subVolume;
 			audioSource.Play();
 			isReady = true;
 			if (onFinishLoad != null)

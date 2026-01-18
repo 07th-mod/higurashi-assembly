@@ -1,3 +1,4 @@
+using Assets.Scripts.Core.Buriko;
 using MOD.Scripts.Core;
 using MOD.Scripts.Core.Audio;
 using MOD.Scripts.Core.TextWindow;
@@ -510,8 +511,30 @@ namespace Assets.Scripts.Core.Audio
 			}
 		}
 
+		public static bool GlobalFlagAffectsAudio(string globalFlagName)
+		{
+			switch(globalFlagName)
+			{
+				case "GVoiceVolume":
+				case "GBGMVolume":
+				case "GSEVolume":
+					return true;
+			}
+
+			return false;
+		}
+
 		public void RefreshLayerVolumes()
 		{
+			if(BurikoMemory.Instance != null)
+			{
+				BurikoMemory memory = BurikoMemory.Instance;
+				VoiceVolume = (float)memory.GetGlobalFlag("GVoiceVolume").IntValue() / 100f;
+				BGMVolume = (float)memory.GetGlobalFlag("GBGMVolume").IntValue() / 100f;
+				SoundVolume = (float)memory.GetGlobalFlag("GSEVolume").IntValue() / 100f;
+				SystemVolume = (float)memory.GetGlobalFlag("GSEVolume").IntValue() / 100f;
+			}
+
 			for (int i = 0; i < 6; i++)
 			{
 				AudioLayerUnity audioLayerUnity = channelDictionary[GetChannelByTypeChannel(AudioType.BGM, i)];
