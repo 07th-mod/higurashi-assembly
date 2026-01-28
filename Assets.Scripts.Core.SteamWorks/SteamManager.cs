@@ -22,29 +22,44 @@ namespace Assets.Scripts.Core.SteamWorks
 			Debug.LogWarning(pchDebugText);
 		}
 
+		private static bool isSteamGame = false;
+		public static bool IsSteamGame() => isSteamGame;
+
 		private void Awake()
 		{
-			if (s_instance != null)
+			try
 			{
-				UnityEngine.Object.Destroy(base.gameObject);
+				if (s_instance != null)
+				{
+					UnityEngine.Object.Destroy(base.gameObject);
+				}
+				else
+				{
+					s_instance = this;
+					UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
+					if (!Packsize.Test())
+					{
+						Debug.LogError("[Steamworks.NET] Packsize Test returned false, the wrong version of Steamworks.NET is being run in this platform.", this);
+					}
+					if (!DllCheck.Test())
+					{
+						Debug.LogError("[Steamworks.NET] DllCheck Test returned false, One or more of the Steamworks binaries seems to be the wrong version.", this);
+					}
+
+					// If execution reached this point, is probably a Steam install (even if steam is not running),
+					// as the above calls will fail with a DllNotFoundException
+					isSteamGame = true;
+
+					m_bInitialized = SteamAPI.Init();
+					if (!m_bInitialized)
+					{
+						Debug.LogError("[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.", this);
+					}
+				}
 			}
-			else
+			catch (DllNotFoundException e)
 			{
-				s_instance = this;
-				UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
-				if (!Packsize.Test())
-				{
-					Debug.LogError("[Steamworks.NET] Packsize Test returned false, the wrong version of Steamworks.NET is being run in this platform.", this);
-				}
-				if (!DllCheck.Test())
-				{
-					Debug.LogError("[Steamworks.NET] DllCheck Test returned false, One or more of the Steamworks binaries seems to be the wrong version.", this);
-				}
-				m_bInitialized = SteamAPI.Init();
-				if (!m_bInitialized)
-				{
-					Debug.LogError("[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.", this);
-				}
+				Debug.Log($"[SteamManager]: Steam DLL not found - {e.Message}");
 			}
 		}
 
