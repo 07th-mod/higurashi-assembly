@@ -1,7 +1,9 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.AssetManagement;
+using Assets.Scripts.Core.Buriko;
 using Assets.Scripts.Core.State;
 using MOD.Scripts.Core.Movie;
+using MOD.Scripts.Core.Scene;
 using MOD.Scripts.UI;
 using System.IO;
 using UnityEngine;
@@ -115,7 +117,14 @@ namespace MOD.Scripts.Core.State
 			// for details on special texture name AssetManager.MOVIE_TEXTURE_NAME used for movie playback
 			// Chapters 1-9 only have 16:9 videos
 			// Chapter 10 has both 16:9 and 4:3 videos, but has a different way of movie playback (StateMovie/ModPlayMovie is depreciated/never used on Ch.10)
+			GameSystem.Instance.SceneController.DrawBustshot(3, "sprite/re1a_bikkuri_a1_", x: 160, y: 0, z: 0, oldx: 0, oldy: 0, oldz: 0, move: false, priority: 0, type: 0, wait: 0, isblocking: false);
+			GameSystem.Instance.TextController.SetText("Hello", "Hello", BurikoTextModes.Normal, 1);
+			GameSystem.Instance.TextController.SetText("Hello", "Hello", BurikoTextModes.Normal, 2);
+			GameSystem.Instance.ExecuteActions();
 			movieInfo.Layer.DrawLayer(AssetManager.MOVIE_TEXTURE_NAME, 0, 0, 0, null, 1f, /*isBustshot:*/ false, 0, 0f, /*isBlocking:*/ false);
+
+			//ModDrawCharacter(3, 2, "sprite/re1a_bikkuri_a1_", "2", 160, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, 20, 200, TRUE);
+
 		}
 	}
 }

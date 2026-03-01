@@ -1,4 +1,5 @@
 using Assets.Scripts.Core;
+using Assets.Scripts.Core.Scene;
 using RenderHeads.Media.AVProVideo;
 using UnityEngine;
 
@@ -9,6 +10,10 @@ namespace MOD.Scripts.Core.Movie
 		public MeshRenderer Renderer;
 
 		public bool isStarted;
+
+		private Layer MovieInfoLayer;
+
+		MediaPlayer mediaPlayer;
 
 		public void OnAvProVideoEvent(MediaPlayer mp, MediaPlayerEvent.EventType et, ErrorCode errorCode)
 		{
@@ -27,6 +32,9 @@ namespace MOD.Scripts.Core.Movie
 						Renderer.enabled = true;
 						isStarted = true;
 						break;
+					case MediaPlayerEvent.EventType.Started:
+						MovieInfoLayer.MoveLayer(100, 100, -1, 0.5f, 0, 0, isBlocking: false, adjustAlpha: true);
+						break;
 					case MediaPlayerEvent.EventType.FinishedPlaying:
 						Quit();
 						GameSystem.Instance.PopStateStack();
@@ -34,6 +42,12 @@ namespace MOD.Scripts.Core.Movie
 					}
 				}
 			}
+		}
+
+		private void Update()
+		{
+			GameSystem.Instance.TextController.ForceText($"Time passed: {mediaPlayer.Control.GetCurrentTimeMs()}");
+			GameSystem.Instance.MainUIController.ShowMessageBox();
 		}
 
 		public void Quit()
@@ -52,7 +66,8 @@ namespace MOD.Scripts.Core.Movie
 
 		public void Init(MovieInfo movieInfo)
 		{
-			MediaPlayer mediaPlayer = base.gameObject.AddComponent<MediaPlayer>();
+			mediaPlayer = base.gameObject.AddComponent<MediaPlayer>();
+			mediaPlayer.DisplayDebugGUI = true;
 			mediaPlayer.Events.AddListener(OnAvProVideoEvent);
 			mediaPlayer.m_AutoOpen = true;
 			mediaPlayer.m_AutoStart = true;
@@ -62,6 +77,8 @@ namespace MOD.Scripts.Core.Movie
 			mODApplyToMaterial._material = movieInfo.Layer.MODMaterial;
 			mODApplyToMaterial._texturePropertyName = "_Primary";
 			mODApplyToMaterial._media = mediaPlayer;
+			MovieInfoLayer = movieInfo.Layer;
+
 			Renderer = movieInfo.Layer.MODMeshRenderer;
 			Renderer.enabled = false;
 			base.gameObject.AddComponent<AudioOutput>().ChangeMediaPlayer(mediaPlayer);

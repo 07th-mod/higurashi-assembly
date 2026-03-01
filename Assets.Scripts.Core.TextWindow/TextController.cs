@@ -540,6 +540,11 @@ namespace Assets.Scripts.Core.TextWindow
 			}
 		}
 
+		public void ForceText(string text)
+		{
+			TextArea.text = text;
+		}
+
 		public void Update()
 		{
 			if (isFading)

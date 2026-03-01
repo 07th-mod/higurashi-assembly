@@ -462,6 +462,11 @@ namespace Assets.Scripts.Core
 			StartCoroutine(ActionRunner());
 			CanAdvance = false;
 		}
+		public void ExecuteActions2()
+		{
+			StartCoroutine(ActionRunner());
+			CanAdvance = true;
+		}
 
 		private IEnumerator ActionRunner()
 		{
