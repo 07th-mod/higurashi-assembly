@@ -1,3 +1,4 @@
+using MOD.Scripts.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -694,6 +695,7 @@ namespace TMPro
 				{
 					havePropertiesChanged = true;
 					m_textAlignment = value;
+					//MODLogger.Log($"Was set to {m_textAlignment}", withContext: true);
 				}
 			}
 		}
@@ -2383,6 +2385,7 @@ namespace TMPro
 					}
 					else
 					{
+
 						if (m_characterCount < m_textInfo.characterInfo.Length)
 						{
 							m_textInfo.characterInfo[m_characterCount].character = '\0';
@@ -2471,13 +2474,15 @@ namespace TMPro
 									case TextAlignmentOptions.Left:
 									case TextAlignmentOptions.BottomLeft:
 									case TextAlignmentOptions.BaselineLeft:
-										vector9 = Vector3.zero;
+											MODLogger.Log($"Is this being called", true);
+											vector9 = Vector3.zero;
 										break;
 									case TextAlignmentOptions.Top:
 									case TextAlignmentOptions.Center:
 									case TextAlignmentOptions.Bottom:
 									case TextAlignmentOptions.Baseline:
 										vector9 = new Vector3(m_marginWidth / 2f - tMP_LineInfo.maxAdvance / 2f, 0f, 0f);
+											MODLogger.Log($"v9: {vector9} m_marginWidth: {m_marginWidth}, tMP_LineInfo.maxAdvance: {tMP_LineInfo.maxAdvance}", false);
 										break;
 									case TextAlignmentOptions.TopRight:
 									case TextAlignmentOptions.Right:

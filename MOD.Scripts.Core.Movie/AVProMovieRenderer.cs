@@ -3,6 +3,7 @@ using Assets.Scripts.Core.Scene;
 using Assets.Scripts.UI.Choice;
 using RenderHeads.Media.AVProVideo;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.Movie
@@ -16,6 +17,8 @@ namespace MOD.Scripts.Core.Movie
 		private Layer MovieInfoLayer;
 
 		MediaPlayer mediaPlayer;
+
+		ChoiceButton cb;
 
 		public void OnAvProVideoEvent(MediaPlayer mp, MediaPlayerEvent.EventType et, ErrorCode errorCode)
 		{
@@ -48,8 +51,11 @@ namespace MOD.Scripts.Core.Movie
 
 		private void Update()
 		{
-			GameSystem.Instance.TextController.ForceText($"Time passed: {mediaPlayer.Control.GetCurrentTimeMs()}");
-			GameSystem.Instance.MainUIController.ShowMessageBox();
+			//GameSystem.Instance.TextController.ForceText($"Time passed: {mediaPlayer.Control.GetCurrentTimeMs()}");
+			//GameSystem.Instance.MainUIController.ShowMessageBox();
+			//Debug.Log($"{cb.ButtonTextMesh.alignment}");
+
+
 		}
 
 		public void Quit()
@@ -82,10 +88,11 @@ namespace MOD.Scripts.Core.Movie
 			MovieInfoLayer = movieInfo.Layer;
 
 			//GameSystem.Instance.DisplayChoices(new List<string>() { "aasdf" }, 1);
+			MODLogger.Log("Spawning Text", true);
 			TextSpawner spawner = new TextSpawner();
-			spawner.SpawnText("asdf");
+			cb = spawner.SpawnText("This is a long line");
 
-			GameSystem.Instance.TextController.ForceText($"Time passed: ");
+			//GameSystem.Instance.TextController.ForceText($"Time passed: ");
 
 			Renderer = movieInfo.Layer.MODMeshRenderer;
 			Renderer.enabled = false;

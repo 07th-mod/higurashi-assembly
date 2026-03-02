@@ -2,6 +2,8 @@ using Assets.Scripts.Core;
 using Assets.Scripts.Core.Audio;
 using UnityEngine;
 using TMPro;
+using Assets.Scripts.Core.Buriko;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.UI.Choice
 {
@@ -25,7 +27,7 @@ namespace Assets.Scripts.UI.Choice
 
 		private bool isEnabled = true;
 
-		private TextMeshPro ButtonTextMesh;
+		public TextMeshPro ButtonTextMesh;
 
 		private void UpdateAlpha(float alpha)
 		{
