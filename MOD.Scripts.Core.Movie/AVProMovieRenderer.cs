@@ -1,6 +1,8 @@
 using Assets.Scripts.Core;
 using Assets.Scripts.Core.Scene;
+using Assets.Scripts.UI.Choice;
 using RenderHeads.Media.AVProVideo;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MOD.Scripts.Core.Movie
@@ -78,6 +80,12 @@ namespace MOD.Scripts.Core.Movie
 			mODApplyToMaterial._texturePropertyName = "_Primary";
 			mODApplyToMaterial._media = mediaPlayer;
 			MovieInfoLayer = movieInfo.Layer;
+
+			//GameSystem.Instance.DisplayChoices(new List<string>() { "aasdf" }, 1);
+			TextSpawner spawner = new TextSpawner();
+			spawner.SpawnText("asdf");
+
+			GameSystem.Instance.TextController.ForceText($"Time passed: ");
 
 			Renderer = movieInfo.Layer.MODMeshRenderer;
 			Renderer.enabled = false;
